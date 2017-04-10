@@ -49,8 +49,8 @@ class ListeManager {
 
 		//Exécution de la requête
 		$reponse = $db->executerRequete($requete);
-		if($reponse->erreur){
-			return false;
+		if($reponse->erreur()){
+			return $reponse;
 		}
 
 		//Création de l'objet de réponse
@@ -69,7 +69,6 @@ class ListeManager {
 				$titres = $reponse->getNomColonnes();
 				return $this->template->construireListe($liste, $titres);
 		}
-		return false;
 	}
 
 	//Getters

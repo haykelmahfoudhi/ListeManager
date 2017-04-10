@@ -30,7 +30,7 @@ class ReponseRequete {
 	 */
 	public function ligneSuivante(){
 		if(!$this->erreur()){
-			return $this->statement->fetch();
+			return $this->statement->fetch(PDO::FETCH_NUM);
 		}
 		return false;
 	}
@@ -40,7 +40,7 @@ class ReponseRequete {
 	 */
 	public function listeResultat(){
 		if(!$this->erreur()){
-			return $this->statement->fetchAll();
+			return $this->statement->fetchAll(PDO::FETCH_NUM);
 		}
 		return false;
 	}
