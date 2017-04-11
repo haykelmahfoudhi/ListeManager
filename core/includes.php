@@ -1,8 +1,8 @@
 <?php
 
-define('CORE', '/core/');
-define('LIB', '/lib/');
+define('CORE', 'core/');
+define('LIB', 'lib/');
 
-require 'autoloader.php';
+require_once 'autoloader.php';
 
 ?>

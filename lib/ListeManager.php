@@ -9,8 +9,9 @@
  */
 class ListeManager {
 	
-	//Attribus
-	
+			/********************
+			***   ATTRIBUTS   ***
+			********************/
 	/**
 	 * 
 	 */
@@ -21,20 +22,29 @@ class ListeManager {
 	 */
 	private $template;
 
+	private $requeteSQL;
+
 	private static $instance = null;
 	
 	
-	// Constructeur
+			/***********************
+			***   CONSTRUCTEUR   ***
+			***********************/
 
-	private __construct(){
+	private function __construct(){
 		$this->typeReponse = TypeReponse::TEMPLATE;
-		$this->template = new Template();
+		$this->template = new TemplateListe();
 	}
 
-	//Méthodes
+			/*******************
+			***   METHODES   ***
+			*******************/
 
-	public function construireRequete($baseSQL){
-
+	public function construireRequeteAvecGET($baseSQL){
+		
+		// Instanciation de l'objet RequeteSQL
+		$this->requeteSQL = new RequeteSQL($baseSQL);
+		$this->requeteSQL->
 	}
 
 	/**
@@ -71,21 +81,36 @@ class ListeManager {
 		}
 	}
 
-	//Getters
 
+			/******************
+			***   GETTERS   ***
+			******************/
+
+	/**
+	* @return ListeManager la seule instance de la classe Liste Manager
+	*/
 	public static function getInstance(){
 		if(self::$instance == null)
 			self::$instance = new PHPLib();
 		return self::$instance;
 	}
 
-	// Setters
+	/**
+	* @return TemplateListe l'objet template des liste de l'objet
+	*/
+	public function getTemplateListe(){
+		return $this->template;
+	}
+
+			/******************
+			***   SETTERS   ***
+			******************/
 
 	public function setReponse(TypeReponse $typeReponse){
 		$this->typeReponse = $typeReponse;
 	}
 
-	public function setTemplate(Template $template){
+	public function setTemplateListe(TemplateListe $template){
 		$this->template = $template;
 	}
 

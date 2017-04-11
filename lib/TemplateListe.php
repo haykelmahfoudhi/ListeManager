@@ -41,7 +41,7 @@ final class TemplateListe {
 
 		//Création des titres
 		foreach ($titres as $titre) {
-			$ret .= "<th>$titre</th>"
+			$ret .= "<th>$titre</th>";
 		}
 		$ret .= "</tr>\n";
 
