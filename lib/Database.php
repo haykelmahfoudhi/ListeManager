@@ -17,7 +17,7 @@
 
 
 /**
- * 
+ * << MULTITON >>
  * @author RookieRed
  *
  */
@@ -29,7 +29,8 @@ class Database {
 			********************/
 
 	private $pdo;
-	private static $instance = null;
+	private $etiquette;
+	private static $instances = array();
 	
 	
 		/***********************
@@ -42,13 +43,14 @@ class Database {
 	 * @param stirng $login le nom d'utilisateur pour la connexion
 	 * @param stirng $mdp son mot de passe
 	 */
-	private function __construct($dsn, $login, $mdp){
+	private function __construct($dsn, $login, $mdp, $etiquette) {
+		$this->etiquette = $etiquette;
 		try {
 			$this->pdo = new PDO($dsn, $login, $mdp);
-			
-		} catch (Exception $e) {
+		}
+		catch (Exception $e) {
 			$this->pdo = null;
-			echo "Connection à la base de données impossible :\n".$e->getMessage();
+			echo "<b>[!]</b>Connection à la base de données impossible :\n".$e->getMessage();
 		}
 	}
 	
@@ -58,15 +60,27 @@ class Database {
 			*******************/
 
 	/**
-	 * Instancie une nouvelle connexion avec la base de données via un objet PDO contenu dans l'objet Database
-	 * @param string $dsn le DSN (voir le manuel PHP concernant PDO)
-	 * @param stirng $login le nom d'utilisateur pour la connexion
-	 * @param stirng $mdp son mot de passe
+	 * Instancie une nouvelle connexion avec la base de données via un objet PDO
+	 * @param string $dsn le DSN de la connection (voir le manuel PHP concernant PDO)
+	 * @param string $login le nom d'utilisateur de la BD
+	 * @param string $mdp le mot de passe de l'utilisateur
+	 * @param string $etiquette (facultatif) l'etiquette de la base de données, utile si plusieurs bases de données sont
+	 * utilisées en même temps dans l'application
 	 * @return Database : l'instance de Database créé et connecté, ou null en cas d'echec.
 	 */
-	public static function connecter($dsn, $login, $mdp){
-		self::$instance = new self($dsn, $login, $mdp);
-		return self::$instance;
+	public static function instancier($dsn, $login, $mdp, $etiquette='principale'){
+		$nouvelleInstance = new self($dsn, $login, $mdp, $etiquette);
+		if($nouvelleInstance->pdo == null)
+			return null;
+
+		if(isset(self::$instances[$etiquette])){
+			echo '<b>[!]</b>Database::instancier() : Il existe déjà une BD portant l\'étiquette "'
+				.$etiquette.'", veuillez en spécifier une nouvelle';
+			return null;
+		}
+
+		self::$instances[$etiquette] = $nouvelleInstance;
+		return $nouvelleInstance;
 	}
 	
 	/**
@@ -78,7 +92,7 @@ class Database {
 		if($this->pdo == null)
 			return false;
 
-		//On transforme la RequeteSQL en string
+		//On transforme l'objet RequeteSQL en string
 		if($requete instanceof RequeteSQL)
 			$requete = $requete->__toString();
 
@@ -86,7 +100,7 @@ class Database {
 		$statement = $this->pdo->query($requete);
 		if($statement == false)
 			return new ReponseRequete($statement, true,
-				self::$instance->errorInfo()[2]);
+				$this->pdo->errorInfo()[2]);
 		else 
 			return new ReponseRequete($statement);
 	}
@@ -97,19 +111,45 @@ class Database {
 			******************/
 	
 	/**
-	 * Retourne la seule instance de la base de données de l'application
-	 * @return Database : l'instance de Database ( ! peut retourner null si mal connecté)
+	 * Retourne une instance de la base de données de l'application
+	 * @param int $etiquette : l'etiquette de la base de données. Par défaut retourne la principale
+	 * @return Database : l'instance de Database ( ! peut retourner null si erreur)
 	 */
-	public static function getIstance(){
-		return self::$instance;
+	public static function getInstance($etiquette='principale'){
+		if(!isset(self::$instances[$etiquette]))
+			return null;
+
+		return self::$instances[$etiquette];
 	}
 
 	/**
 	* Fonction de débug
-	* @return PDO : l'instance de l'objet PDO de cette Database
+	* @return PDO : l'objet PDO de contenu dans cette instance de Database.
 	*/
 	public function getPDO(){
 		return $this->pdo;
+	}
+
+	/**
+	* @return string l'etiquette de la base de données
+	*/
+	public function getEtiquette(){
+		return $this->etiquette;
+	}
+
+	/**
+	* Définit une nouvelle étiquette pour la base de données.
+	* Cette nouvelle étiquette ne doit pas être déjà utilisée par une autre base de données
+	* @param string $nouvEtiquette la nouvelle étiquette de la base de données
+	* @return boolean vrai si la BD a été renommée, faux sinon
+	*/
+	public function setEtiquette($nouvEtiquette){
+		if($nouvEtiquette == null || isset(self::$instances[$nouvEtiquette]))
+			return false;
+
+		self::$instances[$nouvEtiquette] = $this;
+		unset(self::$instances[$this->etiquette]);
+		$this->etiquette = $nouvEtiquette;
 	}
 
 }

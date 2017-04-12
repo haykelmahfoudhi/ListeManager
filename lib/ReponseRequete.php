@@ -17,7 +17,6 @@ class ReponseRequete {
 	private $statement;
 	private $erreur;
 	private $messageErreur;
-	public $data;
 	
 
 		/***********************
@@ -46,7 +45,7 @@ class ReponseRequete {
 	}
 	
 	/**
-	 * @return array : l'ensemble des résultats de la requête contenu dans un tableau ( -> fetchALl)
+	 * @return array : l'ensemble des résultats de la requête contenu dans un tableau ( -> fetchAll)
 	 */
 	public function listeResultat(){
 		if(!$this->erreur()){
@@ -101,10 +100,10 @@ class ReponseRequete {
 	}
 
 	/**
-	* @return un tableau d'objet contenant les infos relatives au type de données de chaque colonne
-	*	Cet objet possède les attribus suivants
+	* @return un tableau d'objets contenant les infos relatives au type de données de chaque colonne
+	*	Cet objet possède les attribus suivants :
 	* 		-> type : le type de données SQL 
-	* 		-> len  : la longueur du champs
+	* 		-> len  : la taille de la donnée
 	* Retourne faux si erreur
 	*/
 	public function getTypeColonnes(){

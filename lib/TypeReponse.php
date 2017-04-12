@@ -10,6 +10,7 @@ class TypeReponse {
 	const TABLEAU = 2;
 	const EXCEL = 3;
 	const TEMPLATE = 4;
+	const JSON = 5;
 }
 
 ?>
