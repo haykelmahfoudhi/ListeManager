@@ -50,6 +50,10 @@ class RequeteSQL {
 			***   METHODES   ***
 			*******************/
 
+	/**
+	* Supprime la seléction des colonnes dont les numéros sont passés en paramètre
+	* 
+	*/
 	public function masquer($numColonne){
 
 	}
@@ -65,23 +69,23 @@ class RequeteSQL {
 
 	/**
 	* Ajoute une ou plusieurs colonnes au bloc order by de la requete
-	* @param mixed $colonne : correpsond numéro de la (ou des) colonne(s) à ajouter au group by.
+	* @param mixed $numColonne : correpsond numéro de la (ou des) colonne(s) à ajouter au group by.
 	*	Pour ajouter plusieurs colonnes ce paramèttre doit etre un array, sinon c'est un int.
 	*	Pour classer la colonnes par 'DESC' le numéro de colonne doit être négatif.
-	* @return boolean faux si le type de requete n'est pas SELECT ou si le paramètre $colonne est vide.
+	* @return boolean faux si le type de requete n'est pas SELECT ou si le paramètre $numColonne est vide.
 	*/
-	public function orderBy($colonne){
+	public function orderBy($numColonne){
 		//Vérification du type de requete
 		if($this->typeRequete == TypeRequete::SELECT
-			&& (is_int($colonne) || is_array($colonne))){
+			&& (is_int($numColonne) || is_array($numColonne))){
 
-			//Si $colonne est un tableau
-			if(is_array($colonne)){
+			//Si $numColonne est un tableau
+			if(is_array($numColonne)){
 				// Suppression des colonnes déjà existantes
-				foreach ($colonne as $val)
+				foreach ($numColonne as $val)
 					$negColonne[] = -1*$val;
-				$orderBy = array_diff($this->tabOrderBy, $colonne, $negColonne);
-				foreach (array_reverse($colonne) as $col) 
+				$orderBy = array_diff($this->tabOrderBy, $numColonne, $negColonne);
+				foreach (array_reverse($numColonne) as $col) 
 					array_unshift($orderBy, $col);
 				$this->tabOrderBy = array_unique($orderBy);
 			}
@@ -89,12 +93,12 @@ class RequeteSQL {
 			//Sinon si c'est un int
 			else {
 				//Suppression de la valeur existante
-				if(($key = array_search($colonne, $this->tabOrderBy)) != false
-					|| ($key = array_search(-$colonne, $this->tabOrderBy)) != false){
+				if(($key = array_search($numColonne, $this->tabOrderBy)) != false
+					|| ($key = array_search(-$numColonne, $this->tabOrderBy)) != false){
 					unset($this->tabOrderBy[$key]);
 				}
 				// Ajout de la colonne en début
-				array_unshift($this->tabOrderBy, $colonne);
+				array_unshift($this->tabOrderBy, $numColonne);
 			}
 			return true;
 		}
@@ -112,13 +116,6 @@ class RequeteSQL {
 			return true;
 		}
 		return false;
-	}
-
-	/**
-	* @return TypeRequete : le type de la requete SQL
-	*/
-	public function getType(){
-		return $this->typeRequete;
 	}
 
 	/**
@@ -146,9 +143,37 @@ class RequeteSQL {
 				}
 			}
 		}
-		var_dump($this);
 		return $ret.';';
 	}
+
+
+			/******************
+			***   GETTERS   ***
+			******************/
+
+	/**
+	* @return TypeRequete : le type de la requete SQL
+	*/
+	public function getType(){
+		return $this->typeRequete;
+	}
+
+	/**
+	* @return mixed le numéro de la première colonne du order by, négatif si tri décroissant
+	* retourne faux s'il n'y a pas d'order by.
+	*/
+	public function getColOrderBy(){
+		if($this->typeRequete === TypeRequete::SELECT
+			&& count($this->tabOrderBy) > 0){
+			return $this->tabOrderBy[0];
+		}
+		return false;
+	}
+
+
+			/******************
+			***   PRIVATE   ***
+			******************/
 
 	/**
 	* Définit le type de la base de requête en paramètre parmi 

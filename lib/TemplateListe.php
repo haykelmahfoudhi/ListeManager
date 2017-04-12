@@ -2,7 +2,10 @@
 
 final class TemplateListe {
 	
-	// Attributs
+	
+			/********************
+			***   ATTRIBUTS   ***
+			********************/
 	
 	/**
 	 * @var string $id : l'id du tableau HTML
@@ -14,42 +17,73 @@ final class TemplateListe {
 	 * @var string $classe2 : classe des lignes paires
 	 */
 	private $classe1, $classe2;
+	/**
+	* @var boolean $recherche : spécifie si les champs de saisie pour la recherche sont visibles ou non
+	*/
+	private $recherche;
+	/**
+	* @var 
+	*/
+	private $recherche;
 	
-	// Attributs de classe
 	
-	private static $CLASSE1 = 'GRIS';
-	private static $CLASSE2 = 'ORANGE';
+	public static $CLASSE1 = 'GRIS';
+	public static $CLASSE2 = 'ORANGE';
 	
-	// Constructeur
+	
+			/***********************
+			***   CONSTRUCTEUR   ***
+			***********************/
 	
 	public function __construct($id=null, $classe1=null, $classe2=null){
 		$this->id = $id;
 		$this->classe1 = (($classe1 == null)? self::$CLASSE1 : $classe1);
 		$this->classe2 = (($classe2 == null)? self::$CLASSE2 : $classe2);
+		$this->recherche = false;
 	}
 	
 	
-	// Méthodes
+			/*******************
+			***   METHODES   ***
+			*******************/
+
 	/**
 	 * Construit une liste HTML avec le tableau de données passé en paramètres
-	 * @param array $donnees contenant toutes les valeurs à mettre dans la liste
-	 * @param array $titres (facultatif) contenant l'ensemble des titres des colonnes
-	 * @return string : le code HTML de la liste HTML créée
+	 * @param ReponseRequete $reponse contenant l'ensemble des résultats de la requete
+	 * @return string : le code HTML de la liste HTML généré
 	 */
-	public function construireListe(array $donnees, array $titres){
+	public function construireListe(ReponseRequete $reponse){
 		$ret = '<table'.(($this->id == null)?'' : " id ='$this->id' ").'>'."\n<tr>";
 
 		//Création des titres
+		$titres = $reponse->getNomColonnes();
 		foreach ($titres as $titre) {
 			$ret .= "<th>$titre</th>";
 		}
 		$ret .= "</tr>\n";
 
+		//Affichage des champs de saisie pour la  recherche
+		if($this->recherche){
+			$ret .= "<tr>";
+			$types = $reponse->getTypeColonnes();
+			for ($i=0; $i < count($titres); $i++) {
+				//Determine la taille du champs
+				$taille = 
+				$ret .= "<td><input type='text' name='tabselect[]' size='$taille'/></td>";
+			}
+			$ret .= "</tr>\n";
+		}
+
 		//Insertion de données
-		foreach ($donnees as $ligne) {
-			$ret .= '<tr>';
-			foreach ($ligne as $cellule){
-				$ret .= '<td class="'.$this->classe1.'">'.$cellule.'</td>';
+		$donnees = $reponse->listeResultat();
+		for ($i=0; $i < $reponse->getNbLinges(); $i++) {
+			//Gestion des calsses
+			$classe = (($i % 2)? $this->classe2 : $this->classe1);
+			$ret .= '<tr'.(($classe == null)? '' : " class='$classe' ").'>';
+
+			//Construction des cellules
+			foreach ($donnees[$i] as $cellule){
+				$ret .= '<td>'.$cellule.'</td>';
 			}
 			$ret .= "</tr>\n";
 		}
@@ -58,7 +92,9 @@ final class TemplateListe {
 	}
 	
 	
-	// Setters
+			/******************
+			***   SETTERS   ***
+			******************/
 	
 	/**
 	 * Attribue un nouvel id HTML à la liste.
@@ -67,15 +103,24 @@ final class TemplateListe {
 	public function setId($id){
 		$this->id = $id;
 	}
+
+	/**
+	 * Détermine si le template doit afficher la ligne des champs de saisie pour recherche dans la liste
+	 * @param boolean $valeur
+	 */
+	public function afficherChampsRecherche($valeur){
+		if(is_bool($valeur))
+			$this->recherche = $valeur;
+	}
 	
 	/**
 	 * Attribue les nouvelles classes HTML à appliquer une ligne sur deux dans la liste HTML
-	 * @param string $classe1 classe des lignes impaires. Si null, applique la valeur par défaut
-	 * @param string $classe2 classe des linges paires. Si null, applique la valeur par défaut
+	 * @param string $classe1 classe des lignes impaires. Si null rien ne sera appliqué
+	 * @param string $classe2 classe des linges paires. Si null rien ne sera appliqué
 	 */
 	public function setClasseLignes($classe1, $classe2){
-		$this->classe1 = (($classe1 == null)? self::$CLASSE1 : $classe1);
-		$this->classe2 = (($classe2 == null)? self::$CLASSE2 : $classe2);
+		$this->classe1 = $classe1;
+		$this->classe2 = $classe2;
 	}
 	
 }

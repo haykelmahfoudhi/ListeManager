@@ -2,7 +2,6 @@
 
 
 /**
- * << SINGLETON >>
  * 
  * @author RookieRed
  *
@@ -36,26 +35,54 @@ class ListeManager {
 		$this->template = new TemplateListe();
 	}
 
+
 			/*******************
 			***   METHODES   ***
 			*******************/
 
-	public function construireRequeteAvecGET($baseSQL){
-		
-		// Instanciation de l'objet RequeteSQL
-		$this->requeteSQL = new RequeteSQL($baseSQL);
-		$this->requeteSQL->
+	/**
+	* Exécute la requete SQL dont la base est passée en paramètres.
+	* Cette base sera augmentée par les divers paramètres fournis par la variable GET avant d'être exécuté.
+	* Les résultats obtenus seront restitués par cette méthode selon le paramètre $typeReponse de l'objet.
+	* @param mixed $baseSQL : la requete à exécuter. Peut être de type string ou RequeteSQL.
+	* @return mixed : l'objet de réponse dépendant de $typeReponse, paramètrable via la méthode setTypeReponse
+	*/
+	public function executerRequeteGET($baseSQL){
+		if($baseSQL instanceof RequeteSQL)
+			$requeteSQL = $baseSQL;
+		else 
+			$requeteSQL = new RequeteSQL($baseSQL);
+
+		//Construction de la requete à partir de variables GET disponibles
+		if(isset($_GET['mask']))
+			$requeteSQL->masquer($_GET['mask']);
+		if(isset($_GET['tabselect']))
+			$requeteSQL->where($_GET['tabselect']);
+		if(isset($_GET['orderby']))
+			$requeteSQL->orderBy($_GET['orderby']);
+
+		//Exécution de la requete
+		return $this->executerRequete($requeteSQL);
+
 	}
 
 	/**
-	 * 
+	 * Exécute une requete SQL et retourne le résultat dans le format spécifié par typeReponse
+	 * @param mixed $requeteSQL : la requete à exécuter. Peut être de type string ou RequeteSQL.
+	 * @return mixed : l'objet de réponse dépendant de $typeReponse, paramètrable via la méthode setTypeReponse
 	 */
-	public function executerRequete($requete){
+	public function executerRequete($requeteSQL){
+
+		// Gestion du paramètre
+		if($requeteSQL instanceof RequeteSQL)
+			$requete = $requeteSQL->__toString();
+		else 
+			$requete = $requeteSQL;
+
 		// Récupération de l'objet DB
 		$db = Database::getInstance();
-		if($db == null){
+		if($db == null)
 			return false;
-		}
 
 		//Exécution de la requête
 		$reponse = $db->executerRequete($requete);
@@ -75,10 +102,10 @@ class ListeManager {
 				return ; // TODO
 
 			case TypeReponse::TEMPLATE:
-				$liste = $reponse->listeResultat();
-				$titres = $reponse->getNomColonnes();
-				return $this->template->construireListe($liste, $titres);
+				$this->template->afficherChampsRecherche(isset($_GET['Quest']));
+				return $this->template->construireListe($reponse);
 		}
+		return false;
 	}
 
 
@@ -91,7 +118,7 @@ class ListeManager {
 	*/
 	public static function getInstance(){
 		if(self::$instance == null)
-			self::$instance = new PHPLib();
+			self::$instance = new self();
 		return self::$instance;
 	}
 
@@ -106,14 +133,38 @@ class ListeManager {
 			***   SETTERS   ***
 			******************/
 
-	public function setReponse(TypeReponse $typeReponse){
+	/**
+	* 
+	* @param 
+	*/
+	public function setTypeReponse(TypeReponse $typeReponse){
 		$this->typeReponse = $typeReponse;
 	}
 
-	public function setTemplateListe(TemplateListe $template){
+	/**
+	* 
+	* @param 
+	*/
+	public function setTemplate(TemplateListe $template){
 		$this->template = $template;
 	}
 
+	/**
+	* 
+	* @param 
+	*/
+	public function setListeId($id){
+		$this->template->setId($id);
+	}
+
+	/**
+	* 
+	* @param 
+	* @param 
+	*/
+	public function setClasseLignes($classe1, $classe2){
+		$this->template->setClasseLignes($classe1, $classe2);
+	}
 }
 
 ?>

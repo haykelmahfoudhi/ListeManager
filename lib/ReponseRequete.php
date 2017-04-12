@@ -10,21 +10,31 @@
  */
 class ReponseRequete {
 	
-	// Attributs
+			/********************
+			***   ATTRIBUTS   ***
+			********************/
 	
 	private $statement;
 	private $erreur;
 	private $messageErreur;
 	public $data;
 	
-	//Constructeur
+
+		/***********************
+		***   CONSTRUCTEUR   ***
+		***********************/
 	
-	public function __construct(PDOStaement $statement, $erreur=false, $message=''){
+	public function __construct(PDOStatement $statement, $erreur=false, $message=''){
 		$this->statement = $statement;
 		$this->erreur = $erreur;
 		$this->messageErreur = $message;
 	}
 	
+
+			/*******************
+			***   METHODES   ***
+			*******************/
+
 	/**
 	 * @return array : la ligne suivante du résultat de la requête ( -> fetch)
 	 */
@@ -51,9 +61,14 @@ class ReponseRequete {
 	 * @return boolean vrai si erreur ou si l'attribut statement est null
 	 */
 	public function erreur(){
-		return $this->statement == null || $erreur;
+		return $this->statement == null || $this->erreur;
 	}
 	
+
+			/******************
+			***   GETTERS   ***
+			******************/
+
 	/**
 	 * @return string : le message d'erreur associé à l'erreur detectée.
 	 */
@@ -73,6 +88,54 @@ class ReponseRequete {
 			array_push($ret, $this->statement->getColumnMeta($i)['name']);
 		}
 		return $ret;
+	}
+
+	/**
+	* @return int : le nombre de colonnes du résultat de la requete, -1 en cas d'erreur
+	*/
+	public function getNbColonnes(){
+		if($this->erreur())
+			return -1;
+
+		return $this->statement->columnCount();
+	}
+
+	/**
+	* @return un tableau d'objet contenant les infos relatives au type de données de chaque colonne
+	*	Cet objet possède les attribus suivants
+	* 		-> type : le type de données SQL 
+	* 		-> len  : la longueur du champs
+	* Retourne faux si erreur
+	*/
+	public function getTypeColonnes(){
+		if(($len = $this->getNbColonnes()) == -1)
+			return false;
+		for ($i=0; $i < $len; $i++) {
+			$meta = $this->statement->getColumnMeta($i);
+			$obj = new stdClass();
+			$obj->type = $meta['native_type'];
+			$obj->len  = $meta['len'];
+			$ret[] = $obj;
+		}
+		return $ret;
+	}
+
+	/**
+	* @return int : le nombre de lignes du résultat de la requete, -1 en cas d'erreur
+	*/
+	public function getNbLignes(){
+		if($this->erreur())
+			return -1;
+
+		return $this->statement->rowCount();
+	}
+
+	/**
+	* Fonction de debug
+	* @return PDOStatement : l'objet PDO Statement contenu dans cet objet ReponseRequete
+	*/
+	public function getPDOStatement(){
+		return $this->statement;
 	}
 	
 }

@@ -23,12 +23,18 @@
  */
 class Database {
 	
-	
-	//Attributs
+
+			/********************
+			***   ATTRIBUTS   ***
+			********************/
+
 	private $pdo;
 	private static $instance = null;
 	
-	//Constructeur
+	
+		/***********************
+		***   CONSTRUCTEUR   ***
+		***********************/
 	
 	/**
 	 * Instancie la connexion avec la base de données via un objet PDO contenu dans l'objet Database
@@ -38,14 +44,19 @@ class Database {
 	 */
 	private function __construct($dsn, $login, $mdp){
 		try {
-			$this->pdo = new PDO($dsn, $user, $psw);
+			$this->pdo = new PDO($dsn, $login, $mdp);
 			
 		} catch (Exception $e) {
 			$this->pdo = null;
-			echo "Connection à la base de données inmpossible :\n".$e->getMessage();
+			echo "Connection à la base de données impossible :\n".$e->getMessage();
 		}
 	}
 	
+
+			/*******************
+			***   METHODES   ***
+			*******************/
+
 	/**
 	 * Instancie une nouvelle connexion avec la base de données via un objet PDO contenu dans l'objet Database
 	 * @param string $dsn le DSN (voir le manuel PHP concernant PDO)
@@ -60,11 +71,19 @@ class Database {
 	
 	/**
 	 * Exécute la requete SQL passée en paramètres
-	 * @param string $requqete la requete SQL à exécuter
-	 * @return ReponseRequete : la réponse de la requete
+	 * @param mixed $requete la requete SQL à exécuter, peut être string ou objet RequeteSQL
+	 * @return ReponseRequete : la réponse de la requete, ou faux si la BD n'est pas connectée
 	 */
-	public function executer($requqete){
-		$statement = $this->pdo->execute($requete);
+	public function executer($requete){
+		if($this->pdo == null)
+			return false;
+
+		//On transforme la RequeteSQL en string
+		if($requete instanceof RequeteSQL)
+			$requete = $requete->__toString();
+
+		//Exécution de la requête
+		$statement = $this->pdo->query($requete);
 		if($statement == false)
 			return new ReponseRequete($statement, true,
 				self::$instance->errorInfo()[2]);
@@ -73,12 +92,24 @@ class Database {
 	}
 	
 	
+			/******************
+			***   GETTERS   ***
+			******************/
+	
 	/**
-	 * Return la seule instance de la base de données de l'application
+	 * Retourne la seule instance de la base de données de l'application
 	 * @return Database : l'instance de Database ( ! peut retourner null si mal connecté)
 	 */
 	public static function getIstance(){
 		return self::$instance;
+	}
+
+	/**
+	* Fonction de débug
+	* @return PDO : l'instance de l'objet PDO de cette Database
+	*/
+	public function getPDO(){
+		return $this->pdo;
 	}
 
 }
