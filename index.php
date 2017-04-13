@@ -7,10 +7,10 @@ $db = Database::instancier('mysql:dbname=mecaprotec;host=localhost;charset=UTF8'
 	'root', '');
 
 //Base de la requete SQL
-$baseSQL = "ERREUR";
+$baseSQL = "SELECT * FROM test";
 
 //Exécution de la requete et affichage de la liste
-$lm = ListeManager::getInstance();
+$lm = new ListeManager();
 echo $lm->construire($baseSQL);
 
 ?>

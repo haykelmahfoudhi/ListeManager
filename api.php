@@ -25,36 +25,24 @@ les sites internes, et pour toute autre application nécessistant de communiquer
 
 	En retour, l'API fournit un objet réponse encodé en JSON construit comme ceci :
 		* reponse -> erreur : booléen sur la présence ou nom d'erreur lors de l'exécution de la requête
-		* reponse -> messageErreur : le message d'erreur associé
+		* reponse -> messageErreur : le message d'erreur associé (seulement si erreur)
 		* reponse -> donnees : les données générées par l'exécution de la requête
 
 --------------------------------------------------------------------------------------*/
 
 //Connexion à la base de données
-Database::connecter('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
-	'mecaprotec', 'mecaprotec');
+Database::instancier('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
+	'root', '');
 
 //On parse la requête
 // TODO
 $requete = "SELECT * FROM test";
 
 //Exécution de la requete
-$lm = ListeManager::getInstance();
-$lm->setTypeReponse(TypeReponse::OBJET);
-$reponse = $lm->executer($requete);
+$lm = new ListeManager();
+$lm->setTypeReponse(TypeReponse::JSON);
+$reponse = $lm->executerRequete($requete);
 
-//Affichage de la réponse
-$ret = new stdClass();
-if($reponse != false){
-	$ret = $reponse;
-	$ret->donnees = $reponse->listeResultat();
-	unset($ret->statement);
-}
-else {
-	$ret->erreur = true;
-	$ret->messageErreur = 'Connexion à la base de données inmpossible';
-	$ret->donnees = null;
-}
-echo json_encode($ret);
+echo $reponse;
 
 ?>

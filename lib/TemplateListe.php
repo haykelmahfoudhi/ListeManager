@@ -142,10 +142,7 @@ final class TemplateListe {
 					$ret .= "$i";
 				else {	
 					// Construction du lien de la page
-					$query = $_GET;
-					$query['page'] = $i;
-					$queryGet = http_build_query($query);
-					$ret .= "<a href='".strtok($_SERVER['REQUEST_URI'], '?')."?$queryGet'>$i</a>";
+					$ret .= '<a href="'.self::creerUrlGET('page', $i).'">$i</a>';
 				}
 
 				$ret .= '</td>';
@@ -235,6 +232,12 @@ final class TemplateListe {
 
 	private static function messageHTML($message, $classe){
 		return '<p'.(($classe == null)? '' : " class=$classe ").'>'.$message.'</p>';
+	}
+
+	private static function creerUrlGET($nom, $val){
+		$get = $_GET;
+		$get[$nom] = $val;
+		return strtok($_SERVER['REQUEST_URI'], '?').'?'.http_build_query($get);
 	}
 	
 }

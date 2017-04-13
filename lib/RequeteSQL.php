@@ -63,10 +63,6 @@ class RequeteSQL {
 
 	}
 
-	public function having(){
-
-	}
-
 	/**
 	* Ajoute une ou plusieurs colonnes au bloc order by de la requete
 	* @param mixed $numColonne : correpsond numéro de la (ou des) colonne(s) à ajouter au group by.
@@ -76,8 +72,7 @@ class RequeteSQL {
 	*/
 	public function orderBy($numColonne){
 		//Vérification du type de requete
-		if($this->typeRequete == TypeRequete::SELECT
-			&& (is_int($numColonne) || is_array($numColonne))){
+		if($this->typeRequete == TypeRequete::SELECT){
 
 			//Si $numColonne est un tableau
 			if(is_array($numColonne)){
@@ -92,6 +87,7 @@ class RequeteSQL {
 
 			//Sinon si c'est un int
 			else {
+				$numColonne = intval($numColonne);
 				//Suppression de la valeur existante
 				if(($key = array_search($numColonne, $this->tabOrderBy)) != false
 					|| ($key = array_search(-$numColonne, $this->tabOrderBy)) != false){

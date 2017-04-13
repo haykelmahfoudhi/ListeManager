@@ -1,5 +1,27 @@
 <?php
 
+/**************************************************************************************************
+**                                                                                               **
+**                        88           88                                                        **
+**                        88           ""               ,d                                       **
+**                        88                            88                                       **
+**                        88           88  ,adPPYba,  MM88MMM  ,adPPYba,                         **
+**                        88           88  I8[    ""    88    a8P_____88                         **
+**                        88           88   `"Y8ba,     88    8PP"""""""                         **
+**                        88           88  aa    ]8I    88,   "8b,   ,aa                         **
+**                        88888888888  88  `"YbbdP"'    "Y888  `"Ybbd8"'                         **
+**                                                                                               **
+**  88b           d88                                                                            **
+**  888b         d888                                                                            **
+**  88`8b       d8'88                                                                            **
+**  88 `8b     d8' 88  ,adPPYYba,  8b,dPPYba,   ,adPPYYba,   ,adPPYb,d8   ,adPPYba,  8b,dPPYba,  **
+**  88  `8b   d8'  88  ""     `Y8  88P'   `"8a  ""     `Y8  a8"    `Y88  a8P_____88  88P'   "Y8  **
+**  88   `8b d8'   88  ,adPPPPP88  88       88  ,adPPPPP88  8b       88  8PP"""""""  88          **
+**  88    `888'    88  88,    ,88  88       88  88,    ,88  "8a,   ,d88  "8b,   ,aa  88          **
+**  88     `8'     88  `"8bbdP"Y8  88       88  `"8bbdP"Y8   `"YbbdP"Y8   `"Ybbd8"'  88          **
+**                                                           aa,    ,88                          **
+**                                                            "Y8bbdP"                           **
+**************************************************************************************************/
 
 /**
  * 
@@ -41,18 +63,13 @@ class ListeManager {
 	private $masque;
 
 	private $recherche;
-
-	/**
-	*
-	*/
-	private static $instance = null;
 	
 	
 			/***********************
 			***   CONSTRUCTEUR   ***
 			***********************/
 
-	private function __construct(){
+	public function __construct(){
 		$this->typeReponse = TypeReponse::TEMPLATE;
 		$this->template = new TemplateListe();
 		$this->utiliserGET = true;
@@ -102,6 +119,8 @@ class ListeManager {
 				$requeteSQL->orderBy($this->orderBy);
 		}
 
+		echo $requeteSQL;
+
 		//Exécution de la requete
 		return $this->executerRequete($requeteSQL);
 
@@ -126,45 +145,40 @@ class ListeManager {
 
 		//Exécution de la requête
 		$reponse = $this->db->executer($requete);
-		
-		// En cas d'erreur SQL
-		if($reponse->erreur()){
-			switch ($this->typeReponse){
-			case TypeReponse::TEMPLATE:
-				
-			case TypeReponse::TABLEAU:
-				return arra();
-			case TypeReponse::JSON:
-				return json_encode($reponse);
-			default:
-				return $reponse;
-			}
-		}
 
 		//Création de l'objet de réponse
 		switch ($this->typeReponse){
 			case TypeReponse::OBJET:
-				return $reponse;
+			return $reponse;
 
 			case TypeReponse::TABLEAU:
-				return $reponse->listeResultat();
+				if($reponse->erreur())
+					return null;
+				else
+					return $reponse->listeResultat();
 
 			case TypeReponse::EXCEL:
-				return ; // TODO
+			return ; // TODO
 
 			case TypeReponse::JSON:
 				$ret = new stdClass();
-				$ret = $reponse;
-				$ret->donnees = $reponse->listeResultat();
-				unset($ret->statement);
+				$ret->erreur = $reponse->erreur();
+				if($ret->erreur){
+					$ret->donnees = null;
+					$ret->messageErreur = $reponse->getMessageErreur();
+				}
+				else
+					$ret->donnees = $reponse->listeResultat();
+			return json_encode($ret);
 
 
 			case TypeReponse::TEMPLATE:
 				// Affichage (ou non) des champs de recherches
 				if($this->recherche)
 					$this->template->afficherChampsRecherche(isset($_GET['quest']));
-				return $this->template->construireListe($reponse);
+			return $this->template->construireListe($reponse);
 		}
+
 		return false;
 	}
 
@@ -172,15 +186,6 @@ class ListeManager {
 			/******************
 			***   GETTERS   ***
 			******************/
-
-	/**
-	* @return ListeManager la seule instance de la classe Liste Manager
-	*/
-	public static function getInstance(){
-		if(self::$instance == null)
-			self::$instance = new self();
-		return self::$instance;
-	}
 
 	/**
 	* @return TemplateListe l'objet template utilisé par ListeManager
@@ -202,7 +207,7 @@ class ListeManager {
 	* 	-> EXCEL pour obtenir les résultats dans une feuille de calcul Excel
 	* 	-> OBJET pour obtenir un objet ReponseResultat
 	*/
-	public function setTypeReponse(TypeReponse $typeReponse){
+	public function setTypeReponse($typeReponse){
 		$this->typeReponse = $typeReponse;
 	}
 
