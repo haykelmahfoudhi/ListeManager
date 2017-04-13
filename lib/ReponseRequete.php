@@ -23,7 +23,7 @@ class ReponseRequete {
 		***   CONSTRUCTEUR   ***
 		***********************/
 	
-	public function __construct(PDOStatement $statement, $erreur=false, $message=''){
+	public function __construct($statement, $erreur=false, $message=''){
 		$this->statement = $statement;
 		$this->erreur = $erreur;
 		$this->messageErreur = $message;
@@ -83,7 +83,8 @@ class ReponseRequete {
 			return null;
 		
 		$ret = array();
-		for ($i=0; $i < count(); $i++){
+		$nbCol = $this->getNbColonnes();
+		for ($i=0; $i < $nbCol; $i++){
 			array_push($ret, $this->statement->getColumnMeta($i)['name']);
 		}
 		return $ret;

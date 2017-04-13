@@ -78,7 +78,6 @@ class Database {
 				.$etiquette.'", veuillez en spécifier une nouvelle';
 			return null;
 		}
-
 		self::$instances[$etiquette] = $nouvelleInstance;
 		return $nouvelleInstance;
 	}
@@ -99,8 +98,7 @@ class Database {
 		//Exécution de la requête
 		$statement = $this->pdo->query($requete);
 		if($statement == false)
-			return new ReponseRequete($statement, true,
-				$this->pdo->errorInfo()[2]);
+			return new ReponseRequete(null, true,$this->pdo->errorInfo()[2]);
 		else 
 			return new ReponseRequete($statement);
 	}

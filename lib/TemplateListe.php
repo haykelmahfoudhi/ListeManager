@@ -24,11 +24,19 @@ final class TemplateListe {
 	/**
 	* @var 
 	*/
-	private $recherche;
+	private $messageListeVide;
+
+	private $classeErreur;
+
+	private $resultatsParPage;
+
+	private $pageActuelle;
 	
-	
+
 	public static $CLASSE1 = 'GRIS';
 	public static $CLASSE2 = 'ORANGE';
+	
+	const MAX_LEN_INPUT = 60;
 	
 	
 			/***********************
@@ -40,6 +48,10 @@ final class TemplateListe {
 		$this->classe1 = (($classe1 == null)? self::$CLASSE1 : $classe1);
 		$this->classe2 = (($classe2 == null)? self::$CLASSE2 : $classe2);
 		$this->recherche = false;
+		$this->messageListeVide = "Aucun résultat!";
+		$this->classeErreur = 'erreur';
+		$this->pageActuelle = ((isset($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] : 1 );
+		$this->resultatsParPage = 100;
 	}
 	
 	
@@ -53,7 +65,28 @@ final class TemplateListe {
 	 * @return string : le code HTML de la liste HTML généré
 	 */
 	public function construireListe(ReponseRequete $reponse){
-		$ret = '<table'.(($this->id == null)?'' : " id ='$this->id' ").'>'."\n<tr>";
+
+		// On teste d'abord s'il y a erreur dans la réponse
+		if($reponse->erreur()){
+			return self::messageHTML($reponse->getMessageErreur(),
+				$this->classeErreur);
+		}
+
+		// Préparation de l'array à afficher
+		$donnees = $reponse->listeResultat();
+		$nbLignes = $reponse->getNbLignes();
+		$debut = ($this->pageActuelle-1) * $this->resultatsParPage;
+		// $donnees ne contient plus que les valeurs à afficher
+		$donnees = array_slice($donnees, $debut, $this->resultatsParPage);
+
+
+		//Affichage du nombre de résultats
+		$debut++;
+		$fin = ($this->pageActuelle) * $this->resultatsParPage;
+		$ret = self::messageHTML("Lignes : $debut - $fin / $nbLignes", null);
+
+		// Initialisation de la liste
+		$ret .= '<table'.(($this->id == null)?'' : " id ='$this->id' ").'>'."\n<tr>";
 
 		//Création des titres
 		$titres = $reponse->getNomColonnes();
@@ -68,27 +101,59 @@ final class TemplateListe {
 			$types = $reponse->getTypeColonnes();
 			for ($i=0; $i < count($titres); $i++) {
 				//Determine la taille du champs
-				$taille = 
+				$taille = min($types[$i]->len, self::MAX_LEN_INPUT);
 				$ret .= "<td><input type='text' name='tabselect[]' size='$taille'/></td>";
 			}
 			$ret .= "</tr>\n";
 		}
 
+		// Si le tableau est vide -> retourne messageListeVide
+		if(count($donnees) == 0){
+			$ret .= "</table>\n";
+			$ret .= self::messageHTML($this->messageListeVide, $this->classeErreur);
+		}
+		
 		//Insertion de données
-		$donnees = $reponse->listeResultat();
-		for ($i=0; $i < $reponse->getNbLinges(); $i++) {
-			//Gestion des calsses
-			$classe = (($i % 2)? $this->classe2 : $this->classe1);
-			$ret .= '<tr'.(($classe == null)? '' : " class='$classe' ").'>';
+		else {
+			$i = 0;
+			foreach ($donnees as $ligne) {
+				$i++;
+				//Gestion des calsses
+				$classe = (($i % 2)? $this->classe2 : $this->classe1);
+				$ret .= '<tr'.(($classe == null)? '' : " class='$classe' ").'>';
 
-			//Construction des cellules
-			foreach ($donnees[$i] as $cellule){
-				$ret .= '<td>'.$cellule.'</td>';
+				//Construction des cellules
+				foreach ($ligne as $cellule){
+					$ret .= '<td>'.$cellule.'</td>';
+				}
+				$ret .= "</tr>\n";
 			}
-			$ret .= "</tr>\n";
+			$ret .= "</table>\n";
 		}
 
-		return $ret.'</table>';
+		// Affichage du tableau des numeros de page
+		if($nbLignes > $this->resultatsParPage){
+			$ret .= '<table><tr>';
+			for ($i=1; $i < ($nbLignes / $this->resultatsParPage) + 1; $i++) {
+				$ret .= '<td>';
+
+				// Pas de lien si on est déjà sur la pageActuelle
+				if($i == $this->pageActuelle)
+					$ret .= "$i";
+				else {	
+					// Construction du lien de la page
+					$query = $_GET;
+					$query['page'] = $i;
+					$queryGet = http_build_query($query);
+					$ret .= "<a href='".strtok($_SERVER['REQUEST_URI'], '?')."?$queryGet'>$i</a>";
+				}
+
+				$ret .= '</td>';
+			}
+			$ret .= "</tr></table>\n";
+		}
+		// Fin
+		return $ret;
 	}
 	
 	
@@ -102,6 +167,22 @@ final class TemplateListe {
 	 */
 	public function setId($id){
 		$this->id = $id;
+	}
+
+	/**
+	* Définit le message d'erreur à afficher si aucun résultat n'est retournée par la requete 
+	* @param string $message le nouveau message à définir
+	*/
+	public function setMessageListeVide($message){
+		$this->messageListeVide = $message;
+	}
+
+	/**
+	* Définit le nom de la class HTML des messages d'erreurs affichés
+	* @param string $classe le nouveau nom de la classe des messages d'erreur
+	*/
+	public function setClasseErreur($classe){
+		$this->classeErreur = $classe;
 	}
 
 	/**
@@ -121,6 +202,39 @@ final class TemplateListe {
 	public function setClasseLignes($classe1, $classe2){
 		$this->classe1 = $classe1;
 		$this->classe2 = $classe2;
+	}
+
+	/**
+	* Définit le nombre de résultats à afficher sur une page. Valeur par défaut = 100
+	* @param int $valeur le nombre de lignes à afficher par pages
+    * @return boolean faux si la valeur entrée est incorrecte
+	*/
+	public function setNbResultatsParPage($valeur){
+		if(!is_int($valeur) || $valeur <= 0)
+			return false;
+
+		$this->resultatsParPage = $valeur;
+	}
+
+	/**
+	* Définit quelle page de résultats doit afficher le template. Valeur par défaut 
+	* définie par GET['page'], ou 1
+	* @param int $numeroPage le numéro de la page à afficher (pour la 1re page : 1)
+	* @return boolean faux si la valeur entrée est incorrecte
+	*/
+	public function setPageActuelle($numeroPage){
+		if(!is_int($valeur) || $numeroPage <= 0)
+			return false;
+
+		$this->pageActuelle = $numeroPage;
+	}
+
+			/******************
+			***   PRIVATE   ***
+			******************/
+
+	private static function messageHTML($message, $classe){
+		return '<p'.(($classe == null)? '' : " class=$classe ").'>'.$message.'</p>';
 	}
 	
 }

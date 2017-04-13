@@ -203,7 +203,6 @@ class RequeteSQL {
 		// Teste si SELECT
 		preg_match($reSelect, $this->baseRequete, $tabMatch);
 		if($tabMatch != array()){
-			var_dump($tabMatch);
 			$this->typeRequete = TypeRequete::SELECT;
 			return;
 		}
