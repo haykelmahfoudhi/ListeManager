@@ -1,6 +1,22 @@
 <?php
 
-final class TemplateListe {
+
+/************************************************************************************************
+**                                                                                             ** 
+**  888888888888                                          88                                   ** 
+**       88                                               88                ,d                 ** 
+**       88                                               88                88                 ** 
+**       88   ,adPPYba,  88,dPYba,,adPYba,   8b,dPPYba,   88  ,adPPYYba,  MM88MMM  ,adPPYba,   ** 
+**       88  a8P_____88  88P'   "88"    "8a  88P'    "8a  88  ""     `Y8    88    a8P_____88   ** 
+**       88  8PP"""""""  88      88      88  88       d8  88  ,adPPPPP88    88    8PP"""""""   ** 
+**       88  "8b,   ,aa  88      88      88  88b,   ,a8"  88  88,    ,88    88,   "8b,   ,aa   ** 
+**       88   `"Ybbd8"'  88      88      88  88`YbbdP"'   88  `"8bbdP"Y8    "Y888  `"Ybbd8"'   ** 
+**                                           88                                                ** 
+**                                           88                                                **
+**                                                                                             **
+************************************************************************************************/
+
+class TemplateListe {
 	
 	
 			/********************
@@ -18,25 +34,40 @@ final class TemplateListe {
 	 */
 	private $classe1, $classe2;
 	/**
+	* @var boolean $activerRecherche : spécifie si la fonction recherche est diponible ou non
+	*/
+	private $activerRecherche;
+	/**
 	* @var boolean $recherche : spécifie si les champs de saisie pour la recherche sont visibles ou non
 	*/
-	private $recherche;
+	private $afficherRecherche;
 	/**
-	* @var 
+	* @var string $messageListeVide le message qui sera affiché si la liste ne contient pas de données
 	*/
 	private $messageListeVide;
-
+	/**
+	* @var string $classeErreur : le nom de la classe HTML des balises p qui contiendront le message d'erreur
+	*/
 	private $classeErreur;
-
-	private $resultatsParPage;
-
+	/**
+	* @var int $nbResultatsParPage : nombre de résultats affichés par page. Valeur par défaut = 100
+	*/
+	private $nbResultatsParPage;
+    /**
+    * @var int $pageActuelle : numéro de la page de résultats actuelle
+    */
 	private $pageActuelle;
+	/**
+	* @var string $callbackCellule : nom du callback à appeler lors de l'affichage d'une cellule
+	*/
+	private $callbackCellule;
 	
 
-	public static $CLASSE1 = 'GRIS';
-	public static $CLASSE2 = 'ORANGE';
+	public static $CLASSE1 = 'gris';
+	public static $CLASSE2 = 'orange';
 	
-	const MAX_LEN_INPUT = 60;
+	const MAX_LEN_INPUT = 30;
+	const NB_PAGES_MAX = 10;
 	
 	
 			/***********************
@@ -47,11 +78,13 @@ final class TemplateListe {
 		$this->id = $id;
 		$this->classe1 = (($classe1 == null)? self::$CLASSE1 : $classe1);
 		$this->classe2 = (($classe2 == null)? self::$CLASSE2 : $classe2);
-		$this->recherche = false;
+		$this->activerRecherche = true;
+		$this->afficherRecherche = false;
 		$this->messageListeVide = "Aucun résultat!";
 		$this->classeErreur = 'erreur';
 		$this->pageActuelle = ((isset($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] : 1 );
-		$this->resultatsParPage = 100;
+		$this->nbResultatsParPage = 50;
+		$this->callbackCellule = null;
 	}
 	
 	
@@ -75,28 +108,67 @@ final class TemplateListe {
 		// Préparation de l'array à afficher
 		$donnees = $reponse->listeResultat();
 		$nbLignes = $reponse->getNbLignes();
-		$debut = ($this->pageActuelle-1) * $this->resultatsParPage;
+		$debut = ($this->pageActuelle-1) * $this->nbResultatsParPage;
 		// $donnees ne contient plus que les valeurs à afficher
-		$donnees = array_slice($donnees, $debut, $this->resultatsParPage);
+		$donnees = array_slice($donnees, $debut, $this->nbResultatsParPage);
 
+
+		// Création de la div HTML parente
+		$ret = "\n".'<div class="liste-parent">';
 
 		//Affichage du nombre de résultats
 		$debut++;
-		$fin = ($this->pageActuelle) * $this->resultatsParPage;
-		$ret = self::messageHTML("Lignes : $debut - $fin / $nbLignes", null);
+		$fin = ($this->pageActuelle) * $this->nbResultatsParPage;
+		$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", null);
+		
+		//Ajout des boutons options sur le côté
+		$ret .= "\n<div id='boutons-options'>";
+		//Bouton quest (recherche)
+		if($this->activerRecherche){
+			$ret .= '<a href="'.self::creerUrlGET('quest', 
+				( ($this->afficherRecherche) ? 0 : 1)).'">?</a>'; 
+		}
+		// Bouton excel
+		// TODO
+
+		// Bouton pour reset le mask
+		if(isset($_GET['mask']) && strlen($_GET['mask']) > 0) {
+			$ret .= '<a href="'.self::creerUrlGET('mask', '').'">M</a>';
+		}
+		$ret .= "<div>\n";
+
 
 		// Initialisation de la liste
 		$ret .= '<table'.(($this->id == null)?'' : " id ='$this->id' ").'>'."\n<tr>";
 
 		//Création des titres
 		$titres = $reponse->getNomColonnes();
+		$i = 0;
 		foreach ($titres as $titre) {
-			$ret .= "<th>$titre</th>";
+			//Gestion du masque
+			if(isset($_GET['mask'])){
+				$maskArray = explode(',', $_GET['mask']);
+				array_push($maskArray, intval($i));
+				$maskString = substr(implode(',', array_unique($maskArray) ), 1);
+			}
+			else {
+				$maskString = '';
+			}
+
+			//Gestion du order by
+
+
+			// Affiche les liens et les titres
+			$ret .= '<th><a class="masquer" href="'
+				.self::creerUrlGET('mask', $maskString)
+				.'">.</a><a href="'
+				.self::creerUrlGET('orderBy', $i+1)."\">$titre</a></th>";
+			$i++;
 		}
 		$ret .= "</tr>\n";
 
 		//Affichage des champs de saisie pour la  recherche
-		if($this->recherche){
+		if($this->activerRecherche && $this->afficherRecherche){
 			$ret .= "<tr>";
 			$types = $reponse->getTypeColonnes();
 			for ($i=0; $i < count($titres); $i++) {
@@ -117,24 +189,58 @@ final class TemplateListe {
 		else {
 			$i = 0;
 			foreach ($donnees as $ligne) {
-				$i++;
 				//Gestion des calsses
-				$classe = (($i % 2)? $this->classe2 : $this->classe1);
+				$classe = (($i % 2)? $this->classe1 : $this->classe2);
 				$ret .= '<tr'.(($classe == null)? '' : " class='$classe' ").'>';
 
 				//Construction des cellules
+				$j = 0;
 				foreach ($ligne as $cellule){
-					$ret .= '<td>'.$cellule.'</td>';
+					if(strlen($cellule) == 0)
+						$cellule = '-';
+					$ret .= '<td>';
+					// Application du callback (si non null)
+					if($this->callbackCellule == null)
+						$ret .= $cellule;
+					else {
+						$fct = $this->callbackCellule;
+						$ret .= $fct($cellule, $i, $j);
+					}
+					$ret .= '</td>';
+					$j++;
 				}
 				$ret .= "</tr>\n";
+				$i++;
 			}
 			$ret .= "</table>\n";
 		}
 
 		// Affichage du tableau des numeros de page
-		if($nbLignes > $this->resultatsParPage){
-			$ret .= '<table><tr>';
-			for ($i=1; $i < ($nbLignes / $this->resultatsParPage) + 1; $i++) {
+		if($nbLignes > $this->nbResultatsParPage){
+			$ret .= '<table id="pagination"><tr>';
+			$nbPages = ($nbLignes / $this->nbResultatsParPage);
+
+			// S'il y a plus de pages que la limite affichable
+			if($nbPages > self::NB_PAGES_MAX){
+				$debut = $this->pageActuelle - 2;
+				if($debut < 1){
+					$debut = 1;
+					$fin = self::NB_PAGES_MAX - 1;
+				}
+				// Ajout de la 1re page si besoin
+				else {
+					$ret .= '<td><a href="'.self::creerUrlGET('page', 1).'">&lt;&lt;</td>';
+					$fin = min($debut + self::NB_PAGES_MAX, $nbPages);
+
+				}
+			}
+			else {
+				$debut = 1;
+				$fin = $nbPages;
+			}
+			
+			// Création des liens
+			for ($i=$debut; $i <= $fin; $i++) {
 				$ret .= '<td>';
 
 				// Pas de lien si on est déjà sur la pageActuelle
@@ -142,12 +248,17 @@ final class TemplateListe {
 					$ret .= "$i";
 				else {	
 					// Construction du lien de la page
-					$ret .= '<a href="'.self::creerUrlGET('page', $i).'">$i</a>';
+					$ret .= '<a href="'.self::creerUrlGET('page', $i).'">'.$i.'</a>';
 				}
 
 				$ret .= '</td>';
 			}
-			$ret .= "</tr></table>\n";
+			// Ajout du lien vers la derniere page si besoin
+			if($fin != $nbPages){
+				$ret .= '<td><a href="'.self::creerUrlGET('page', $nbPages).'">&gt;&gt;</td>';
+			}
+
+			$ret .= "</tr></table>\n</div>\n";
 		}
 		// Fin
 		return $ret;
@@ -184,11 +295,20 @@ final class TemplateListe {
 
 	/**
 	 * Détermine si le template doit afficher la ligne des champs de saisie pour recherche dans la liste
-	 * @param boolean $valeur
+	 * @param boolean $valeur, valeur par défaut : false
 	 */
 	public function afficherChampsRecherche($valeur){
 		if(is_bool($valeur))
-			$this->recherche = $valeur;
+			$this->afficherRecherche = $valeur;
+	}
+
+	/**
+	 * Détermine si la fonction recherche par colonne doit être activée ou non pour cette liste
+	 * @param boolean $valeur, valeur par défaut : true
+	 */
+	public function activerRecherche($valeur){
+		if(is_bool($valeur))
+			$this->activerRecherche = $valeur;
 	}
 	
 	/**
@@ -202,7 +322,7 @@ final class TemplateListe {
 	}
 
 	/**
-	* Définit le nombre de résultats à afficher sur une page. Valeur par défaut = 100
+	* Définit le nombre de résultats à afficher sur une page. Valeur par défaut = 50
 	* @param int $valeur le nombre de lignes à afficher par pages
     * @return boolean faux si la valeur entrée est incorrecte
 	*/
@@ -210,12 +330,11 @@ final class TemplateListe {
 		if(!is_int($valeur) || $valeur <= 0)
 			return false;
 
-		$this->resultatsParPage = $valeur;
+		$this->nbResultatsParPage = $valeur;
 	}
 
 	/**
-	* Définit quelle page de résultats doit afficher le template. Valeur par défaut 
-	* définie par GET['page'], ou 1
+	* Définit quelle page de résultats doit afficher le template. Valeur par défaut : 1
 	* @param int $numeroPage le numéro de la page à afficher (pour la 1re page : 1)
 	* @return boolean faux si la valeur entrée est incorrecte
 	*/
@@ -224,6 +343,24 @@ final class TemplateListe {
 			return false;
 
 		$this->pageActuelle = $numeroPage;
+	}
+
+	/**
+	* Définit le callback (la fonction) qui sera exécutée lors de l'affichage des données
+	* dans les cellules du tableau. Cette fonction doit être définie comme il suit :
+	* 	-> 3 paramètres d'entrée 
+	* 			* element : la valeur de l'élément en cours
+	* 			* colonne : le numéro de la colonne en cours
+	* 			* ligne   : le numéro de la ligne en cours
+	* 	-> valeur de retour de type string (ou du moins affichable via echo)
+	* @param string $fonction : le nom du callback à utiliser, null si aucun.
+	* Valeur par défaut : null
+	*/
+	public function setCallbackCellule($fonction=null){
+		if($fonction != null && function_exists($fonction))
+			$this->callbackCellule = $fonction;
+		else 
+			$this->callbackCellule = null;
 	}
 
 			/******************

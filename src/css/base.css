@@ -1,0 +1,36 @@
+table {
+	border-collapse: collapse;
+	text-align: center;
+}
+
+tr {
+
+}
+
+tr:not(:first-child):hover {
+	background-color: #ccc;
+}
+
+th {
+
+}
+
+td {
+	border: 1px solid white;
+	padding: 5px;
+}
+
+.gris {
+	background-color: grey;
+}
+
+.orange {
+	background-color: orange;
+}
+
+#pagination td {
+	border: none;
+}
+#pagination tr:hover {
+	background-color: white;
+}

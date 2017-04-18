@@ -26,6 +26,10 @@ class RequeteSQL {
 	* @var TypeRequete $typeRequete : énumération sur le type de la requete SQL
 	*/
 	private $typeRequete;
+	/**
+	*
+	*/
+	private $colonnesSelect;
 
 
 			/***********************
@@ -54,12 +58,15 @@ class RequeteSQL {
 	* Supprime la seléction des colonnes dont les numéros sont passés en paramètre
 	* 
 	*/
-	public function masquer($numColonne){
-
+	public function masquer(array $numColonnes){
+		foreach ($numColonnes as $num) {
+			if($num == intval($num) && ! in_array(intval($num), $this->tabMasque))
+				$this->tabMasque[] = intval($num);
+		}
 	}
 
 	
-	public function where($tabWhere){
+	public function where(array $tabWhere){
 
 	}
 
@@ -78,16 +85,22 @@ class RequeteSQL {
 			if(is_array($numColonne)){
 				// Suppression des colonnes déjà existantes
 				foreach ($numColonne as $val)
-					$negColonne[] = -1*$val;
+						$negColonne[] = -1 * $val;
 				$orderBy = array_diff($this->tabOrderBy, $numColonne, $negColonne);
-				foreach (array_reverse($numColonne) as $col) 
-					array_unshift($orderBy, $col);
+				
+				foreach (array_reverse($numColonne) as $col){
+					if(intval($col) != 0)
+						array_unshift($orderBy, intval($col));
+				}
 				$this->tabOrderBy = array_unique($orderBy);
 			}
 
 			//Sinon si c'est un int
 			else {
 				$numColonne = intval($numColonne);
+				if($numColonne == 0)
+					return false;
+
 				//Suppression de la valeur existante
 				if(($key = array_search($numColonne, $this->tabOrderBy)) != false
 					|| ($key = array_search(-$numColonne, $this->tabOrderBy)) != false){
@@ -118,9 +131,21 @@ class RequeteSQL {
 	* @return string la requete SQL complete
 	*/
 	public function __toString(){
-		$ret = $this->baseRequete;
+		// Gestion du masque
+		if($this->typeRequete == TypeRequete::SELECT
+			&& is_array($this->tabMasque) && count($this->tabMasque) > 0) {
+			foreach ($this->tabMasque as $masque) {
+				unset($this->colonnesSelect[intval($masque)]);
+			}
+			$ret = 'SELECT '.implode(',', $this->colonnesSelect).' ';
+			$ret .= strstr($this->baseRequete, 'FROM');
+		}
+		else
+			$ret = $this->baseRequete;
+
 		if(in_array($this->typeRequete,
 			array(TypeRequete::SELECT, TypeRequete::UPDATE, TypeRequete::DELETE))) {
+			
 			//Ajout du bloc WHERE
 			if(strlen($this->blocWhere) > 0)
 				$ret .= ' WHERE '.$this->blocWhere;
@@ -155,13 +180,13 @@ class RequeteSQL {
 	}
 
 	/**
-	* @return mixed le numéro de la première colonne du order by, négatif si tri décroissant
+	* @return array les numéros des colonnes du order by, négatif si tri décroissant
 	* retourne faux s'il n'y a pas d'order by.
 	*/
-	public function getColOrderBy(){
+	public function getTabOrderBy(){
 		if($this->typeRequete === TypeRequete::SELECT
 			&& count($this->tabOrderBy) > 0){
-			return $this->tabOrderBy[0];
+			return $this->tabOrderBy;
 		}
 		return false;
 	}
@@ -200,6 +225,7 @@ class RequeteSQL {
 		preg_match($reSelect, $this->baseRequete, $tabMatch);
 		if($tabMatch != array()){
 			$this->typeRequete = TypeRequete::SELECT;
+			$this->colonnesSelect = explode(',', $tabMatch[2]);
 			return;
 		}
 		

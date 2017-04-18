@@ -61,8 +61,6 @@ class ListeManager {
 	*
 	*/
 	private $masque;
-
-	private $recherche;
 	
 	
 			/***********************
@@ -103,12 +101,12 @@ class ListeManager {
 
 		if($this->utiliserGET){
 			//Construction de la requete à partir de variables GET disponibles
-			if(isset($_GET['mask']))
-				$requeteSQL->masquer($_GET['mask']);
-			if(isset($_GET['tabselect']))
-				$requeteSQL->where($_GET['tabselect']);
-			if(isset($_GET['orderby']))
-				$requeteSQL->orderBy($_GET['orderby']);
+			if(isset($_GET['mask']) && strlen($_GET['mask']) > 0)
+				$requeteSQL->masquer(explode(',', $_GET['mask']));
+			if(isset($_GET['tabSelect']))
+				$requeteSQL->where($_GET['tabSelect']);
+			if(isset($_GET['orderBy']))
+				$requeteSQL->orderBy($_GET['orderBy']);
 		}
 		else {
 			if($this->masque != null)	
@@ -174,8 +172,8 @@ class ListeManager {
 
 			case TypeReponse::TEMPLATE:
 				// Affichage (ou non) des champs de recherches
-				if($this->recherche)
-					$this->template->afficherChampsRecherche(isset($_GET['quest']));
+				$this->template->afficherChampsRecherche(
+					isset($_GET['quest']) && intval($_GET['quest']) == 1);
 			return $this->template->construireListe($reponse);
 		}
 
@@ -305,14 +303,29 @@ class ListeManager {
 	/**
 	* Définit si l'option recherche doit être activée ou non. Valeur par défaut : vrai
 	* Si cette valeur est passée à faux il ne sera plus possible pour l'utilisateur
-	* d'effectuer de recherche dans la liste
-	* @param boolean $valeur
+	* d'effectuer de recherches dans la liste
+	* @param boolean $valeur, valeur par défautl : true
 	*/
 	public function activerRecherche($valeur){
 		if(!is_bool($valeur))
 			return false;
 
-		$this->$recherche = $valeur;
+		$this->$template->activerRecherche($valeur);
+	}
+
+	/**
+	* Définit le callback (la fonction) qui sera exécutée lors de l'affichage des données
+	* dans les cellules du tableau. Cette fonction doit être définie comme il suit :
+	* 	-> 3 paramètres d'entrée 
+	* 			1 - element : la valeur de l'élément en cours
+	* 			2 - colonne : le numéro de la colonne en cours
+	* 			3 - ligne   : le numéro de la ligne en cours
+	* 	-> valeur de retour de type string (ou du moins affichable via echo)
+	* @param string $fonction : le nom du callback à utiliser, null si aucun.
+	* Valeur par défaut : null
+	*/
+	public function setCallbackCellule($fonction){
+		$this->template->setCallbackCellule($fonction);
 	}
 }
 
