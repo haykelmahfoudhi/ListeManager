@@ -106,7 +106,7 @@ class ListeManager {
 			if(isset($_GET['tabSelect']))
 				$requeteSQL->where($_GET['tabSelect']);
 			if(isset($_GET['orderBy']))
-				$requeteSQL->orderBy($_GET['orderBy']);
+				$requeteSQL->orderBy(explode(',', $_GET['orderBy']));
 		}
 		else {
 			if($this->masque != null)	

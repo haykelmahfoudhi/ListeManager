@@ -145,24 +145,68 @@ class TemplateListe {
 		$titres = $reponse->getNomColonnes();
 		$i = 0;
 		foreach ($titres as $titre) {
+
+			//Gestion du order by
+			if(isset($_GET['orderBy'])){
+				$orderArray = explode(',', $_GET['orderBy']);
+
+				// Construction de la chaine orderBy
+				if(($key = array_search(($i + 1), $orderArray)) !== false ) {
+					unset($orderArray[$key]);
+					array_unshift($orderArray, -1*($i + 1));
+				}
+				else if (($key = array_search(-1 * ($i + 1), $orderArray)) !== false ){
+					unset($orderArray[$key]);
+					array_unshift($orderArray, $i + 1);
+				}
+				else {
+					array_unshift($orderArray, ($i + 1));
+				}
+				$orderString = implode(',', $orderArray);
+			}
+			else {
+				$orderString = $i+1;
+			}
+			$lienOrderBy = '<a href="'
+				.self::creerUrlGET('orderBy', $orderString)."\">$titre</a>";
+
 			//Gestion du masque
 			if(isset($_GET['mask'])){
 				$maskArray = explode(',', $_GET['mask']);
 				array_push($maskArray, intval($i));
-				$maskString = substr(implode(',', array_unique($maskArray) ), 1);
 			}
 			else {
-				$maskString = '';
+				$maskArray = array($i+1);
+			}
+			
+			$maskString = implode(',', array_unique($maskArray));
+			
+			// Ajustements du orderBy du au masque
+			if(isset($_GET['orderBy'])) {
+				$orderArray = explode(',', $_GET['orderBy']);
+				asort($maskArray);
+				foreach($maskArray as $numMask) {
+					foreach ($orderArray as &$numOrder) {
+						if(abs(intval($numOrder)) == $numMask) {
+							unset($numOrder);
+						}
+						else if (abs($numOrder) > $numMask) {
+							if($numOrder > 0) $numOrder--;
+							else if($numOrder < 0) $numOrder++;
+						}
+					}
+				}
+				$nouvGET = $_GET;
+				$nouvGET['orderBy'] = implode(',', array_unique($orderArray));
+				var_dump($nouvGET);
 			}
 
-			//Gestion du order by
-
+			$lienMasque = '<a class="masque" href="'
+				.self::creerUrlGET('mask', $maskString, ((isset($nouvGET))? $nouvGET : null))
+				.'">.</a>';
 
 			// Affiche les liens et les titres
-			$ret .= '<th><a class="masquer" href="'
-				.self::creerUrlGET('mask', $maskString)
-				.'">.</a><a href="'
-				.self::creerUrlGET('orderBy', $i+1)."\">$titre</a></th>";
+			$ret .= '<th>'.$lienMasque.$lienOrderBy.'</th>';
 			$i++;
 		}
 		$ret .= "</tr>\n";
@@ -204,7 +248,7 @@ class TemplateListe {
 						$ret .= $cellule;
 					else {
 						$fct = $this->callbackCellule;
-						$ret .= $fct($cellule, $i, $j);
+						$ret .= $fct($cellule, $titres[$j], $i);
 					}
 					$ret .= '</td>';
 					$j++;
@@ -250,7 +294,6 @@ class TemplateListe {
 					// Construction du lien de la page
 					$ret .= '<a href="'.self::creerUrlGET('page', $i).'">'.$i.'</a>';
 				}
-
 				$ret .= '</td>';
 			}
 			// Ajout du lien vers la derniere page si besoin
@@ -350,7 +393,7 @@ class TemplateListe {
 	* dans les cellules du tableau. Cette fonction doit être définie comme il suit :
 	* 	-> 3 paramètres d'entrée 
 	* 			* element : la valeur de l'élément en cours
-	* 			* colonne : le numéro de la colonne en cours
+	* 			* colonne : le nom de la colonne en cours
 	* 			* ligne   : le numéro de la ligne en cours
 	* 	-> valeur de retour de type string (ou du moins affichable via echo)
 	* @param string $fonction : le nom du callback à utiliser, null si aucun.
@@ -371,8 +414,10 @@ class TemplateListe {
 		return '<p'.(($classe == null)? '' : " class=$classe ").'>'.$message.'</p>';
 	}
 
-	private static function creerUrlGET($nom, $val){
-		$get = $_GET;
+	private static function creerUrlGET($nom, $val, $get=null){
+		if($get == null){
+			$get = $_GET;
+		}
 		$get[$nom] = $val;
 		return strtok($_SERVER['REQUEST_URI'], '?').'?'.http_build_query($get);
 	}
