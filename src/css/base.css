@@ -12,7 +12,20 @@ tr:not(:first-child):hover {
 }
 
 th {
+	text-decoration: none;
+}
 
+th > a.titre-colonnes {
+	color: black;
+}
+
+th > a.masque {
+	margin: 0 3px;
+	color: red;
+}
+
+th > a.masque:visited {
+	color: red;
 }
 
 td {

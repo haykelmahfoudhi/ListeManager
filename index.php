@@ -2,6 +2,10 @@
 
 require_once 'core/includes.php';
 
+// Connecction à la BD
+Database::instancier('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
+	'root', '');
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -12,10 +16,6 @@ require_once 'core/includes.php';
 </head>
 <body>
 <?php
-
-// Connecction à la BD
-Database::instancier('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
-	'root', '');
 
 //Base de la requete SQL
 $baseSQL = "SELECT id, a1, a2, a3, a6 as a4 FROM test";

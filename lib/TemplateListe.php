@@ -74,7 +74,7 @@ class TemplateListe {
 			***   CONSTRUCTEUR   ***
 			***********************/
 	
-	public function __construct($id=null, $classe1=null, $classe2=null){
+	public function __construct($id='liste', $classe1=null, $classe2=null){
 		$this->id = $id;
 		$this->classe1 = (($classe1 == null)? self::$CLASSE1 : $classe1);
 		$this->classe2 = (($classe2 == null)? self::$CLASSE2 : $classe2);
@@ -132,9 +132,11 @@ class TemplateListe {
 		// TODO
 
 		// Bouton pour reset le mask
-		if(isset($_GET['mask']) && strlen($_GET['mask']) > 0) {
-			$ret .= '<a href="'.self::creerUrlGET('mask', '').'">M</a>';
-		}
+		//if(isset($_GET['mask']) && strlen($_GET['mask']) > 0) {
+			$ret .= '<a id="annuler-masque" href="#'
+				//.self::creerUrlGET('mask', '')
+				.'">M</a>';
+		//}
 		$ret .= "<div>\n";
 
 
@@ -167,7 +169,7 @@ class TemplateListe {
 			else {
 				$orderString = $i+1;
 			}
-			$lienOrderBy = '<a href="'
+			$lienOrderBy = '<a calss="titre-colonne" href="'
 				.self::creerUrlGET('orderBy', $orderString)."\">$titre</a>";
 
 			//Gestion du masque
@@ -201,8 +203,8 @@ class TemplateListe {
 			}
 
 			$lienMasque = '<a class="masque" href="'
-				.self::creerUrlGET('mask', $maskString, ((isset($nouvGET))? $nouvGET : null))
-				.'">.</a>';
+				.'#'//self::creerUrlGET('mask', $maskString, ((isset($nouvGET))? $nouvGET : null))
+				.'">x</a>';
 
 			// Affiche les liens et les titres
 			$ret .= '<th>'.$lienMasque.$lienOrderBy.'</th>';

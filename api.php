@@ -30,7 +30,6 @@ les sites internes, et pour toute autre application nécessistant de communiquer
 
 --------------------------------------------------------------------------------------*/
 
-$eventBase = new EventBase();
 
 
 ?>
