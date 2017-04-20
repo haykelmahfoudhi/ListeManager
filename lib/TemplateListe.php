@@ -61,6 +61,10 @@ class TemplateListe {
 	* @var string $callbackCellule : nom du callback à appeler lors de l'affichage d'une cellule
 	*/
 	private $callbackCellule;
+	/**
+	*
+	*/
+	private $utiliserCache;
 	
 
 	public static $CLASSE1 = 'gris';
@@ -83,8 +87,9 @@ class TemplateListe {
 		$this->messageListeVide = "Aucun résultat!";
 		$this->classeErreur = 'erreur';
 		$this->pageActuelle = ((isset($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] : 1 );
-		$this->nbResultatsParPage = 50;
+		$this->nbResultatsParPage = Cache::NB_LIGNES_PAR_PAGE;
 		$this->callbackCellule = null;
+		$this->utiliserCache = false;
 	}
 	
 	
@@ -309,9 +314,9 @@ class TemplateListe {
 	}
 	
 	
-			/******************
-			***   SETTERS   ***
-			******************/
+			/****************************
+			***   SETTERS & GETTERS   ***
+			****************************/
 	
 	/**
 	 * Attribue un nouvel id HTML à la liste.
@@ -405,6 +410,24 @@ class TemplateListe {
 			$this->callbackCellule = $fonction;
 		else 
 			$this->callbackCellule = null;
+	}
+
+	/**
+	*
+	*/
+	public function utiliserCache($valeur){
+		if(!is_bool($valeur))
+			return false;
+
+		$this->utiliserCache = $valeur;
+	}
+
+
+	/**
+	*
+	*/
+	public function getNbResultatsParPage(){
+		return $this->nbResultatsParPage;
 	}
 
 			/******************

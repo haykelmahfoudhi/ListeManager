@@ -61,6 +61,10 @@ class ListeManager {
 	*
 	*/
 	private $masque;
+	/**
+	*
+	*/
+	private $utiliserCache;
 	
 	
 			/***********************
@@ -71,6 +75,7 @@ class ListeManager {
 		$this->typeReponse = TypeReponse::TEMPLATE;
 		$this->template = new TemplateListe();
 		$this->utiliserGET = true;
+		$this->$utiliserCache = false;
 		$this->tabWhere = null;
 		$this->masque = null;
 		$this->orderBy = null;
@@ -172,7 +177,15 @@ class ListeManager {
 				// Affichage (ou non) des champs de recherches
 				$this->template->afficherChampsRecherche(
 					isset($_GET['quest']) && intval($_GET['quest']) == 1);
-			return $this->template->construireListe($reponse);
+				
+				//Gestion avec cache
+				$this->template->utiliserCache($this->utiliserCache);
+				if($this->utiliserCache && ! $reponse->erreur()){
+					$cacheID = md5(uniqid());
+					$cache = new Cache($cacheID);
+					$cache->ecrire($reponse->listeResultat());
+				}
+				return $this->template->construireListe($reponse);
 		}
 
 		return false;
@@ -340,6 +353,9 @@ class ListeManager {
 	* Valeur par défaut : null
 	*/
 	public function setCallbackCellule($fonction){
+		if(!is_string($valeur))
+			return false;
+
 		$this->template->setCallbackCellule($fonction);
 	}
 
@@ -351,6 +367,17 @@ class ListeManager {
 	*/
 	public function setNbResultatsParPage($valeur){
 		return $this->template->setNbResultatsParPage($valeur);
+	}
+
+	/**
+	* Définit si ListeManager doit utiliser ou non le système de cache pour accélérer
+	* la navigation entre les pages de la liste
+	*/
+	public function utiliserCache($valeur){
+		if(!is_bool($valeur))
+			return false;
+
+		$this->utiliserCache = $valeur;
 	}
 }
 

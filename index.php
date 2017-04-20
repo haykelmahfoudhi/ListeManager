@@ -1,6 +1,6 @@
 <?php
 
-require_once 'core/includes.php';
+require_once 'includes.php';
 
 // Connecction à la BD
 Database::instancier('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',

@@ -1,5 +1,5 @@
 <?php 
-require_once 'core/includes.php';
+require_once 'includes.php';
 
 
 		/*****************************************
@@ -20,16 +20,59 @@ require_once 'core/includes.php';
 Cette API est utilisable pour les requêtes AJAX déclenchée lors de la navigation dans 
 les sites internes, et pour toute autre application nécessistant de communiquer avec la BD.
 
-	Pour fonctionner, les requêtes entrantes devront être paramétrée comme ceci : 
-		* adresse : url-vers-api/BASE REQUETE/?&mask=[...]&orderby=[...]
-
-	En retour, l'API fournit un objet réponse encodé en JSON construit comme ceci :
-		* reponse -> erreur : booléen sur la présence ou nom d'erreur lors de l'exécution de la requête
-		* reponse -> messageErreur : le message d'erreur associé (seulement si erreur)
-		* reponse -> donnees : les données générées par l'exécution de la requête
+L'une des fonctions première de cette API est la possibilité de naviguer entre les pages
+des listes en utilisant le cache, et donc sans recharger la requete SQL à chaque coup
 
 --------------------------------------------------------------------------------------*/
 
+require_once 'core/includes.php';
 
+$reponse = new stdClass();
+$reponse->donnees = null;
+$reponse->erreur = true;
+$reponse->messageErreur = '';
+
+if(isset($_GET['typeRequete'])){
+
+	switch ($_GET['typeRequete']) {
+
+		// Cas de demande AJAX concernant la page suivante d'une liste enregistrée en cache
+		case 'page':
+			if(isset($_GET['page']) && isset($_GET['id_cache'])){
+
+				//Chargement de l'objet cache
+				$cache = new Cache($_GET['id_cache']));
+				if($cache->existe()){
+
+					//Récupération de la page correspondante
+					$ret = $cache->chargerDonnees($_GET['page']);
+					if($ret !== false){
+						$reponse->donnees = $ret;
+						$reponse->erreur = false;
+					}
+					else {
+						$reponse->messageErreur = 'Page inconnue';
+					}
+				}
+				else {
+					$reponse->messageErreur = 'Id_cache non reconnu';
+				}
+			}
+			else {
+				$reponse->messageErreur = 'Erreur de paramètres : preciser page et id_cahce';	
+			}
+			break;
+		
+		default:
+			$reponse->messageErreur = 'Le type de requete n\'est pas reconnu';
+			break;
+	}
+}
+
+else {
+	$reponse->messageErreur = 'Le type de requete n\'est pas reconnu';
+}
+
+echo json_encode($reponse);
 
 ?>

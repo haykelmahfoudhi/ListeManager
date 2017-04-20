@@ -14,18 +14,13 @@
 *************************************************/
 
 /**
-* Permet l'inclusion des classes appelées dans l'application. Ces classes doivent
-* se trouver dans les dossiers listés dans le tableau $nomDossiers
+* Permet l'inclusion des classes appelées dans l'application.
+* Les classes de ListeManager sont toutes contenues dans le dossier lib/
 */
 function autoLoader($name) {
-	//Ensemble des dossiers pouvant contenir la classe
-	$nomDossiers = array(CORE, LIB);
-	//On teste l'existence du fichier dans les divers dossiers possibles
-	foreach ($nomDossiers as $dossier) {
-		if(file_exists($dossier.$name.'.php')){
-			require_once $dossier.$name.'.php';
-			break;
-		}
+	//On teste l'existence du fichier contenant la classe
+	if(file_exists(LIB.$name.'.php')){
+		require_once LIB.$name.'.php';
 	}
 }
 
