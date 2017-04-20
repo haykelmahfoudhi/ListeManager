@@ -198,7 +198,6 @@ class TemplateListe {
 				}
 				$nouvGET = $_GET;
 				$nouvGET['orderBy'] = implode(',', array_unique($orderArray));
-				var_dump($nouvGET);
 			}
 
 			$lienMasque = '<a class="masque" href="'

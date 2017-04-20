@@ -23,6 +23,10 @@ class RequeteSQL {
 	*/
 	private $tabMasque;
 	/**
+	*
+	*/
+	private $limite;
+	/**
 	* @var TypeRequete $typeRequete : énumération sur le type de la requete SQL
 	*/
 	private $typeRequete;
@@ -47,6 +51,7 @@ class RequeteSQL {
 		$this->blocHaving = '';
 		$this->tabOrderBy = array();
 		$this->tabMasque = array();
+		$this->limite = null;
 		$this->matchRequete();
 	}
 
@@ -151,9 +156,11 @@ class RequeteSQL {
 				$ret .= ' WHERE '.$this->blocWhere;
 
 			if($this->typeRequete == TypeRequete::SELECT){
+				
 				//Ajout du bloc HAVING
 				if(strlen($this->blocHaving) > 0)
 					$ret .= ' HAVING '.$this->blocHaving;
+				
 				//Ajout du order by
 				if(count($this->tabOrderBy) > 0){
 					$ret .= ' ORDER BY ';
@@ -162,15 +169,19 @@ class RequeteSQL {
 					}
 					$ret = substr($ret, 0, strlen($ret) - 1);
 				}
+
+				//Ajout de la limite
+				if($this->limite !== null)
+					$ret .= ' LIMIT '.intval($this->limite);
 			}
 		}
 		return $ret.';';
 	}
 
 
-			/******************
-			***   GETTERS   ***
-			******************/
+			/*****************************
+			***   GETTERS && SETTERS   ***
+			*****************************/
 
 	/**
 	* @return TypeRequete : le type de la requete SQL
@@ -191,6 +202,24 @@ class RequeteSQL {
 		return false;
 	}
 
+	/**
+	* @return int la valeur de la clause 'LIMIT' de la requete, ou null si non définie
+	*/
+	public function getLimite(){
+		return $this->limite;
+	}
+
+	/**
+	* Définit la nouvelle valeur de la clause LIMIT pour les requêtes de type SELECT
+	* @param int $valeur : la nouvelle valeur limite. Si null cette clause sera desactivée. 
+	*/
+	public function setLimite($valeur){
+		if($this->typeRequete != TypeRequete::SELECT)
+			return false;
+
+		$this->limite = $valeur;
+	}
+
 
 			/******************
 			***   PRIVATE   ***
@@ -202,9 +231,15 @@ class RequeteSQL {
 	* Actualise les blocs where et having si necessaire. A appler dans le constructeur
 	*/
 	private function matchRequete(){
-		//Traitement bloc WHERE & HAVING
+
+		//Traitement bloc WHERE & HAVING & LIMIT
 		$reWhere = '/^(.+)(\s+WHERE\s+)([\s\S]+)$/i';
 		$reHaving = '/^(.+)(\s+HAVING\s+)([\s\S]+)$/i';
+		$reLimit = '/^(.+)(\s+LIMIT\s+)([0-9]+)([\s\S]+)$/i';
+		if(preg_match($reLimit, $this->baseRequete, $tabMatch) === 1){
+			$this->baseRequete = $tabMatch[1];
+			$this->limite = $tabMatch[3];
+		}
 		if(preg_match($reHaving, $this->baseRequete, $tabMatch) === 1){
 			$this->baseRequete = $tabMatch[1];
 			$this->blocHaving = $tabMatch[3];

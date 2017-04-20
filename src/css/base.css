@@ -17,7 +17,7 @@ th {
 
 td {
 	border: 1px solid white;
-	padding: 5px;
+	padding: 5px 15px;
 }
 
 .gris {
@@ -30,6 +30,7 @@ td {
 
 #pagination td {
 	border: none;
+	padding: 5px;
 }
 #pagination tr:hover {
 	background-color: white;

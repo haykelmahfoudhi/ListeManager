@@ -78,7 +78,7 @@ class ListeManager {
 		$this->db = Database::getInstance();
 		// Si la db est null alors on affiche une erreur
 		if($this->db == null)
-			echo '<b>[!]</b> ListeManager::__construct() : aucune base de données n\'est disponible ou instanciée';
+			echo '<br><b>[!]</b> ListeManager::__construct() : aucune base de données n\'est disponible ou instanciée<br>';
 	}
 
 
@@ -116,8 +116,6 @@ class ListeManager {
 			if($this->orderBy != null)	
 				$requeteSQL->orderBy($this->orderBy);
 		}
-
-		echo $requeteSQL;
 
 		//Exécution de la requete
 		return $this->executerRequete($requeteSQL);
@@ -210,6 +208,20 @@ class ListeManager {
 	}
 
 	/**
+	* Instancie une nouvelle connexion à une base de données, et enregistre l'instance créée
+	* pour l'exécution des requêtes futures.
+	 * @param string $dsn le DSN (voir le manuel PHP concernant PDO)
+	 * @param stirng $login le nom d'utilisateur pour la connexion
+	 * @param stirng $mdp son mot de passe
+	*/
+	public function connecterDatabase($dsn, $login, $mdp){
+		$this->db = Database::instancier($dsn, $login, $mdp);
+		
+		if($this->db == null)
+			echo '<br><b>[!]</b> ListeManager::connecterDatabase() : echec de connection<br>';
+	}
+
+	/**
 	* Définit la base de données qui sera utilisée pour l'exécution des requêtes SQL
 	* @param mixed $dataBase : peut être de type Database ou string.
 	*	Si string : représente l'etiquette de la base de données à utiliser.
@@ -227,7 +239,7 @@ class ListeManager {
 		}
 
 		if($this->db == null)
-			echo '<b>[!]</b> ListeManager::setDatabase() : aucune base de données correspondante';
+			echo '<br><b>[!]</b> ListeManager::setDatabase() : aucune base de données correspondante<br>';
 
 	}
 
@@ -272,31 +284,34 @@ class ListeManager {
 
 	/**
 	* Définit
-	* /!\ Ne pas oublier de passer à faux l'utilisation des variables GET
-	* pour que le changement soit pris en compte lors de l'exécution de la requête
+	* Passe automatiqument à faux l'attribut sur l'utilisation des variables GET
+	* pour la réécriture des requetes SQL
 	* @param
 	*/
 	public function setWhere(array $tabWhere){
+		$this->utiliserGET = false;
 		$this->tabWhere = $tabWhere;
 	}
 
 	/**
 	* Définit
-	* /!\ Ne pas oublier de passer à faux l'utilisation des variables GET
-	* pour que le changement soit pris en compte lors de l'exécution de la requête
+	* Passe automatiqument à faux l'attribut sur l'utilisation des variables GET
+	* pour la réécriture des requetes SQL
 	* @param
 	*/
 	public function setOrderBy($orderBy){
+		$this->utiliserGET = false;
 		$this->orderBy = $orderBy;
 	}
 
 	/**
 	* Définit
-	* /!\ Ne pas oublier de passer à faux l'utilisation des variables GET
-	* pour que le changement soit pris en compte lors de l'exécution de la requête
+	* Passe automatiqument à faux l'attribut sur l'utilisation des variables GET
+	* pour la réécriture des requetes SQL
 	* @param
 	*/
 	public function setMasque($masque){
+		$this->utiliserGET = false;
 		$this->masque = $masque;
 	}
 
@@ -318,7 +333,7 @@ class ListeManager {
 	* dans les cellules du tableau. Cette fonction doit être définie comme il suit :
 	* 	-> 3 paramètres d'entrée 
 	* 			1 - element : la valeur de l'élément en cours
-	* 			2 - colonne : le numéro de la colonne en cours
+	* 			2 - colonne : le nom de la colonne en cours
 	* 			3 - ligne   : le numéro de la ligne en cours
 	* 	-> valeur de retour de type string (ou du moins affichable via echo)
 	* @param string $fonction : le nom du callback à utiliser, null si aucun.
@@ -326,6 +341,16 @@ class ListeManager {
 	*/
 	public function setCallbackCellule($fonction){
 		$this->template->setCallbackCellule($fonction);
+	}
+
+
+	/**
+	* Définit le nombre de résultats à afficher sur une page. Valeur par défaut = 50
+	* @param int $valeur le nombre de lignes à afficher par pages
+    * @return boolean faux si la valeur entrée est incorrecte
+	*/
+	public function setNbResultatsParPage($valeur){
+		return $this->template->setNbResultatsParPage($valeur);
 	}
 }
 

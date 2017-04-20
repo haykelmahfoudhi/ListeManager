@@ -50,7 +50,8 @@ class Database {
 		}
 		catch (Exception $e) {
 			$this->pdo = null;
-			echo "<b>[!]</b>Connection à la base de données impossible :\n".$e->getMessage();
+			echo "<br><b>[!]</b>Connection à la base de données impossible :\n".$e->getMessage()
+				.'<br>';
 		}
 	}
 	
@@ -74,8 +75,8 @@ class Database {
 			return null;
 
 		if(isset(self::$instances[$etiquette])){
-			echo '<b>[!]</b>Database::instancier() : Il existe déjà une BD portant l\'étiquette "'
-				.$etiquette.'", veuillez en spécifier une nouvelle';
+			echo '<br><b>[!]</b>Database::instancier() : Il existe déjà une BD portant l\'étiquette "'
+				.$etiquette.'", veuillez en spécifier une nouvelle<br>';
 			return null;
 		}
 		self::$instances[$etiquette] = $nouvelleInstance;

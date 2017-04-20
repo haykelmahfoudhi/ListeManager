@@ -1,0 +1,9 @@
+RewriteEngine On
+
+#Redirection vers api.php
+RewriteCond %{REQUEST_URI}% ^(/api)
+RewriteRule ^(.*)$ api.php?/$1 [L]
+
+#Redirection vers index.php
+RewriteCond %{REQUEST_URI}% !(/src/)
+RewriteRule ^(.*)$ index.php?/$1 [L]

@@ -30,19 +30,7 @@ les sites internes, et pour toute autre application nécessistant de communiquer
 
 --------------------------------------------------------------------------------------*/
 
-//Connexion à la base de données
-Database::instancier('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
-	'root', '');
+$eventBase = new EventBase();
 
-//On parse la requête
-// TODO
-$requete = "SELECT * FROM test";
-
-//Exécution de la requete
-$lm = new ListeManager();
-$lm->setTypeReponse(TypeReponse::JSON);
-$reponse = $lm->executerRequete($requete);
-
-echo $reponse;
 
 ?>

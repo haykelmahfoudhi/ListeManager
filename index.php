@@ -14,25 +14,19 @@ require_once 'core/includes.php';
 <?php
 
 // Connecction à la BD
-$db = Database::instancier('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
+Database::instancier('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
 	'root', '');
 
-//Callback à appliquer à chaque cellule
-function callback($element, $colonne, $ligne){
-	if($colonne == 'a5')
-		return "<a href='#$ligne'>$element - ok</a>";
-	else 
-		return $element;
-}
-
 //Base de la requete SQL
-$baseSQL = "SELECT id, a1, test.a6 as a5 FROM test";
+$baseSQL = "SELECT id, a1, a2, a3, a6 as a4 FROM test";
 
 //Exécution de la requete et affichage de la liste
 $lm = new ListeManager();
-$lm->setCallbackCellule('callback');
+$lm->setNbResultatsParPage(10);
 echo $lm->construire($baseSQL);
 
 ?>
+<script type="text/javascript" src="<?=JS?>jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="<?=JS?>listeManager.js"></script>
 </body>
 </html>
