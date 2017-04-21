@@ -70,9 +70,65 @@ class RequeteSQL {
 		}
 	}
 
-	
+	/**
+	* Ajoute des clauses where à la requête.
+	* @var array $tabWhere : le tableau contenant toutes les conditions à rajouter.
+	* Ce tableau aura la forme suivante :
+	* 	-> 'nomColonne1' => 'condition1', 'nomColonne2' => 'condition2' ...
+	* Une condition prend la forme suivante : [OPERATEUR][VALEUR]
+	* Les opérateurs possibles sont :
+	* 	(pas d'opérateur) : égalité stricte avec la valeur entrée
+	* 	< > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égale (pour les valeurs numériques)
+	* 	! : opérateur 'différent de'
+	* 	<< : opérateur 'BETWEEN' pour les dates
+	* 	_ % : opérateurs joker SQL, remplacent respectivement un seul caractère ou un nombre indéfini de caractère dans une chaine.
+	* Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' => 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
+	*/
 	public function where(array $tabWhere){
+		$ret = '';
+		foreach ($tabWhere as $nomColonne => $conditions) {
+			$conditions = explode(',', $conditions);
+			$ret .= '(';
+			foreach ($conditions as &$condition) {
+				//Initilasation des variables
+				$operateur = '=';
+				$not = false;
 
+				// Construction de l'operateur et sa valeur : NOT
+				if(mb_substr($condition, 0, 1) === '!'){
+					$not = true;
+					$condition = mb_substr($condition, 1);
+				}
+				// Comparateurs > < >= <=
+				if( (in_array($op = mb_substr($condition, 0, 2), array('>=', '<='))
+					|| in_array($op = mb_substr($condition, 0, 1), array('>', '<')) ) 
+					&& is_numeric($val = mb_substr($condition, strlen($op))) ) {
+					$valeur = $val;
+					$operateur = $op;
+				}
+				// Opérateur BETWEEN
+				else if(($pos = mb_strpos($condition, '<<') !== false) ){
+					$valeur = mb_substr($condition, 0, $pos).' AND '
+						.mb_substr($condition, $pos + 2);
+					$operateur = 'BETWEEN';
+				}
+				else {
+					// Opérateur LIKE
+					if(mb_strpos($condition, '_') !== false 
+						|| mb_strpos($condition, '%') !== false){
+						$operateur = 'LIKE';
+					}
+					$valeur = $condition;
+				}
+
+				$ret .= (($not)? 'NOT ' : '')."$nomColonne $operateur $valeur OR ";
+			}
+			$ret = mb_substr($ret, 0, strlen($ret) - 4).')';
+			$ret .= ' AND ';
+		}
+
+		$ret = mb_substr($ret, 0, strlen($ret) - 5);
+		$this->blocWhere .= $ret;
 	}
 
 	/**

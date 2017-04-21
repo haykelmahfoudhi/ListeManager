@@ -41,7 +41,7 @@ La mission ici sera donc de refondre cette librairie en la rendant plus facile �
                 [ ] Reconnaissance du type de données
                     [ ] Gestion des dates (BETWEEN)
                 [ ] Clause LIKE
-                [ ] Reconnaissance des opérateurs < <= > >= % .
+                [ ] Reconnaissance des opérateurs < <= > >= % _ << , !
             [o] Système de cache pour naviguer entre les pages
                 [x] API php pour les requêtes AJAX
                 [ ] LibEvent -> suppression cache on connection closed

@@ -20,13 +20,14 @@ Database::instancier('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
 //Base de la requete SQL
 $baseSQL = "SELECT id, a1, a2, a3, a6 as a4 FROM test";
 
-//Exécution de la requete et affichage de la liste
-$lm = new ListeManager();
-$lm->setNbResultatsParPage(10);
-//$lm->utiliserCache(true);
-echo $lm->construire($baseSQL);
+$req = new RequeteSQL($baseSQL);
+$req->where(array('a1' => '0',
+					'a3' => '!>5',
+					'a5' => '<=5,56',
+					'a4' => 'eor%'
+					));
 
-// Test du cache
+echo $req;
 
 ?>
 <script type="text/javascript" src="<?=JS?>jquery-3.2.1.min.js"></script>
