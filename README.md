@@ -1,5 +1,5 @@
-# API REST & Libraire de fonctions Mecaprotec
----------------------------------------------
+API REST & Libraire de fonctions Mecaprotec
+=============================================
 
 ## Contexte
 
@@ -7,32 +7,46 @@ Mecaprotec utilise à l'heure actuelle une librairie de fonctions PHP pour la r�
 
 ## Mission
 
-La mission ici sera donc de réécrire cette librairie en la rendant plus facile à manipuler pour le développeur. La nouvelle librairie PHPLib sera composée de :
-* Un modèle permettant la connexion à la BD et l'exécution de requêtes SQL. Ce modèle sera accessible en interne grâce à une API qui retournera les données en JSON
-* Un controleur (classe PHPLib) qui sera l'interface entre le développeur et la librairie. Cette classe prendra en entrée une requête SQL et retournera une vue HTML.
-* Un template de base (vue) qui sera appelée et rempli par les données générées par le controleur.
-* Un ensemble d'outils et de fonctions PHP qui sont présentent dans la version 1 de la librairir
- 
+La mission ici sera donc de refondre cette librairie en la rendant plus facile à manipuler pour le développeur. La nouvelle librairie PHPLib, renommée ListeManager, consistera en :
+* Un objet ListeManager possèdant un comportement de base, paramètrables via un ensemble de setters. Cet objet sera l'interface entre le développeur et la librairie.
+    * **Comportement de base** : affichage d'une liste HTML avec les mêmes fonctionnalités que celles porposées par PHPLib à savoir : recherche, tri par colonne, export Excel, masquage colonnes
+    * **Comportement modifiables** :
+        * Type de données retournées parmi Liste HTML, Excel, objet ou array PHP, objet JSON
+        * Affichage du template Liste HTML :
+            * modification de l'id du tableau
+            * modification classes pour les lignes paires/impaires
+            * modification du nombre de lignes par page
+            * activation / désactivation des fonctionnalités recherche, masque et order
+            * modification des messages d'erreur / liste vide
+        * Activation / désactivation d'un système de cache pour la navigation entre les pages pour les requêtes SQL lourdes
+* Un objet Database basé sur le design pattern multiton, utilisant PDO et un certain nombre de drivers pour permettre la connection vers n'importe quel type de base de données
+* Une API JSON permettant l'interaction entre AJAX (ou application non PHP) d'interagir avec une base de données.
+* [?] Un objet Session .. conception à venir
+* [?] Un patron MVC léger facilement implémentable pour créer rapidement un petit ensemble de pages dans un site web dynamique.
+
 ---------------------------------------------------------------
 
 # RESTE A FAIRE TRIE PAR PRIORITE
     
-    [] Phase de développement
-        [x] Connection & interactions avec la BD
+    [o] Phase de développement
+        [o] Connection & interactions avec la BD
             [x] Multiton Database
-            [] Drivers Oracle / Postgre
-        [] Fonctionnalités liste
+            [ ] Drivers Oracle / Postgre
+        [o] Fonctionnalités liste
             [x] Masquage des colonnes
                 [x] avec PHP
                 [x] avec JS
             [x] Réécriture des ORDER BY
-            [] Réécriture clauses where
-                [] Reconnaissance du type de données
-                    [] Gestion des dates (BETWEEN)
-                [] Clause LIKE
-                [] Reconnaissance des opérateurs < << > >> % .
-            [] Système de cache pour naviguer entre les pages
+            [ ] Réécriture clauses where
+                [ ] Reconnaissance du type de données
+                    [ ] Gestion des dates (BETWEEN)
+                [ ] Clause LIKE
+                [ ] Reconnaissance des opérateurs < <= > >= % .
+            [o] Système de cache pour naviguer entre les pages
                 [x] API php pour les requêtes AJAX
-                [] LibEvent -> suppression cache on connection closed
+                [ ] LibEvent -> suppression cache on connection closed
+        [ ] Export PHPExcel
+        [ ] API JSON pour exécuter des requêtes SQL depuis une application externe
+        [ ] Gestionnaire de sessions sécurisé
 
-    [] Phase de tests
+    [ ] Phase de tests
