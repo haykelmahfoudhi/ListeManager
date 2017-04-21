@@ -25,8 +25,6 @@ des listes en utilisant le cache, et donc sans recharger la requete SQL à chaqu
 
 --------------------------------------------------------------------------------------*/
 
-require_once 'core/includes.php';
-
 $reponse = new stdClass();
 $reponse->donnees = null;
 $reponse->erreur = true;
@@ -41,7 +39,7 @@ if(isset($_GET['typeRequete'])){
 			if(isset($_GET['page']) && isset($_GET['id_cache'])){
 
 				//Chargement de l'objet cache
-				$cache = new Cache($_GET['id_cache']));
+				$cache = new Cache($_GET['id_cache']);
 				if($cache->existe()){
 
 					//Récupération de la page correspondante

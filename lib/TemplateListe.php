@@ -87,7 +87,7 @@ class TemplateListe {
 		$this->messageListeVide = "Aucun résultat!";
 		$this->classeErreur = 'erreur';
 		$this->pageActuelle = ((isset($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] : 1 );
-		$this->nbResultatsParPage = Cache::NB_LIGNES_PAR_PAGE;
+		$this->nbResultatsParPage = 50;
 		$this->callbackCellule = null;
 		$this->utiliserCache = false;
 	}
@@ -114,6 +114,15 @@ class TemplateListe {
 		$donnees = $reponse->listeResultat();
 		$nbLignes = $reponse->getNbLignes();
 		$debut = ($this->pageActuelle-1) * $this->nbResultatsParPage;
+		$titres = $reponse->getNomColonnes();
+
+		// Enregistrement des données dans le cache
+		if($this->utiliserCache && $nbLignes > Cache::NB_LIGNES_MIN){
+			$cacheID = md5(uniqid());
+			$cache = new Cache($cacheID);
+			$cache->ecrire($donnees, $titres, $this->nbResultatsParPage);
+		}
+
 		// $donnees ne contient plus que les valeurs à afficher
 		$donnees = array_slice($donnees, $debut, $this->nbResultatsParPage);
 
@@ -138,9 +147,8 @@ class TemplateListe {
 
 		// Bouton pour reset le mask
 		//if(isset($_GET['mask']) && strlen($_GET['mask']) > 0) {
-			$ret .= '<a id="annuler-masque" href="#'
-				//.self::creerUrlGET('mask', '')
-				.'">M</a>';
+			$ret .= '<a id="annuler-masque" href="'
+				.self::creerUrlGET('mask', '').'">M</a>';
 		//}
 		$ret .= "<div>\n";
 
@@ -149,7 +157,6 @@ class TemplateListe {
 		$ret .= '<table'.(($this->id == null)?'' : " id ='$this->id' ").'>'."\n<tr>";
 
 		//Création des titres
-		$titres = $reponse->getNomColonnes();
 		$i = 0;
 		foreach ($titres as $titre) {
 
@@ -208,7 +215,7 @@ class TemplateListe {
 			}
 
 			$lienMasque = '<a class="masque" href="'
-				.'#'//self::creerUrlGET('mask', $maskString, ((isset($nouvGET))? $nouvGET : null))
+				.self::creerUrlGET('mask', $maskString, ((isset($nouvGET))? $nouvGET : null))
 				.'">x</a>';
 
 			// Affiche les liens et les titres
@@ -228,12 +235,13 @@ class TemplateListe {
 			}
 			$ret .= "</tr>\n";
 		}
-
+		
 		// Si le tableau est vide -> retourne messageListeVide
 		if(count($donnees) == 0){
 			$ret .= "</table>\n";
 			$ret .= self::messageHTML($this->messageListeVide, $this->classeErreur);
 		}
+
 		
 		//Insertion de données
 		else {
@@ -281,7 +289,6 @@ class TemplateListe {
 				else {
 					$ret .= '<td><a href="'.self::creerUrlGET('page', 1).'">&lt;&lt;</td>';
 					$fin = min($debut + self::NB_PAGES_MAX, $nbPages);
-
 				}
 			}
 			else {
@@ -424,7 +431,7 @@ class TemplateListe {
 
 
 	/**
-	*
+	* @return int le nombre de lignes de résultat à afficher par page
 	*/
 	public function getNbResultatsParPage(){
 		return $this->nbResultatsParPage;

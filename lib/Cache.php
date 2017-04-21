@@ -31,16 +31,18 @@ class Cache {
 	* Formate en JSON et écrit les données passées en paramètres
 	* dans le fichier cache, sauf s'il existe déjà
 	* @var array $donnees : les données à écrire dans le fichier
+	* @var int $nbResultatsParPage : le nombre de lignes contenues dans une seule page
 	* @return boolean true si l'opération d'ecriture s'est bien passée, false en cas d'erreur
 	*/
-	public function ecrire(array $donnees, $nbResultatsParPage) {
-		// On vérifie que le cache est vide
-		if($this->existe())
+	public function ecrire(array $donnees, array $titres, $nbResultatsParPage) {
+		// On vérifie que le cache est vide et qu'il y a suffisemment de données
+		if($this->existe() && count($donnees) >= self::NB_LIGNES_MIN)
 			return false;
 
 		// Encodage JSON
-		$obj->liste = $donnees;
+		$obj->titres  = $titres;
 		$obj->nbResultatsParPage = $nbResultatsParPage;
+		$obj->donnees = $donnees;
 		$string = json_encode($obj);
 
 		// Ecriture dans le fichier
@@ -73,18 +75,50 @@ class Cache {
 	*/
 	public function chargerPage($page) {
 		// On charge toutes les données enregistrées
-		$donnees = $this->charger();
-		if($donnees === false)
+		$obj = $this->charger();
+		if($obj === false)
 			return false;
 
 		// retour des données
-		return array_slice($donnees->liste, ($page - 1) * $donnees->nbResultatsParPage,
-			$donnees->nbResultatsParPage);
+		return array_slice($obj->donnees, ($page - 1) * $obj->nbResultatsParPage,
+			$obj->nbResultatsParPage);
 
 	}
 
-	public function rechercher($colonne, $valeur){
+	/**
+	* Effectue une recherche de données dans le cache
+	* @param array $rechcerche le tableau contenant les éléments de recehrche :
+	* 	-> ce paramètre doit être sous la forme d'un tableau associatif comme il suit :
+	* 		array(	[nomColonne1] => 'valeur recherchée',
+	* 				[nomColonne2] => 'valeur recherchée' ... )  
+	* @return l'ensemble des données correpsondant à la recherche ou faux en cas d'erreur
+	*/
+	public function rechercher(array $recherche){
+		// On charge toutes les données enregistrées
+		$obj = $this->charger();
+		if($obj === false)
+			return false;
 
+		$ret = $obj->donnees;
+		foreach ($recherche as $titre => $valeur) {
+			
+			// Récupération du numéro de colonne à partir du titre
+			if( ($numColonne = array_search($titre, $obj->titre)) !== false) {
+
+				//Création du callback pour filtrer les résultats
+				$callback = function($ligne) use($numColonne, $valeur) {
+					// Si la recherche concerne un nombre
+					if(is_numeric($ligne[$numColonne])){
+						return $ligne[$numColonne] == $valeur;
+					}
+
+					// Sinon on recherche une correspondance dans un string
+					return (strpos($ligne[$numColonne], $valeur) !== false);
+				};
+				// Filtrage
+				$ret = array_filter($ret, $callback);
+			}
+		}
 	}
 
 	/**

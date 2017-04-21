@@ -1,9 +1,9 @@
 RewriteEngine On
 
 #Redirection vers api.php
-RewriteCond %{REQUEST_URI}% ^(/api)
-RewriteRule ^(.*)$ api.php?/$1 [L]
+RewriteCond %{REQUEST_URI}% (/api.php)
+RewriteRule .* api.php [L]
 
 #Redirection vers index.php
-RewriteCond %{REQUEST_URI}% !(/src/)
-RewriteRule ^(.*)$ index.php?/$1 [L]
+#RewriteCond %{REQUEST_URI}% !(/src/)
+#RewriteRule .* index.php [L]

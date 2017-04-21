@@ -23,7 +23,10 @@ $baseSQL = "SELECT id, a1, a2, a3, a6 as a4 FROM test";
 //Exécution de la requete et affichage de la liste
 $lm = new ListeManager();
 $lm->setNbResultatsParPage(10);
+//$lm->utiliserCache(true);
 echo $lm->construire($baseSQL);
+
+// Test du cache
 
 ?>
 <script type="text/javascript" src="<?=JS?>jquery-3.2.1.min.js"></script>

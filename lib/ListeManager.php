@@ -61,10 +61,6 @@ class ListeManager {
 	*
 	*/
 	private $masque;
-	/**
-	*
-	*/
-	private $utiliserCache;
 	
 	
 			/***********************
@@ -75,7 +71,6 @@ class ListeManager {
 		$this->typeReponse = TypeReponse::TEMPLATE;
 		$this->template = new TemplateListe();
 		$this->utiliserGET = true;
-		$this->$utiliserCache = false;
 		$this->tabWhere = null;
 		$this->masque = null;
 		$this->orderBy = null;
@@ -179,12 +174,7 @@ class ListeManager {
 					isset($_GET['quest']) && intval($_GET['quest']) == 1);
 				
 				//Gestion avec cache
-				$this->template->utiliserCache($this->utiliserCache);
-				if($this->utiliserCache && ! $reponse->erreur()){
-					$cacheID = md5(uniqid());
-					$cache = new Cache($cacheID);
-					$cache->ecrire($reponse->listeResultat());
-				}
+				
 				return $this->template->construireListe($reponse);
 		}
 
@@ -372,12 +362,13 @@ class ListeManager {
 	/**
 	* Définit si ListeManager doit utiliser ou non le système de cache pour accélérer
 	* la navigation entre les pages de la liste
+	* @param boolean $valeur : true pour activer le fonctionnement par cache, false sinon
 	*/
 	public function utiliserCache($valeur){
 		if(!is_bool($valeur))
 			return false;
 
-		$this->utiliserCache = $valeur;
+		$this->template->utiliserCache($valeur);
 	}
 }
 

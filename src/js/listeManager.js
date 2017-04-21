@@ -1,6 +1,7 @@
 
 // Masquage de colonnes
-function masquerColonnes(event){
+function masquerColonnes(event) {
+	event.preventDefault();
 	$('a#annuler-masque').show();
 	var index = $(event.target).parent().index();
 	var cases = $('table#liste').find('td, th');
@@ -13,14 +14,14 @@ function masquerColonnes(event){
 }
 
 // Afficher les colonnes masquées
-function afficherColonnes(event){
+function afficherColonnes(event) {
+	event.preventDefault();
 	var cols = $('table#liste').find('td, th');
 	console.log('yolo');
 	for (var i = 0; i < cols.length; i++) {
 		$(cols[i]).show();
 	}
 }
-
 
 
 
