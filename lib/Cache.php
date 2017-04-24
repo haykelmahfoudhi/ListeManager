@@ -30,24 +30,23 @@ class Cache {
 	/**
 	* Formate en JSON et écrit les données passées en paramètres
 	* dans le fichier cache, sauf s'il existe déjà
-	* @var array $donnees : les données à écrire dans le fichier
+	* @var ReponseRequete $reponse : l'objet réponse produit par l'exécution de la requete
 	* @var int $nbResultatsParPage : le nombre de lignes contenues dans une seule page
 	* @return boolean true si l'opération d'ecriture s'est bien passée, false en cas d'erreur
 	*/
-	public function ecrire(array $donnees, array $titres, $nbResultatsParPage) {
+	public function ecrire(ReponseRequete $reponse, $nbResultatsParPage) {
 		// On vérifie que le cache est vide et qu'il y a suffisemment de données
-		if($this->existe() && count($donnees) >= self::NB_LIGNES_MIN)
+		if($this->existe() && $reponse->getNbLignes() >= self::NB_LIGNES_MIN)
 			return false;
 
 		// Encodage JSON
-		$obj->titres  = $titres;
 		$obj->nbResultatsParPage = $nbResultatsParPage;
-		$obj->donnees = $donnees;
-		$string = json_encode($obj);
+		$obj->titres  = $reponse->getNomColonnes();
+		$obj->donnees = $reponse->listeResultat();
 
 		// Ecriture dans le fichier
-		$ret = fwrite($this->fichier, $string);
-		$this->cacheExiste = (($ret != false) ? true : false);
+		$ret = fwrite($this->fichier, json_encode($obj));
+		$this->cacheExiste = ($ret !== false);
 		return $this->cacheExiste;
 	}
 

@@ -53,7 +53,7 @@ if(isset($_GET['typeRequete'])){
 					}
 				}
 				else {
-					$reponse->messageErreur = 'Id_cache non reconnu';
+					$reponse->messageErreur = 'id_cache non reconnu';
 				}
 			}
 			else {

@@ -101,12 +101,26 @@ class ListeManager {
 
 		if($this->utiliserGET){
 			//Construction de la requete à partir de variables GET disponibles
-			if(isset($_GET['mask']) && strlen($_GET['mask']) > 0)
+			
+			if(isset($_GET['mask']) && strlen($_GET['mask']) > 0){ // Masque
 				$requeteSQL->masquer(explode(',', $_GET['mask']));
-			if(isset($_GET['tabSelect']))
-				$requeteSQL->where($_GET['tabSelect']);
-			if(isset($_GET['orderBy']))
+			}
+			
+			// Conditions (where)
+			if(isset($_GET['tabSelect'])){
+				$tabWhere = array();
+				foreach ($_GET['tabSelect'] as $titre => $valeur) {
+					if(strlen($valeur) > 0)
+						$tabWhere[$titre] = $valeur;
+				}
+				if(count($tabWhere) > 0)
+					$requeteSQL->where($tabWhere);
+			}
+			
+			// Tri (Order By)
+			if(isset($_GET['orderBy'])){
 				$requeteSQL->orderBy(explode(',', $_GET['orderBy']));
+			}
 		}
 		else {
 			if($this->masque != null)	
@@ -171,7 +185,8 @@ class ListeManager {
 			case TypeReponse::TEMPLATE:
 				// Affichage (ou non) des champs de recherches
 				$this->template->afficherChampsRecherche(
-					isset($_GET['quest']) && intval($_GET['quest']) == 1);
+					(isset($_GET['quest']) && (intval($_GET['quest']) == 1)
+					|| (isset($_GET['tabSelect']) && intval($_GET['quest']) != 0)) );
 				
 				//Gestion avec cache
 				
@@ -343,7 +358,7 @@ class ListeManager {
 	* Valeur par défaut : null
 	*/
 	public function setCallbackCellule($fonction){
-		if(!is_string($valeur))
+		if(!is_string($fonction))
 			return false;
 
 		$this->template->setCallbackCellule($fonction);

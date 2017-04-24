@@ -17,17 +17,22 @@ Database::instancier('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
 <body>
 <?php
 
+function test($cellule, $titre, $ligne){
+	if($titre === 'a3')
+		return 'coucou';
+	else 
+		return $cellule;
+}
+
 //Base de la requete SQL
-$baseSQL = "SELECT id, a1, a2, a3, a6 as a4 FROM test";
+$baseSQL = "SELECT * FROM test";
 
 $req = new RequeteSQL($baseSQL);
-$req->where(array('a1' => 'Aoojae32',
-					'a3' => '!>5',
-					'a5' => '<=5,56',
-					'a4' => '12-04-2017<<15-05-2017'
-					));
 
-echo $req;
+// Liste Manager
+$lm = new ListeManager();
+var_dump($lm->setCallbackCellule('test'));
+echo $lm->construire($req);
 
 ?>
 <script type="text/javascript" src="<?=JS?>jquery-3.2.1.min.js"></script>

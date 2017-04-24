@@ -93,6 +93,7 @@ class RequeteSQL {
 				//Initilasation des variables
 				$operateur = '=';
 				$not = false;
+				$btw = false;
 
 				// Construction de l'operateur et sa valeur : NOT
 				if(mb_substr($condition, 0, 1) === '!'){
@@ -108,9 +109,15 @@ class RequeteSQL {
 				}
 				// Opérateur BETWEEN
 				else if(($pos = mb_strpos($condition, '<<')) !== false ){
-					$valeur = mb_substr($condition, 0, $pos).' AND '
-						.mb_substr($condition, $pos + 2);
 					$operateur = 'BETWEEN';
+					// Récupération des deux bornes
+					$val1 = htmlentities(mb_substr($condition, 0, $pos), ENT_QUOTES);
+					$val2 = htmlentities(mb_substr($condition, $pos + 2), ENT_QUOTES);
+					// Constructiond de $valeur
+					$valeur = (is_numeric($val1)? $val1 : "'$val1'" )
+						.' AND '.(is_numeric($val2)? $val2 : "'$val2'"  );
+					// Pour ne pas reformater les valeurs lors de la reconnaissance du type
+					$btw = true;
 				}
 				else {
 					// Opérateur LIKE
@@ -121,6 +128,10 @@ class RequeteSQL {
 					$valeur = $condition;
 				}
 
+				// Reconnaissance type de valeur
+				if(! is_numeric($valeur) && ! $btw)
+					$valeur = '\''.htmlentities($valeur, ENT_QUOTES).'\'';
+				// Mise en forme de la condition
 				$ret .= (($not)? 'NOT ' : '')."$nomColonne $operateur $valeur OR ";
 			}
 			$ret = mb_substr($ret, 0, strlen($ret) - 4).')';
@@ -231,7 +242,7 @@ class RequeteSQL {
 					$ret .= ' LIMIT '.intval($this->limite);
 			}
 		}
-		return htmlentities($ret).';';
+		return $ret.';';
 	}
 
 

@@ -17,6 +17,7 @@ class ReponseRequete {
 	private $statement;
 	private $erreur;
 	private $messageErreur;
+	private $donnees;
 	
 
 		/***********************
@@ -27,6 +28,7 @@ class ReponseRequete {
 		$this->statement = $statement;
 		$this->erreur = $erreur;
 		$this->messageErreur = $message;
+		$this->donnees = array();
 	}
 	
 
@@ -39,7 +41,10 @@ class ReponseRequete {
 	 */
 	public function ligneSuivante(){
 		if(!$this->erreur()){
-			return $this->statement->fetch(PDO::FETCH_NUM);
+			$ret = $this->statement->fetch(PDO::FETCH_NUM);
+			if($ret != null)
+				$this->donnees[] = $ret;
+			return $ret;
 		}
 		return false;
 	}
@@ -49,7 +54,9 @@ class ReponseRequete {
 	 */
 	public function listeResultat(){
 		if(!$this->erreur()){
-			return $this->statement->fetchAll(PDO::FETCH_NUM);
+			if(count($this->donnees) != $this->getNbLignes())
+				$this->donnees = $this->statement->fetchAll(PDO::FETCH_NUM);
+			return $this->donnees;
 		}
 		return false;
 	}

@@ -65,6 +65,10 @@ class TemplateListe {
 	*
 	*/
 	private $utiliserCache;
+	/**
+	*
+	*/
+	private $idRecherche;
 	
 
 	public static $CLASSE1 = 'gris';
@@ -90,6 +94,7 @@ class TemplateListe {
 		$this->nbResultatsParPage = 50;
 		$this->callbackCellule = null;
 		$this->utiliserCache = false;
+		$this->idRecherche = 'recherche';
 	}
 	
 	
@@ -120,7 +125,7 @@ class TemplateListe {
 		if($this->utiliserCache && $nbLignes > Cache::NB_LIGNES_MIN){
 			$cacheID = md5(uniqid());
 			$cache = new Cache($cacheID);
-			$cache->ecrire($donnees, $titres, $this->nbResultatsParPage);
+			$cache->ecrire($reponse, $this->nbResultatsParPage);
 		}
 
 		// $donnees ne contient plus que les valeurs à afficher
@@ -137,19 +142,25 @@ class TemplateListe {
 		
 		//Ajout des boutons options sur le côté
 		$ret .= "\n<div id='boutons-options'>";
+
 		//Bouton quest (recherche)
 		if($this->activerRecherche){
 			$ret .= '<a href="'.self::creerUrlGET('quest', 
 				( ($this->afficherRecherche) ? 0 : 1)).'">?</a>'; 
+			
+			// Ajout du form si recherche activée
+			if($this->afficherRecherche)
+				$ret .= "\n<form id='$this->idRecherche' method='GET'"
+					.'\'><input type="submit" value="Go!"/></form>';
 		}
 		// Bouton excel
 		// TODO
 
 		// Bouton pour reset le mask
-		//if(isset($_GET['mask']) && strlen($_GET['mask']) > 0) {
+		if(isset($_GET['mask']) && strlen($_GET['mask']) > 0) {
 			$ret .= '<a id="annuler-masque" href="'
 				.self::creerUrlGET('mask', '').'">M</a>';
-		//}
+		}
 		$ret .= "<div>\n";
 
 
@@ -229,9 +240,13 @@ class TemplateListe {
 			$ret .= "<tr>";
 			$types = $reponse->getTypeColonnes();
 			for ($i=0; $i < count($titres); $i++) {
+				//Détermine le contenu du champs
+				$valeur = (isset($_GET['tabSelect'][$titres[$i]])? 
+					$_GET['tabSelect'][$titres[$i]] : null);
 				//Determine la taille du champs
 				$taille = min($types[$i]->len, self::MAX_LEN_INPUT);
-				$ret .= "<td><input type='text' name='tabselect[]' size='$taille'/></td>";
+				$ret .= '<td><input type="text" name="tabSelect['.$titres[$i].']"'
+					." form='$this->idRecherche' size='$taille' value='$valeur'/></td>";
 			}
 			$ret .= "</tr>\n";
 		}
@@ -429,6 +444,16 @@ class TemplateListe {
 		$this->utiliserCache = $valeur;
 	}
 
+	/**
+	*
+	*/
+	public function setIdFormRecherche($valeur) {
+		if(strlen($valeur) == 0)
+			$this->idRecherche = null;
+		else
+			$this->idRecherche = $valeur;
+	}
+
 
 	/**
 	* @return int le nombre de lignes de résultat à afficher par page
@@ -441,15 +466,23 @@ class TemplateListe {
 			***   PRIVATE   ***
 			******************/
 
-	private static function messageHTML($message, $classe){
-		return '<p'.(($classe == null)? '' : " class=$classe ").'>'.$message.'</p>';
+	private static function messageHTML($message, $nom, $balise='p', $id=false){
+		return '<'.$balise.(($nom == null)? '' : (($id)?' id="' : ' class="').$nom.'"' )
+			.'>'.$message.'</'.$balise.'>';
 	}
 
 	private static function creerUrlGET($nom, $val, $get=null){
-		if($get == null){
+		if($get == null)
 			$get = $_GET;
-		}
-		$get[$nom] = $val;
+		
+		if($val !== null)
+			$get[$nom] = $val;
+
+		/*foreach ($get as &$valeur) {
+			if(strlen($valeur) == 0)
+				unset($valeur);
+		}*/
+
 		return strtok($_SERVER['REQUEST_URI'], '?').'?'.http_build_query($get);
 	}
 	
