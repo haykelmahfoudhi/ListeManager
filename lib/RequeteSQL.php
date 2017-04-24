@@ -107,7 +107,7 @@ class RequeteSQL {
 					$operateur = $op;
 				}
 				// Opérateur BETWEEN
-				else if(($pos = mb_strpos($condition, '<<') !== false) ){
+				else if(($pos = mb_strpos($condition, '<<')) !== false ){
 					$valeur = mb_substr($condition, 0, $pos).' AND '
 						.mb_substr($condition, $pos + 2);
 					$operateur = 'BETWEEN';
@@ -231,7 +231,7 @@ class RequeteSQL {
 					$ret .= ' LIMIT '.intval($this->limite);
 			}
 		}
-		return $ret.';';
+		return htmlentities($ret).';';
 	}
 
 
