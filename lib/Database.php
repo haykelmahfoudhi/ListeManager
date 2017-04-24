@@ -29,7 +29,7 @@ class Database {
 			********************/
 
 	private $pdo;
-	private $etiquette;
+	private $label;
 	private static $instances = array();
 	
 	
@@ -38,19 +38,19 @@ class Database {
 		***********************/
 	
 	/**
-	 * Instancie la connexion avec la base de données via un objet PDO contenu dans l'objet Database
+	 * Instancie la connexion avec la base de donnï¿½es via un objet PDO contenu dans l'objet Database
 	 * @param string $dsn le DSN (voir le manuel PHP concernant PDO)
 	 * @param stirng $login le nom d'utilisateur pour la connexion
-	 * @param stirng $mdp son mot de passe
+	 * @param stirng $passwd son mot de passe
 	 */
-	private function __construct($dsn, $login, $mdp, $etiquette) {
-		$this->etiquette = $etiquette;
+	private function __construct($dsn, $login, $passwd, $label) {
+		$this->label = $label;
 		try {
-			$this->pdo = new PDO($dsn, $login, $mdp);
+			$this->pdo = new PDO($dsn, $login, $passwd);
 		}
 		catch (Exception $e) {
 			$this->pdo = null;
-			echo "<br><b>[!]</b>Connection à la base de données impossible :\n".$e->getMessage()
+			echo "<br><b>[!]</b>Connection ï¿½ la base de donnï¿½es impossible :\n".$e->getMessage()
 				.'<br>';
 		}
 	}
@@ -61,22 +61,22 @@ class Database {
 			*******************/
 
 	/**
-	 * Instancie une nouvelle connexion avec la base de données via un objet PDO
+	 * Instancie une nouvelle connexion avec la base de donnï¿½es via un objet PDO
 	 * @param string $dsn le DSN de la connection (voir le manuel PHP concernant PDO)
 	 * @param string $login le nom d'utilisateur de la BD
 	 * @param string $mdp le mot de passe de l'utilisateur
-	 * @param string $etiquette (facultatif) l'etiquette de la base de données, utile si plusieurs bases de données sont
-	 * utilisées en même temps dans l'application
-	 * @return Database : l'instance de Database créé et connecté, ou null en cas d'echec.
+	 * @param string $etiquette (facultatif) l'etiquette de la base de donnï¿½es, utile si plusieurs bases de donnï¿½es sont
+	 * utilisï¿½es en mï¿½me temps dans l'application
+	 * @return Database : l'instance de Database crï¿½ï¿½ et connectï¿½, ou null en cas d'echec.
 	 */
-	public static function instancier($dsn, $login, $mdp, $etiquette='principale'){
+	public static function instantiate($dsn, $login, $mdp, $etiquette='principale'){
 		$nouvelleInstance = new self($dsn, $login, $mdp, $etiquette);
 		if($nouvelleInstance->pdo == null)
 			return null;
 
 		if(isset(self::$instances[$etiquette])){
-			echo '<br><b>[!]</b>Database::instancier() : Il existe déjà une BD portant l\'étiquette "'
-				.$etiquette.'", veuillez en spécifier une nouvelle<br>';
+			echo '<br><b>[!]</b>Database::instancier() : Il existe dï¿½jï¿½ une BD portant l\'ï¿½tiquette "'
+				.$etiquette.'", veuillez en spï¿½cifier une nouvelle<br>';
 			return null;
 		}
 		self::$instances[$etiquette] = $nouvelleInstance;
@@ -84,24 +84,24 @@ class Database {
 	}
 	
 	/**
-	 * Exécute la requete SQL passée en paramètres
-	 * @param mixed $requete la requete SQL à exécuter, peut être string ou objet RequeteSQL
-	 * @return ReponseRequete : la réponse de la requete, ou faux si la BD n'est pas connectée
+	 * Exï¿½cute la requete SQL passï¿½e en paramï¿½tres
+	 * @param mixed $request la requete SQL ï¿½ exï¿½cuter, peut ï¿½tre string ou objet SQLRequest
+	 * @return RequestResponse : la rï¿½ponse de la requete, ou faux si la BD n'est pas connectï¿½e
 	 */
-	public function executer($requete){
+	public function execute($request){
 		if($this->pdo == null)
 			return false;
 
-		//On transforme l'objet RequeteSQL en string
-		if($requete instanceof RequeteSQL)
-			$requete = $requete->__toString();
+		//On transforme l'objet SQLRequest en string
+		if($request instanceof SQLRequest)
+			$request = $request->__toString();
 
-		//Exécution de la requête
-		$statement = $this->pdo->query($requete);
+		//Exï¿½cution de la requï¿½te
+		$statement = $this->pdo->query($request);
 		if($statement == false)
-			return new ReponseRequete(null, true,$this->pdo->errorInfo()[2]);
+			return new RequestResponse(null, true,$this->pdo->errorInfo()[2]);
 		else 
-			return new ReponseRequete($statement);
+			return new RequestResponse($statement);
 	}
 	
 	
@@ -110,8 +110,8 @@ class Database {
 			******************/
 	
 	/**
-	 * Retourne une instance de la base de données de l'application
-	 * @param int $etiquette : l'etiquette de la base de données. Par défaut retourne la principale
+	 * Retourne une instance de la base de donnï¿½es de l'application
+	 * @param int $etiquette : l'etiquette de la base de donnï¿½es. Par dï¿½faut retourne la principale
 	 * @return Database : l'instance de Database ( ! peut retourner null si erreur)
 	 */
 	public static function getInstance($etiquette='principale'){
@@ -122,7 +122,7 @@ class Database {
 	}
 
 	/**
-	* Fonction de débug
+	* Fonction de dï¿½bug
 	* @return PDO : l'objet PDO de contenu dans cette instance de Database.
 	*/
 	public function getPDO(){
@@ -130,25 +130,25 @@ class Database {
 	}
 
 	/**
-	* @return string l'etiquette de la base de données
+	* @return string l'etiquette de la base de donnï¿½es
 	*/
-	public function getEtiquette(){
-		return $this->etiquette;
+	public function getLabel(){
+		return $this->label;
 	}
 
 	/**
-	* Définit une nouvelle étiquette pour la base de données.
-	* Cette nouvelle étiquette ne doit pas être déjà utilisée par une autre base de données
-	* @param string $nouvEtiquette la nouvelle étiquette de la base de données
-	* @return boolean vrai si la BD a été renommée, faux sinon
+	* Dï¿½finit une nouvelle ï¿½tiquette pour la base de donnï¿½es.
+	* Cette nouvelle ï¿½tiquette ne doit pas ï¿½tre dï¿½jï¿½ utilisï¿½e par une autre base de donnï¿½es
+	* @param string $nouvEtiquette la nouvelle ï¿½tiquette de la base de donnï¿½es
+	* @return boolean vrai si la BD a ï¿½tï¿½ renommï¿½e, faux sinon
 	*/
-	public function setEtiquette($nouvEtiquette){
+	public function setLabel($nouvEtiquette){
 		if($nouvEtiquette == null || isset(self::$instances[$nouvEtiquette]))
 			return false;
 
 		self::$instances[$nouvEtiquette] = $this;
-		unset(self::$instances[$this->etiquette]);
-		$this->etiquette = $nouvEtiquette;
+		unset(self::$instances[$this->label]);
+		$this->label = $nouvEtiquette;
 	}
 
 }

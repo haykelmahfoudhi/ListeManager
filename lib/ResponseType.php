@@ -5,7 +5,7 @@
  * @author RookieRed
  *
  */
-class TypeReponse {
+class ResponseType {
 	const OBJET = 1;
 	const TABLEAU = 2;
 	const EXCEL = 3;

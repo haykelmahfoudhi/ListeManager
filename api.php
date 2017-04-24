@@ -30,9 +30,9 @@ $reponse->donnees = null;
 $reponse->erreur = true;
 $reponse->messageErreur = '';
 
-if(isset($_GET['typeRequete'])){
+if(isset($_GET['RequestType'])){
 
-	switch ($_GET['typeRequete']) {
+	switch ($_GET['RequestType']) {
 
 		// Cas de demande AJAX concernant la page suivante d'une liste enregistrée en cache
 		case 'page':
@@ -40,7 +40,7 @@ if(isset($_GET['typeRequete'])){
 
 				//Chargement de l'objet cache
 				$cache = new Cache($_GET['id_cache']);
-				if($cache->existe()){
+				if($cache->exists()){
 
 					//Récupération de la page correspondante
 					$ret = $cache->chargerDonnees($_GET['page']);

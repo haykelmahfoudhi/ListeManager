@@ -3,7 +3,7 @@
 require_once 'includes.php';
 
 // Connecction à la BD
-Database::instancier('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
+Database::instantiate('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
 	'root', '');
 
 ?>
@@ -27,7 +27,7 @@ function test($cellule, $titre, $ligne){
 //Base de la requete SQL
 $baseSQL = "SELECT * FROM test";
 
-$req = new RequeteSQL($baseSQL);
+$req = new SQLRequest($baseSQL);
 
 // Liste Manager
 $lm = new ListeManager();

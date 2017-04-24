@@ -1,6 +1,6 @@
 <?php
 
-class TypeRequete {
+class RequestType {
 	const SELECT = 0;
 	const DELETE = 1;
 	const UPDATE = 2;

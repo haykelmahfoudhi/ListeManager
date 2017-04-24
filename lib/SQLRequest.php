@@ -1,6 +1,6 @@
 <?php
 
-class RequeteSQL {
+class SQLRequest {
 
 	/**
 	* @var string $baseRequete : bloc de base SQL (sans WHERE, ORDER BY, HAVING...)
@@ -19,17 +19,17 @@ class RequeteSQL {
 	*/
 	private $tabOrderBy;
 	/**
-	* @var array $tabMasque : tableau contenant le numéro/nom de colonnes à masquer 
+	* @var array $tabMask : tableau contenant le numéro/nom de colonnes à maskr 
 	*/
-	private $tabMasque;
+	private $tabMask;
 	/**
 	*
 	*/
-	private $limite;
+	private $limit;
 	/**
-	* @var TypeRequete $typeRequete : énumération sur le type de la requete SQL
+	* @var RequestType $RequestType : énumération sur le type de la requete SQL
 	*/
-	private $typeRequete;
+	private $RequestType;
 	/**
 	*
 	*/
@@ -50,8 +50,8 @@ class RequeteSQL {
 		$this->blocWhere = '';
 		$this->blocHaving = '';
 		$this->tabOrderBy = array();
-		$this->tabMasque = array();
-		$this->limite = null;
+		$this->tabMask = array();
+		$this->limit = null;
 		$this->matchRequete();
 	}
 
@@ -63,10 +63,10 @@ class RequeteSQL {
 	* Supprime la seléction des colonnes dont les numéros sont passés en paramètre
 	* 
 	*/
-	public function masquer(array $numColonnes){
+	public function mask(array $numColonnes){
 		foreach ($numColonnes as $num) {
-			if($num == intval($num) && ! in_array(intval($num), $this->tabMasque))
-				$this->tabMasque[] = intval($num);
+			if($num == intval($num) && ! in_array(intval($num), $this->tabMask))
+				$this->tabMask[] = intval($num);
 		}
 	}
 
@@ -151,7 +151,7 @@ class RequeteSQL {
 	*/
 	public function orderBy($numColonne){
 		//Vérification du type de requete
-		if($this->typeRequete == TypeRequete::SELECT){
+		if($this->RequestType == RequestType::SELECT){
 
 			//Si $numColonne est un tableau
 			if(is_array($numColonne)){
@@ -191,8 +191,8 @@ class RequeteSQL {
 	* Remet à zéro le contenu du bloc ORDER BY
 	* @return boolean vrai si opération ok, faux sinon (type de requete incompatible)
 	*/
-	public function supprimerOrderBy(){
-		if($this->typeRequete == TypeRequete::SELECT) {
+	public function removeOrderBy(){
+		if($this->RequestType == RequestType::SELECT) {
 			$this->tabOrderBy = array();
 			return true;
 		}
@@ -203,11 +203,11 @@ class RequeteSQL {
 	* @return string la requete SQL complete
 	*/
 	public function __toString(){
-		// Gestion du masque
-		if($this->typeRequete == TypeRequete::SELECT
-			&& is_array($this->tabMasque) && count($this->tabMasque) > 0) {
-			foreach ($this->tabMasque as $masque) {
-				unset($this->colonnesSelect[intval($masque)]);
+		// Gestion du mask
+		if($this->RequestType == RequestType::SELECT
+			&& is_array($this->tabMask) && count($this->tabMask) > 0) {
+			foreach ($this->tabMask as $mask) {
+				unset($this->colonnesSelect[intval($mask)]);
 			}
 			$ret = 'SELECT '.implode(',', $this->colonnesSelect).' ';
 			$ret .= strstr($this->baseRequete, 'FROM');
@@ -215,14 +215,14 @@ class RequeteSQL {
 		else
 			$ret = $this->baseRequete;
 
-		if(in_array($this->typeRequete,
-			array(TypeRequete::SELECT, TypeRequete::UPDATE, TypeRequete::DELETE))) {
+		if(in_array($this->RequestType,
+			array(RequestType::SELECT, RequestType::UPDATE, RequestType::DELETE))) {
 			
 			//Ajout du bloc WHERE
 			if(strlen($this->blocWhere) > 0)
 				$ret .= ' WHERE '.$this->blocWhere;
 
-			if($this->typeRequete == TypeRequete::SELECT){
+			if($this->RequestType == RequestType::SELECT){
 				
 				//Ajout du bloc HAVING
 				if(strlen($this->blocHaving) > 0)
@@ -237,9 +237,9 @@ class RequeteSQL {
 					$ret = substr($ret, 0, strlen($ret) - 1);
 				}
 
-				//Ajout de la limite
-				if($this->limite !== null)
-					$ret .= ' LIMIT '.intval($this->limite);
+				//Ajout de la limit
+				if($this->limit !== null)
+					$ret .= ' LIMIT '.intval($this->limit);
 			}
 		}
 		return $ret.';';
@@ -251,10 +251,10 @@ class RequeteSQL {
 			*****************************/
 
 	/**
-	* @return TypeRequete : le type de la requete SQL
+	* @return RequestType : le type de la requete SQL
 	*/
 	public function getType(){
-		return $this->typeRequete;
+		return $this->RequestType;
 	}
 
 	/**
@@ -262,7 +262,7 @@ class RequeteSQL {
 	* retourne faux s'il n'y a pas d'order by.
 	*/
 	public function getTabOrderBy(){
-		if($this->typeRequete === TypeRequete::SELECT
+		if($this->RequestType === RequestType::SELECT
 			&& count($this->tabOrderBy) > 0){
 			return $this->tabOrderBy;
 		}
@@ -272,19 +272,19 @@ class RequeteSQL {
 	/**
 	* @return int la valeur de la clause 'LIMIT' de la requete, ou null si non définie
 	*/
-	public function getLimite(){
-		return $this->limite;
+	public function getLimit(){
+		return $this->limit;
 	}
 
 	/**
 	* Définit la nouvelle valeur de la clause LIMIT pour les requêtes de type SELECT
-	* @param int $valeur : la nouvelle valeur limite. Si null cette clause sera desactivée. 
+	* @param int $valeur : la nouvelle valeur limit. Si null cette clause sera desactivée. 
 	*/
-	public function setLimite($valeur){
-		if($this->typeRequete != TypeRequete::SELECT)
+	public function setLimit($valeur){
+		if($this->RequestType != RequestType::SELECT)
 			return false;
 
-		$this->limite = $valeur;
+		$this->limit = $valeur;
 	}
 
 
@@ -305,7 +305,7 @@ class RequeteSQL {
 		$reLimit = '/^(.+)(\s+LIMIT\s+)([0-9]+)([\s\S]+)$/i';
 		if(preg_match($reLimit, $this->baseRequete, $tabMatch) === 1){
 			$this->baseRequete = $tabMatch[1];
-			$this->limite = $tabMatch[3];
+			$this->limit = $tabMatch[3];
 		}
 		if(preg_match($reHaving, $this->baseRequete, $tabMatch) === 1){
 			$this->baseRequete = $tabMatch[1];
@@ -326,7 +326,7 @@ class RequeteSQL {
 		// Teste si SELECT
 		preg_match($reSelect, $this->baseRequete, $tabMatch);
 		if($tabMatch != array()){
-			$this->typeRequete = TypeRequete::SELECT;
+			$this->RequestType = RequestType::SELECT;
 			$this->colonnesSelect = explode(',', $tabMatch[2]);
 			return;
 		}
@@ -335,14 +335,14 @@ class RequeteSQL {
 		preg_match($reInsert, $this->baseRequete, $tabMatch);
 		if($tabMatch != array()){
 			$this->baseRequete = $tabMatch[1];
-			$this->typeRequete = TypeRequete::INSERT;
+			$this->RequestType = RequestType::INSERT;
 			return;
 		}
 
 		// Teste si DELETE
 		preg_match($reDelete, $this->baseRequete, $tabMatch);
 		if($tabMatch != array()){
-			$this->typeRequete = TypeRequete::DELETE;
+			$this->RequestType = RequestType::DELETE;
 			$this->baseRequete = $tabMatch[1];
 			return;
 		}
@@ -350,13 +350,13 @@ class RequeteSQL {
 		//Teste si UPDATE
 		preg_match($reUpdate, $this->baseRequete, $tabMatch);
 		if($tabMatch != array()){
-			$this->typeRequete = TypeRequete::UPDATE;
+			$this->RequestType = RequestType::UPDATE;
 			$this->baseRequete = $tabMatch[1];
 			return;
 		}
 
 		// Si rien de tout cela
-		$this->typeRequete = TypeRequete::AUTRE;
+		$this->RequestType = RequestType::AUTRE;
 	}
 
 }
