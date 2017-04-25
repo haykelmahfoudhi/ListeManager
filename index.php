@@ -1,6 +1,6 @@
 <?php
 
-require_once 'includes.php';
+require_once 'LMincludes.php';
 
 // Connecction à la BD
 Database::instantiate('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
@@ -17,22 +17,27 @@ Database::instantiate('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
 <body>
 <?php
 
-function test($cellule, $titre, $ligne){
-	if($titre === 'a3')
-		return 'coucou';
+// Callback : ajout d'un lien colonne a2 + img colonne a6
+function test($contenu, $titre, $ligne){
+	if($titre == 'a2') {
+		return "$ligne - <a href='/vers/autre/chose'>$contenu</a>";
+	}
+	else if($titre == 'a6' && strlen($contenu) > 0) {
+		return "$contenu || <img src='/404' alt='img 2 test'>";
+	}
 	else 
-		return $cellule;
+		return $contenu;
 }
 
 //Base de la requete SQL
-$baseSQL = "SELECT * FROM test";
+$baseSQL = "SELECT id, a1, a2, a3, a4, a5, a6 FROM test";
 
 $req = new SQLRequest($baseSQL);
 
 // Liste Manager
-$lm = new ListeManager();
-var_dump($lm->setCallbackCellule('test'));
-echo $lm->construire($req);
+$lm = new ListManager();
+$lm->setCellCallback('test');
+echo $lm->construct($req);
 
 ?>
 <script type="text/javascript" src="<?=JS?>jquery-3.2.1.min.js"></script>

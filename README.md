@@ -37,16 +37,17 @@ La mission ici sera donc de refondre cette librairie en la rendant plus facile �
                 [x] avec PHP
                 [x] avec JS
             [x] Réécriture des ORDER BY
-            [ ] Réécriture clauses where
-                [ ] Reconnaissance du type de données
-                    [ ] Gestion des dates (BETWEEN)
-                [ ] Clause LIKE
-                [ ] Reconnaissance des opérateurs < <= > >= % _ << , !
-            [o] Système de cache pour naviguer entre les pages
-                [x] API php pour les requêtes AJAX
+            [x] Réécriture clauses where
+                [x] Reconnaissance du type de données
+                    [o] Gestion des dates (BETWEEN)
+                [x] Clause LIKE
+                [x] Reconnaissance des opérateurs < <= > >= % _ << , !
+            [ ] Système de cache pour naviguer entre les pages
+                [o] API php pour les requêtes AJAX
                 [ ] LibEvent -> suppression cache on connection closed
         [ ] Export PHPExcel
-        [ ] API JSON pour exécuter des requêtes SQL depuis une application externe
-        [ ] Gestionnaire de sessions sécurisé
+        [ ] API JSON pour exécuter des requêtes (SQL?) depuis une application externe
+            [ ] Définir un protocole de communication & connextion aux bases de données
+            [ ] Gestionnaire de sessions sécurisé
 
     [ ] Phase de tests

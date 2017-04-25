@@ -1,10 +1,10 @@
 <?php 
 
 /**
- * Objet PHP utilis� pour l'ex�cution de requetes SQL. Cet objet contient 3 champs :
- * 		- La requete SQL ex�cut�e (un objet PDOStatement)
- * 		- Un bool�en signalant la pr�sence d'une erreur lors de l'ex�cution de la requ�te
- * 		- Un champs contenant le message d'erreur associ�
+ * Objet PHP utilise pour l'execution de requetes SQL. Cet objet contient 3 champs :
+ * 		- La requete SQL executee (un objet PDOStatement)
+ * 		- Un booleen signalant la presence d'une erreur lors de l'execution de la requete
+ * 		- Un champs contenant le message d'erreur associe
  * @author RookieRed
  *
  */
@@ -37,7 +37,9 @@ class RequestResponse {
 			*******************/
 
 	/**
-	 * @return array : la ligne suivante du r�sultat de la requ�te ( -> fetch)
+	 * Retourne la ligne suivante du résultat de la requete
+	 * @return array : la ligne suivante du resultat de la requete ( -> PDO::fetch)
+	 * ou null si plus de résutlats
 	 */
 	public function nextLine(){
 		if(!$this->error()){
@@ -50,7 +52,7 @@ class RequestResponse {
 	}
 	
 	/**
-	 * @return array : l'ensemble des r�sultats de la requ�te contenu dans un tableau ( -> fetchAll)
+	 * @return array : l'ensemble des resultats de la requete contenu dans un tableau ( -> fetchAll)
 	 */
 	public function dataList(){
 		if(!$this->error()){
@@ -63,7 +65,7 @@ class RequestResponse {
 	
 	
 	/**
-	 * D�tection d'une erreur dans l'ex�cution de la requ�te.
+	 * Detection d'une erreur dans l'execution de la requete.
 	 * @return boolean vrai si erreur ou si l'attribut statement est null
 	 */
 	public function error(){
@@ -76,14 +78,14 @@ class RequestResponse {
 			******************/
 
 	/**
-	 * @return string : le message d'erreur associ� � l'erreur detect�e.
+	 * @return string : le message d'erreur associe a l'erreur detectee.
 	 */
 	public function getErrorMessage(){
 		return $this->errorMessage;
 	}
 	
 	/**
-	 * @return array contenant le nom des colonnes retourn�es par la requete SQL, ou null si erreur
+	 * @return array contenant le nom des colonnes retournees par la requete SQL, ou null si erreur
 	 */
 	public function getColumnsName(){
 		if($this->error())
@@ -98,7 +100,7 @@ class RequestResponse {
 	}
 
 	/**
-	* @return int : le nombre de colonnes du r�sultat de la requete, -1 en cas d'erreur
+	* @return int : le nombre de colonnes du resultat de la requete, -1 en cas d'erreur
 	*/
 	public function getColumnsCount(){
 		if($this->error())
@@ -108,15 +110,16 @@ class RequestResponse {
 	}
 
 	/**
-	* @return un tableau d'objets contenant les infos relatives au type de donn�es de chaque colonne
-	*	Cet objet poss�de les attribus suivants :
-	* 		-> type : le type de donn�es SQL 
-	* 		-> len  : la taille de la donn�e
+	* @return un tableau d'objets contenant les infos relatives au type de donnees de chaque colonne
+	*	Cet objet possede les attribus suivants :
+	* 		-> type : le type de donnees SQL 
+	* 		-> len  : la taille de la donnee
 	* Retourne faux si erreur
 	*/
 	public function getColumnsType(){
 		if(($len = $this->getColumnsCount()) == -1)
 			return false;
+		
 		for ($i=0; $i < $len; $i++) {
 			$meta = $this->statement->getColumnMeta($i);
 			$obj = new stdClass();
@@ -128,7 +131,7 @@ class RequestResponse {
 	}
 
 	/**
-	* @return int : le nombre de lignes du r�sultat de la requete, -1 en cas d'erreur
+	* @return int : le nombre de lignes du resultat de la requete, -1 en cas d'erreur
 	*/
 	public function getRowsCount(){
 		if($this->error())

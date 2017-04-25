@@ -37,21 +37,21 @@ class ListTemplate {
 	 */
 	private $id;
 	/**
-	 * Varaibles contenatn les classes HTML appliqu�es aux lignes paires / impaires
+	 * Varaibles contenatn les classes HTML appliquees aux lignes paires / impaires
 	 * @var string $classe1 : classe des lignes imparaires
 	 * @var string $classe2 : classe des lignes paires
 	 */
 	private $class1, $class2;
 	/**
-	* @var boolean $activerRecherche : sp�cifie si la fonction recherche est diponible ou non
+	* @var boolean $activerRecherche : specifie si la fonction recherche est diponible ou non
 	*/
 	private $enableSearch;
 	/**
-	* @var boolean $recherche : sp�cifie si les champs de saisie pour la recherche sont visibles ou non
+	* @var boolean $recherche : specifie si les champs de saisie pour la recherche sont visibles ou non
 	*/
 	private $displaySearch;
 	/**
-	* @var string $messageListeVide le message qui sera affich� si la liste ne contient pas de donn�es
+	* @var string $messageListeVide le message qui sera affiche si la liste ne contient pas de donnees
 	*/
 	private $emptyListMessage;
 	/**
@@ -59,15 +59,15 @@ class ListTemplate {
 	*/
 	private $errorClass;
 	/**
-	* @var int $nbResultatsParPage : nombre de r�sultats affich�s par page. Valeur par d�faut = 100
+	* @var int $nbResultatsParPage : nombre de resultats affiches par page. Valeur par defaut = 100
 	*/
 	private $nbResultsPerPage;
     /**
-    * @var int $pageActuelle : num�ro de la page de r�sultats actuelle
+    * @var int $pageActuelle : numero de la page de resultats actuelle
     */
 	private $currentPage;
 	/**
-	* @var string $callbackCellule : nom du callback � appeler lors de l'affichage d'une cellule
+	* @var string $callbackCellule : nom du callback a appeler lors de l'affichage d'une cellule
 	*/
 	private $cellCallback;
 	/**
@@ -97,7 +97,7 @@ class ListTemplate {
 		$this->class2 = (($classe2 == null)? self::$CLASSE2 : $classe2);
 		$this->enableSearch = true;
 		$this->displaySearch = false;
-		$this->emptyListMessage = "Aucun r�sultat!";
+		$this->emptyListMessage = "Aucun resultat!";
 		$this->errorClass = 'erreur';
 		$this->currentPage = ((isset($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] : 1 );
 		$this->nbResultsPerPage = 50;
@@ -112,44 +112,44 @@ class ListTemplate {
 			*******************/
 
 	/**
-	 * Construit une liste HTML avec le tableau de donn�es pass� en param�tres
-	 * @param RequestResponse $reponse contenant l'ensemble des r�sultats de la requete
-	 * @return string : le code HTML de la liste HTML g�n�r�
+	 * Construit une liste HTML avec le tableau de donnees passe en parametres
+	 * @param RequestResponse $reponse contenant l'ensemble des resultats de la requete
+	 * @return string : le code HTML de la liste HTML genere
 	 */
 	public function construct(RequestResponse $reponse){
 
-		// On teste d'abord s'il y a erreur dans la r�ponse
+		// On teste d'abord s'il y a erreur dans la reponse
 		if($reponse->error()){
-			return self::messageHTML($reponse->getMessageErreur(),
+			return self::messageHTML($reponse->getErrorMessage(),
 				$this->errorClass);
 		}
 
-		// Pr�paration de l'array � afficher
-		$donnees = $reponse->listeResultat();
-		$nbLignes = $reponse->getNbLignes();
+		// Preparation de l'array a afficher
+		$donnees = $reponse->dataList();
+		$nbLignes = $reponse->getRowsCount();
 		$debut = ($this->currentPage-1) * $this->nbResultsPerPage;
-		$titres = $reponse->getNomColonnes();
+		$titres = $reponse->getColumnsName();
 
-		// Enregistrement des donn�es dans le cache
+		// Enregistrement des donnees dans le cache
 		if($this->useCache && $nbLignes > Cache::NB_LIGNES_MIN){
 			$cacheID = md5(uniqid());
 			$cache = new Cache($cacheID);
-			$cache->ecrire($reponse, $this->nbResultsPerPage);
+			$cache->write($reponse, $this->nbResultsPerPage);
 		}
 
-		// $donnees ne contient plus que les valeurs � afficher
+		// $donnees ne contient plus que les valeurs a afficher
 		$donnees = array_slice($donnees, $debut, $this->nbResultsPerPage);
 
 
-		// Cr�ation de la div HTML parente
+		// Creation de la div HTML parente
 		$ret = "\n".'<div class="liste-parent">';
 
-		//Affichage du nombre de r�sultats
+		//Affichage du nombre de resultats
 		$debut++;
 		$fin = ($this->currentPage) * $this->nbResultsPerPage;
 		$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", null);
 		
-		//Ajout des boutons options sur le c�t�
+		//Ajout des boutons options sur le cete
 		$ret .= "\n<div id='boutons-options'>";
 
 		//Bouton quest (recherche)
@@ -157,7 +157,7 @@ class ListTemplate {
 			$ret .= '<a href="'.self::creerUrlGET('quest', 
 				( ($this->displaySearch) ? 0 : 1)).'">?</a>'; 
 			
-			// Ajout du form si recherche activ�e
+			// Ajout du form si recherche activee
 			if($this->displaySearch)
 				$ret .= "\n<form id='$this->searchFormID' method='GET'"
 					.'\'><input type="submit" value="Go!"/></form>';
@@ -176,7 +176,7 @@ class ListTemplate {
 		// Initialisation de la liste
 		$ret .= '<table'.(($this->id == null)?'' : " id ='$this->id' ").'>'."\n<tr>";
 
-		//Cr�ation des titres
+		//Creation des titres
 		$i = 0;
 		foreach ($titres as $titre) {
 
@@ -201,7 +201,7 @@ class ListTemplate {
 			else {
 				$orderString = $i+1;
 			}
-			$lienOrderBy = '<a calss="titre-colonne" href="'
+			$lienOrderBy = '<a class="titre-colonne" href="'
 				.self::creerUrlGET('orderBy', $orderString)."\">$titre</a>";
 
 			//Gestion du masque
@@ -247,9 +247,9 @@ class ListTemplate {
 		//Affichage des champs de saisie pour la  recherche
 		if($this->enableSearch && $this->displaySearch){
 			$ret .= "<tr>";
-			$types = $reponse->getTypeColonnes();
+			$types = $reponse->getColumnsType();
 			for ($i=0; $i < count($titres); $i++) {
-				//D�termine le contenu du champs
+				//Determine le contenu du champs
 				$valeur = (isset($_GET['tabSelect'][$titres[$i]])? 
 					$_GET['tabSelect'][$titres[$i]] : null);
 				//Determine la taille du champs
@@ -267,28 +267,26 @@ class ListTemplate {
 		}
 
 		
-		//Insertion de donn�es
+		//Insertion de donnees
 		else {
 			$i = 0;
 			foreach ($donnees as $ligne) {
-				//Gestion des calsses
+				//Gestion des classes
 				$classe = (($i % 2)? $this->class1 : $this->class2);
 				$ret .= '<tr'.(($classe == null)? '' : " class='$classe' ").'>';
 
 				//Construction des cellules
 				$j = 0;
 				foreach ($ligne as $cellule){
+					// Application du callback (si non null)
+					if($this->cellCallback != null) {
+						$fct = $this->cellCallback;
+						$cellule = $fct($cellule, $titres[$j], $i);
+					}
+					// Si la cellule ne contient rien -> '-'
 					if(strlen($cellule) == 0)
 						$cellule = '-';
-					$ret .= '<td>';
-					// Application du callback (si non null)
-					if($this->cellCallback == null)
-						$ret .= $cellule;
-					else {
-						$fct = $this->cellCallback;
-						$ret .= $fct($cellule, $titres[$j], $i);
-					}
-					$ret .= '</td>';
+					$ret .= '<td>'.$cellule.'</td>';
 					$j++;
 				}
 				$ret .= "</tr>\n";
@@ -320,11 +318,11 @@ class ListTemplate {
 				$fin = $nbPages;
 			}
 			
-			// Cr�ation des liens
+			// Creation des liens
 			for ($i=$debut; $i <= $fin; $i++) {
 				$ret .= '<td>';
 
-				// Pas de lien si on est d�j� sur la pageActuelle
+				// Pas de lien si on est deje sur la pageActuelle
 				if($i == $this->currentPage)
 					$ret .= "$i";
 				else {	
@@ -350,7 +348,7 @@ class ListTemplate {
 			****************************/
 	
 	/**
-	 * Attribue un nouvel id HTML � la liste.
+	 * Attribue un nouvel id HTML a la liste.
 	 * @param string $id l'id HTML du tableau
 	 */
 	public function setId($id){
@@ -358,15 +356,15 @@ class ListTemplate {
 	}
 
 	/**
-	* D�finit le message d'erreur � afficher si aucun r�sultat n'est retourn�e par la requete 
-	* @param string $message le nouveau message � d�finir
+	* Definit le message d'erreur a afficher si aucun resultat n'est retournee par la requete 
+	* @param string $message le nouveau message a definir
 	*/
 	public function setEmptyListMessage($message){
 		$this->emptyListMessage = $message;
 	}
 
 	/**
-	* D�finit le nom de la class HTML des messages d'erreurs affich�s
+	* Definit le nom de la class HTML des messages d'erreurs affiches
 	* @param string $classe le nouveau nom de la classe des messages d'erreur
 	*/
 	public function setErrorMessageClass($classe){
@@ -374,8 +372,8 @@ class ListTemplate {
 	}
 
 	/**
-	 * D�termine si le template doit afficher la ligne des champs de saisie pour recherche dans la liste
-	 * @param boolean $valeur, valeur par d�faut : false
+	 * Determine si le template doit afficher la ligne des champs de saisie pour recherche dans la liste
+	 * @param boolean $valeur, valeur par defaut : false
 	 */
 	public function displaySearchInputs($valeur){
 		if(is_bool($valeur))
@@ -383,8 +381,8 @@ class ListTemplate {
 	}
 
 	/**
-	 * D�termine si la fonction recherche par colonne doit �tre activ�e ou non pour cette liste
-	 * @param boolean $valeur, valeur par d�faut : true
+	 * Determine si la fonction recherche par colonne doit etre activee ou non pour cette liste
+	 * @param boolean $valeur, valeur par defaut : true
 	 */
 	public function enableSearch($valeur){
 		if(is_bool($valeur))
@@ -392,9 +390,9 @@ class ListTemplate {
 	}
 	
 	/**
-	 * Attribue les nouvelles classes HTML � appliquer une ligne sur deux dans la liste HTML
-	 * @param string $classe1 classe des lignes impaires. Si null rien ne sera appliqu�
-	 * @param string $classe2 classe des linges paires. Si null rien ne sera appliqu�
+	 * Attribue les nouvelles classes HTML a appliquer une ligne sur deux dans la liste HTML
+	 * @param string $classe1 classe des lignes impaires. Si null rien ne sera applique
+	 * @param string $classe2 classe des linges paires. Si null rien ne sera applique
 	 */
 	public function setRowsClasses($classe1, $classe2){
 		$this->class1 = $classe1;
@@ -402,9 +400,9 @@ class ListTemplate {
 	}
 
 	/**
-	* D�finit le nombre de r�sultats � afficher sur une page. Valeur par d�faut = 50
-	* @param int $valeur le nombre de lignes � afficher par pages
-    * @return boolean faux si la valeur entr�e est incorrecte
+	* Definit le nombre de resultats a afficher sur une page. Valeur par defaut = 50
+	* @param int $valeur le nombre de lignes a afficher par pages
+    * @return boolean faux si la valeur entree est incorrecte
 	*/
 	public function setNbResultsPerPage($valeur){
 		if(!is_int($valeur) || $valeur <= 0)
@@ -414,16 +412,16 @@ class ListTemplate {
 	}
 
 	/**
-	* @return int le nombre de lignes de r�sultat � afficher par page
+	* @return int le nombre de lignes de resultat a afficher par page
 	*/
 	public function getNbResultsPerPage(){
 		return $this->nbResultsPerPage;
 	}
 
 	/**
-	* D�finit quelle page de r�sultats doit afficher le template. Valeur par d�faut : 1
-	* @param int $numeroPage le num�ro de la page � afficher (pour la 1re page : 1)
-	* @return boolean faux si la valeur entr�e est incorrecte
+	* Definit quelle page de resultats doit afficher le template. Valeur par defaut : 1
+	* @param int $numeroPage le numero de la page a afficher (pour la 1re page : 1)
+	* @return boolean faux si la valeur entree est incorrecte
 	*/
 	public function setCurrentPage($numeroPage){
 		if(!is_int($valeur) || $numeroPage <= 0)
@@ -433,15 +431,15 @@ class ListTemplate {
 	}
 
 	/**
-	* D�finit le callback (la fonction) qui sera ex�cut�e lors de l'affichage des donn�es
-	* dans les cellules du tableau. Cette fonction doit �tre d�finie comme il suit :
-	* 	-> 3 param�tres d'entr�e 
-	* 			* element : la valeur de l'�l�ment en cours
+	* Definit le callback (la fonction) qui sera executee lors de l'affichage des donnees
+	* dans les cellules du tableau. Cette fonction doit etre definie comme il suit :
+	* 	-> 3 parametres d'entree 
+	* 			* element : la valeur de l'element en cours
 	* 			* colonne : le nom de la colonne en cours
-	* 			* ligne   : le num�ro de la ligne en cours
+	* 			* ligne   : le numero de la ligne en cours
 	* 	-> valeur de retour de type string (ou du moins affichable via echo)
-	* @param string $fonction : le nom du callback � utiliser, null si aucun.
-	* Valeur par d�faut : null
+	* @param string $fonction : le nom du callback a utiliser, null si aucun.
+	* Valeur par defaut : null
 	*/
 	public function setCellCallback($fonction=null){
 		if($fonction != null && function_exists($fonction))
@@ -487,11 +485,10 @@ class ListTemplate {
 		if($val !== null)
 			$get[$nom] = $val;
 
-		/*foreach ($get as &$valeur) {
-			if(strlen($valeur) == 0)
+		foreach ($get as &$valeur) {
+			if(!is_array($valeur) && strlen($valeur) == 0)
 				unset($valeur);
-		}*/
-
+		}
 		return strtok($_SERVER['REQUEST_URI'], '?').'?'.http_build_query($get);
 	}
 	

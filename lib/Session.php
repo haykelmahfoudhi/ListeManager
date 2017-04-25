@@ -2,6 +2,8 @@
 
 /**
 * 
+* @author RookieRed
+* 
 */
 class Session {
 	
@@ -19,15 +21,15 @@ class Session {
 		return self::$instance;
 	}
 
-	public function connecterUtilisateur($identifiant) {
+	public function connectUser($identifiant) {
 
 	}
 
-	public function estConnecte() {
+	public function userConnected() {
 
 	}
 
-	public function detruire() {
+	public function destroy() {
 		session_destroy();
 	}
 }

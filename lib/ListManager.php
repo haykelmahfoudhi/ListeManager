@@ -48,7 +48,7 @@ class ListManager {
 	/**
 	*
 	*/
-	private $utiliserGET;
+	private $useGET;
 	/**
 	*
 	*/
@@ -60,7 +60,7 @@ class ListManager {
 	/**
 	*
 	*/
-	private $masque;
+	private $mask;
 	
 	
 			/***********************
@@ -70,15 +70,15 @@ class ListManager {
 	public function __construct(){
 		$this->ResponseType = ResponseType::TEMPLATE;
 		$this->template = new ListTemplate();
-		$this->utiliserGET = true;
+		$this->useGET = true;
 		$this->tabWhere = null;
-		$this->masque = null;
+		$this->mask = null;
 		$this->orderBy = null;
 		$this->recherche = true;
 		$this->db = Database::getInstance();
 		// Si la db est null alors on affiche une erreur
 		if($this->db == null)
-			echo '<br><b>[!]</b> ListManager::__construct() : aucune base de donn�es n\'est disponible ou instanci�e<br>';
+			echo '<br><b>[!]</b> ListManager::__construct() : aucune base de donnees n\'est disponible ou instanciee<br>';
 	}
 
 
@@ -87,23 +87,23 @@ class ListManager {
 			*******************/
 
 	/**
-	* Ex�cute la requete SQL dont la base est pass�e en param�tres.
-	* Cette base sera augment�e par les divers param�tres fournis par la variable GET avant d'�tre ex�cut�.
-	* Les r�sultats obtenus seront restitu�s par cette m�thode selon le param�tre $ResponseType de l'objet.
-	* @param mixed $baseSQL : la requete � ex�cuter. Peut �tre de type string ou SQLRequest.
-	* @return mixed : l'objet de r�ponse d�pendant de $ResponseType, param�trable via la m�thode setResponseType
+	* Execute la requete SQL dont la base est passee en parametres.
+	* Cette base sera augmentee par les divers parametres fournis par la variable GET avant d'etre execute.
+	* Les resultats obtenus seront restitues par cette methode selon le parametre $ResponseType de l'objet.
+	* @param mixed $baseSQL : la requete a executer. Peut etre de type string ou SQLRequest.
+	* @return mixed : l'objet de reponse dependant de $ResponseType, parametrable via la methode setResponseType
 	*/
-	public function construire($baseSQL){
+	public function construct($baseSQL){
 		if($baseSQL instanceof SQLRequest)
 			$SQLRequest = $baseSQL;
 		else 
 			$SQLRequest = new SQLRequest($baseSQL);
 
-		if($this->utiliserGET){
-			//Construction de la requete � partir de variables GET disponibles
+		if($this->useGET){
+			//Construction de la requete a partir de variables GET disponibles
 			
 			if(isset($_GET['mask']) && strlen($_GET['mask']) > 0){ // Masque
-				$SQLRequest->masquer(explode(',', $_GET['mask']));
+				$SQLRequest->mask(explode(',', $_GET['mask']));
 			}
 			
 			// Conditions (where)
@@ -123,74 +123,75 @@ class ListManager {
 			}
 		}
 		else {
-			if($this->masque != null)	
-				$SQLRequest->masquer($this->masque);
+			if($this->mask != null)	
+				$SQLRequest->mask($this->mask);
 			if($this->tabWhere != null)	
 				$SQLRequest->where($this->tabWhere);
 			if($this->orderBy != null)	
 				$SQLRequest->orderBy($this->orderBy);
 		}
 
-		//Ex�cution de la requete
-		return $this->executerRequete($SQLRequest);
+		//Execution de la requete
+		return $this->execute($SQLRequest);
 
 	}
 
 	/**
-	 * Ex�cute une requete SQL et retourne le r�sultat dans le format sp�cifi� par ResponseType
-	 * @param mixed $SQLRequest : la requete � ex�cuter. Peut �tre de type string ou SQLRequest.
-	 * @return mixed : l'objet de r�ponse d�pendant de $ResponseType, param�trable via la m�thode setResponseType
+	 * Execute une requete SQL et retourne le resultat dans le format specifie par ResponseType
+	 * @param mixed $request : la requete a executer. Peut etre de type string ou SQLRequest.
+	 * @return mixed : l'objet de reponse dependant de $ResponseType, parametrable via la methode setResponseType
 	 */
-	public function executerRequete($SQLRequest){
+	public function execute($request){
 
-		// Gestion du param�tre
-		if($SQLRequest instanceof SQLRequest)
-			$requete = $SQLRequest->__toString();
+		// Gestion du parametre
+		if($request instanceof SQLRequest)
+			$requete = $request->__toString();
 		else 
-			$requete = $SQLRequest;
+			$requete = $request;
 
-		// R�cup�ration de l'objet DB
+		// Recuperation de l'objet DB
 		if($this->db == null)
 			return false;
 
-		//Ex�cution de la requ�te
-		$reponse = $this->db->executer($requete);
+		//Execution de la requete
+		$reponse = $this->db->execute($requete);
 
-		//Cr�ation de l'objet de r�ponse
+		//Creation de l'objet de reponse
 		switch ($this->ResponseType){
 			case ResponseType::OBJET:
 			return $reponse;
 
 			case ResponseType::TABLEAU:
-				if($reponse->erreur())
+				if($reponse->error())
 					return null;
 				else
-					return $reponse->listeResultat();
+					return $reponse->dataList();
 
 			case ResponseType::EXCEL:
 			return ; // TODO
 
 			case ResponseType::JSON:
 				$ret = new stdClass();
-				$ret->erreur = $reponse->erreur();
-				if($ret->erreur){
-					$ret->donnees = null;
-					$ret->messageErreur = $reponse->getMessageErreur();
+				$ret->error = $reponse->error();
+				if($ret->error){
+					$ret->data = null;
+					$ret->errorMessage = $reponse->getErrorMessage();
 				}
 				else
-					$ret->donnees = $reponse->listeResultat();
+					$ret->data = $reponse->dataList();
 			return json_encode($ret);
 
 
 			case ResponseType::TEMPLATE:
 				// Affichage (ou non) des champs de recherches
-				$this->template->afficherChampsRecherche(
-					(isset($_GET['quest']) && (intval($_GET['quest']) == 1)
-					|| (isset($_GET['tabSelect']) && intval($_GET['quest']) != 0)) );
+				$this->template->displaySearchInputs(
+					(isset($_GET['quest']) && intval($_GET['quest']) == 1)
+					|| (isset($_GET['tabSelect']) 
+						&& !(isset($_GET['quest']) && intval($_GET['quest']) == 0)) );
 				
 				//Gestion avec cache
 				
-				return $this->template->construireListe($reponse);
+				return $this->template->construct($reponse);
 		}
 
 		return false;
@@ -202,7 +203,7 @@ class ListManager {
 			******************/
 
 	/**
-	* @return ListTemplate l'objet template utilis� par ListManager
+	* @return ListTemplate l'objet template utilise par ListManager
 	*/
 	public function getTemplate(){
 		return $this->template;
@@ -213,12 +214,12 @@ class ListManager {
 			******************/
 
 	/**
-	* D�finit le format de l'objet retourn� par ListManager suite � l'ex�cution d'une requete
+	* Definit le format de l'objet retourne par ListManager suite a l'execution d'une requete
 	* @param ResponseType $ResponseType peut prendre 5 valeurs :
-	* 	-> TEMPLATE (par d�faut) pour obtenir un string repr�sentant la liste HTML contenant toutes les donn�es 
-	* 	-> ARRAY pour obtenir les r�sultats dans un array PHP (equivalent � PDOStaement::fetchAll())
-	* 	-> JSON pour obtenir les donn�es dans un objet encod� en JSON
-	* 	-> EXCEL pour obtenir les r�sultats dans une feuille de calcul Excel
+	* 	-> TEMPLATE (par defaut) pour obtenir un string representant la liste HTML contenant toutes les donnees 
+	* 	-> ARRAY pour obtenir les resultats dans un array PHP (equivalent a PDOStaement::fetchAll())
+	* 	-> JSON pour obtenir les donnees dans un objet encode en JSON
+	* 	-> EXCEL pour obtenir les resultats dans une feuille de calcul Excel
 	* 	-> OBJET pour obtenir un objet ReponseResultat
 	*/
 	public function setResponseType($ResponseType){
@@ -226,13 +227,13 @@ class ListManager {
 	}
 
 	/**
-	* Instancie une nouvelle connexion � une base de donn�es, et enregistre l'instance cr��e
-	* pour l'ex�cution des requ�tes futures.
+	* Instancie une nouvelle connexion a une base de donnees, et enregistre l'instance creee
+	* pour l'execution des requetes futures.
 	 * @param string $dsn le DSN (voir le manuel PHP concernant PDO)
 	 * @param stirng $login le nom d'utilisateur pour la connexion
 	 * @param stirng $mdp son mot de passe
 	*/
-	public function connecterDatabase($dsn, $login, $mdp){
+	public function connectDatabase($dsn, $login, $mdp){
 		$this->db = Database::instantiate($dsn, $login, $mdp);
 		
 		if($this->db == null)
@@ -240,11 +241,11 @@ class ListManager {
 	}
 
 	/**
-	* D�finit la base de donn�es qui sera utilis�e pour l'ex�cution des requ�tes SQL
-	* @param mixed $dataBase : peut �tre de type Database ou string.
-	*	Si string : repr�sente l'etiquette de la base de donn�es � utiliser.
-	*	Si null (valeur par d�faut) : recup�re la base de donn�e principale de la classe Database
-	* la base de donn�e s�lectionn�e sera celle par d�faut de la classe Database.
+	* Definit la base de donnees qui sera utilisee pour l'execution des requetes SQL
+	* @param mixed $dataBase : peut etre de type Database ou string.
+	*	Si string : represente l'etiquette de la base de donnees a utiliser.
+	*	Si null (valeur par defaut) : recupere la base de donnee principale de la classe Database
+	* la base de donnee selectionnee sera celle par defaut de la classe Database.
 	*/
 	public function setDatabase($dataBase=null){
 		if($dataBase == null)
@@ -257,20 +258,20 @@ class ListManager {
 		}
 
 		if($this->db == null)
-			echo '<br><b>[!]</b> ListManager::setDatabase() : aucune base de donn�es correspondante<br>';
+			echo '<br><b>[!]</b> ListManager::setDatabase() : aucune base de donnees correspondante<br>';
 
 	}
 
 	/**
-	* D�finit un nouvel objet ListTemplate pour l'affichage des listes
-	* @param ListTemplate $template le nouveau template � d�finir.
+	* Definit un nouvel objet ListTemplate pour l'affichage des listes
+	* @param ListTemplate $template le nouveau template a definir.
 	*/
 	public function setTemplate(ListTemplate $template){
 		$this->template = $template;
 	}
 
 	/**
-	* D�finit le nouvel ID HTML de la liste HTML
+	* Definit le nouvel ID HTML de la liste HTML
 	* @param stirng $id
 	*/
 	public function setListeId($id){
@@ -278,68 +279,68 @@ class ListManager {
 	}
 
 	/**
-	* D�finit si ListManager doit utiliser les valeurs contenues dans GET pour construire
-	* le masque, le order by et le where de la requete SQL qui sera ex�cut�e.
-	* Valeur par d�faut : vrai
+	* Definit si ListManager doit utiliser les valeurs contenues dans GET pour construire
+	* le masque, le order by et le where de la requete SQL qui sera executee.
+	* Valeur par defaut : vrai
 	* @param boolean $valeur true ou false.
 	*/
-	public function utiliserGET($valeur){
+	public function useGET($valeur){
 		if(!is_bool($valeur))
 			return false;
 
-		$this->utiliserGET = $valeur;
+		$this->useGET = $valeur;
 	}
 
 	/**
-	* Red�finit le nom des classes qui seront affect�es une ligne sur deux dans la liste HTML (balises tr).
-	* Si les valeurs sont mises � null les classes ne seront pas affich�.
+	* Redefinit le nom des classes qui seront affectees une ligne sur deux dans la liste HTML (balises tr).
+	* Si les valeurs sont mises a null les classes ne seront pas affiche.
 	* @param string $class1 : le nom de la classe des lignes impaires
 	* @param string $class2 : le nom de la classe des lignes paires
 	*/
-	public function setClasseLignes($classe1, $classe2){
+	public function setRowsClasses($classe1, $classe2){
 		$this->template->setRowsClasses($classe1, $classe2);
 	}
 
 	/**
-	* D�finit
-	* Passe automatiqument � faux l'attribut sur l'utilisation des variables GET
-	* pour la r��criture des requetes SQL
+	* Definit
+	* Passe automatiqument a faux l'attribut sur l'utilisation des variables GET
+	* pour la reecriture des requetes SQL
 	* @param
 	*/
 	public function setWhere(array $tabWhere){
-		$this->utiliserGET = false;
+		$this->useGET = false;
 		$this->tabWhere = $tabWhere;
 	}
 
 	/**
-	* D�finit
-	* Passe automatiqument � faux l'attribut sur l'utilisation des variables GET
-	* pour la r��criture des requetes SQL
+	* Definit
+	* Passe automatiqument a faux l'attribut sur l'utilisation des variables GET
+	* pour la reecriture des requetes SQL
 	* @param
 	*/
 	public function setOrderBy($orderBy){
-		$this->utiliserGET = false;
+		$this->useGET = false;
 		$this->orderBy = $orderBy;
 	}
 
 	/**
-	* D�finit
-	* Passe automatiqument � faux l'attribut sur l'utilisation des variables GET
-	* pour la r��criture des requetes SQL
+	* Definit
+	* Passe automatiqument a faux l'attribut sur l'utilisation des variables GET
+	* pour la reecriture des requetes SQL
 	* @param
 	*/
 	public function setMasque($masque){
-		$this->utiliserGET = false;
-		$this->masque = $masque;
+		$this->useGET = false;
+		$this->mask = $masque;
 	}
 
 	/**
-	* D�finit si l'option recherche doit �tre activ�e ou non. Valeur par d�faut : vrai
-	* Si cette valeur est pass�e � faux il ne sera plus possible pour l'utilisateur
+	* Definit si l'option recherche doit etre activee ou non. Valeur par defaut : vrai
+	* Si cette valeur est passee a faux il ne sera plus possible pour l'utilisateur
 	* d'effectuer de recherches dans la liste
-	* @param boolean $valeur, valeur par d�fautl : true
+	* @param boolean $valeur, valeur par defautl : true
 	*/
-	public function activerRecherche($valeur){
+	public function enableSearch($valeur){
 		if(!is_bool($valeur))
 			return false;
 
@@ -347,17 +348,17 @@ class ListManager {
 	}
 
 	/**
-	* D�finit le callback (la fonction) qui sera ex�cut�e lors de l'affichage des donn�es
-	* dans les cellules du tableau. Cette fonction doit �tre d�finie comme il suit :
-	* 	-> 3 param�tres d'entr�e 
-	* 			1 - element : la valeur de l'�l�ment en cours
+	* Definit le callback (la fonction) qui sera executee lors de l'affichage des donnees
+	* dans les cellules du tableau. Cette fonction doit etre definie comme il suit :
+	* 	-> 3 parametres d'entree 
+	* 			1 - element : la valeur de l'element en cours
 	* 			2 - colonne : le nom de la colonne en cours
-	* 			3 - ligne   : le num�ro de la ligne en cours
+	* 			3 - ligne   : le numero de la ligne en cours
 	* 	-> valeur de retour de type string (ou du moins affichable via echo)
-	* @param string $fonction : le nom du callback � utiliser, null si aucun.
-	* Valeur par d�faut : null
+	* @param string $fonction : le nom du callback a utiliser, null si aucun.
+	* Valeur par defaut : null
 	*/
-	public function setCallbackCellule($fonction){
+	public function setCellCallback($fonction){
 		if(!is_string($fonction))
 			return false;
 
@@ -366,20 +367,20 @@ class ListManager {
 
 
 	/**
-	* D�finit le nombre de r�sultats � afficher sur une page. Valeur par d�faut = 50
-	* @param int $valeur le nombre de lignes � afficher par pages
-    * @return boolean faux si la valeur entr�e est incorrecte
+	* Definit le nombre de resultats a afficher sur une page. Valeur par defaut = 50
+	* @param int $valeur le nombre de lignes a afficher par pages
+    * @return boolean faux si la valeur entree est incorrecte
 	*/
-	public function setNbResultatsParPage($valeur){
+	public function setNbResultsPerPage($valeur){
 		return $this->template->setNbResultsPerPage($valeur);
 	}
 
 	/**
-	* D�finit si ListManager doit utiliser ou non le syst�me de cache pour acc�l�rer
+	* Definit si ListManager doit utiliser ou non le systeme de cache pour accelerer
 	* la navigation entre les pages de la liste
 	* @param boolean $valeur : true pour activer le fonctionnement par cache, false sinon
 	*/
-	public function utiliserCache($valeur){
+	public function useCache($valeur){
 		if(!is_bool($valeur))
 			return false;
 

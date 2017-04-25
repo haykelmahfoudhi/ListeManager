@@ -38,7 +38,7 @@ class Database {
 		***********************/
 	
 	/**
-	 * Instancie la connexion avec la base de donn�es via un objet PDO contenu dans l'objet Database
+	 * Instancie la connexion avec la base de donnees via un objet PDO contenu dans l'objet Database
 	 * @param string $dsn le DSN (voir le manuel PHP concernant PDO)
 	 * @param stirng $login le nom d'utilisateur pour la connexion
 	 * @param stirng $passwd son mot de passe
@@ -50,7 +50,7 @@ class Database {
 		}
 		catch (Exception $e) {
 			$this->pdo = null;
-			echo "<br><b>[!]</b>Connection � la base de donn�es impossible :\n".$e->getMessage()
+			echo "<br><b>[!]</b>Connection a la base de donnees impossible :\n".$e->getMessage()
 				.'<br>';
 		}
 	}
@@ -61,13 +61,13 @@ class Database {
 			*******************/
 
 	/**
-	 * Instancie une nouvelle connexion avec la base de donn�es via un objet PDO
+	 * Instancie une nouvelle connexion avec la base de donnees via un objet PDO
 	 * @param string $dsn le DSN de la connection (voir le manuel PHP concernant PDO)
 	 * @param string $login le nom d'utilisateur de la BD
 	 * @param string $mdp le mot de passe de l'utilisateur
-	 * @param string $etiquette (facultatif) l'etiquette de la base de donn�es, utile si plusieurs bases de donn�es sont
-	 * utilis�es en m�me temps dans l'application
-	 * @return Database : l'instance de Database cr�� et connect�, ou null en cas d'echec.
+	 * @param string $etiquette (facultatif) l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont
+	 * utilisees en meme temps dans l'application
+	 * @return Database : l'instance de Database cree et connecte, ou null en cas d'echec.
 	 */
 	public static function instantiate($dsn, $login, $mdp, $etiquette='principale'){
 		$nouvelleInstance = new self($dsn, $login, $mdp, $etiquette);
@@ -75,8 +75,8 @@ class Database {
 			return null;
 
 		if(isset(self::$instances[$etiquette])){
-			echo '<br><b>[!]</b>Database::instancier() : Il existe d�j� une BD portant l\'�tiquette "'
-				.$etiquette.'", veuillez en sp�cifier une nouvelle<br>';
+			echo '<br><b>[!]</b>Database::instancier() : Il existe deje une BD portant l\'etiquette "'
+				.$etiquette.'", veuillez en specifier une nouvelle<br>';
 			return null;
 		}
 		self::$instances[$etiquette] = $nouvelleInstance;
@@ -84,9 +84,9 @@ class Database {
 	}
 	
 	/**
-	 * Ex�cute la requete SQL pass�e en param�tres
-	 * @param mixed $request la requete SQL � ex�cuter, peut �tre string ou objet SQLRequest
-	 * @return RequestResponse : la r�ponse de la requete, ou faux si la BD n'est pas connect�e
+	 * Execute la requete SQL passee en parametres
+	 * @param mixed $request la requete SQL a executer, peut etre string ou objet SQLRequest
+	 * @return RequestResponse : la reponse de la requete, ou faux si la BD n'est pas connectee
 	 */
 	public function execute($request){
 		if($this->pdo == null)
@@ -96,7 +96,7 @@ class Database {
 		if($request instanceof SQLRequest)
 			$request = $request->__toString();
 
-		//Ex�cution de la requ�te
+		//Execution de la requete
 		$statement = $this->pdo->query($request);
 		if($statement == false)
 			return new RequestResponse(null, true,$this->pdo->errorInfo()[2]);
@@ -110,8 +110,8 @@ class Database {
 			******************/
 	
 	/**
-	 * Retourne une instance de la base de donn�es de l'application
-	 * @param int $etiquette : l'etiquette de la base de donn�es. Par d�faut retourne la principale
+	 * Retourne une instance de la base de donnees de l'application
+	 * @param int $etiquette : l'etiquette de la base de donnees. Par defaut retourne la principale
 	 * @return Database : l'instance de Database ( ! peut retourner null si erreur)
 	 */
 	public static function getInstance($etiquette='principale'){
@@ -122,7 +122,7 @@ class Database {
 	}
 
 	/**
-	* Fonction de d�bug
+	* Fonction de debug
 	* @return PDO : l'objet PDO de contenu dans cette instance de Database.
 	*/
 	public function getPDO(){
@@ -130,17 +130,17 @@ class Database {
 	}
 
 	/**
-	* @return string l'etiquette de la base de donn�es
+	* @return string l'etiquette de la base de donnees
 	*/
 	public function getLabel(){
 		return $this->label;
 	}
 
 	/**
-	* D�finit une nouvelle �tiquette pour la base de donn�es.
-	* Cette nouvelle �tiquette ne doit pas �tre d�j� utilis�e par une autre base de donn�es
-	* @param string $nouvEtiquette la nouvelle �tiquette de la base de donn�es
-	* @return boolean vrai si la BD a �t� renomm�e, faux sinon
+	* Definit une nouvelle etiquette pour la base de donnees.
+	* Cette nouvelle etiquette ne doit pas etre deje utilisee par une autre base de donnees
+	* @param string $nouvEtiquette la nouvelle etiquette de la base de donnees
+	* @return boolean vrai si la BD a ete renommee, faux sinon
 	*/
 	public function setLabel($nouvEtiquette){
 		if($nouvEtiquette == null || isset(self::$instances[$nouvEtiquette]))

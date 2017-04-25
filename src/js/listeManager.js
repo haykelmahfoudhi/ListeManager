@@ -11,6 +11,10 @@ function masquerColonnes(event) {
 			td.hide();
 		}
 	}
+	// Ajout du masque dans les liens
+	$('a.titre-colonne, #pagination a, #boutons-options a').each(function(i, e) {
+		console.log(e);
+	});
 }
 
 // Afficher les colonnes masquées
@@ -28,6 +32,6 @@ function afficherColonnes(event) {
 /*----------------------------------------------------
 --  APPLICAITON DES LISTENNERS
 -----------------------------------------------------*/
-$('a.masque').click(masquerColonnes);
+// $('a.masque').click(masquerColonnes);
 $('a#annuler-masque').hide();
 $('a#annuler-masque').click(afficherColonnes);
