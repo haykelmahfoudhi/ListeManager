@@ -20,7 +20,7 @@ Database::instantiate('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
 // Callback : ajout d'un lien colonne a2 + img colonne a6
 function test($contenu, $titre, $ligne){
 	if($titre == 'a2') {
-		return "$ligne - <a href='/vers/autre/chose'>$contenu</a>";
+		return "$contenu - <a href='/vers/autre/chose'>lien$ligne</a>";
 	}
 	else if($titre == 'a6' && strlen($contenu) > 0) {
 		return "$contenu || <img src='/404' alt='img 2 test'>";
@@ -30,14 +30,16 @@ function test($contenu, $titre, $ligne){
 }
 
 //Base de la requete SQL
-$baseSQL = "SELECT id, a1, a2, a3, a4, a5, a6 FROM test";
+$baseSQL = "SELECT id, a1, a2, a3, a4, a5, a6 FROM test WHERE id < 250";
 
 $req = new SQLRequest($baseSQL);
 
 // Liste Manager
 $lm = new ListManager();
 $lm->setCellCallback('test');
-echo $lm->construct($req);
+$html = $lm->construct($req);
+echo $req;
+echo $html;
 
 ?>
 <script type="text/javascript" src="<?=JS?>jquery-3.2.1.min.js"></script>

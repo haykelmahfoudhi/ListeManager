@@ -100,7 +100,7 @@ class ListTemplate {
 		$this->emptyListMessage = "Aucun resultat!";
 		$this->errorClass = 'erreur';
 		$this->currentPage = ((isset($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] : 1 );
-		$this->nbResultsPerPage = 50;
+		$this->nbResultsPerPage = 51;
 		$this->cellCallback = null;
 		$this->useCache = false;
 		$this->searchFormID = 'recherche';
@@ -146,7 +146,7 @@ class ListTemplate {
 
 		//Affichage du nombre de resultats
 		$debut++;
-		$fin = ($this->currentPage) * $this->nbResultsPerPage;
+		$fin = min(($this->currentPage) * $this->nbResultsPerPage, $nbLignes);
 		$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", null);
 		
 		//Ajout des boutons options sur le cete
@@ -298,7 +298,7 @@ class ListTemplate {
 		// Affichage du tableau des numeros de page
 		if($nbLignes > $this->nbResultsPerPage){
 			$ret .= '<table id="pagination"><tr>';
-			$nbPages = ($nbLignes / $this->nbResultsPerPage);
+			$nbPages = round(($nbLignes / $this->nbResultsPerPage)+0.5);
 
 			// S'il y a plus de pages que la limite affichable
 			if($nbPages > self::NB_PAGES_MAX){

@@ -85,7 +85,7 @@ class SQLRequest {
 	* Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' => 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
 	*/
 	public function where(array $tabWhere){
-		$ret = '';
+		$ret = ((strlen($this->blocWhere) > 0)? ' AND ' : '');
 		foreach ($tabWhere as $nomColonne => $conditions) {
 			$conditions = explode(',', $conditions);
 			$ret .= '(';
