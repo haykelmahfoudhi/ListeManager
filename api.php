@@ -1,5 +1,5 @@
 <?php 
-require_once 'LMincludes.php';
+require_once 'includes.php';
 
 
 		/*****************************************

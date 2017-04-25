@@ -15,15 +15,14 @@
 
 /**
 * Permet l'inclusion des classes appelées dans l'application.
-* Les classes de ListeManager sont toutes contenues dans le dossier lib/
+* Les classes de ListManager sont toutes contenues dans le dossier lib/
 */
-function autoLoader($name) {
+function lm_autoLoader($name) {
 	//On teste l'existence du fichier contenant la classe
-	if(file_exists(LIB.$name.'.php')){
-		require_once LIB.$name.'.php';
+	if(file_exists(LM_LIB.$name.'.php')){
+		require_once LM_LIB.$name.'.php';
 	}
 }
 
-spl_autoload_register('autoLoader',false,true);
-
+spl_autoload_register('lm_autoLoader',false);
 ?>

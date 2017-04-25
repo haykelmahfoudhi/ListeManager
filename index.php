@@ -1,6 +1,6 @@
 <?php
 
-require_once 'LMincludes.php';
+require_once 'includes.php';
 
 // Connecction à la BD
 Database::instantiate('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
@@ -12,7 +12,7 @@ Database::instantiate('mysql:dbname=mecaprotec;host=localhost;charset=UTF8',
 <head>
 	<title>Test liste</title>
 	<meta charset="utf-8" author="RookieRed">
-	<link rel="stylesheet" type="text/css" href="<?=CSS?>base.css">
+	<link rel="stylesheet" type="text/css" href="<?=LM_CSS?>base.css">
 </head>
 <body>
 <?php
@@ -40,7 +40,7 @@ $lm->setCellCallback('test');
 echo $lm->construct($req);
 
 ?>
-<script type="text/javascript" src="<?=JS?>jquery-3.2.1.min.js"></script>
-<script type="text/javascript" src="<?=JS?>listeManager.js"></script>
+<script type="text/javascript" src="<?=LM_JS?>jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="<?=LM_JS?>listeManager.js"></script>
 </body>
 </html>

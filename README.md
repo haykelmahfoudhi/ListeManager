@@ -7,8 +7,8 @@ Mecaprotec utilise à l'heure actuelle une librairie de fonctions PHP pour la r�
 
 ## Mission
 
-La mission ici sera donc de refondre cette librairie en la rendant plus facile à manipuler pour le développeur. La nouvelle librairie PHPLib, renommée ListeManager, consistera en :
-* Un objet ListeManager possèdant un comportement de base, paramètrables via un ensemble de setters. Cet objet sera l'interface entre le développeur et la librairie.
+La mission ici sera donc de refondre cette librairie en la rendant plus facile à manipuler pour le développeur. La nouvelle librairie PHPLib, renommée ListManager, consistera en :
+* Un objet ListManager possèdant un comportement de base, paramètrables via un ensemble de setters. Cet objet sera l'interface entre le développeur et la librairie.
     * **Comportement de base** : affichage d'une liste HTML avec les mêmes fonctionnalités que celles porposées par PHPLib à savoir : recherche, tri par colonne, export Excel, masquage colonnes
     * **Comportement modifiables** :
         * Type de données retournées parmi Liste HTML, Excel, objet ou array PHP, objet JSON

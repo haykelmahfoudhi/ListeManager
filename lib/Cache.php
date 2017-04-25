@@ -12,7 +12,7 @@ class Cache {
 	const NB_LIGNES_MIN = 200;
 
 	function __construct($id) {
-		$this->fileName = CACHE.$id.'.json';
+		$this->fileName = LM_CACHE.$id.'.json';
 		// Si fichier existe : ouverture en lecture
 		if(file_exists($this->fileName)){
 			$this->file = fopen($this->fileName, 'r');
