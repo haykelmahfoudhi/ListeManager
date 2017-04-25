@@ -1,9 +1,9 @@
-API REST & Libraire de fonctions Mecaprotec
+Refonte de PHPLib
 =============================================
 
 ## Contexte
 
-Mecaprotec utilise à l'heure actuelle une librairie de fonctions PHP pour la réalisation de sites de gestion ou de visualisation en interne. Cette librairie permet entre autre la *connexion à la base de données*, la *construction de requêtes* SQL à partir de données GET, la création et la gestion de *listes (tableaux)* en HTML (utilisation de templates), l'importation de données sous format *Excel*... Cependant quelques unes de ces fonctions ont été codées depuis la toute *première version de PHP* (il y a 14 ans) et de ce fait quelques unes d'entres sont *obselètes* ou inutiles.
+Mecaprotec utilise à l'heure actuelle une librairie de fonctions PHP pour la réalisation de sites de gestion peramettant principalement la visualisation de listes de données en interne. Cette librairie permet entre autre la *connexion à la base de données*, la *construction de requêtes* SQL à partir de données GET, la création et la gestion de *listes HTML* de données, l'exportation de données sous format *Excel*... Cependant quelques unes de ces fonctions ont été codées depuis la toute *première version de PHP* (il y a 14 ans) et de ce fait quelques unes d'entres sont *obselètes* ou inutiles.
 
 ## Mission
 
@@ -51,3 +51,17 @@ La mission ici sera donc de refondre cette librairie en la rendant plus facile �
             [ ] Gestionnaire de sessions sécurisé
 
     [ ] Phase de tests
+    [ ] Production de documentaiton
+        [o] PHPDoc -> utilisation des classes et méthodes
+        [ ] Pages Wiki
+
+-----------------------------------------------------------------
+
+# Utilisation
+
+Pour utiliser les fonctionnalités de ListManager il faut tout d'abord inclure la bibliothèque à votre projet PHP. Pour se faire 2 méthodes sont possibles : 
+    * **Vous n'utilisez pas autoload** : il vous suffira d'inclure le fichier "includes.php" à votre projet, de manière à ce qu'il soit accessible partout dans vote projet.
+    * **Vous utilisez autoload** : il vous faudra inclure le fichier "includes.php" ainsi que penser à inclure le dossier contenant l'ensemble des classes de ListManager et représenté par la constante 'LM_LIB' à votre fonction autoload.
+    ```php
+    include PATH_TO_LISTMANAGER.'includes.php';
+    ```

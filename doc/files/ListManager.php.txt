@@ -36,7 +36,7 @@ class ListManager {
 	/**
 	 * 
 	 */
-	private $responseType;
+	private $ResponseType;
 	/**
 	 * 
 	 */
@@ -68,7 +68,7 @@ class ListManager {
 			***********************/
 
 	public function __construct(){
-		$this->responseType = ResponseType::TEMPLATE;
+		$this->ResponseType = ResponseType::TEMPLATE;
 		$this->template = new ListTemplate();
 		$this->useGET = true;
 		$this->tabWhere = null;
@@ -157,7 +157,7 @@ class ListManager {
 		$reponse = $this->db->execute($requete);
 
 		//Creation de l'objet de reponse
-		switch ($this->responseType){
+		switch ($this->ResponseType){
 			case ResponseType::OBJET:
 			return $reponse;
 
@@ -222,14 +222,14 @@ class ListManager {
 	/**
 	* Definit le format de l'objet retourne par ListManager suite a l'execution d'une requete
 	* @param ResponseType $ResponseType peut prendre 5 valeurs :
-	*    * TEMPLATE (par defaut) pour obtenir un string representant la liste HTML contenant toutes les donnees 
-	*    * ARRAY pour obtenir les resultats dans un array PHP (equivalent a PDOStaement::fetchAll())
-	*    * JSON pour obtenir les donnees dans un objet encode en JSON
-	*    * EXCEL pour obtenir les resultats dans une feuille de calcul Excel
-	*    * OBJET pour obtenir un objet ReponseResultat
+	* 	-> TEMPLATE (par defaut) pour obtenir un string representant la liste HTML contenant toutes les donnees 
+	* 	-> ARRAY pour obtenir les resultats dans un array PHP (equivalent a PDOStaement::fetchAll())
+	* 	-> JSON pour obtenir les donnees dans un objet encode en JSON
+	* 	-> EXCEL pour obtenir les resultats dans une feuille de calcul Excel
+	* 	-> OBJET pour obtenir un objet ReponseResultat
 	*/
 	public function setResponseType($ResponseType){
-		$this->responseType = $ResponseType;
+		$this->ResponseType = $ResponseType;
 	}
 
 	/**
