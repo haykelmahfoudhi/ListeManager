@@ -26,7 +26,8 @@
 ************************************************************************************************/
 
 /**
- * Objet Template : construit la liste HTML avec les données qu'elle contient. Constitue la vue
+ * Objet Template : construit la liste HTML avec les données qu'elle contient. Constitue la vue.
+ * 
  * Tout comme ListManager, ListTemplate possède un comportement de base modifiable grâce aux méthodes de classe. Vous pouvez modifier :
  * * Activer / desactiver / modifier l'id du tableau HTML, ainsi que les classes des lignes paires / impaires
  * * Modifier la classe et le message des erreurs
@@ -291,7 +292,7 @@ class ListTemplate {
 				//Determine la taille du champs
 				$taille = min($types[$i]->len, self::MAX_LEN_INPUT);
 				$ret .= '<td><input type="text" name="tabSelect['.$titres[$i].']"'
-					." form='$this->searchFormID' size='$taille' value='$valeur'/></td>";
+					." form='recherche' size='$taille' value='$valeur'/></td>";
 			}
 			$ret .= "</tr>\n";
 		}

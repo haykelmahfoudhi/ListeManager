@@ -17,8 +17,10 @@
 
 
 /**
- * Database permet la connection aux bases de données de l'application de façon générique pour tous les types de BD (Postgre, Oracle, MySql) en utilisant l'objet **PDO** de PHP
- * Objet basé sur le design pattern du multiton : il est possible d'avoir plusieurs instances de l'objet Database en les identifiant avec une étiquette unique, et d'y accéder partout dans l'application via la méthode statique *getInstance()*.
+ * Database permet la connection aux bases de données.
+ * 
+ * L'interaction de l'application avec les bases de données se fait de façon générique pour tous les types de BD (Postgre, Oracle, MySql) grâce à l'objet *PDO* de PHP
+ * Cette classe est basée sur le design pattern du multiton : il est possible d'avoir plusieurs instances de l'objet Database en les identifiant avec une étiquette unique, et d'y accéder partout dans l'application via la méthode statique *getInstance()*.
  * De ce fait, le constructeur de Database est private. Pour créer une nouvelle instance il faut utiliser la méthode de classe *instantiate()* en précisant une étiquette si vous utilisez plusieurs bases de données pour l'application.
  * 
  * @link http://php.net/manual/fr/intro.pdo.php Manuel PDO sur php.net 

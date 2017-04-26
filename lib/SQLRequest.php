@@ -94,8 +94,7 @@ class SQLRequest {
 
 	/**
 	* Ajoute des clauses where à la requête.
-	* @var array $tabWhere : le tableau contenant toutes les conditions à rajouter.
-	* Ce tableau aura la forme suivante :
+	* @var array $tabWhere : le tableau contenant toutes les conditions à rajouter. Ce tableau aura la forme suivante :
 	*    -> 'nomColonne1' => 'condition1', 'nomColonne2' => 'condition2' ...
 	* Une condition prend la forme suivante : [OPERATEUR][VALEUR]
 	* Les opérateurs possibles sont :
@@ -324,9 +323,9 @@ class SQLRequest {
 	private function matchRequete(){
 
 		//Traitement bloc WHERE & HAVING & LIMIT
-		$reWhere = '/^(.+)(\s+WHERE\s+)([\s\S]+)$/i';
-		$reHaving = '/^(.+)(\s+HAVING\s+)([\s\S]+)$/i';
-		$reLimit = '/^(.+)(\s+LIMIT\s+)([0-9]+)([\s\S]*)$/i';
+		$reWhere = '/^([\s\S]+)(\s+WHERE\s+)([\s\S]+)$/i';
+		$reHaving = '/^([\s\S]+)(\s+HAVING\s+)([\s\S]+)$/i';
+		$reLimit = '/^([\s\S]+)(\s+LIMIT\s+)([0-9]+)([\s\S]*)$/i';
 		if(preg_match($reLimit, $this->baseRequete, $tabMatch) === 1){
 			$this->baseRequete = $tabMatch[1];
 			$this->limit = $tabMatch[3];
@@ -341,10 +340,10 @@ class SQLRequest {
 		}
 
 		//Expressions régulières
-		$reSelect = '/^(SELECT(.+))(FROM(.+))$/i';
-		$reInsert = '/^(INSERT(.+))$/i';
-		$reUpdate = '/^(UPDATE(.+))$/i';
-		$reDelete = '/^(DELETE(.+))$/i';
+		$reSelect = '/^(SELECT([\s\S]+))(FROM([\s\S]+))$/i';
+		$reInsert = '/^(INSERT([\s\S]+))$/i';
+		$reUpdate = '/^(UPDATE([\s\S]+))$/i';
+		$reDelete = '/^(DELETE([\s\S]+))$/i';
 
 		$tabMatch = array();
 		// Teste si SELECT
