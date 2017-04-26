@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <title>API Documentation</title>
+    <meta name="author" content=""/>
+    <meta name="description" content=""/>
+
+    <link href="../css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/prism.css" rel="stylesheet" media="all"/>
+    <link href="../css/template.css" rel="stylesheet" media="all"/>
+    
+    <!--[if lt IE 9]>
+    <script src="../js/html5.js"></script>
+    <![endif]-->
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/ui/1.10.4/jquery-ui.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/jquery.smooth-scroll.js"></script>
+    <script src="../js/prism.min.js"></script>
+    <!-- TODO: Add http://jscrollpane.kelvinluck.com/ to style the scrollbars for browsers not using webkit-->
+    <script type="text/javascript">
+    function loadExternalCodeSnippets() {
+        Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+            var src = pre.getAttribute('data-src');
+            var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+            var language = 'php';
+
+            var code = document.createElement('code');
+            code.className = 'language-' + language;
+
+            pre.textContent = '';
+
+            code.textContent = 'Loading…';
+
+            pre.appendChild(code);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', src, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+
+                    if (xhr.status < 400 && xhr.responseText) {
+                        code.textContent = xhr.responseText;
+
+                        Prism.highlightElement(code);
+                    }
+                    else if (xhr.status >= 400) {
+                        code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    }
+                    else {
+                        code.textContent = '✖ Error: File does not exist or is empty';
+                    }
+                }
+            };
+
+            xhr.send(null);
+        });
+    }
+
+    $(document).ready(function(){
+        loadExternalCodeSnippets();
+    });
+    $('#source-view').on('shown', function () {
+        loadExternalCodeSnippets();
+    })
+</script>
+
+    <link rel="shortcut icon" href="../images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="../images/apple-touch-icon.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="../images/apple-touch-icon-72x72.png"/>
+    <link rel="apple-touch-icon" sizes="114x114" href="../images/apple-touch-icon-114x114.png"/>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <i class="icon-ellipsis-vertical"></i>
+            </a>
+            <a class="brand" href="../index.html">API Documentation</a>
+
+            <div class="nav-collapse">
+                <ul class="nav pull-right">
+                                        <li class="dropdown" id="charts-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Charts <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../graphs/class.html">
+                                    <i class="icon-list-alt"></i>&#160;Class hierarchy diagram
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="reports-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Reports <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../reports/errors.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">47</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/markers.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">3</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/deprecated.html">
+                                                                                                            <i class="icon-list-alt"></i>&#160;Deprecated <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--<div class="go_to_top">-->
+    <!--<a href="#___" style="color: inherit">Back to top&#160;&#160;<i class="icon-upload icon-white"></i></a>-->
+    <!--</div>-->
+</div>
+
+<div id="___" class="container-fluid">
+        <section class="row-fluid">
+        <div class="span2 sidebar">
+                                <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-300270676"></a>
+                                <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+            </div>
+            <div id="namespace-300270676" class="accordion-body collapse in">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Cache.html">Cache</a></li>
+                                                    <li class="class"><a href="../classes/Database.html">Database</a></li>
+                                                    <li class="class"><a href="../classes/ListManager.html">ListManager</a></li>
+                                                    <li class="class"><a href="../classes/ListTemplate.html">ListTemplate</a></li>
+                                                    <li class="class"><a href="../classes/RequestResponse.html">RequestResponse</a></li>
+                                                    <li class="class"><a href="../classes/RequestType.html">RequestType</a></li>
+                                                    <li class="class"><a href="../classes/ResponseType.html">ResponseType</a></li>
+                                                    <li class="class"><a href="../classes/Session.html">Session</a></li>
+                                                    <li class="class"><a href="../classes/SQLRequest.html">SQLRequest</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </section>
+    <section class="row-fluid">
+        <div class="span10 offset2">
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <nav>
+                                                <a href="../namespaces/default.html">\</a> <i class="icon-level-up"></i>
+                                            </nav>
+                    <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
+
+                    <h1><small>\</small>ListManager</h1>
+                    <p><em>--= Objet ListManager =--</em></p>
+                    <p>C'est l'objet central du projet. Il joue le rôle d'interface entre le developpeur, les bases de données et les listes.
+ListManager possède un comportement de base :</p>
+<ul>
+<li>Connection à une base de données, ou utilisation d'une base de données particulière de l'applicaiton en spécifiant son étiquette (cf. la doc de l'objet Database)</li>
+<li>Utilisation d'une requête SQL de base permettant la sélection</li>
+<li>Utilisation des données situées dans les variables GET de l'url pour modifier la requete SQL de base, à savoir
+<ul>
+<li>'mask' : permet de supprimer de la sélectionner les colonnes dont les numéro sont indiqués (spprime la colonne du select)</li>
+<li>'tabSelect' : permet de filtrer les données par colonnes (se rajoute à la clause WHERE de la requete)</li>
+<li>'orderBy' : permet de trier els données par ordre croissant / décroissant selon une colonne (ajoute le numéro de la colonne à la clause ORDER BY)</li>
+</ul></li>
+<li>L'exécution de la requête SQL</li>
+<li>La mise en forme des données dans une liste HTML dans un template correpsondant à la classe ListTemplate</li>
+</ul>
+<p>Ce comportement de base et adaptable et modifibale grâce aux nombreuses méthodes de la classe. Vous pouvez entre autre choisir de retourner les données sous forme de array PHP, d'objet, de fichier excel... ou bien modifier le comportement du template HTML</p>
+                    
+                                        
+                    <section id="summary">
+                        <h2>Summary</h2>
+                        <section class="row-fluid heading">
+                            <section class="span4">
+                                <a href="#methods">Methods</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#properties">Properties</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#constants">Constants</a>
+                            </section>
+                        </section>
+                        <section class="row-fluid public">
+                            <section class="span4">
+                                                                    <a href="../classes/ListManager.html#method___construct" class="">__construct()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_construct" class="">construct()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_execute" class="">execute()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_setResponseType" class="">setResponseType()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_connectDatabase" class="">connectDatabase()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_setDatabase" class="">setDatabase()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_setTemplate" class="">setTemplate()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_setListeId" class="">setListeId()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_useGET" class="">useGET()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_setRowsClasses" class="">setRowsClasses()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_setTabSelect" class="">setTabSelect()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_setOrderBy" class="">setOrderBy()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_setMask" class="">setMask()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_enableSearch" class="">enableSearch()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_setCellCallback" class="">setCellCallback()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_setNbResultsPerPage" class="">setNbResultsPerPage()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_useCache" class="">useCache()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_setMaxPagesDisplayed" class="">setMaxPagesDisplayed()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_getTemplate" class="">getTemplate()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_getTabSelect" class="">getTabSelect()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_getMask" class="">getMask()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_getOrderBy" class="">getOrderBy()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No public properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No constants found</em>
+                                                            </section>
+                        </section>
+                        <section class="row-fluid protected">
+                            <section class="span4">
+                                                                    <em>No protected methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No protected properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                        <section class="row-fluid private">
+                            <section class="span4">
+                                                                    <em>No private methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <a href="../classes/ListManager.html#property_responseType" class="">$responseType</a><br />
+                                                                    <a href="../classes/ListManager.html#property_template" class="">$template</a><br />
+                                                                    <a href="../classes/ListManager.html#property_db" class="">$db</a><br />
+                                                                    <a href="../classes/ListManager.html#property_useGET" class="">$useGET</a><br />
+                                                                    <a href="../classes/ListManager.html#property_tabSelect" class="">$tabSelect</a><br />
+                                                                    <a href="../classes/ListManager.html#property_orderBy" class="">$orderBy</a><br />
+                                                                    <a href="../classes/ListManager.html#property_mask" class="">$mask</a><br />
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                    </section>
+                </div>
+                <aside class="span4 detailsbar">
+                                        
+                    
+                    <dl>
+                        <dt>File</dt>
+                            <dd><a href="../files/ListManager.html"><div class="path-wrapper">ListManager.php</div></a></dd>
+                                                <dt>Package</dt>
+                            <dd><div class="namespace-wrapper">Default</div></dd>
+                                                <dt>Class hierarchy</dt>
+                            <dd class="hierarchy">
+                                                                                                                                                                    <div class="namespace-wrapper">\ListManager</div>
+                            </dd>
+
+                        
+                        
+                        
+                        
+                                                                        </dl>
+                    <h2>Tags</h2>
+                    <table class="table table-condensed">
+                                            <tr>
+                            <th>
+                                author
+                            </th>
+                            <td>
+                                                                    <p>RookieRed</p>
+                                                            </td>
+                        </tr>
+                                        </table>
+                </aside>
+            </div>
+
+                        
+                                    <a id="properties" name="properties"></a>
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <h2>Properties</h2>
+                </div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_responseType" name="property_responseType" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$responseType</h3>
+                <pre class="signature">$responseType : \ResponseType</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="../classes/ResponseType.html">\ResponseType</a>
+                &mdash; correspond au format de données retourné par ListManager
+Valeur par défaut : TEMPLATE.                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_template" name="property_template" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$template</h3>
+                <pre class="signature">$template : \ListTemplate</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="../classes/ListTemplate.html">\ListTemplate</a>
+                &mdash; objet template utilisé par ListManager pour générer les listes HTML                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_db" name="property_db" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$db</h3>
+                <pre class="signature">$db : \Database</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="../classes/Database.html">\Database</a>
+                &mdash; objet Databse qui sera utilisé pour l&#039;éxecution des requêtes SQL                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_useGET" name="property_useGET" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$useGET</h3>
+                <pre class="signature">$useGET : boolean</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                boolean
+                &mdash; définit si ListManager doit utiliser ou non les données GET de l&#039;url pour modifier la requete SQL de base.
+Valeur par défaut : false. Si cette valeur est passée à true, il vous sera possible de spécifier vous même les objets à utiliser pour modifier la requete SQL (where, orderBy et mask)                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_tabSelect" name="property_tabSelect" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$tabSelect</h3>
+                <pre class="signature">$tabSelect : array</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                array
+                &mdash; correpsond au tabelau $_GET[&#039;tabSelect&#039;]. Ce tableau doit avoir pour format [nomColonne] =&gt; &#039;valeur filtre&#039;
+A utiliser si vous ne souhaitez pas utiliser les variables GET pour filtrer les données par colonne.                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_orderBy" name="property_orderBy" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$orderBy</h3>
+                <pre class="signature">$orderBy : string</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                string
+                &mdash; correspond à l&#039;entrée $_GET[&#039;orderBy&#039;]. Liste les numéro de colonnes pour la clause ORDER BY spéraées par une virgule.
+A utiliser si vous ne souhaitez pas passer par la variable GET pour trier les données                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_mask" name="property_mask" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$mask</h3>
+                <pre class="signature">$mask : string</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                string
+                &mdash; correspond à l&#039;entrée $_GET[&#039;mask&#039;]. Liste des numéro de colonnes qui seront masquées, séparées par des virgules.
+A utiliser si vous ne souhaitez pas passer par la variable GET pour masquer des colonnes                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                            
+                                    <a id="methods" name="methods"></a>
+            <div class="row-fluid">
+                <div class="span8 content class"><h2>Methods</h2></div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___construct" name="method___construct" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__construct()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__construct(  <span class="argument">$labelDB = null</span>) </pre>
+                <p><em>Construit un nouvel objet ListManager définit par son comportement de base.</em></p>
+                <p>Tente de récupérer la base de données principale de l'application. Vous pouvez donc utiliser la méthode <em>Database::instantaite()</em> au préalable pour ne pas avoir à spécifier la base de données à utiliserpar la suite.
+Précisez l'etiquette de la base de données à utiliser si nécessaire</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td></td>
+                                <td>$labelDB </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            var
+                        </th>
+                        <td>
+                                                                                            <p>l'étiquette de la base de données que doit utiliser listManager. Laissez null si vous n'avez qu'une seule base de données.</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_construct" name="method_construct" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">construct()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">construct(mixed  <span class="argument">$baseSQL</span>) : mixed</pre>
+                <p><em>Execute la requete SQL dont la base est passee en parametres.</em></p>
+                <p>Cette base sera augmentee par les divers parametres fournis par la variable GET avant d'etre execute, ou par les attributs tabSelect mask et orderBy si vous ne souhaitez pas utiliser GET.
+Le format des resultats obtenus par la requete dépend du ResponseType spécifié.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>mixed</td>
+                                <td>$baseSQL </td>
+                                <td><p>: la requete a executer. Peut etre de type string ou SQLRequest.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    mixed
+                                            &mdash; <ul>
+<li>l'objet de reponse dependant de $ResponseType, parametrable via la methode <em>setResponseType()</em></li>
+<li>false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données</li>
+</ul>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_execute" name="method_execute" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">execute()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">execute(mixed  <span class="argument">$request</span>) : string|boolean</pre>
+                <p><em>Execute une requete SQL *sans prendre en compte les données GET ni les données tabSelect, mask et orderBy*.</em></p>
+                <p>Retourne le resultat dans le format specifie par ResponseType</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>mixed</td>
+                                <td>$request </td>
+                                <td><p>: la requete a executer. Peut etre de type string ou SQLRequest.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string|boolean
+                                            &mdash; <p>:</p>
+<ul>
+<li>l'objet de reponse dependant de $this-&gt;responseType, parametrable via la methode <em>setResponseType()</em></li>
+<li>false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données</li>
+</ul>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setResponseType" name="method_setResponseType" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setResponseType()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setResponseType(\ResponseType  <span class="argument">$responseType</span>) </pre>
+                <p><em>Definit le format de la reponse des methodes *construct()* et *execute()*.</em></p>
+                <p>A la suite de l'execution d'une requete SQL ListManager peut retourner une liste de données sous 5 formes différentes :</p>
+<ul>
+<li>TEMPLATE (par defaut) pour obtenir un string representant la liste HTML contenant toutes les donnees</li>
+<li>ARRAY pour obtenir les resultats dans un array PHP (equivalent a PDOStaement::fetchAll())</li>
+<li>JSON pour obtenir les donnees dans un objet encode en JSON</li>
+<li>EXCEL pour obtenir les resultats dans une feuille de calcul Excel</li>
+<li>OBJET pour obtenir un objet stdClass
+Par défaut le type de réponse est TEMPLATE. Vous pouvez le changer en indiquant le paramètre suivant</li>
+</ul>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td><a href="../classes/ResponseType.html">\ResponseType</a></td>
+                                <td>$responseType </td>
+                                <td><p>le nouveau type de réponse</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_connectDatabase" name="method_connectDatabase" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">connectDatabase()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">connectDatabase(string  <span class="argument">$dsn</span>, string  <span class="argument">$login</span>, string  <span class="argument">$mdp</span>, string  <span class="argument">$label = null</span>) </pre>
+                <p><em>Instancie une nouvelle connexion a une base de donnees.</em></p>
+                <p>Cett méthode utilise la méthode <em>Database::instantiate()</em> et donc enregistre l'instance creee dans la classe Database. Spécifiez une etiquette si vous en utilisez plusieurs</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$dsn </td>
+                                <td><p>le DSN (voir le manuel PHP concernant PDO)</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$login </td>
+                                <td><p>le nom d'utilisateur pour la connexion</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$mdp </td>
+                                <td><p>son mot de passe</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$label </td>
+                                <td><p>l'etiquette de la base de données. Laisser à null si vous n'en utiliser qu'une seule</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setDatabase" name="method_setDatabase" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setDatabase()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setDatabase(string|\Database  <span class="argument">$dataBase = null</span>) </pre>
+                <p><em>Definit la base de donnees qui sera utilisee pour l&#039;execution des requetes SQL.</em></p>
+                <p>Affiche un message d'erreur si la base de données n'a pas pu être récupérée.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string|<a href="../classes/Database.html">\Database</a></td>
+                                <td>$dataBase </td>
+                                <td><p>: la base de données à utiliser. Peut être de type string ou Database :</p>
+<ul>
+<li>Si string : represente l'etiquette de la base de donnees a utiliser.</li>
+<li>Si null ou non spécifié : recupere la base de donnee principale de la classe Database.</li>
+</ul></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setTemplate" name="method_setTemplate" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setTemplate()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setTemplate(\ListTemplate  <span class="argument">$template</span>) </pre>
+                <p><em>Definit un nouvel objet ListTemplate pour l&#039;affichage des listes</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td><a href="../classes/ListTemplate.html">\ListTemplate</a></td>
+                                <td>$template </td>
+                                <td><p>le nouveau template a definir.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setListeId" name="method_setListeId" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setListeId()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setListeId(string|null  <span class="argument">$id</span>) </pre>
+                <p><em>Definit le nouvel ID du tableau HTML</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string|null</td>
+                                <td>$id </td>
+                                <td><p>le nouvel id du tableau html. Si null aucun ID ne sera utilisé.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_useGET" name="method_useGET" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">useGET()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">useGET(boolean  <span class="argument">$valeur</span>) </pre>
+                <p><em>Utiliser les variables get ou non.</em></p>
+                <p>Definit si ListManager doit utiliser ou non les valeurs contenues dans GET pour construire le masque, le order by et le where de la requete SQL qui sera executee.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$valeur </td>
+                                <td><p>true ou false. Valeur par defaut : true</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setRowsClasses" name="method_setRowsClasses" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setRowsClasses()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setRowsClasses(  <span class="argument">$classe1</span>,   <span class="argument">$classe2</span>) </pre>
+                <p><em>Redefinit le nom des classes qui seront affectees une ligne sur deux dans la liste HTML (balises tr).</em></p>
+                <p>Si les valeurs sont mises a null les classes ne seront pas affiche.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td></td>
+                                <td>$classe1 </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td></td>
+                                <td>$classe2 </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setTabSelect" name="method_setTabSelect" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setTabSelect()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setTabSelect(array  <span class="argument">$tabSelect</span>) </pre>
+                <p><em>Definit le tableau à utiliser pour filtrer les données à selectionner.</em></p>
+                <p>Ce tableau doit avoir pour format [nomColonne] =&gt; 'valeur filtre'. Pour le format des filtres veuillez consulter la doc de la methode <em>SQLRequeste-&gt;where()</em>.
+Cette methode passe automatiqument a false l'attribut sur l'utilisation des variables GET.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$tabSelect </td>
+                                <td><p>le tableau contenant les associations colonnes -&gt; filtre à utiliser pour filtrer les données</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setOrderBy" name="method_setOrderBy" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setOrderBy()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setOrderBy(  <span class="argument">$orderBy</span>) </pre>
+                <p><em>Definit la façon de trier les donénes selectionnées dans la base de données représenté par un string.</em></p>
+                <p>Passe automatiqument a faux l'attribut sur l'utilisation des variables GET pour la reecriture des requetes SQL</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td></td>
+                                <td>$orderBy </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setMask" name="method_setMask" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setMask()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setMask(string  <span class="argument">$mask</span>) </pre>
+                <p><em>Definit le masque à utiliser pour supprimer certaines colonnes lors de la selection de données.</em></p>
+                <p>Passe automatiqument a faux l'attribut sur l'utilisation des variables GET pour la reecriture des requetes SQL</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$mask </td>
+                                <td><p>la liste des numéros de colonne à masquer séparés par une virgule.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_enableSearch" name="method_enableSearch" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">enableSearch()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">enableSearch(boolean  <span class="argument">$valeur</span>) : false</pre>
+                <p><em>Definit si l&#039;option recherche doit etre activee ou non. Si cette valeur est passee a false il ne sera plus possible pour l&#039;utilisateur de filtrer les données de la liste</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$valeur </td>
+                                <td><p>valeur par defaut : true</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    false
+                                            &mdash; <p>si la valeur spécifié n'est pas un boolean</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setCellCallback" name="method_setCellCallback" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setCellCallback()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setCellCallback(string  <span class="argument">$fonction</span>) : boolean</pre>
+                <p><em>Définir un callback à utiliser dans le template.</em></p>
+                <p>Definit le callback (la fonction) qui sera executee pour chaque valeur lors de l'affichage des donnees dans les cellules du tableau. Cette fonction doit etre definie comme il suit :</p>
+<ul>
+<li>3 parametres d'entree :
+<ol>
+<li>cellule : la valeur de l'element en cours</li>
+<li>colonne : le nom de la colonne en cours</li>
+<li>ligne   : le numero de la ligne en cours</li>
+</ol></li>
+<li>valeur de retour de type string (ou du moins un type qui peut être transformé en string). <em>[!]</em> Si vous ne modifiez pas la valeur de la cellule penser tout de même à la retourner</li>
+</ul>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$fonction </td>
+                                <td><p>le nom du callback a utiliser, null si aucun. Valeur par defaut : null</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setNbResultsPerPage" name="method_setNbResultsPerPage" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setNbResultsPerPage()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setNbResultsPerPage(integer  <span class="argument">$valeur</span>) : boolean</pre>
+                <p><em>Definit le nombre de resultats a afficher sur une page. Valeur par defaut = 50</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$valeur </td>
+                                <td><p>le nombre de lignes a afficher par pages</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>faux si la valeur entree est incorrecte</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_useCache" name="method_useCache" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">useCache()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">useCache(boolean  <span class="argument">$valeur</span>) </pre>
+                <p><em>Definit si ListManager doit utiliser ou non le systeme de cache pour accelerer
+la navigation entre les pages de la liste</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$valeur </td>
+                                <td><p>: true pour activer le fonctionnement par cache, false sinon</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setMaxPagesDisplayed" name="method_setMaxPagesDisplayed" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setMaxPagesDisplayed()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setMaxPagesDisplayed(integer  <span class="argument">$valeur</span>) </pre>
+                <p><em>Définit le nombre max de liens vers les pages de la liste proposés par la pagination du template.</em></p>
+                <p>La valeur par défaut est 15 : c'est à dire que par exemple le template propose les liens des pages 1 à 15 si l'utilisateur est sur la 1re page.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$valeur </td>
+                                <td><p>le nombre de liens à proposer</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getTemplate" name="method_getTemplate" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getTemplate()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getTemplate() : \ListTemplate</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/ListTemplate.html">\ListTemplate</a>
+                                            &mdash; <p>l'objet template utilise par ListManager</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getTabSelect" name="method_getTabSelect" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getTabSelect()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getTabSelect() : array</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; <p>le tableau utilisé pour filtrer les données par colonne</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getMask" name="method_getMask" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getMask()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getMask() : string</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                            &mdash; <p>le mask utilisé pour supprimer des colonnes. Le numéro des colonnes masquées est données séparés par des virgules</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getOrderBy" name="method_getOrderBy" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getOrderBy()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getOrderBy() : string</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                            &mdash; <p>le numéro des colonnes utilisées pour trier les données, séparés par par des virgules. Une colonne dont le numéro est négatif représente le tri décroissant.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                                    </div>
+    </section>
+
+    <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="source-view-label">ListManager.php</h3>
+        </div>
+        <div class="modal-body">
+            <pre data-src="../files/ListManager.php.txt" class="language-php line-numbers"></pre>
+        </div>
+    </div>
+
+    <footer class="row-fluid">
+        <section class="span10 offset2">
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <section class="row-fluid footer-sections">
+                        <section class="span4">
+                                                        <h1><i class="icon-code"></i></h1>
+                            <div>
+                                <ul>
+                                                                    </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-bar-chart"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../graphs/class.html">Class Hierarchy Diagram</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-pushpin"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../reports/errors.html">Errors</a></li>
+                                    <li><a href="../reports/markers.html">Markers</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </section>
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <hr />
+                    Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
+                    on April 26th, 2017 at 16:31.
+                </section>
+            </section>
+        </section>
+    </footer>
+</div>
+
+</body>
+</html>

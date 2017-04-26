@@ -26,7 +26,7 @@ La mission ici sera donc de refondre cette librairie en la rendant plus facile �
 
 ---------------------------------------------------------------
 
-# RESTE A FAIRE TRIE PAR PRIORITE
+# AVANCEMENT DU PROJET
     
     [o] Phase de développement
         [o] Connection & interactions avec la BD
@@ -49,7 +49,6 @@ La mission ici sera donc de refondre cette librairie en la rendant plus facile �
         [ ] API JSON pour exécuter des requêtes (SQL?) depuis une application externe
             [ ] Définir un protocole de communication & connextion aux bases de données
             [ ] Gestionnaire de sessions sécurisé
-
     [ ] Phase de tests
     [ ] Production de documentaiton
         [o] PHPDoc -> utilisation des classes et méthodes
@@ -59,9 +58,40 @@ La mission ici sera donc de refondre cette librairie en la rendant plus facile �
 
 # Utilisation
 
+## Inclure ListManager à votre projet
+
 Pour utiliser les fonctionnalités de ListManager il faut tout d'abord inclure la bibliothèque à votre projet PHP. Pour se faire 2 méthodes sont possibles : 
-    * **Vous n'utilisez pas autoload** : il vous suffira d'inclure le fichier "includes.php" à votre projet, de manière à ce qu'il soit accessible partout dans vote projet.
-    * **Vous utilisez autoload** : il vous faudra inclure le fichier "includes.php" ainsi que penser à inclure le dossier contenant l'ensemble des classes de ListManager et représenté par la constante 'LM_LIB' à votre fonction autoload.
-    ```php
-    include PATH_TO_LISTMANAGER.'includes.php';
+* **Vous n'utilisez pas autoload** : il vous suffira d'inclure le fichier "includes.php" à votre projet, de manière à ce qu'il soit accessible partout dans vote projet.
+* **Vous utilisez autoload** : il vous faudra inclure le fichier "includes.php" ainsi que penser à inclure le dossier contenant l'ensemble des classes de ListManager et représenté par la constante 'LM_LIB' à votre fonction autoload.
+
+```php
+<?php
+require PATH_TO_LISTMANAGER.'includes.php';
+?>
     ```
+
+## Créer une liste simple
+
+Une fois ListManager inclut à votre projet il vous sera possible de créer votre preière liste HTML. Pour se faire vous aurez besoin d'un accès à une base de données et d'une requête SQL qui sélectionnera les données souhaitées. Le code ci-dessous vous permet d'afficher le contenu des attributs *a1 a2 et a3* de la table *table* :
+
+```php
+<?php
+
+// Création de la requête SQL
+$requete = "SELECT a1, a2, a3 FROM table WHERE 1";
+
+// Instanciation de ListManager
+$lm = new ListManager();
+
+// Connection à la base de données & éxecution de la requete
+$lm->connectDatabase('DSN PDO', 'utilisateur', 'mot_de_passe');
+$html = $lm->construct($requete);
+
+// Affichage de la liste
+echo $html;
+?>
+```
+
+## Modifier le comportement de ListManager
+
+Si vous souhaitez modifier le comportement de l'objet ListManager, vous pouvez utiliser les méthodes de la classe en vous référant à la PHPDoc accessible dans le dossier doc/PHPDoc/.
