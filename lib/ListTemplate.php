@@ -188,26 +188,26 @@ class ListTemplate {
 		//Bouton quest (recherche)
 		if($this->enableSearch){
 			$ret .= '<a href="'.self::creerUrlGET('quest', 
-				( ($this->displaySearch) ? 0 : 1)).'">?</a>'; 
+				( ($this->displaySearch) ? 0 : 1)).'">?</a><br>'; 
 			
 			// Ajout du form si recherche activee
 			if($this->displaySearch)
 				$ret .= "\n<form id='recherche' method='GET'"
-					.'\'><input type="submit" value="Go!"/></form>';
+					.'\'><input type="submit" value="Go!"/></form><br>';
 		}
 		// Bouton excel
 		// TODO
 
 		// Bouton pour reset le mask
-		if(isset($_GET['mask']) && strlen($_GET['mask']) > 0) {
-			$ret .= '<a id="annuler-masque" href="'
-				.self::creerUrlGET('mask', '').'">M</a>';
-		}
+		$ret .= '<a id="annuler-masque" href="#">Annuler masque</a>';
 		$ret .= "<div>\n";
 
-		//Bouton clear
-		if(isset($_GET['quest']) || isset($_GET['tabSelect']))
-			$ret .= '<a href="'.self::creerUrlGET(null, null, array()).'">C</a>';
+		//Bouton RaZ
+		if(isset($_GET['tabSelect'])) {
+			$tabGet = $_GET;
+			unset($tabGet['tabSelect']);
+			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'">RaZ</a>';
+		}
 
 
 		// Initialisation de la liste
@@ -242,37 +242,37 @@ class ListTemplate {
 				.self::creerUrlGET('orderBy', $orderString)."\">$titre</a>";
 
 			//Gestion du masque
-			if(isset($_GET['mask'])){
-				$maskArray = explode(',', $_GET['mask']);
-				array_push($maskArray, intval($i));
-			}
-			else {
-				$maskArray = array($i+1);
-			}
+			// if(isset($_GET['mask'])){
+			// 	$maskArray = explode(',', $_GET['mask']);
+			// 	array_push($maskArray, intval($i));
+			// }
+			// else {
+			// 	$maskArray = array($i+1);
+			// }
 			
-			$maskString = implode(',', array_unique($maskArray));
+			// $maskString = implode(',', array_unique($maskArray));
 			
-			// Ajustements du orderBy du au masque
-			if(isset($_GET['orderBy'])) {
-				$orderArray = explode(',', $_GET['orderBy']);
-				asort($maskArray);
-				foreach($maskArray as $numMask) {
-					foreach ($orderArray as &$numOrder) {
-						if(abs(intval($numOrder)) == $numMask) {
-							unset($numOrder);
-						}
-						else if (abs($numOrder) > $numMask) {
-							if($numOrder > 0) $numOrder--;
-							else if($numOrder < 0) $numOrder++;
-						}
-					}
-				}
-				$nouvGET = $_GET;
-				$nouvGET['orderBy'] = implode(',', array_unique($orderArray));
-			}
+			// // Ajustements du orderBy du au masque
+			// if(isset($_GET['orderBy'])) {
+			// 	$orderArray = explode(',', $_GET['orderBy']);
+			// 	asort($maskArray);
+			// 	foreach($maskArray as $numMask) {
+			// 		foreach ($orderArray as &$numOrder) {
+			// 			if(abs(intval($numOrder)) == $numMask) {
+			// 				unset($numOrder);
+			// 			}
+			// 			else if (abs($numOrder) > $numMask) {
+			// 				if($numOrder > 0) $numOrder--;
+			// 				else if($numOrder < 0) $numOrder++;
+			// 			}
+			// 		}
+			// 	}
+			// 	$nouvGET = $_GET;
+			// 	$nouvGET['orderBy'] = implode(',', array_unique($orderArray));
+			// }
 
 			$lienMasque = '<a class="masque" href="'
-				.self::creerUrlGET('mask', $maskString, ((isset($nouvGET))? $nouvGET : null))
+				//.self::creerUrlGET('mask', $maskString, ((isset($nouvGET))? $nouvGET : null))
 				.'">x</a>';
 
 			// Affiche les liens et les titres

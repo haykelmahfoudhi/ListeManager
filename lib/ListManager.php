@@ -75,11 +75,6 @@ class ListManager {
 	* A utiliser si vous ne souhaitez pas passer par la variable GET pour trier les données
 	*/
 	private $orderBy;
-	/**
-	* @var string $mask correspond à l'entrée $_GET['mask']. Liste des numéro de colonnes qui seront masquées, séparées par des virgules.
-	* A utiliser si vous ne souhaitez pas passer par la variable GET pour masquer des colonnes
-	*/
-	private $mask;
 	
 	
 			/*-*********************
@@ -97,7 +92,6 @@ class ListManager {
 		$this->template = new ListTemplate();
 		$this->useGET = true;
 		$this->tabSelect = null;
-		$this->mask = null;
 		$this->orderBy = null;
 		$this->recherche = true;
 		if($labelDB == null)
@@ -122,16 +116,12 @@ class ListManager {
 	 */
 	public function construct($baseSQL){
 		if($baseSQL instanceof SQLRequest)
-			$SQLRequest = $baseSQL;
+			$requete = $baseSQL;
 		else 
-			$SQLRequest = new SQLRequest($baseSQL);
+			$requete = new SQLRequest($baseSQL);
 
+		//Construction de la requete a partir de variables GET disponibles
 		if($this->useGET){
-			//Construction de la requete a partir de variables GET disponibles
-			
-			if(isset($_GET['mask']) && strlen($_GET['mask']) > 0){ // Masque
-				$SQLRequest->mask(explode(',', $_GET['mask']));
-			}
 			
 			// Conditions (where)
 			if(isset($_GET['tabSelect'])){
@@ -141,25 +131,23 @@ class ListManager {
 						$tabWhere[$titre] = $valeur;
 				}
 				if(count($tabWhere) > 0)
-					$SQLRequest->where($tabWhere);
+					$requete->where($tabWhere);
 			}
 			
 			// Tri (Order By)
 			if(isset($_GET['orderBy'])){
-				$SQLRequest->orderBy(explode(',', $_GET['orderBy']));
+				$requete->orderBy(explode(',', $_GET['orderBy']));
 			}
 		}
 		else {
-			if($this->mask != null)	
-				$SQLRequest->mask($this->mask);
 			if($this->tabSelect != null)	
-				$SQLRequest->where($this->tabSelect);
+				$requete->where($this->tabSelect);
 			if($this->orderBy != null)	
-				$SQLRequest->orderBy($this->orderBy);
+				$requete->orderBy($this->orderBy);
 		}
 
 		//Execution de la requete
-		return $this->execute($SQLRequest);
+		return $this->execute($requete);
 
 	}
 
@@ -354,15 +342,15 @@ class ListManager {
 		$this->orderBy = $orderBy;
 	}
 
-	/**
+	/*
 	 * Definit le masque à utiliser pour supprimer certaines colonnes lors de la selection de données.
 	 * Passe automatiqument a faux l'attribut sur l'utilisation des variables GET pour la reecriture des requetes SQL
 	 * @param string $mask la liste des numéros de colonne à masquer séparés par une virgule.
 	 */
-	public function setMask($mask){
-		$this->useGET = false;
-		$this->mask = $masque;
-	}
+	// public function setMask($mask){
+	// 	$this->useGET = false;
+	// 	$this->mask = $masque;
+	// }
 
 	/**
 	 * Definit si l'option recherche doit etre activee ou non. Si cette valeur est passee a false il ne sera plus possible pour l'utilisateur de filtrer les données de la liste
@@ -446,13 +434,13 @@ class ListManager {
 		return $this->tabSelect;
 	}
 	
-	/**
+	/*
 	 * 
 	 * @return string le mask utilisé pour supprimer des colonnes. Le numéro des colonnes masquées est données séparés par des virgules
 	 */
-	public function getMask() {
-		return $this->mask;
-	}
+	// public function getMask() {
+	// 	return $this->mask;
+	// }
 	
 	/**
 	 * 

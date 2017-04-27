@@ -41,13 +41,13 @@ class SQLRequest {
 	 */
 	private $tabOrderBy;
 	/**
-	 * @var array $tabMask tableau contenant le numéro/nom de colonnes à maskr 
-	 */
-	private $tabMask;
-	/**
 	 * @var int correpsond à la valeur de la clause 'LIMIT' d'une requete SELECT
 	 */
 	private $limit;
+	/**
+	 * @var string correpsond à la valeur de la clause 'OFFSET' d'une requete SELECT
+	 */
+	private $offset;
 	/**
 	 * @var RequestType $RequestType : énumération sur le type de la requete SQL
 	 */
@@ -72,25 +72,15 @@ class SQLRequest {
 		$this->blocWhere = '';
 		$this->blocHaving = '';
 		$this->tabOrderBy = array();
-		$this->tabMask = array();
 		$this->limit = null;
+		$this->offset = null;
+		$this->colonnesSelect = null;
 		$this->matchRequete();
 	}
 
 			/*-*****************
 			***   METHODES   ***
 			*******************/
-
-	/**
-	* Supprime la seléction des colonnes dont les numéros sont passés en paramètre
-	* @param array $numColonnes tableau conteannt le numéro des calonnes à supprimer de la selection
-	*/
-	public function mask(array $numColonnes){
-		foreach ($numColonnes as $num) {
-			if($num == intval($num) && ! in_array(intval($num), $this->tabMask))
-				$this->tabMask[] = intval($num);
-		}
-	}
 
 	/**
 	* Ajoute des clauses where à la requête.
@@ -226,17 +216,7 @@ class SQLRequest {
 	* @return string la requete SQL complete
 	*/
 	public function __toString(){
-		// Gestion du mask
-		if($this->RequestType == RequestType::SELECT
-			&& is_array($this->tabMask) && count($this->tabMask) > 0) {
-			foreach ($this->tabMask as $mask) {
-				unset($this->colonnesSelect[intval($mask)]);
-			}
-			$ret = 'SELECT '.implode(',', $this->colonnesSelect).' ';
-			$ret .= strstr($this->baseRequete, 'FROM');
-		}
-		else
-			$ret = $this->baseRequete;
+		$ret = $this->baseRequete;
 
 		if(in_array($this->RequestType,
 			array(RequestType::SELECT, RequestType::UPDATE, RequestType::DELETE))) {
@@ -261,8 +241,11 @@ class SQLRequest {
 				}
 
 				//Ajout de la limit
-				if($this->limit !== null)
-					$ret .= ' LIMIT '.intval($this->limit);
+				if($this->limit !== null) {
+					$ret .= ' LIMIT '.$this->limit;
+					if($this->offset != null)
+						$ret .= " $this->offset";
+				}
 			}
 		}
 		return $ret.((strpos($ret,';') != false)? ';' : '');
@@ -329,6 +312,7 @@ class SQLRequest {
 		if(preg_match($reLimit, $this->baseRequete, $tabMatch) === 1){
 			$this->baseRequete = $tabMatch[1];
 			$this->limit = $tabMatch[3];
+			$this->offset = (( strlen($offset = trim($tabMatch[4])) > 0 )? $offset : null );
 		}
 		if(preg_match($reHaving, $this->baseRequete, $tabMatch) === 1){
 			$this->baseRequete = $tabMatch[1];
@@ -350,7 +334,8 @@ class SQLRequest {
 		preg_match($reSelect, $this->baseRequete, $tabMatch);
 		if($tabMatch != array()){
 			$this->RequestType = RequestType::SELECT;
-			$this->colonnesSelect = explode(',', $tabMatch[2]);
+			if(strpos('*', $this->baseRequete) !== false)
+				$this->colonnesSelect = explode(',', $tabMatch[2]);
 			return;
 		}
 		
