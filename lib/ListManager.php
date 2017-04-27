@@ -31,7 +31,6 @@
  * * Connection à une base de données, ou utilisation d'une base de données particulière de l'applicaiton en spécifiant son étiquette (cf. la doc de l'objet Database)
  * * Utilisation d'une requête SQL de base permettant la sélection
  * * Utilisation des données situées dans les variables GET de l'url pour modifier la requete SQL de base, à savoir
- *   * 'mask' : permet de supprimer de la sélectionner les colonnes dont les numéro sont indiqués (spprime la colonne du select)
  *   * 'tabSelect' : permet de filtrer les données par colonnes (se rajoute à la clause WHERE de la requete)
  *   * 'orderBy' : permet de trier els données par ordre croissant / décroissant selon une colonne (ajoute le numéro de la colonne à la clause ORDER BY)
  * * L'exécution de la requête SQL
@@ -62,7 +61,7 @@ class ListManager {
 	private $db;
 	/**
 	* @var boolean $useGET définit si ListManager doit utiliser ou non les données GET de l'url pour modifier la requete SQL de base.
-	* Valeur par défaut : false. Si cette valeur est passée à true, il vous sera possible de spécifier vous même les objets à utiliser pour modifier la requete SQL (where, orderBy et mask)
+	* Valeur par défaut : false. Si cette valeur est passée à true, il vous sera possible de spécifier vous même les objets à utiliser pour modifier la requete SQL (tabSelect & orderBy)
 	*/
 	private $useGET;
 	/**
@@ -107,7 +106,7 @@ class ListManager {
 
 	/**
 	 * Execute la requete SQL dont la base est passee en parametres.
-	 * Cette base sera augmentee par les divers parametres fournis par la variable GET avant d'etre execute, ou par les attributs tabSelect mask et orderBy si vous ne souhaitez pas utiliser GET.
+	 * Cette base sera augmentee par les divers parametres fournis par la variable GET avant d'etre execute, ou par les attributs tabSelect et orderBy si vous ne souhaitez pas utiliser GET.
  	 * Le format des resultats obtenus par la requete dépend du ResponseType spécifié.
 	 * @param mixed $baseSQL : la requete a executer. Peut etre de type string ou SQLRequest.
 	 * @return mixed
@@ -152,7 +151,7 @@ class ListManager {
 	}
 
 	/**
-	 * Execute une requete SQL *sans prendre en compte les données GET ni les données tabSelect, mask et orderBy*.
+	 * Execute une requete SQL *sans prendre en compte les données GET ni les données tabSelect et orderBy*.
 	 * Retourne le resultat dans le format specifie par ResponseType
 	 * @param mixed $request : la requete a executer. Peut etre de type string ou SQLRequest.
  	 * @return string|bool :
@@ -288,7 +287,7 @@ class ListManager {
 
 	/**
 	 * Utiliser les variables get ou non.
-	 * Definit si ListManager doit utiliser ou non les valeurs contenues dans GET pour construire le masque, le order by et le where de la requete SQL qui sera executee.
+	 * Definit si ListManager doit utiliser ou non les valeurs contenues dans GET pour construire le order by et le tabSelect de la requete SQL qui sera executee.
 	 * @param boolean $valeur true ou false. Valeur par defaut : true
 	 */
 	public function useGET($valeur){
@@ -328,16 +327,6 @@ class ListManager {
 		$this->useGET = false;
 		$this->orderBy = $orderBy;
 	}
-
-	/*
-	 * Definit le masque à utiliser pour supprimer certaines colonnes lors de la selection de données.
-	 * Passe automatiqument a faux l'attribut sur l'utilisation des variables GET pour la reecriture des requetes SQL
-	 * @param string $mask la liste des numéros de colonne à masquer séparés par une virgule.
-	 */
-	// public function setMask($mask){
-	// 	$this->useGET = false;
-	// 	$this->mask = $masque;
-	// }
 
 	/**
 	 * Definit si l'option recherche doit etre activee ou non. Si cette valeur est passee a false il ne sera plus possible pour l'utilisateur de filtrer les données de la liste
@@ -420,14 +409,6 @@ class ListManager {
 	public function getTabSelect() {
 		return $this->tabSelect;
 	}
-	
-	/*
-	 * 
-	 * @return string le mask utilisé pour supprimer des colonnes. Le numéro des colonnes masquées est données séparés par des virgules
-	 */
-	// public function getMask() {
-	// 	return $this->mask;
-	// }
 	
 	/**
 	 * 
