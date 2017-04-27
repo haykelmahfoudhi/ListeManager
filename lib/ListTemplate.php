@@ -62,10 +62,6 @@ class ListTemplate {
 	 */
 	private $enableSearch;
 	/**
-	 * @var boolean specifie si les champs de saisie pour la recherche sont visibles ou non
-	 */
-	private $displaySearch;
-	/**
 	 * @var string le message qui sera affiche si la liste ne contient pas de donnees
 	 */
 	private $emptyListMessage;
@@ -112,16 +108,15 @@ class ListTemplate {
 	
 	/**
 	 * Construit un objet ListTemplate et lui assigne son comportemetn par défaut
-	 * @param string $id (facultatif) l'id du tabelau
 	 * @param string $classe1 (facultatif) la classe à appliquer aux lignes paires. Si null : prend la valeur de self::$CLASSE1
 	 * @param string $classe2 (facultatif) la classe à appliquer aux lignes impaires. Si null : prend la valeur de self::$CLASSE2
 	 */
-	 public function __construct($id='liste', $classe1=null, $classe2=null){
-		$this->id = $id;
+	 public function __construct($classe1=null, $classe2=null){
+	 	// [!] => si vous changez l'id de la liste pensez à le mettre à jour dans le fichier listManager.js
+		$this->id = 'liste';
 		$this->class1 = (($classe1 == null)? self::$CLASSE1 : $classe1);
 		$this->class2 = (($classe2 == null)? self::$CLASSE2 : $classe2);
 		$this->enableSearch = true;
-		$this->displaySearch = false;
 		$this->emptyListMessage = "Aucun resultat!";
 		$this->errorClass = 'erreur';
 		$this->currentPage = ((isset($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] : 1 );
@@ -151,14 +146,13 @@ class ListTemplate {
 
 		// On teste d'abord s'il y a erreur dans la reponse
 		if($reponse->error()){
-			return self::messageHTML($reponse->getErrorMessage(),
+			$ret = "<div id='boutons-options'><a href='".self::creerUrlGET(null, null, array())."'>Clear</a></div>";
+			return $ret.self::messageHTML($reponse->getErrorMessage(),
 				$this->errorClass);
 		}
 
 		// Preparation de l'array a afficher
-		while(($ligne = $reponse->nextLine()) != null)
-			$donnees[] = $ligne;
-
+		$donnees = $reponse->dataList();
 		$nbLignes = $reponse->getRowsCount();
 		$debut = ($this->currentPage-1) * $this->nbResultsPerPage;
 		$titres = $reponse->getColumnsName();
@@ -185,21 +179,20 @@ class ListTemplate {
 		//Ajout des boutons options sur le cete
 		$ret .= "\n<div id='boutons-options'>";
 
+		// Bouton pour reset le mask
+		$ret .= '<a id="annuler-masque" href="#">Annuler masque</a>';
+
 		//Bouton quest (recherche)
 		if($this->enableSearch){
-			$ret .= '<a href="'.self::creerUrlGET('quest', 
-				( ($this->displaySearch) ? 0 : 1)).'">?</a><br>'; 
+			$ret .= '<br><a class="recherche" href="#">Rechercher</a>'; 
 			
 			// Ajout du form si recherche activee
-			if($this->displaySearch)
-				$ret .= "\n<form id='recherche' method='GET'"
-					.'\'><input type="submit" value="Go!"/></form><br>';
+			$ret .= "\n<form id='recherche' method='GET'"
+				.'\'><input type="submit" value="Go!"/></form>';
 		}
 		// Bouton excel
 		// TODO
 
-		// Bouton pour reset le mask
-		$ret .= '<a id="annuler-masque" href="#">Annuler masque</a>';
 		$ret .= "<div>\n";
 
 		//Bouton RaZ
@@ -241,39 +234,7 @@ class ListTemplate {
 			$lienOrderBy = '<a class="titre-colonne" href="'
 				.self::creerUrlGET('orderBy', $orderString)."\">$titre</a>";
 
-			//Gestion du masque
-			// if(isset($_GET['mask'])){
-			// 	$maskArray = explode(',', $_GET['mask']);
-			// 	array_push($maskArray, intval($i));
-			// }
-			// else {
-			// 	$maskArray = array($i+1);
-			// }
-			
-			// $maskString = implode(',', array_unique($maskArray));
-			
-			// // Ajustements du orderBy du au masque
-			// if(isset($_GET['orderBy'])) {
-			// 	$orderArray = explode(',', $_GET['orderBy']);
-			// 	asort($maskArray);
-			// 	foreach($maskArray as $numMask) {
-			// 		foreach ($orderArray as &$numOrder) {
-			// 			if(abs(intval($numOrder)) == $numMask) {
-			// 				unset($numOrder);
-			// 			}
-			// 			else if (abs($numOrder) > $numMask) {
-			// 				if($numOrder > 0) $numOrder--;
-			// 				else if($numOrder < 0) $numOrder++;
-			// 			}
-			// 		}
-			// 	}
-			// 	$nouvGET = $_GET;
-			// 	$nouvGET['orderBy'] = implode(',', array_unique($orderArray));
-			// }
-
-			$lienMasque = '<a class="masque" href="'
-				//.self::creerUrlGET('mask', $maskString, ((isset($nouvGET))? $nouvGET : null))
-				.'">x</a>';
+			$lienMasque = '<a class="masque" href="#">x</a>';
 
 			// Affiche les liens et les titres
 			$ret .= '<th>'.$lienMasque.$lienOrderBy."</th>\n";
@@ -282,8 +243,8 @@ class ListTemplate {
 		$ret .= "</tr>\n";
 
 		//Affichage des champs de saisie pour la  recherche
-		if($this->enableSearch && $this->displaySearch){
-			$ret .= "<tr>";
+		if($this->enableSearch){
+			$ret .= "<tr class='tabSelect'>";
 			$types = $reponse->getColumnsType();
 			for ($i=0; $i < count($titres); $i++) {
 				//Determine le contenu du champs
@@ -375,6 +336,11 @@ class ListTemplate {
 
 			$ret .= "</tr></table>\n</div>\n";
 		}
+
+		// Ajout des scripts
+		$ret .= '<script type="text/javascript" src="'.LM_JS.'jquery-3.2.1.min.js"></script>'
+			."\n".'<script type="text/javascript" src="'.LM_JS.'listeManager.js"></script>'."\n";
+
 		// Fin
 		return $ret;
 	}
@@ -383,14 +349,6 @@ class ListTemplate {
 			/*-**************************
 			***   SETTERS & GETTERS   ***
 			****************************/
-	
-	/**
-	 * Attribue un nouvel id HTML a la liste.
-	 * @param string|null $id l'id HTML du tableau. Si null aucun id ne sera utilisé.
-	 */
-	public function setId($id){
-		$this->id = $id;
-	}
 
 	/**
 	* Definit le message d'erreur a afficher si aucun resultat n'est retournee par la requete 
@@ -406,18 +364,6 @@ class ListTemplate {
 	 */
 	public function setErrorMessageClass($classe){
 		$this->errorClass = $classe;
-	}
-
-	/**
-	 * Afficher la ligne des champs de saisie pour filtrer les données de la liste.
-	 * @param boolean $valeur la nouvele valeur pour ce paramètre, valeur par defaut false
-	 * @return boolean false si le paramètre netré n'est pas un boolean.
-	 */
-	public function displaySearchInputs($valeur){
-		if(!is_bool($valeur))
-			return false;
-		
-		$this->displaySearch = $valeur;
 	}
 
 	/**

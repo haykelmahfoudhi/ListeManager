@@ -25,16 +25,14 @@ $req = new SQLRequest($baseSQL);
 $req2 = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000;");
 
 // Liste Manager
-$lm = new ListManager('mysql');
-$html = $lm->construct($req2);
+$lm = new ListManager('postgre');
+$html = $lm->construct($req);
 
 echo $html;
 
 ?> <pre> <?php
-var_dump($req2);
+echo $req;
 ?>
 </pre>
-<script type="text/javascript" src="<?=LM_JS?>jquery-3.2.1.min.js"></script>
-<script type="text/javascript" src="<?=LM_JS?>listeManager.js"></script>
 </body>
 </html>

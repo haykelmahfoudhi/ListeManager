@@ -210,13 +210,8 @@ class ListManager {
 
 
 			case ResponseType::TEMPLATE:
-				// Affichage (ou non) des champs de recherches
-				$this->template->displaySearchInputs(
-					(isset($_GET['quest']) && intval($_GET['quest']) == 1)
-					|| (isset($_GET['tabSelect']) 
-						&& !(isset($_GET['quest']) && intval($_GET['quest']) == 0)) );
-				
 				//Gestion avec cache
+				// TODO
 				
 				return $this->template->construct($reponse);
 		}
@@ -289,14 +284,6 @@ class ListManager {
 	 */
 	public function setTemplate(ListTemplate $template){
 		$this->template = $template;
-	}
-
-	/**
-	 * Definit le nouvel ID du tableau HTML
-	 * @param string|null $id le nouvel id du tableau html. Si null aucun ID ne sera utilisé.
-	 */
-	public function setListeId($id){
-		$this->template->setId($id);
 	}
 
 	/**
