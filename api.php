@@ -2,7 +2,7 @@
 require_once 'includes.php';
 
 
-		/*****************************************
+		/*-***************************************
 		**                                      **
 		**         db         88888888ba   88   **
 		**        d88b        88      "8b  88   **
@@ -25,14 +25,16 @@ des listes en utilisant le cache, et donc sans recharger la requete SQL à chaqu
 
 --------------------------------------------------------------------------------------*/
 
+Session::start();
+
 $reponse = new stdClass();
 $reponse->donnees = null;
 $reponse->erreur = true;
 $reponse->messageErreur = '';
 
-if(isset($_GET['RequestType'])){
+if(isset($_GET['requestType'])){
 
-	switch ($_GET['RequestType']) {
+	switch ($_GET['requestType']) {
 
 		// Cas de demande AJAX concernant la page suivante d'une liste enregistrée en cache
 		case 'page':
@@ -61,6 +63,37 @@ if(isset($_GET['RequestType'])){
 			}
 			break;
 		
+		// Téléchargement des données sous format excel
+		case 'excel':
+			if(!isset($_SESSION['requete']) || ! isset($_SESSION['db'])) {
+				$reponse->messageErreur = 'Fonction export excel désactivée pour cette liste';
+				break;
+			}
+
+			// Récupération BD & requete
+			$db = unserialize($_SESSION['db']);
+			$requete = unserialize($_SESSION['requete']);
+			if((!$db instanceof Database && Database::getErrorMessage() == null) || !$requete instanceof SQLRequest){
+				$reponse->messageErreur = 'Erreur execution de la requete impossible'
+					.Database::getErrorMessage();
+				break;
+			}
+
+			// Construction de LM
+			$lm = new ListManager();
+			$lm->verbose(false);
+			$lm->setResponseType(ResponseType::EXCEL);
+			$lm->setDatabase($db);
+
+			// Ajout du masque
+			if(isset($_GET['mask']))
+				$lm->setMask(explode(',', $_GET['mask']));
+
+			// Construction du fichier
+			$cheminFichier = $lm->construct();
+
+
+
 		default:
 			$reponse->messageErreur = 'Le type de requete n\'est pas reconnu';
 			break;

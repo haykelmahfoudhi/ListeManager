@@ -1,11 +1,6 @@
 <?php
 
 require_once 'includes.php';
-
-// Connecction à la BD
-Database::instantiate('pgsql:host=periscope;port=5432;dbname=warehouse;user=php_liste;password=php_liste', null, null, 'postgre');
-Database::instantiate("mysql:host=localhost;dbname=marklate", "marquage", "marquage", 'mysql');
-
 ?>
 <!DOCTYPE html>
 <html>
@@ -17,18 +12,19 @@ Database::instantiate("mysql:host=localhost;dbname=marklate", "marquage", "marqu
 <body>
 <?php
 
-//Base de la requete SQL
-$baseSQL = "select *
-from fact_1_delais where of='1727562'";
-$req = new SQLRequest($baseSQL);
+// Connecction aux BD
+Database::instantiate('pgsql:host=periscope;port=5432;dbname=warehouse;','php_liste', 'php_liste', 'postgre');
+Database::instantiate("mysql:host=localhost;dbname=marklate", "marquage","marquage", 'mysql');
 
-$req2 = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000;");
+
+//Base de la requete SQL
+$req = new SQLRequest("select * from fact_1_delais where of='1727562'");
+$req = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000;");
 
 // Liste Manager
-$lm = new ListManager('postgre');
-$html = $lm->construct($req);
+$lm = new ListManager('mysql');
+echo $lm->construct($req);
 
-echo $html;
 
 ?> <pre> <?php
 echo $req;

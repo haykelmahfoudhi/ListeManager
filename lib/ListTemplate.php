@@ -86,6 +86,10 @@ class ListTemplate {
 	 */
 	private $useCache;
 	/**
+	 *
+	 */
+	private $enableExcel;
+	/**
 	 * @var int nombre de liens de page à afficher au maximum dans la pagination
 	 */
 	private $maxPagesDisplayed;
@@ -124,6 +128,7 @@ class ListTemplate {
 		$this->maxPagesDisplayed = 10;
 		$this->cellCallback = null;
 		$this->useCache = false;
+		$this->enableExcel = true;
 	}
 	
 	
@@ -182,16 +187,19 @@ class ListTemplate {
 		// Bouton pour reset le mask
 		$ret .= '<a id="annuler-masque" href="#">Annuler masque</a>';
 
+		// Bouton excel
+		if($this->enableExcel){
+			$ret .= '<br><a href="'.self::creerUrlGET('excel', 1).'" id="lien-excel">Excel</a>';
+		}
+
 		//Bouton quest (recherche)
 		if($this->enableSearch){
 			$ret .= '<br><a class="recherche" href="#">Rechercher</a>'; 
 			
 			// Ajout du form si recherche activee
-			$ret .= "\n<form id='recherche' method='GET'"
-				.'\'><input type="submit" value="Go!"/></form>';
+			$ret .= "\n<form id='recherche' action='' method='GET'"
+				.'><input type="submit" value="Go!"/></form>';
 		}
-		// Bouton excel
-		// TODO
 
 		$ret .= "<div>\n";
 
@@ -300,10 +308,10 @@ class ListTemplate {
 
 			// S'il y a plus de pages que la limite affichable
 			if($nbPages > $this->maxPagesDisplayed){
-				$debut = $this->currentPage - 10;
+				$debut = $this->currentPage - intval($this->maxPagesDisplayed / 2);
 				if($debut < 1){
 					$debut = 1;
-					$fin = $this->maxPagesDisplayed - 1;
+					$fin = $this->maxPagesDisplayed + 1;
 				}
 				// Ajout de la 1re page si besoin
 				else {
@@ -461,6 +469,23 @@ class ListTemplate {
 			return false;
 
 		$this->maxPagesDisplayed = $valeur;
+	}
+
+	/**
+	 *
+	 */
+	public function ennableExcel($valeur){
+		if(!is_bool($valeur))
+			return false;
+
+		$this->enableExcel = $valeur;
+	}
+
+	/**
+	 *
+	 */
+	public function excelIsEnabled() {
+		return $this->enableExcel;
 	}
 
 			/*-****************

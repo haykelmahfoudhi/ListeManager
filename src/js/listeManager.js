@@ -86,7 +86,7 @@ function afficherChampsRecherche(val) {
 		}
 	}
 }
-afficherChampsRecherche(sessionStorage.getItem('quest'));
+afficherChampsRecherche(JSON.parse(sessionStorage.getItem('quest')));
 
 
 // Masquer les colonnes correspondantes dans sasseionStorage
@@ -106,7 +106,7 @@ else {
 $('a.masque').click(masquerColonnesOnClick);
 $('#boutons-options a.recherche').click(function (event) {
 	event.preventDefault();
-	afficherChampsRecherche(sessionStorage.getItem('quest') != "true");
+	afficherChampsRecherche(JSON.parse(sessionStorage.getItem('quest')) != true);
 });
 $('a#annuler-masque').click(afficherColonnes);
 $('tr.recherche > input')

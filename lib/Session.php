@@ -14,7 +14,7 @@ class Session {
 			session_start();
 	}
 
-	public static function getInstance() {
+	public static function start() {
 		if(self::$instance == null)
 			self::$instance = new self();
 

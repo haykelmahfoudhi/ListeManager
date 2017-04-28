@@ -45,6 +45,22 @@ class Database {
 	 */
 	private $label;
 	/**
+	 * @var string $dsn 
+	 */
+	private $dsn;
+	/**
+	 * @var string $login 
+	 */
+	private $login;
+	/**
+	 * @var string $passwd 
+	 */
+	private $passwd;
+	/**
+	 * @var string $errorMessage le dernier message d'erreur enregistré
+	 */
+	private static $errorMessage = null;
+	/**
 	 * @var array $instances tableau contenant l'ensemble des objet Database instanciés dans l'application. La clé d'une entrée correspond à l'étiquette de la base de données.
 	 */
 	private static $instances = array();
@@ -56,19 +72,22 @@ class Database {
 	
 	/**
 	 * Instancie la connexion avec la base de donnees via un objet PDO contenu dans l'objet Database.
-	 * Si la connection n'est pas possible le message d'erreur sera echo sur la page.
+	 * Si la connection n'est pas possible le message d'erreur sera produit, vous pourrez l'afficher avec la methode getErrorMessage.
 	 * @param string $dsn le DSN (voir le manuel PHP concernant **PDO**)
 	 * @param string $login le nom d'utilisateur pour la connexion
 	 * @param string $passwd son mot de passe
 	 */
 	private function __construct($dsn, $login, $passwd, $label) {
 		$this->label = $label;
+		$this->dsn = $dsn;
+		$this->login = $login;
+		$this->passwd = $passwd;
 		try {
-			$this->pdo = new PDO($dsn, $login, $passwd);
+			$this->pdo = new PDO($this->dsn, $this->login, $this->passwd);
 		}
 		catch (Exception $e) {
 			$this->pdo = null;
-			echo "<br><b>[!]</b>Connection a la base de donnees impossible :\n".$e->getMessage()
+			self::$errorMessage = "<br><b>[!]</b>Connection a la base de donnees impossible (etiquette = '$label') :\n".$e->getMessage()
 				.'<br>';
 		}
 	}
@@ -93,7 +112,7 @@ class Database {
 			return null;
 
 		if(isset(self::$instances[$etiquette])){
-			echo '<br><b>[!]</b>Database::instancier() : Il existe deje une BD portant l\'etiquette "'
+			self::$errorMessage = '<br><b>[!]</b>Database::instancier() : Il existe deje une BD portant l\'etiquette "'
 				.$etiquette.'", veuillez en specifier une nouvelle<br>';
 			return null;
 		}
@@ -120,6 +139,21 @@ class Database {
 			return new RequestResponse(null, true,$this->pdo->errorInfo()[2]);
 		else 
 			return new RequestResponse($statement);
+	}
+
+	/**
+	 * Fonction magique PHP : permet la sérialisation de Database.
+	 * @return array un tableau contenant le nom des attributs à enregistrer lors de la sérialisation
+	 */
+	public function __sleep() {
+		return array('dsn', 'login', 'passwd', 'label');
+	}
+
+	/**
+	 * Fonction magique PHP : permet la désérialisation de Database
+	 */
+	public function __wakeup() {
+		self::instantiate($this->dsn, $this->login, $this->passwd, $this->label);
 	}
 	
 	
@@ -153,6 +187,14 @@ class Database {
 	 */
 	public function getLabel(){
 		return $this->label;
+	}
+
+	/**
+	 * Retourne le dernier message d'erreur enregistré par la classe Database
+	 * @return string le dernier message d'erreur
+	 */
+	public static function getErrorMessage(){
+		return $this->errorMessage;
 	}
 
 	/**

@@ -248,7 +248,7 @@ class SQLRequest {
 				}
 			}
 		}
-		return $ret.((strpos($ret,';') != false)? ';' : '');
+		return $ret.((strpos($ret,';') == false)? ';' : '');
 	}
 
 

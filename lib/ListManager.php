@@ -60,9 +60,9 @@ class ListManager {
 	 */
 	private $db;
 	/**
-	* @var boolean $useGET définit si ListManager doit utiliser ou non les données GET de l'url pour modifier la requete SQL de base.
-	* Valeur par défaut : false. Si cette valeur est passée à true, il vous sera possible de spécifier vous même les objets à utiliser pour modifier la requete SQL (tabSelect & orderBy)
-	*/
+	 * @var boolean $useGET définit si ListManager doit utiliser ou non les données GET de l'url pour modifier la requete SQL de base.
+	 * Valeur par défaut : false. Si cette valeur est passée à true, il vous sera possible de spécifier vous même les objets à utiliser pour modifier la requete SQL (tabSelect & orderBy)
+	 */
 	private $useGET;
 	/**
 	* @var array $tabSelect correpsond au tabelau $_GET['tabSelect']. Ce tableau doit avoir pour format [nomColonne] => 'valeur filtre'
@@ -74,6 +74,14 @@ class ListManager {
 	* A utiliser si vous ne souhaitez pas passer par la variable GET pour trier les données
 	*/
 	private $orderBy;
+	/**
+	 *
+	 */
+	private $verbose;
+	/**
+	 *
+	 */
+	private $mask;
 	
 	
 			/*-*********************
@@ -93,10 +101,15 @@ class ListManager {
 		$this->tabSelect = null;
 		$this->orderBy = null;
 		$this->recherche = true;
+		$this->verbose = true;
+		$this->mask = null;
 		if($labelDB == null)
 			$this->db = Database::getInstance();
 		else 
 			$this->db = Database::getInstance($labelDB);
+		//Affiche le message d'erreur de connection à la BD
+		if($this->db == null && $this->verbose)
+			echo Database::getErrorMessage();
 	}
 
 
@@ -137,6 +150,11 @@ class ListManager {
 			if(isset($_GET['orderBy'])){
 				$requete->orderBy(explode(',', $_GET['orderBy']));
 			}
+
+			// Excel
+			if(isset($_GET['excel'])){
+				$this->setResponseType(ResponseType::EXCEL);
+			}
 		}
 		else {
 			if($this->tabSelect != null)	
@@ -167,9 +185,9 @@ class ListManager {
 			$requete = $request;
 
 		// Recuperation de l'objet DB
-		if($this->db == null) {
+		if($this->db == null && $this->verbose) {
 			// Si la db est null alors on affiche une erreur
-			echo '<br><b>[!]</b> ListManager::execute() : aucune base de donnees n\'est disponible ou instanciee<br>';
+			echo  '<br><b>[!]</b> ListManager::execute() : aucune base de donnees n\'est disponible ou instanciee<br>';
 			return false;
 		}
 
@@ -191,7 +209,18 @@ class ListManager {
 				}
 
 			case ResponseType::EXCEL:
-			return ; // TODO
+				if($this->template->excelIsEnabled()){
+					$chemin = $this->generateExcel($reponse);
+					if($chemin != false) {
+						header('Location:'.$chemin);
+					}
+					else if($this->verbose) {
+						echo '<br><b>[!]</b>ListManager::execute() : le fichier excel n\'a pas pu être généré<br>';
+						return false;
+					}
+				}
+				else
+					return false;
 
 			case ResponseType::JSON:
 				$ret = new stdClass();
@@ -201,17 +230,12 @@ class ListManager {
 					$ret->errorMessage = $reponse->getErrorMessage();
 				}
 				else{
-					while(($ligne = $reponse->nextLine()) != null)
-						$donnees[] = $ligne;
-					$ret->data = $donnees;
+					$ret->data = $reponse->dataList();
 				}
 			return json_encode($ret);
 
 
 			case ResponseType::TEMPLATE:
-				//Gestion avec cache
-				// TODO
-				
 				return $this->template->construct($reponse);
 		}
 
@@ -251,7 +275,7 @@ class ListManager {
 		else 
 			$this->db = Database::instantiate($dsn, $login, $mdp, $label);
 			
-		if($this->db == null)
+		if($this->db == null && $this->verbose)
 			echo '<br><b>[!]</b> ListManager::connecterDatabase() : echec de connection<br>';
 	}
 
@@ -272,7 +296,7 @@ class ListManager {
 				$this->db = Database::getInstance($dataBase);
 		}
 
-		if($this->db == null)
+		if($this->db == null && $this->verbose)
 			echo '<br><b>[!]</b> ListManager::setDatabase() : aucune base de donnees correspondante<br>';
 
 	}
@@ -337,7 +361,7 @@ class ListManager {
 		if(!is_bool($valeur))
 			return false;
 
-		$this->$template->enableSearch($valeur);
+		$this->template->enableSearch($valeur);
 	}
 
 	/**
@@ -389,10 +413,27 @@ class ListManager {
 		return $this->template->setMaxPagesDisplayed($valeur);
 	}
 
+	/**
+	 *
+	 */
+	public function enableExcel($valeur){
+		return $this->template->enableExcel($valeur);
+	}
+
+	/**
+	 *
+	 */
+	public function setMask($mask) {
+		if($mask !== null && !is_array($mask))
+			return false;
+
+		$this->mask = $mask;
+	}
+
 
 			/*-****************
-			 ***   GETTERS   ***
-			 ******************/
+			***   GETTERS   ***
+			******************/
 	
 	/**
 	 * 
@@ -417,7 +458,77 @@ class ListManager {
 	public function getOrderBy() {
 		return $this->orderBy;
 	}
+
+	public function verbose($valeur) {
+		if(!is_bool($valeur))
+			return false;
+
+		$this->verbose = $valeur;
+	}
 	
+
+			/*-****************
+			***   PRIVATE   ***
+			******************/
+
+	/**
+	 * Génère un fichier excel à partir d'une réponse de requete en utilisant la bibliothèque PHPExcel.
+	 * Le fichier généré sera sauvegardé dans le dossier excel/, et le chemin complet de ce fichier sera retournée par la méthode
+	 * @param RequestResponse $reponse l'objet réponse produit par l'exécution de la requete SQL
+	 * @return bool|string le chemin du fichier généré, ou false en cas d'erreur 
+	 */
+	private function generateExcel(RequestResponse $reponse) {
+		if($reponse->error() || $reponse->getRowsCount() < 1)
+			return false;
+
+		// Création de l'objet PHPExcel
+		$phpExcel = new PHPExcel();
+		$phpExcel->setActiveSheetIndex(0);
+
+		// Ajout des propriétés
+		$phpExcel->getProperties()->setCreator("ListManager")
+			->setLastModifiedBy("ListManager")
+			->setTitle("Liste de données")
+			->setSubject("Liste de données")
+			->setDescription("Feuille de données généré automatiqument à partir de l'url ".$_SERVER['REQUEST_URI']);
+		
+		// Création des titres
+		$types = $reponse->getColumnsType();
+		$col = 'A';
+		for ($i = 0; $i < count($titres); $i++) {
+			$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($types[$i]->len);
+			$phpExcel->getActiveSheet()->setCellValue($col.'1', $titres[$i]);
+			
+// 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
+// 				'font' => array(
+// 					'bold' => true,
+// 					'size' => 14,
+// 				),
+// 				'fill' => array(
+// 					'color' => array('rgb' => 'CCCCCC'),
+// 				),
+// 			));
+			$col++;
+		}
+
+		// Insertion des données
+		$donnees = $reponse->dataList();
+		$i = 2;
+		foreach ($donnees as $ligne) {
+			$col = 'A';
+			for($j = 0; $j < count($ligne); $j++){
+				$phpExcel->getActiveSheet()->setCellValue($col.($i), $ligne[$j]);
+				$col++;
+			}
+			$i++;
+		}
+		
+		// Ecriture du fichier
+		$writer = PHPExcel_IOFactory::createWriter($phpExcel, 'Excel2007');
+		$chemin = LM_XLS.'Liste LM-'.uniqid().'.xls';
+		$writer->save($chemin);
+		return null;
+	}
 }
 
 ?>
