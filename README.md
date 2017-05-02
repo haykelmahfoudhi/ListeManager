@@ -40,15 +40,15 @@ La mission ici sera donc de refondre cette librairie en la rendant plus facile �
                     [x] Gestion des dates (BETWEEN)
                 [x] Clause LIKE
                 [x] Reconnaissance des opérateurs < <= > >= % _ << , !
-            [ ] Système de cache pour naviguer entre les pages
-                [o] API php pour les requêtes AJAX
+            [?] Système de cache pour naviguer entre les pages
+                [ ] API php pour les requêtes AJAX
                 [ ] Utilisation de $_SESSION
-        [ ] Export PHPExcel
+        [x] Export PHPExcel
         [ ] API JSON pour exécuter des requêtes (SQL?) depuis une application externe
             [ ] Définir un protocole de communication & connextion aux bases de données
             [ ] Gestionnaire de sessions sécurisé
     [ ] Phase de tests
-    [ ] Production de documentaiton
+    [o] Production de documentaiton
         [x] PHPDoc -> utilisation des classes et méthodes
         [ ] Pages Wiki
 

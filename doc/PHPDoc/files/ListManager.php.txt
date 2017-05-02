@@ -24,14 +24,13 @@
 **************************************************************************************************/
 
 /**
- * --= Objet ListManager =--
+ * ListManager : construire, manipuler des listes de données à partir d'une requête SQL
  * 
  * C'est l'objet central du projet. Il joue le rôle d'interface entre le developpeur, les bases de données et les listes.
  * ListManager possède un comportement de base :
  * * Connection à une base de données, ou utilisation d'une base de données particulière de l'applicaiton en spécifiant son étiquette (cf. la doc de l'objet Database)
  * * Utilisation d'une requête SQL de base permettant la sélection
  * * Utilisation des données situées dans les variables GET de l'url pour modifier la requete SQL de base, à savoir
- *   * 'mask' : permet de supprimer de la sélectionner les colonnes dont les numéro sont indiqués (spprime la colonne du select)
  *   * 'tabSelect' : permet de filtrer les données par colonnes (se rajoute à la clause WHERE de la requete)
  *   * 'orderBy' : permet de trier els données par ordre croissant / décroissant selon une colonne (ajoute le numéro de la colonne à la clause ORDER BY)
  * * L'exécution de la requête SQL
@@ -61,9 +60,9 @@ class ListManager {
 	 */
 	private $db;
 	/**
-	* @var boolean $useGET définit si ListManager doit utiliser ou non les données GET de l'url pour modifier la requete SQL de base.
-	* Valeur par défaut : false. Si cette valeur est passée à true, il vous sera possible de spécifier vous même les objets à utiliser pour modifier la requete SQL (where, orderBy et mask)
-	*/
+	 * @var boolean $useGET définit si ListManager doit utiliser ou non les données GET de l'url pour modifier la requete SQL de base.
+	 * Valeur par défaut : false. Si cette valeur est passée à true, il vous sera possible de spécifier vous même les objets à utiliser pour modifier la requete SQL (tabSelect & orderBy)
+	 */
 	private $useGET;
 	/**
 	* @var array $tabSelect correpsond au tabelau $_GET['tabSelect']. Ce tableau doit avoir pour format [nomColonne] => 'valeur filtre'
@@ -76,9 +75,16 @@ class ListManager {
 	*/
 	private $orderBy;
 	/**
-	* @var string $mask correspond à l'entrée $_GET['mask']. Liste des numéro de colonnes qui seront masquées, séparées par des virgules.
-	* A utiliser si vous ne souhaitez pas passer par la variable GET pour masquer des colonnes
-	*/
+	 * @var array $meesages le tableau contenant l'ensemble des messgaes d'erreur générés par l'objet ListManager. S'affichent automatiquement si verbose = true
+	 */
+	private $messages
+	/**
+	 * @var bool $verbose determine si ListManagert doit echo les messages d'erreur et d'avertissement ou non 
+	 */
+	private $verbose;
+	/**
+	 * @var array $mask correspond aux numéros des colonnes à ne pas retourner lors de la selection de données
+	 */
 	private $mask;
 	
 	
@@ -97,13 +103,23 @@ class ListManager {
 		$this->template = new ListTemplate();
 		$this->useGET = true;
 		$this->tabSelect = null;
-		$this->mask = null;
 		$this->orderBy = null;
 		$this->recherche = true;
+		$this->verbose = true;
+		$this->mask = null;
+		$this->messages = array();
 		if($labelDB == null)
 			$this->db = Database::getInstance();
 		else 
 			$this->db = Database::getInstance($labelDB);
+
+		//Enregistre le message d'erreur de connection à la BD
+		if($this->db == null) {
+			$message = Database::getErrorMessage();
+			$this->messages[] = $message;
+			if($this->verbose)
+				echo $message;
+		}
 	}
 
 
@@ -113,7 +129,7 @@ class ListManager {
 
 	/**
 	 * Execute la requete SQL dont la base est passee en parametres.
-	 * Cette base sera augmentee par les divers parametres fournis par la variable GET avant d'etre execute, ou par les attributs tabSelect mask et orderBy si vous ne souhaitez pas utiliser GET.
+	 * Cette base sera augmentee par les divers parametres fournis par la variable GET avant d'etre execute, ou par les attributs tabSelect et orderBy si vous ne souhaitez pas utiliser GET.
  	 * Le format des resultats obtenus par la requete dépend du ResponseType spécifié.
 	 * @param mixed $baseSQL : la requete a executer. Peut etre de type string ou SQLRequest.
 	 * @return mixed
@@ -122,16 +138,12 @@ class ListManager {
 	 */
 	public function construct($baseSQL){
 		if($baseSQL instanceof SQLRequest)
-			$SQLRequest = $baseSQL;
+			$requete = $baseSQL;
 		else 
-			$SQLRequest = new SQLRequest($baseSQL);
+			$requete = new SQLRequest($baseSQL);
 
+		//Construction de la requete a partir de variables GET disponibles
 		if($this->useGET){
-			//Construction de la requete a partir de variables GET disponibles
-			
-			if(isset($_GET['mask']) && strlen($_GET['mask']) > 0){ // Masque
-				$SQLRequest->mask(explode(',', $_GET['mask']));
-			}
 			
 			// Conditions (where)
 			if(isset($_GET['tabSelect'])){
@@ -141,30 +153,33 @@ class ListManager {
 						$tabWhere[$titre] = $valeur;
 				}
 				if(count($tabWhere) > 0)
-					$SQLRequest->where($tabWhere);
+					$requete->where($tabWhere);
 			}
 			
 			// Tri (Order By)
 			if(isset($_GET['orderBy'])){
-				$SQLRequest->orderBy(explode(',', $_GET['orderBy']));
+				$requete->orderBy(explode(',', $_GET['orderBy']));
+			}
+
+			// Excel
+			if(isset($_GET['excel'])){
+				$this->setResponseType(ResponseType::EXCEL);
 			}
 		}
 		else {
-			if($this->mask != null)	
-				$SQLRequest->mask($this->mask);
 			if($this->tabSelect != null)	
-				$SQLRequest->where($this->tabSelect);
+				$requete->where($this->tabSelect);
 			if($this->orderBy != null)	
-				$SQLRequest->orderBy($this->orderBy);
+				$requete->orderBy($this->orderBy);
 		}
 
 		//Execution de la requete
-		return $this->execute($SQLRequest);
+		return $this->execute($requete);
 
 	}
 
 	/**
-	 * Execute une requete SQL *sans prendre en compte les données GET ni les données tabSelect, mask et orderBy*.
+	 * Execute une requete SQL *sans prendre en compte les données GET ni les données tabSelect et orderBy*.
 	 * Retourne le resultat dans le format specifie par ResponseType
 	 * @param mixed $request : la requete a executer. Peut etre de type string ou SQLRequest.
  	 * @return string|bool :
@@ -179,10 +194,14 @@ class ListManager {
 		else 
 			$requete = $request;
 
-		// Recuperation de l'objet DB
+		// Si la db est null alors on affiche une erreur
 		if($this->db == null) {
-			// Si la db est null alors on affiche une erreur
-			echo '<br><b>[!]</b> ListManager::execute() : aucune base de donnees n\'est disponible ou instanciee<br>';
+			$message =  '<br><b>[!]</b> ListManager::execute() : aucune base de donnees n\'est disponible ou instanciee<br>';
+			$this->messages[] = $message;
+
+			//Affiche le message d'erreur
+			if($this->verbose) 
+				echo $message;
 			return false;
 		}
 
@@ -204,7 +223,26 @@ class ListManager {
 				}
 
 			case ResponseType::EXCEL:
-			return ; // TODO
+				if($this->template->excelIsEnabled()){
+					$chemin = $this->generateExcel($reponse);
+					if($chemin != false) {
+						header('Location:'.$chemin);
+					}
+					else {
+						$message = '<br><b>[!]</b>ListManager::execute() : le fichier excel n\'a pas pu être généré<br>';
+						$this->messages[] = $message;
+						if($this->verbose)
+							echo $messgae;
+						return false;
+					}
+				}
+				else{
+					$message '<br><b>[!]</b>ListManager::execute() : la foncitonnalité d\'export excel est désactivée pour cette liste<br>';
+					$this->messages[] = $message;
+					if($this->verbose)
+						echo $message;
+					return false;
+				}
 
 			case ResponseType::JSON:
 				$ret = new stdClass();
@@ -214,22 +252,12 @@ class ListManager {
 					$ret->errorMessage = $reponse->getErrorMessage();
 				}
 				else{
-					while(($ligne = $reponse->nextLine()) != null)
-						$donnees[] = $ligne;
-					$ret->data = $donnees;
+					$ret->data = $reponse->dataList();
 				}
 			return json_encode($ret);
 
 
 			case ResponseType::TEMPLATE:
-				// Affichage (ou non) des champs de recherches
-				$this->template->displaySearchInputs(
-					(isset($_GET['quest']) && intval($_GET['quest']) == 1)
-					|| (isset($_GET['tabSelect']) 
-						&& !(isset($_GET['quest']) && intval($_GET['quest']) == 0)) );
-				
-				//Gestion avec cache
-				
 				return $this->template->construct($reponse);
 		}
 
@@ -269,8 +297,12 @@ class ListManager {
 		else 
 			$this->db = Database::instantiate($dsn, $login, $mdp, $label);
 			
-		if($this->db == null)
-			echo '<br><b>[!]</b> ListManager::connecterDatabase() : echec de connection<br>';
+		if($this->db == null) {
+			$message = '<br><b>[!]</b> ListManager::connecterDatabase() : echec de connection<br>';
+			$this->messages[] = $message;
+			if($this->verbose)
+				echo $message;
+		}
 	}
 
 	/**
@@ -290,9 +322,12 @@ class ListManager {
 				$this->db = Database::getInstance($dataBase);
 		}
 
-		if($this->db == null)
-			echo '<br><b>[!]</b> ListManager::setDatabase() : aucune base de donnees correspondante<br>';
-
+		if($this->db == null) {
+			$message = '<br><b>[!]</b> ListManager::setDatabase() : aucune base de donnees correspondante<br>';
+			$this->messages[ = $message;
+			if($this->verbose)
+				echo $message;
+		}
 	}
 
 	/**
@@ -304,16 +339,8 @@ class ListManager {
 	}
 
 	/**
-	 * Definit le nouvel ID du tableau HTML
-	 * @param string|null $id le nouvel id du tableau html. Si null aucun ID ne sera utilisé.
-	 */
-	public function setListeId($id){
-		$this->template->setId($id);
-	}
-
-	/**
 	 * Utiliser les variables get ou non.
-	 * Definit si ListManager doit utiliser ou non les valeurs contenues dans GET pour construire le masque, le order by et le where de la requete SQL qui sera executee.
+	 * Definit si ListManager doit utiliser ou non les valeurs contenues dans GET pour construire le order by et le tabSelect de la requete SQL qui sera executee.
 	 * @param boolean $valeur true ou false. Valeur par defaut : true
 	 */
 	public function useGET($valeur){
@@ -355,16 +382,6 @@ class ListManager {
 	}
 
 	/**
-	 * Definit le masque à utiliser pour supprimer certaines colonnes lors de la selection de données.
-	 * Passe automatiqument a faux l'attribut sur l'utilisation des variables GET pour la reecriture des requetes SQL
-	 * @param string $mask la liste des numéros de colonne à masquer séparés par une virgule.
-	 */
-	public function setMask($mask){
-		$this->useGET = false;
-		$this->mask = $masque;
-	}
-
-	/**
 	 * Definit si l'option recherche doit etre activee ou non. Si cette valeur est passee a false il ne sera plus possible pour l'utilisateur de filtrer les données de la liste
 	 * @param boolean $valeur valeur par defaut : true
 	 * @return false si la valeur spécifié n'est pas un boolean
@@ -373,7 +390,7 @@ class ListManager {
 		if(!is_bool($valeur))
 			return false;
 
-		$this->$template->enableSearch($valeur);
+		$this->template->enableSearch($valeur);
 	}
 
 	/**
@@ -425,10 +442,27 @@ class ListManager {
 		return $this->template->setMaxPagesDisplayed($valeur);
 	}
 
+	/**
+	 * Active / désactive la foncitonnalité d'export de données dans un fihcier excel. Si activée, l'utilisateur pourra 
+	 */
+	public function enableExcel($valeur){
+		return $this->template->enableExcel($valeur);
+	}
+
+	/**
+	 *
+	 */
+	public function setMask($mask) {
+		if($mask !== null && !is_array($mask))
+			return false;
+
+		$this->mask = $mask;
+	}
+
 
 			/*-****************
-			 ***   GETTERS   ***
-			 ******************/
+			***   GETTERS   ***
+			******************/
 	
 	/**
 	 * 
@@ -448,20 +482,104 @@ class ListManager {
 	
 	/**
 	 * 
-	 * @return string le mask utilisé pour supprimer des colonnes. Le numéro des colonnes masquées est données séparés par des virgules
-	 */
-	public function getMask() {
-		return $this->mask;
-	}
-	
-	/**
-	 * 
 	 * @return string le numéro des colonnes utilisées pour trier les données, séparés par par des virgules. Une colonne dont le numéro est négatif représente le tri décroissant.
 	 */
 	public function getOrderBy() {
 		return $this->orderBy;
 	}
+
+	/**
+	 *
+	 */
+	public function verbose($valeur) {
+		if(!is_bool($valeur))
+			return false;
+
+		$this->verbose = $valeur;
+	}
+
+	/**
+	 *
+	 */
+	public function getErrorMessages() {
+		return $this->messages;
+	}
 	
+
+			/*-****************
+			***   PRIVATE   ***
+			******************/
+
+	/**
+	 * Génère un fichier excel à partir d'une réponse de requete en utilisant la bibliothèque PHPExcel.
+	 * Le fichier généré sera sauvegardé dans le dossier excel/, et le chemin complet de ce fichier sera retournée par la méthode
+	 * @param RequestResponse $reponse l'objet réponse produit par l'exécution de la requete SQL
+	 * @return bool|string le chemin du fichier généré, ou false en cas d'erreur 
+	 */
+	private function generateExcel(RequestResponse $reponse) {
+		if($reponse->error() || $reponse->getRowsCount() < 1)
+			return false;
+
+		// Création de l'objet PHPExcel
+		$phpExcel = new PHPExcel();
+		$phpExcel->setActiveSheetIndex(0);
+
+		// Ajout des propriétés
+		$phpExcel->getProperties()->setCreator("ListManager")
+			->setLastModifiedBy("ListManager")
+			->setTitle("Liste de données")
+			->setSubject("Liste de données")
+			->setDescription("Feuille de données généré automatiqument à partir de l'url ".$_SERVER['REQUEST_URI']);
+		
+		// Création des titres
+		$titres = $reponse->getColumnsName();
+		$types  = $reponse->getColumnsType();
+		$col = 'A';
+		$phpExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(22);
+		for ($i = 0; $i < count($titres); $i++) {
+			$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth(max($types[$i]->len, strlen($titres[$i])));
+			$phpExcel->getActiveSheet()->setCellValue($col.'1', $titres[$i]);
+ 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
+ 				'font' => array(
+ 					'bold' => true,
+ 					'size' => 13,
+ 				),
+ 				'fill' => array(
+ 					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+ 					'color' => array('rgb' => 'CCCCCC'),
+ 				),
+ 			));
+			$col++;
+		}
+
+		// Insertion des données
+		$donnees = $reponse->dataList();
+		$i = 2;
+		foreach ($donnees as $ligne) {
+			// Hauteur de ligne
+			$phpExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(36);
+			// Remplissage colonne par colonne
+			$col = 'A';
+			for($j = 0; $j < count($ligne); $j++){
+				$phpExcel->getActiveSheet()->setCellValue($col.($i), $ligne[$j]);
+				$col++;
+			}
+			$i++;
+		}
+		
+		// Ecriture du fichier
+		try {
+			$writer = PHPExcel_IOFactory::createWriter($phpExcel, 'Excel2007');
+			$chemin = LM_XLS.'Liste LM-'.uniqid().'.xls';
+			$writer->save($chemin);
+		}
+		catch (Exception $e) {
+			if($this->verbose)
+				echo "<br><b>[!]</b>ListManager::generateExcel() erreur création excel : ".$e->getMessage();
+			return null;
+		}
+		return $chemin;
+	}
 }
 
 ?>

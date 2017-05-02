@@ -24,7 +24,7 @@
 **************************************************************************************************/
 
 /**
- * --= Objet ListManager =--
+ * ListManager : construire, manipuler des listes de données à partir d'une requête SQL
  * 
  * C'est l'objet central du projet. Il joue le rôle d'interface entre le developpeur, les bases de données et les listes.
  * ListManager possède un comportement de base :
@@ -75,11 +75,15 @@ class ListManager {
 	*/
 	private $orderBy;
 	/**
-	 *
+	 * @var array $meesages le tableau contenant l'ensemble des messgaes d'erreur générés par l'objet ListManager. S'affichent automatiquement si verbose = true
+	 */
+	private $messages
+	/**
+	 * @var bool $verbose determine si ListManagert doit echo les messages d'erreur et d'avertissement ou non 
 	 */
 	private $verbose;
 	/**
-	 *
+	 * @var array $mask correspond aux numéros des colonnes à ne pas retourner lors de la selection de données
 	 */
 	private $mask;
 	
@@ -103,13 +107,19 @@ class ListManager {
 		$this->recherche = true;
 		$this->verbose = true;
 		$this->mask = null;
+		$this->messages = array();
 		if($labelDB == null)
 			$this->db = Database::getInstance();
 		else 
 			$this->db = Database::getInstance($labelDB);
-		//Affiche le message d'erreur de connection à la BD
-		if($this->db == null && $this->verbose)
-			echo Database::getErrorMessage();
+
+		//Enregistre le message d'erreur de connection à la BD
+		if($this->db == null) {
+			$message = Database::getErrorMessage();
+			$this->messages[] = $message;
+			if($this->verbose)
+				echo $message;
+		}
 	}
 
 
@@ -184,10 +194,14 @@ class ListManager {
 		else 
 			$requete = $request;
 
-		// Recuperation de l'objet DB
-		if($this->db == null && $this->verbose) {
-			// Si la db est null alors on affiche une erreur
-			echo  '<br><b>[!]</b> ListManager::execute() : aucune base de donnees n\'est disponible ou instanciee<br>';
+		// Si la db est null alors on affiche une erreur
+		if($this->db == null) {
+			$message =  '<br><b>[!]</b> ListManager::execute() : aucune base de donnees n\'est disponible ou instanciee<br>';
+			$this->messages[] = $message;
+
+			//Affiche le message d'erreur
+			if($this->verbose) 
+				echo $message;
 			return false;
 		}
 
@@ -214,13 +228,21 @@ class ListManager {
 					if($chemin != false) {
 						header('Location:'.$chemin);
 					}
-					else if($this->verbose) {
-						echo '<br><b>[!]</b>ListManager::execute() : le fichier excel n\'a pas pu être généré<br>';
+					else {
+						$message = '<br><b>[!]</b>ListManager::execute() : le fichier excel n\'a pas pu être généré<br>';
+						$this->messages[] = $message;
+						if($this->verbose)
+							echo $messgae;
 						return false;
 					}
 				}
-				else
+				else{
+					$message '<br><b>[!]</b>ListManager::execute() : la foncitonnalité d\'export excel est désactivée pour cette liste<br>';
+					$this->messages[] = $message;
+					if($this->verbose)
+						echo $message;
 					return false;
+				}
 
 			case ResponseType::JSON:
 				$ret = new stdClass();
@@ -275,8 +297,12 @@ class ListManager {
 		else 
 			$this->db = Database::instantiate($dsn, $login, $mdp, $label);
 			
-		if($this->db == null && $this->verbose)
-			echo '<br><b>[!]</b> ListManager::connecterDatabase() : echec de connection<br>';
+		if($this->db == null) {
+			$message = '<br><b>[!]</b> ListManager::connecterDatabase() : echec de connection<br>';
+			$this->messages[] = $message;
+			if($this->verbose)
+				echo $message;
+		}
 	}
 
 	/**
@@ -296,9 +322,12 @@ class ListManager {
 				$this->db = Database::getInstance($dataBase);
 		}
 
-		if($this->db == null && $this->verbose)
-			echo '<br><b>[!]</b> ListManager::setDatabase() : aucune base de donnees correspondante<br>';
-
+		if($this->db == null) {
+			$message = '<br><b>[!]</b> ListManager::setDatabase() : aucune base de donnees correspondante<br>';
+			$this->messages[ = $message;
+			if($this->verbose)
+				echo $message;
+		}
 	}
 
 	/**
@@ -414,7 +443,7 @@ class ListManager {
 	}
 
 	/**
-	 *
+	 * Active / désactive la foncitonnalité d'export de données dans un fihcier excel. Si activée, l'utilisateur pourra 
 	 */
 	public function enableExcel($valeur){
 		return $this->template->enableExcel($valeur);
@@ -459,11 +488,21 @@ class ListManager {
 		return $this->orderBy;
 	}
 
+	/**
+	 *
+	 */
 	public function verbose($valeur) {
 		if(!is_bool($valeur))
 			return false;
 
 		$this->verbose = $valeur;
+	}
+
+	/**
+	 *
+	 */
+	public function getErrorMessages() {
+		return $this->messages;
 	}
 	
 

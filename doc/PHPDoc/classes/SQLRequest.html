@@ -106,12 +106,12 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">47</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">44</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="../reports/markers.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">3</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">1</span>
                                 </a>
                             </li>
                             <li>
@@ -136,17 +136,16 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1689957861"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1518997672"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1689957861" class="accordion-body collapse in">
+            <div id="namespace-1518997672" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
                     <ul>
                                                                                                     <li class="class"><a href="../classes/Cache.html">Cache</a></li>
                                                     <li class="class"><a href="../classes/Database.html">Database</a></li>
-                                                    <li class="class"><a href="../classes/ListManager.html">ListManager</a></li>
                                                     <li class="class"><a href="../classes/ListTemplate.html">ListTemplate</a></li>
                                                     <li class="class"><a href="../classes/RequestResponse.html">RequestResponse</a></li>
                                                     <li class="class"><a href="../classes/RequestType.html">RequestType</a></li>
@@ -171,7 +170,7 @@
                     <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
 
                     <h1><small>\</small>SQLRequest</h1>
-                    <p><em>Classe représentatn les reuqetes SQL.</em></p>
+                    <p><em>Classe représentant les requetes SQL.</em></p>
                     <p>Un objet SQLRequest est composé d'une requete de base à laquelle il est possible de rajouter des clauses WHERE, un ORDER By ou de supprimer des colonnes.</p>
                     
                                         
@@ -191,7 +190,6 @@
                         <section class="row-fluid public">
                             <section class="span4">
                                                                     <a href="../classes/SQLRequest.html#method___construct" class="">__construct()</a><br />
-                                                                    <a href="../classes/SQLRequest.html#method_mask" class="">mask()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_where" class="">where()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_orderBy" class="">orderBy()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_removeOrderBy" class="">removeOrderBy()</a><br />
@@ -228,8 +226,8 @@
                                                                     <a href="../classes/SQLRequest.html#property_blocWhere" class="">$blocWhere</a><br />
                                                                     <a href="../classes/SQLRequest.html#property_blocHaving" class="">$blocHaving</a><br />
                                                                     <a href="../classes/SQLRequest.html#property_tabOrderBy" class="">$tabOrderBy</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_tabMask" class="">$tabMask</a><br />
                                                                     <a href="../classes/SQLRequest.html#property_limit" class="">$limit</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_offset" class="">$offset</a><br />
                                                                     <a href="../classes/SQLRequest.html#property_RequestType" class="">$RequestType</a><br />
                                                                     <a href="../classes/SQLRequest.html#property_colonnesSelect" class="">$colonnesSelect</a><br />
                                                             </section>
@@ -378,16 +376,16 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_tabMask" name="property_tabMask" class="anchor"></a>
+            <a id="property_limit" name="property_limit" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$tabMask</h3>
-                <pre class="signature">$tabMask : array</pre>
+                <h3 class="private ">$limit</h3>
+                <pre class="signature">$limit : integer</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
-                array
-                &mdash; tableau contenant le numéro/nom de colonnes à maskr                            </article>
+                integer
+                &mdash; correpsond à la valeur de la clause &#039;LIMIT&#039; d&#039;une requete SELECT                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -402,16 +400,16 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_limit" name="property_limit" class="anchor"></a>
+            <a id="property_offset" name="property_offset" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$limit</h3>
-                <pre class="signature">$limit : integer</pre>
+                <h3 class="private ">$offset</h3>
+                <pre class="signature">$offset : string</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
-                integer
-                &mdash; correpsond à la valeur de la clause &#039;LIMIT&#039; d&#039;une requete SELECT                            </article>
+                string
+                &mdash; correpsond à la valeur de la clause &#039;OFFSET&#039; d&#039;une requete SELECT                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -517,40 +515,6 @@ La requete SQL de base passée en paramètre ne doit pas contenir :
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_mask" name="method_mask" class="anchor"></a>
-            <article class="method">
-                <h3 class="public ">mask()</h3>
-                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">mask(array  <span class="argument">$numColonnes</span>) </pre>
-                <p><em>Supprime la seléction des colonnes dont les numéros sont passés en paramètre</em></p>
-                
-
-                                    <h4>Parameters</h4>
-                    <table class="table table-condensed table-hover">
-                                                    <tr>
-                                <td>array</td>
-                                <td>$numColonnes </td>
-                                <td><p>tableau conteannt le numéro des calonnes à supprimer de la selection</p></td>
-                            </tr>
-                                            </table>
-                
-                
-                				
-                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                                                            <dl>
-                                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
             <a id="method_where" name="method_where" class="anchor"></a>
             <article class="method">
                 <h3 class="public ">where()</h3>
@@ -583,8 +547,7 @@ La requete SQL de base passée en paramètre ne doit pas contenir :
                             var
                         </th>
                         <td>
-                                                                                            <p>: le tableau contenant toutes les conditions à rajouter.
-Ce tableau aura la forme suivante :
+                                                                                            <p>: le tableau contenant toutes les conditions à rajouter. Ce tableau aura la forme suivante :
 -&gt; 'nomColonne1' =&gt; 'condition1', 'nomColonne2' =&gt; 'condition2' ...
 Une condition prend la forme suivante : [OPERATEUR][VALEUR]
 Les opérateurs possibles sont :</p>
@@ -901,7 +864,7 @@ Actualise les blocs where et having si necessaire. A appler dans le constructeur
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on April 26th, 2017 at 16:31.
+                    on May 2nd, 2017 at 11:01.
                 </section>
             </section>
         </section>

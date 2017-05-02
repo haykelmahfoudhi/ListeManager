@@ -16,7 +16,7 @@
 ***********************************************************************************************************************************/
 
 /**
- * Classe représentatn les reuqetes SQL.
+ * Classe représentant les requetes SQL.
  * Un objet SQLRequest est composé d'une requete de base à laquelle il est possible de rajouter des clauses WHERE, un ORDER By ou de supprimer des colonnes.
  * 
  * @author RookieRed

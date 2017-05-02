@@ -86,7 +86,7 @@ class ListTemplate {
 	 */
 	private $useCache;
 	/**
-	 *
+	 * @var bool $enableExcel définit si ListTemplate propose la fonctionnalités d'eport Excel
 	 */
 	private $enableExcel;
 	/**
@@ -477,7 +477,9 @@ class ListTemplate {
 	}
 
 	/**
-	 *
+	 * Définit si ListTemplatet doit proposer l'export de données en format excel à l'utilisateur. Valeur apr défaut : true
+	 * @param bool $valeur : la nouvelle valeur à appliquer
+	 * @return bool false si le paramètre n'est aps un booléen
 	 */
 	public function ennableExcel($valeur){
 		if(!is_bool($valeur))
@@ -487,7 +489,7 @@ class ListTemplate {
 	}
 
 	/**
-	 *
+	 * @return bool true si la fonctionnalité d'export Excel est activée, false sinon
 	 */
 	public function excelIsEnabled() {
 		return $this->enableExcel;
