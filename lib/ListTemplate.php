@@ -93,6 +93,10 @@ class ListTemplate {
 	 * @var int nombre de liens de page à afficher au maximum dans la pagination
 	 */
 	private $maxPagesDisplayed;
+	/**
+	 * @var string $helpLink lien vers la page d'aide associée à cette liste
+	 */
+	private $helpLink;
 	
 	/**
 	 * @var string classe par défaut des lignes impaires du tableau
@@ -129,6 +133,7 @@ class ListTemplate {
 		$this->cellCallback = null;
 		$this->useCache = false;
 		$this->enableExcel = true;
+		$this->helpLink = null;
 	}
 	
 	
@@ -199,6 +204,11 @@ class ListTemplate {
 			// Ajout du form si recherche activee
 			$ret .= "\n<form id='recherche' action='' method='GET'"
 				.'><input type="submit" value="Go!"/></form>';
+		}
+
+		// Lien veers la rubrique d'aide / légende associée
+		if($this->helpLink != null){
+			$ret .= "<br><a href='$this->helpLink'>Legende</a>";
 		}
 
 		$ret .= "<div>\n";
@@ -493,6 +503,17 @@ class ListTemplate {
 	 */
 	public function excelIsEnabled() {
 		return $this->enableExcel;
+	}
+
+	/**
+	 * Permet d'ajouter une rubrique d'aide ou une legende à la liste actuelle
+	 * @param string|null $link : le lien url vers la page d'aide. Si null alors le lien sera desactivé
+	 */
+	public function setHelpLink($link) {
+		if(strlen($link) > 0)
+			$this->helpLink = $link;
+		else
+			$this->helpLink = null;
 	}
 
 			/*-****************

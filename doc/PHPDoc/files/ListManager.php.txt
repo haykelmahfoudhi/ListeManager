@@ -77,7 +77,7 @@ class ListManager {
 	/**
 	 * @var array $meesages le tableau contenant l'ensemble des messgaes d'erreur générés par l'objet ListManager. S'affichent automatiquement si verbose = true
 	 */
-	private $messages
+	private $messages;
 	/**
 	 * @var bool $verbose determine si ListManagert doit echo les messages d'erreur et d'avertissement ou non 
 	 */
@@ -237,7 +237,7 @@ class ListManager {
 					}
 				}
 				else{
-					$message '<br><b>[!]</b>ListManager::execute() : la foncitonnalité d\'export excel est désactivée pour cette liste<br>';
+					$message = '<br><b>[!]</b>ListManager::execute() : la foncitonnalité d\'export excel est désactivée pour cette liste<br>';
 					$this->messages[] = $message;
 					if($this->verbose)
 						echo $message;
@@ -324,7 +324,7 @@ class ListManager {
 
 		if($this->db == null) {
 			$message = '<br><b>[!]</b> ListManager::setDatabase() : aucune base de donnees correspondante<br>';
-			$this->messages[ = $message;
+			$this->messages[] = $message;
 			if($this->verbose)
 				echo $message;
 		}
@@ -450,7 +450,7 @@ class ListManager {
 	}
 
 	/**
-	 *
+	 * Définit le masque à appliquer 
 	 */
 	public function setMask($mask) {
 		if($mask !== null && !is_array($mask))
