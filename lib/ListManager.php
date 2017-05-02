@@ -493,21 +493,23 @@ class ListManager {
 			->setDescription("Feuille de données généré automatiqument à partir de l'url ".$_SERVER['REQUEST_URI']);
 		
 		// Création des titres
-		$types = $reponse->getColumnsType();
+		$titres = $reponse->getColumnsName();
+		$types  = $reponse->getColumnsType();
 		$col = 'A';
+		$phpExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(22);
 		for ($i = 0; $i < count($titres); $i++) {
-			$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($types[$i]->len);
+			$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth(max($types[$i]->len, strlen($titres[$i])));
 			$phpExcel->getActiveSheet()->setCellValue($col.'1', $titres[$i]);
-			
-// 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
-// 				'font' => array(
-// 					'bold' => true,
-// 					'size' => 14,
-// 				),
-// 				'fill' => array(
-// 					'color' => array('rgb' => 'CCCCCC'),
-// 				),
-// 			));
+ 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
+ 				'font' => array(
+ 					'bold' => true,
+ 					'size' => 13,
+ 				),
+ 				'fill' => array(
+ 					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+ 					'color' => array('rgb' => 'CCCCCC'),
+ 				),
+ 			));
 			$col++;
 		}
 
@@ -515,6 +517,9 @@ class ListManager {
 		$donnees = $reponse->dataList();
 		$i = 2;
 		foreach ($donnees as $ligne) {
+			// Hauteur de ligne
+			$phpExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(36);
+			// Remplissage colonne par colonne
 			$col = 'A';
 			for($j = 0; $j < count($ligne); $j++){
 				$phpExcel->getActiveSheet()->setCellValue($col.($i), $ligne[$j]);
@@ -524,10 +529,17 @@ class ListManager {
 		}
 		
 		// Ecriture du fichier
-		$writer = PHPExcel_IOFactory::createWriter($phpExcel, 'Excel2007');
-		$chemin = LM_XLS.'Liste LM-'.uniqid().'.xls';
-		$writer->save($chemin);
-		return null;
+		try {
+			$writer = PHPExcel_IOFactory::createWriter($phpExcel, 'Excel2007');
+			$chemin = LM_XLS.'Liste LM-'.uniqid().'.xls';
+			$writer->save($chemin);
+		}
+		catch (Exception $e) {
+			if($this->verbose)
+				echo "<br><b>[!]</b>ListManager::generateExcel() erreur création excel : ".$e->getMessage();
+			return null;
+		}
+		return $chemin;
 	}
 }
 

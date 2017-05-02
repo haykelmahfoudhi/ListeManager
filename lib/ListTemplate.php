@@ -204,10 +204,15 @@ class ListTemplate {
 		$ret .= "<div>\n";
 
 		//Bouton RaZ
-		if(isset($_GET['tabSelect'])) {
+		if(isset($_GET['tabSelect']) || isset($_GET['orderBy'])) {
 			$tabGet = $_GET;
-			unset($tabGet['tabSelect']);
-			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'">RaZ</a>';
+			
+			if(isset($_GET['tabSelect']))
+				unset($tabGet['tabSelect']);
+			if(isset($_GET['orderBy']))
+				unset($tabGet['orderBy']);
+			
+			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'">Effacer</a>';
 		}
 
 
