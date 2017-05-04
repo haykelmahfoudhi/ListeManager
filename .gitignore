@@ -4,4 +4,4 @@
 cache/
 phar/
 tests/
-excel/*
+src/excel/*
