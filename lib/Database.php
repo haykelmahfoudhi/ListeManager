@@ -83,7 +83,11 @@ class Database {
 		$this->login = $login;
 		$this->passwd = $passwd;
 		try {
-			$this->pdo = new PDO($this->dsn, $this->login, $this->passwd);
+			// Test si BD Oracle
+			if (explode($dns, ':')[0] === 'oci')
+				$this->pdo = new PDOOCI\PDO($this->dsn, $this->login, $this->passwd);
+			else 
+				$this->pdo = new PDO($this->dsn, $this->login, $this->passwd);
 		}
 		catch (Exception $e) {
 			$this->pdo = null;
@@ -194,7 +198,7 @@ class Database {
 	 * @return string le dernier message d'erreur
 	 */
 	public static function getErrorMessage(){
-		return $this->errorMessage;
+		return self::$errorMessage;
 	}
 
 	/**

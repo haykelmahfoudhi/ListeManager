@@ -15,6 +15,8 @@ require_once 'includes.php';
 // Connecction aux BD
 Database::instantiate('pgsql:host=periscope;port=5432;dbname=warehouse;','php_liste', 'php_liste', 'postgre');
 Database::instantiate("mysql:host=localhost;dbname=marklate", "marquage","marquage", 'mysql');
+Database::instantiate("oci:host=localhost;dbname=marklate", "root","root", 'oracle');
+echo Database::getErrorMessage();
 
 
 //Base de la requete SQL
@@ -25,8 +27,6 @@ $req = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000 ");
 $lm = new ListManager('mysql');
 $lm->setCellCallback('test');
 $html = $lm->construct($req);
-
-phpinfo();
 
 ?><pre><?=$req?></pre>
 <?=$html?>
