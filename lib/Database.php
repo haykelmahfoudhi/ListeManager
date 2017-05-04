@@ -112,7 +112,7 @@ class Database {
 			return null;
 
 		if(isset(self::$instances[$etiquette])){
-			self::$errorMessage = '<br><b>[!]</b>Database::instancier() : Il existe deje une BD portant l\'etiquette "'
+			self::$errorMessage = '<br><b>[!]</b>Database::instantiate() : Il existe deje une BD portant l\'etiquette "'
 				.$etiquette.'", veuillez en specifier une nouvelle<br>';
 			return null;
 		}

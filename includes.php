@@ -10,6 +10,8 @@ define('LM_CSS', LM_SRC.'css/');
 define('LM_IMG', LM_SRC.'img/');
 define('LM_CACHE', LM_ROOT.'cache/');
 
+require_once LM_PHPXL.'PHPExcel.php';
+
 require_once 'autoloader.php';
 
 ?>

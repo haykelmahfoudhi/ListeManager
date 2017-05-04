@@ -75,7 +75,7 @@ class ListManager {
 	*/
 	private $orderBy;
 	/**
-	 * @var array $meesages le tableau contenant l'ensemble des messgaes d'erreur générés par l'objet ListManager. S'affichent automatiquement si verbose = true
+	 * @var array $meesages le tableau contenant l'ensemble des messages d'erreur générés par l'objet ListManager. S'affichent automatiquement si verbose = true
 	 */
 	private $messages;
 	/**
@@ -232,7 +232,7 @@ class ListManager {
 						$message = '<br><b>[!]</b>ListManager::execute() : le fichier excel n\'a pas pu être généré<br>';
 						$this->messages[] = $message;
 						if($this->verbose)
-							echo $messgae;
+							echo $message;
 						return false;
 					}
 				}
@@ -308,7 +308,7 @@ class ListManager {
 	/**
 	 * Definit la base de donnees qui sera utilisee pour l'execution des requetes SQL.
 	 * Affiche un message d'erreur si la base de données n'a pas pu être récupérée.
-	 * @param string|Database $dataBase : la base de données à utiliser. Peut être de type string ou Database :
+	 * @param string|Database $dataBase la base de données à utiliser. Peut être de type string ou Database :
 	 * * Si string : represente l'etiquette de la base de donnees a utiliser.
 	 * * Si null ou non spécifié : recupere la base de donnee principale de la classe Database.
 	 */
@@ -535,7 +535,7 @@ class ListManager {
 		$titres = $reponse->getColumnsName();
 		$types  = $reponse->getColumnsType();
 		$col = 'A';
-		$phpExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(22);
+		$phpExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(20);
 		for ($i = 0; $i < count($titres); $i++) {
 			$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth(max($types[$i]->len, strlen($titres[$i])));
 			$phpExcel->getActiveSheet()->setCellValue($col.'1', $titres[$i]);
@@ -557,7 +557,7 @@ class ListManager {
 		$i = 2;
 		foreach ($donnees as $ligne) {
 			// Hauteur de ligne
-			$phpExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(36);
+			$phpExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(25);
 			// Remplissage colonne par colonne
 			$col = 'A';
 			for($j = 0; $j < count($ligne); $j++){
@@ -570,7 +570,7 @@ class ListManager {
 		// Ecriture du fichier
 		try {
 			$writer = PHPExcel_IOFactory::createWriter($phpExcel, 'Excel2007');
-			$chemin = LM_XLS.'Liste LM-'.uniqid().'.xls';
+			$chemin = LM_XLS.'Liste LM-'.uniqid().'.xlsx';
 			$writer->save($chemin);
 		}
 		catch (Exception $e) {

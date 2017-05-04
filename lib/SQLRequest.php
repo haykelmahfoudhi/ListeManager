@@ -25,21 +25,21 @@
 class SQLRequest {
 
 	/**
-	 * @var string $baseRequete bloc de base SQL (sans WHERE, ORDER BY, HAVING...)
+	 * @var string $requestBasis bloc de base SQL (sans WHERE, ORDER BY, HAVING...)
 	 */
-	private $baseRequete;
+	private $requestBasis;
 	/**
-	 * @var string $blocWhere correspond à la partie Where de la requete SQL 
+	 * @var string $whereBlock correspond à la partie Where de la requete SQL 
 	 */
-	private $blocWhere;
+	private $whereBlock;
 	/**
-	 * @var string $blocHaving correspond à la partie Having de la requete SQL 
+	 * @var string $havingBlock correspond à la partie Having de la requete SQL 
 	 */
-	private $blocHaving;
+	private $havingBlock;
 	/**
-	 * @var array $tabOrderBy tableau contenant le numéro/nom de colonnes pour le tri des données 
+	 * @var array $orderByArray tableau contenant le numéro/nom de colonnes pour le tri des données 
 	 */
-	private $tabOrderBy;
+	private $orderByArray;
 	/**
 	 * @var int correpsond à la valeur de la clause 'LIMIT' d'une requete SELECT
 	 */
@@ -49,13 +49,9 @@ class SQLRequest {
 	 */
 	private $offset;
 	/**
-	 * @var RequestType $RequestType : énumération sur le type de la requete SQL
+	 * @var RequestType $requestType : énumération sur le type de la requete SQL
 	 */
-	private $RequestType;
-	/**
-	 * @var array le tableau contenant l'ensemble des colonnes pour la selection, spéraées par des virgules dans la requete
-	 */
-	private $colonnesSelect;
+	private $requestType;
 
 
 			/*-*********************
@@ -65,16 +61,15 @@ class SQLRequest {
 	* Construit une nouvelle requete SQL à partir d'une requete de base
 	* La requete SQL de base passée en paramètre ne doit pas contenir :
 	* * de clause ODER BY (pour le moment...) -> TODO
-	* @param string $baseRequete la base de la requete SQL
+	* @param string $requestBasis la base de la requete SQL
 	*/
 	public function __construct($baseRequete){
-		$this->baseRequete = $baseRequete;
-		$this->blocWhere = '';
-		$this->blocHaving = '';
-		$this->tabOrderBy = array();
+		$this->requestBasis = str_replace(';', '', $baseRequete);
+		$this->whereBlock = '';
+		$this->havingBlock = '';
+		$this->orderByArray = array();
 		$this->limit = null;
 		$this->offset = null;
-		$this->colonnesSelect = null;
 		$this->matchRequete();
 	}
 
@@ -98,7 +93,7 @@ class SQLRequest {
 	* @param array 
 	*/
 	public function where(array $tabWhere){
-		$ret = ((strlen($this->blocWhere) > 0)? ' AND ' : '');
+		$ret = ((strlen($this->whereBlock) > 0)? ' AND ' : '');
 		foreach ($tabWhere as $nomColonne => $conditions) {
 			$conditions = explode(',', $conditions);
 			$ret .= '(';
@@ -124,8 +119,8 @@ class SQLRequest {
 				else if(($pos = mb_strpos($condition, '<<')) !== false ){
 					$operateur = 'BETWEEN';
 					// Récupération des deux bornes
-					$val1 = htmlentities(mb_substr($condition, 0, $pos), ENT_QUOTES);
-					$val2 = htmlentities(mb_substr($condition, $pos + 2), ENT_QUOTES);
+					$val1 = htmlentities(mb_substr($condition, 0, $pos), ENT_QUOTES, 'UTF-8');
+					$val2 = htmlentities(mb_substr($condition, $pos + 2), ENT_QUOTES, 'UTF-8');
 					// Constructiond de $valeur
 					$valeur = (is_numeric($val1)? $val1 : "'$val1'" )
 						.' AND '.(is_numeric($val2)? $val2 : "'$val2'"  );
@@ -143,7 +138,7 @@ class SQLRequest {
 
 				// Reconnaissance type de valeur
 				if(! is_numeric($valeur) && ! $btw)
-					$valeur = '\''.htmlentities($valeur, ENT_QUOTES).'\'';
+					$valeur = '\''.htmlentities($valeur, ENT_QUOTES, 'UTF-8').'\'';
 				// Mise en forme de la condition
 				$ret .= (($not)? 'NOT ' : '')."$nomColonne $operateur $valeur OR ";
 			}
@@ -152,7 +147,7 @@ class SQLRequest {
 		}
 
 		$ret = mb_substr($ret, 0, strlen($ret) - 5);
-		$this->blocWhere .= $ret;
+		$this->whereBlock .= $ret;
 	}
 
 	/**
@@ -164,20 +159,20 @@ class SQLRequest {
 	*/
 	public function orderBy($numColonne){
 		//Vérification du type de requete
-		if($this->RequestType == RequestType::SELECT){
+		if($this->requestType == RequestType::SELECT){
 
 			//Si $numColonne est un tableau
 			if(is_array($numColonne)){
 				// Suppression des colonnes déjà existantes
 				foreach ($numColonne as $val)
 						$negColonne[] = -1 * $val;
-				$orderBy = array_diff($this->tabOrderBy, $numColonne, $negColonne);
+				$orderBy = array_diff($this->orderByArray, $numColonne, $negColonne);
 				
 				foreach (array_reverse($numColonne) as $col){
 					if(intval($col) != 0)
 						array_unshift($orderBy, intval($col));
 				}
-				$this->tabOrderBy = array_unique($orderBy);
+				$this->orderByArray = array_unique($orderBy);
 			}
 
 			//Sinon si c'est un int
@@ -187,12 +182,12 @@ class SQLRequest {
 					return false;
 
 				//Suppression de la valeur existante
-				if(($key = array_search($numColonne, $this->tabOrderBy)) != false
-					|| ($key = array_search(-$numColonne, $this->tabOrderBy)) != false){
-					unset($this->tabOrderBy[$key]);
+				if(($key = array_search($numColonne, $this->orderByArray)) != false
+					|| ($key = array_search(-$numColonne, $this->orderByArray)) != false){
+					unset($this->orderByArray[$key]);
 				}
 				// Ajout de la colonne en début
-				array_unshift($this->tabOrderBy, $numColonne);
+				array_unshift($this->orderByArray, $numColonne);
 			}
 			return true;
 		}
@@ -205,8 +200,8 @@ class SQLRequest {
 	* @return boolean vrai si opération ok, faux sinon (type de requete incompatible)
 	*/
 	public function removeOrderBy(){
-		if($this->RequestType == RequestType::SELECT) {
-			$this->tabOrderBy = array();
+		if($this->requestType == RequestType::SELECT) {
+			$this->orderByArray = array();
 			return true;
 		}
 		return false;
@@ -216,25 +211,25 @@ class SQLRequest {
 	* @return string la requete SQL complete
 	*/
 	public function __toString(){
-		$ret = $this->baseRequete;
+		$ret = $this->requestBasis;
 
-		if(in_array($this->RequestType,
+		if(in_array($this->requestType,
 			array(RequestType::SELECT, RequestType::UPDATE, RequestType::DELETE))) {
 			
 			//Ajout du bloc WHERE
-			if(strlen($this->blocWhere) > 0)
-				$ret .= ' WHERE '.$this->blocWhere;
+			if(strlen($this->whereBlock) > 0)
+				$ret .= ' WHERE '.$this->whereBlock;
 
-			if($this->RequestType == RequestType::SELECT){
+			if($this->requestType == RequestType::SELECT){
 				
 				//Ajout du bloc HAVING
-				if(strlen($this->blocHaving) > 0)
-					$ret .= ' HAVING '.$this->blocHaving;
+				if(strlen($this->havingBlock) > 0)
+					$ret .= ' HAVING '.$this->havingBlock;
 				
 				//Ajout du order by
-				if(count($this->tabOrderBy) > 0){
+				if(count($this->orderByArray) > 0){
 					$ret .= ' ORDER BY ';
-					foreach ($this->tabOrderBy as $num) {
+					foreach ($this->orderByArray as $num) {
 						$ret .= abs($num).(($num > 0)?'':' DESC ').',';
 					}
 					$ret = substr($ret, 0, strlen($ret) - 1);
@@ -248,7 +243,7 @@ class SQLRequest {
 				}
 			}
 		}
-		return $ret.((strpos($ret,';') == false)? ';' : '');
+		return $ret.((mb_strpos($ret,';') === false)? ';' : '');
 	}
 
 
@@ -260,17 +255,17 @@ class SQLRequest {
 	* @return RequestType : le type de la requete SQL
 	*/
 	public function getType(){
-		return $this->RequestType;
+		return $this->requestType;
 	}
 
 	/**
 	* @return array les numéros des colonnes du order by, négatif si tri décroissant
 	* retourne faux s'il n'y a pas d'order by.
 	*/
-	public function getTabOrderBy(){
-		if($this->RequestType === RequestType::SELECT
-			&& count($this->tabOrderBy) > 0){
-			return $this->tabOrderBy;
+	public function getOrderByArray(){
+		if($this->requestType === RequestType::SELECT
+			&& count($this->orderByArray) > 0){
+			return $this->orderByArray;
 		}
 		return false;
 	}
@@ -287,7 +282,7 @@ class SQLRequest {
 	* @param int $valeur : la nouvelle valeur limit. Si null cette clause sera desactivée. 
 	*/
 	public function setLimit($valeur){
-		if($this->RequestType != RequestType::SELECT)
+		if($this->requestType != RequestType::SELECT)
 			return false;
 
 		$this->limit = $valeur;
@@ -309,62 +304,60 @@ class SQLRequest {
 		$reWhere = '/^([\s\S]+)(\s+WHERE\s+)([\s\S]+)$/i';
 		$reHaving = '/^([\s\S]+)(\s+HAVING\s+)([\s\S]+)$/i';
 		$reLimit = '/^([\s\S]+)(\s+LIMIT\s+)([0-9]+)([\s\S]*)$/i';
-		if(preg_match($reLimit, $this->baseRequete, $tabMatch) === 1){
-			$this->baseRequete = $tabMatch[1];
+		if(preg_match($reLimit, $this->requestBasis, $tabMatch) === 1){
+			$this->requestBasis = $tabMatch[1];
 			$this->limit = $tabMatch[3];
 			$this->offset = (( strlen($offset = trim($tabMatch[4])) > 0 )? $offset : null );
 		}
-		if(preg_match($reHaving, $this->baseRequete, $tabMatch) === 1){
-			$this->baseRequete = $tabMatch[1];
-			$this->blocHaving = $tabMatch[3];
+		if(preg_match($reHaving, $this->requestBasis, $tabMatch) === 1){
+			$this->requestBasis = $tabMatch[1];
+			$this->havingBlock = $tabMatch[3];
 		}
-		if(preg_match($reWhere, $this->baseRequete, $tabMatch) === 1){
-			$this->baseRequete = $tabMatch[1];
-			$this->blocWhere = $tabMatch[3];
+		if(preg_match($reWhere, $this->requestBasis, $tabMatch) === 1){
+			$this->requestBasis = $tabMatch[1];
+			$this->whereBlock = $tabMatch[3];
 		}
 
 		//Expressions régulières
-		$reSelect = '/^(SELECT([\s\S]+))(FROM([\s\S]+))$/i';
-		$reInsert = '/^(INSERT([\s\S]+))$/i';
-		$reUpdate = '/^(UPDATE([\s\S]+))$/i';
-		$reDelete = '/^(DELETE([\s\S]+))$/i';
+		$reSelect = '/^[\s]*(SELECT([\s\S]+))$/i';
+		$reInsert = '/^[\s]*(INSERT([\s\S]+))$/i';
+		$reUpdate = '/^[\s]*(UPDATE([\s\S]+))$/i';
+		$reDelete = '/^[\s]*(DELETE([\s\S]+))$/i';
 
 		$tabMatch = array();
 		// Teste si SELECT
-		preg_match($reSelect, $this->baseRequete, $tabMatch);
+		preg_match($reSelect, $this->requestBasis, $tabMatch);
 		if($tabMatch != array()){
-			$this->RequestType = RequestType::SELECT;
-			if(strpos('*', $this->baseRequete) !== false)
-				$this->colonnesSelect = explode(',', $tabMatch[2]);
+			$this->requestType = RequestType::SELECT;
 			return;
 		}
 		
 		// Teste si INSERT
-		preg_match($reInsert, $this->baseRequete, $tabMatch);
+		preg_match($reInsert, $this->requestBasis, $tabMatch);
 		if($tabMatch != array()){
-			$this->baseRequete = $tabMatch[1];
-			$this->RequestType = RequestType::INSERT;
+			$this->requestBasis = $tabMatch[1];
+			$this->requestType = RequestType::INSERT;
 			return;
 		}
 
 		// Teste si DELETE
-		preg_match($reDelete, $this->baseRequete, $tabMatch);
+		preg_match($reDelete, $this->requestBasis, $tabMatch);
 		if($tabMatch != array()){
-			$this->RequestType = RequestType::DELETE;
-			$this->baseRequete = $tabMatch[1];
+			$this->requestType = RequestType::DELETE;
+			$this->requestBasis = $tabMatch[1];
 			return;
 		}
 
 		//Teste si UPDATE
-		preg_match($reUpdate, $this->baseRequete, $tabMatch);
+		preg_match($reUpdate, $this->requestBasis, $tabMatch);
 		if($tabMatch != array()){
-			$this->RequestType = RequestType::UPDATE;
-			$this->baseRequete = $tabMatch[1];
+			$this->requestType = RequestType::UPDATE;
+			$this->requestBasis = $tabMatch[1];
 			return;
 		}
 
 		// Si rien de tout cela
-		$this->RequestType = RequestType::AUTRE;
+		$this->requestType = RequestType::AUTRE;
 	}
 
 }

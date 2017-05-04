@@ -18,17 +18,17 @@ Database::instantiate("mysql:host=localhost;dbname=marklate", "marquage","marqua
 
 
 //Base de la requete SQL
-$req = new SQLRequest("select * from fact_1_delais where of='1727562'");
-$req = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000;");
+// $req = new SQLRequest("select * from fact_1_delais where of='1727562';");
+$req = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000 ");
 
 // Liste Manager
 $lm = new ListManager('mysql');
-echo $lm->construct($req);
+$lm->setCellCallback('test');
+$html = $lm->construct($req);
 
+phpinfo();
 
-?> <pre> <?php
-echo $req;
-?>
-</pre>
+?><pre><?=$req?></pre>
+<?=$html?>
 </body>
 </html>

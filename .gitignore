@@ -3,4 +3,5 @@
 .buildpath
 cache/
 phar/
+tests/
 excel/*

@@ -324,7 +324,7 @@ class ListTemplate {
 			// S'il y a plus de pages que la limite affichable
 			if($nbPages > $this->maxPagesDisplayed){
 				$debut = $this->currentPage - intval($this->maxPagesDisplayed / 2);
-				if($debut < 1){
+				if($debut <= 1){
 					$debut = 1;
 					$fin = $this->maxPagesDisplayed + 1;
 				}

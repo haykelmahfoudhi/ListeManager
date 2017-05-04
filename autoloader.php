@@ -19,7 +19,7 @@
 * On ajoute à cela les classes de PHPExcel dans le dossier PHPExcel
 */
 function lm_autoLoader($name) {
-	$dossiers = array(LM_LIB, LM_PHPXL);
+	$dossiers = array(LM_LIB);
 
 	foreach ($dossiers as $dossier) {
 		//On teste l'existence du fichier contenant la classe
