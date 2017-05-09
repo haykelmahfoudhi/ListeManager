@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">53</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">55</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-649307510"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1286373231"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-649307510" class="accordion-body collapse in">
+            <div id="namespace-1286373231" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -196,7 +196,7 @@
                                                                     <a href="../classes/SQLRequest.html#method_removeOrderBy" class="">removeOrderBy()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method___toString" class="">__toString()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_getType" class="">getType()</a><br />
-                                                                    <a href="../classes/SQLRequest.html#method_getTabOrderBy" class="">getTabOrderBy()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_getOrderByArray" class="">getOrderByArray()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_getLimit" class="">getLimit()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_setLimit" class="">setLimit()</a><br />
                                                             </section>
@@ -223,14 +223,14 @@
                                                                     <a href="../classes/SQLRequest.html#method_matchRequete" class="">matchRequete()</a><br />
                                                             </section>
                             <section class="span4">
-                                                                    <a href="../classes/SQLRequest.html#property_baseRequete" class="">$baseRequete</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_blocWhere" class="">$blocWhere</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_blocHaving" class="">$blocHaving</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_tabOrderBy" class="">$tabOrderBy</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_requestBasis" class="">$requestBasis</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_whereBlock" class="">$whereBlock</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_havingBlock" class="">$havingBlock</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_orderByArray" class="">$orderByArray</a><br />
                                                                     <a href="../classes/SQLRequest.html#property_limit" class="">$limit</a><br />
                                                                     <a href="../classes/SQLRequest.html#property_offset" class="">$offset</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_RequestType" class="">$RequestType</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_colonnesSelect" class="">$colonnesSelect</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_requestType" class="">$requestType</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_forOracle" class="">$forOracle</a><br />
                                                             </section>
                             <section class="span4">
                                 <em>N/A</em>
@@ -281,10 +281,10 @@
 
                                                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_baseRequete" name="property_baseRequete" class="anchor"></a>
+            <a id="property_requestBasis" name="property_requestBasis" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$baseRequete</h3>
-                <pre class="signature">$baseRequete : string</pre>
+                <h3 class="private ">$requestBasis</h3>
+                <pre class="signature">$requestBasis : string</pre>
                 <p><em></em></p>
                 
 
@@ -305,10 +305,10 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_blocWhere" name="property_blocWhere" class="anchor"></a>
+            <a id="property_whereBlock" name="property_whereBlock" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$blocWhere</h3>
-                <pre class="signature">$blocWhere : string</pre>
+                <h3 class="private ">$whereBlock</h3>
+                <pre class="signature">$whereBlock : string</pre>
                 <p><em></em></p>
                 
 
@@ -329,10 +329,10 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_blocHaving" name="property_blocHaving" class="anchor"></a>
+            <a id="property_havingBlock" name="property_havingBlock" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$blocHaving</h3>
-                <pre class="signature">$blocHaving : string</pre>
+                <h3 class="private ">$havingBlock</h3>
+                <pre class="signature">$havingBlock : string</pre>
                 <p><em></em></p>
                 
 
@@ -353,10 +353,10 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_tabOrderBy" name="property_tabOrderBy" class="anchor"></a>
+            <a id="property_orderByArray" name="property_orderByArray" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$tabOrderBy</h3>
-                <pre class="signature">$tabOrderBy : array</pre>
+                <h3 class="private ">$orderByArray</h3>
+                <pre class="signature">$orderByArray : array</pre>
                 <p><em></em></p>
                 
 
@@ -425,10 +425,10 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_RequestType" name="property_RequestType" class="anchor"></a>
+            <a id="property_requestType" name="property_requestType" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$RequestType</h3>
-                <pre class="signature">$RequestType : \RequestType</pre>
+                <h3 class="private ">$requestType</h3>
+                <pre class="signature">$requestType : \RequestType</pre>
                 <p><em></em></p>
                 
 
@@ -449,16 +449,16 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_colonnesSelect" name="property_colonnesSelect" class="anchor"></a>
+            <a id="property_forOracle" name="property_forOracle" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$colonnesSelect</h3>
-                <pre class="signature">$colonnesSelect : array</pre>
+                <h3 class="private ">$forOracle</h3>
+                <pre class="signature">$forOracle : boolean</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
-                array
-                &mdash; le tableau contenant l&#039;ensemble des colonnes pour la selection, spéraées par des virgules dans la requete                            </article>
+                boolean
+                &mdash; : détemrine si cette requête SQL est destinée à etre exécutée par une base de données Oracle ou non                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -484,7 +484,7 @@
             <article class="method">
                 <h3 class="public ">__construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__construct(string  <span class="argument">$baseRequete</span>) </pre>
+                <pre class="signature" style="margin-right: 54px;">__construct(  <span class="argument">$baseRequete</span>,   <span class="argument">$forOracle = false</span>) </pre>
                 <p><em>Construit une nouvelle requete SQL à partir d&#039;une requete de base
 La requete SQL de base passée en paramètre ne doit pas contenir :
 * de clause ODER BY (pour le moment.</em></p>
@@ -493,9 +493,14 @@ La requete SQL de base passée en paramètre ne doit pas contenir :
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td>string</td>
+                                <td></td>
                                 <td>$baseRequete </td>
-                                <td><p>la base de la requete SQL</p></td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td></td>
+                                <td>$forOracle </td>
+                                <td></td>
                             </tr>
                                             </table>
                 
@@ -697,11 +702,11 @@ Pour classer la colonnes par 'DESC' le numéro de colonne doit être négatif.</
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_getTabOrderBy" name="method_getTabOrderBy" class="anchor"></a>
+            <a id="method_getOrderByArray" name="method_getOrderByArray" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">getTabOrderBy()</h3>
+                <h3 class="public ">getOrderByArray()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">getTabOrderBy() : array</pre>
+                <pre class="signature" style="margin-right: 54px;">getOrderByArray() : array</pre>
                 <p><em></em></p>
                 
 
@@ -865,7 +870,7 @@ Actualise les blocs where et having si necessaire. A appler dans le constructeur
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on May 2nd, 2017 at 13:36.
+                    on May 9th, 2017 at 11:53.
                 </section>
             </section>
         </section>

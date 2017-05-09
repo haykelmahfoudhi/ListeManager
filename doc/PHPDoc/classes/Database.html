@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">53</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">55</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-466615642"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-254149505"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-466615642" class="accordion-body collapse in">
+            <div id="namespace-254149505" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -199,7 +199,8 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
                                                                     <a href="../classes/Database.html#method_getInstance" class="">getInstance()</a><br />
                                                                     <a href="../classes/Database.html#method_getPDO" class="">getPDO()</a><br />
                                                                     <a href="../classes/Database.html#method_getLabel" class="">getLabel()</a><br />
-                                                                    <a href="../classes/Database.html#method_getErrorMessage" class="">getErrorMessage()</a><br />
+                                                                    <a href="../classes/Database.html#method_getErrorMessages" class="">getErrorMessages()</a><br />
+                                                                    <a href="../classes/Database.html#method_oracle" class="">oracle()</a><br />
                                                                     <a href="../classes/Database.html#method_setLabel" class="">setLabel()</a><br />
                                                             </section>
                             <section class="span4">
@@ -230,7 +231,7 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
                                                                     <a href="../classes/Database.html#property_dsn" class="">$dsn</a><br />
                                                                     <a href="../classes/Database.html#property_login" class="">$login</a><br />
                                                                     <a href="../classes/Database.html#property_passwd" class="">$passwd</a><br />
-                                                                    <a href="../classes/Database.html#property_errorMessage" class="">$errorMessage</a><br />
+                                                                    <a href="../classes/Database.html#property_errorMessages" class="">$errorMessages</a><br />
                                                                     <a href="../classes/Database.html#property_instances" class="">$instances</a><br />
                                                             </section>
                             <section class="span4">
@@ -404,16 +405,16 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_errorMessage" name="property_errorMessage" class="anchor"></a>
+            <a id="property_errorMessages" name="property_errorMessages" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$errorMessage</h3>
-                <pre class="signature">$errorMessage : string</pre>
+                <h3 class="private ">$errorMessages</h3>
+                <pre class="signature">$errorMessages : array</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
-                string
-                &mdash; le dernier message d&#039;erreur enregistré                            </article>
+                array
+                &mdash; le tableau contenatn l&#039;ensemble des messages d&#039;erreur enregistrés                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -701,12 +702,12 @@ utilisees en meme temps dans l'application</p></td>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_getErrorMessage" name="method_getErrorMessage" class="anchor"></a>
+            <a id="method_getErrorMessages" name="method_getErrorMessages" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">getErrorMessage()</h3>
+                <h3 class="public ">getErrorMessages()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">getErrorMessage() : string</pre>
-                <p><em>Retourne le dernier message d&#039;erreur enregistré par la classe Database</em></p>
+                <pre class="signature" style="margin-right: 54px;">getErrorMessages() : string</pre>
+                <p><em>Retourne le tableau des messages d&#039;erreur enregistrés par la classe Database</em></p>
                 
 
                 
@@ -720,6 +721,35 @@ utilisees en meme temps dans l'application</p></td>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
                             <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oracle" name="method_oracle" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oracle()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oracle() : boolean</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>true si l'objet est connecté sur une base de données Oracle, false sinon</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
                                                             <dl>
                                                                             </dl>
             <h2>Tags</h2>
@@ -774,7 +804,7 @@ utilisees en meme temps dans l'application</p></td>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">__construct(string  <span class="argument">$dsn</span>, string  <span class="argument">$login</span>, string  <span class="argument">$passwd</span>,   <span class="argument">$label</span>) </pre>
                 <p><em>Instancie la connexion avec la base de donnees via un objet PDO contenu dans l&#039;objet Database.</em></p>
-                <p>Si la connection n'est pas possible le message d'erreur sera produit, vous pourrez l'afficher avec la methode getErrorMessage.</p>
+                <p>Si la connection n'est pas possible le message d'erreur sera produit, vous pourrez l'afficher avec la methode geterrorMessages.</p>
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
@@ -864,7 +894,7 @@ utilisees en meme temps dans l'application</p></td>
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on May 2nd, 2017 at 13:36.
+                    on May 9th, 2017 at 11:53.
                 </section>
             </section>
         </section>

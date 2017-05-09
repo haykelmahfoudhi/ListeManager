@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">53</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">55</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-362614918"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-786481144"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-362614918" class="accordion-body collapse in">
+            <div id="namespace-786481144" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -466,7 +466,7 @@ A utiliser si vous ne souhaitez pas passer par la variable GET pour trier les do
 
                                 <h4>Type</h4>
                 array
-                &mdash; le tableau contenant l&#039;ensemble des messgaes d&#039;erreur générés par l&#039;objet ListManager. S&#039;affichent automatiquement si verbose = true                            </article>
+                &mdash; le tableau contenant l&#039;ensemble des messages d&#039;erreur générés par l&#039;objet ListManager. S&#039;affichent automatiquement si verbose = true                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -540,7 +540,7 @@ A utiliser si vous ne souhaitez pas passer par la variable GET pour trier les do
             <article class="method">
                 <h3 class="public ">__construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__construct(  <span class="argument">$labelDB = null</span>) </pre>
+                <pre class="signature" style="margin-right: 54px;">__construct(  <span class="argument">$db = null</span>) </pre>
                 <p><em>Construit un nouvel objet ListManager définit par son comportement de base.</em></p>
                 <p>Tente de récupérer la base de données principale de l'application. Vous pouvez donc utiliser la méthode <em>Database::instantaite()</em> au préalable pour ne pas avoir à spécifier la base de données à utiliserpar la suite.
 Précisez l'etiquette de la base de données à utiliser si nécessaire</p>
@@ -549,7 +549,7 @@ Précisez l'etiquette de la base de données à utiliser si nécessaire</p>
                     <table class="table table-condensed table-hover">
                                                     <tr>
                                 <td></td>
-                                <td>$labelDB </td>
+                                <td>$db </td>
                                 <td></td>
                             </tr>
                                             </table>
@@ -569,7 +569,7 @@ Précisez l'etiquette de la base de données à utiliser si nécessaire</p>
                             var
                         </th>
                         <td>
-                                                                                            <p>l'étiquette de la base de données que doit utiliser listManager. Laissez null si vous n'avez qu'une seule base de données.</p>
+                                                                                            <p>l'insatnce de Database à utiliser ou son étiquette. Laissez null si vous n'avez qu'une seule base de données.</p>
                                                     </td>
                     </tr>
                             </table>
@@ -582,7 +582,7 @@ Précisez l'etiquette de la base de données à utiliser si nécessaire</p>
             <article class="method">
                 <h3 class="public ">construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">construct(mixed  <span class="argument">$baseSQL</span>) : mixed</pre>
+                <pre class="signature" style="margin-right: 54px;">construct(  <span class="argument">$requete</span>) : mixed</pre>
                 <p><em>Execute la requete SQL dont la base est passee en parametres.</em></p>
                 <p>Cette base sera augmentee par les divers parametres fournis par la variable GET avant d'etre execute, ou par les attributs tabSelect et orderBy si vous ne souhaitez pas utiliser GET.
 Le format des resultats obtenus par la requete dépend du ResponseType spécifié.</p>
@@ -590,9 +590,9 @@ Le format des resultats obtenus par la requete dépend du ResponseType spécifi�
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td>mixed</td>
-                                <td>$baseSQL </td>
-                                <td><p>: la requete a executer. Peut etre de type string ou SQLRequest.</p></td>
+                                <td></td>
+                                <td>$requete </td>
+                                <td></td>
                             </tr>
                                             </table>
                 
@@ -755,7 +755,7 @@ Par défaut le type de réponse est TEMPLATE. Vous pouvez le changer en indiquan
             <article class="method">
                 <h3 class="public ">setDatabase()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">setDatabase(string|\Database  <span class="argument">$dataBase = null</span>) </pre>
+                <pre class="signature" style="margin-right: 54px;">setDatabase(string|\Database  <span class="argument">$dataBase = null</span>) : boolean</pre>
                 <p><em>Definit la base de donnees qui sera utilisee pour l&#039;execution des requetes SQL.</em></p>
                 <p>Affiche un message d'erreur si la base de données n'a pas pu être récupérée.</p>
 
@@ -764,7 +764,7 @@ Par défaut le type de réponse est TEMPLATE. Vous pouvez le changer en indiquan
                                                     <tr>
                                 <td>string|<a href="../classes/Database.html">\Database</a></td>
                                 <td>$dataBase </td>
-                                <td><p>: la base de données à utiliser. Peut être de type string ou Database :</p>
+                                <td><p>la base de données à utiliser. Peut être de type string ou Database :</p>
 <ul>
 <li>Si string : represente l'etiquette de la base de donnees a utiliser.</li>
 <li>Si null ou non spécifié : recupere la base de donnee principale de la classe Database.</li>
@@ -773,7 +773,10 @@ Par défaut le type de réponse est TEMPLATE. Vous pouvez le changer en indiquan
                                             </table>
                 
                 
-                				
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>true si l'operation est un succès, false sinon + affichage d'un message d'erreur si verbose</p>
+                                    				
                             </article>
         </div>
         <aside class="span4 detailsbar">
@@ -1453,7 +1456,7 @@ la navigation entre les pages de la liste</em></p>
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on May 2nd, 2017 at 13:36.
+                    on May 9th, 2017 at 11:53.
                 </section>
             </section>
         </section>

@@ -7,10 +7,11 @@ Mecaprotec utilise à l'heure actuelle une librairie de fonctions PHP pour la r�
 
 ## Mission
 
-Vous pouvez consulter la page **Wiki** du projet en [cliquant ici](http://list-manager.torchpad.com/)
+Vous pouvez consulter la page **Wiki** du projet dans [le menu Wiki de ce repository](wikis/home)
 
-La mission ici sera donc de refondre cette librairie en la rendant plus facile à manipuler pour le développeur. La nouvelle librairie PHPLib, renommée ListManager, consistera en :
-* Un objet ListManager possèdant un comportement de base, paramètrables via un ensemble de setters. Cet objet sera l'interface entre le développeur et la librairie.
+La mission ici sera donc de refondre cette librairie en la rendant plus facile à manipuler pour le développeur. La nouvelle librairie PHPLib, renommée ListManager, consistera en 2 classes principales :
+* Un objet **Database** basé sur le design pattern multiton, utilisant PDO et un certain nombre de drivers pour permettre la connection vers n'importe quel type de base de données
+* Un objet **ListManager** possèdant un comportement de base, paramètrables via un ensemble de setters. Cet objet sera l'interface entre le développeur et la librairie.
     * **Comportement de base** : affichage d'une liste HTML avec les mêmes fonctionnalités que celles porposées par PHPLib à savoir : recherche, tri par colonne, export Excel, masquage colonnes
     * **Comportement modifiables** :
         * Type de données retournées parmi Liste HTML, Excel, objet ou array PHP, objet JSON
@@ -20,10 +21,8 @@ La mission ici sera donc de refondre cette librairie en la rendant plus facile �
             * modification du nombre de lignes par page
             * activation / désactivation des fonctionnalités recherche, masque et order
             * modification des messages d'erreur / liste vide
-        * Activation / désactivation d'un système de cache pour la navigation entre les pages pour les requêtes SQL lourdes
-* Un objet Database basé sur le design pattern multiton, utilisant PDO et un certain nombre de drivers pour permettre la connection vers n'importe quel type de base de données
-* Une API JSON permettant l'interaction entre AJAX (ou application non PHP) d'interagir avec une base de données.
-* [?] Un objet Session .. conception à venir
+        * Activation / désactivation d'un système de cache pour la navigation entre les pages pour les requêtes SQL lourdes *(à venir...)*
+A voir pour la suite ... 
 * [?] Un patron MVC léger facilement implémentable pour créer rapidement un petit ensemble de pages dans un site web dynamique.
 
 ---------------------------------------------------------------
@@ -33,7 +32,7 @@ La mission ici sera donc de refondre cette librairie en la rendant plus facile �
     [o] Phase de développement
         [o] Connection & interactions avec la BD
             [x] Multiton Database
-            [ ] Drivers Oracle / Postgre
+            [x] Drivers Oracle / Postgre
         [o] Fonctionnalités liste
             [x] Masquage des colonnes / affichage cahmps saisie en JS
             [x] Réécriture des ORDER BY
@@ -46,13 +45,13 @@ La mission ici sera donc de refondre cette librairie en la rendant plus facile �
                 [ ] API php pour les requêtes AJAX
                 [ ] Utilisation de $_SESSION
         [x] Export PHPExcel
-        [ ] API JSON pour exécuter des requêtes (SQL?) depuis une application externe
+        [?] API JSON pour exécuter des requêtes (SQL?) depuis une application externe
             [ ] Définir un protocole de communication & connextion aux bases de données
             [ ] Gestionnaire de sessions sécurisé
-    [ ] Phase de tests
+    [o] Phase de tests
     [o] Production de documentaiton
         [x] PHPDoc -> utilisation des classes et méthodes
-        [ ] Pages Wiki
+        [o] Pages Wiki
 
 -----------------------------------------------------------------
 
@@ -94,4 +93,4 @@ echo $html;
 
 ## Modifier le comportement de ListManager
 
-Si vous souhaitez modifier le comportement de l'objet ListManager, vous pouvez utiliser les méthodes de la classe en vous référant à la PHPDoc accessible dans le dossier doc/PHPDoc/.
+Si vous souhaitez modifier le comportement de l'objet ListManager, vous pouvez utiliser les méthodes de la classe en vous référant au Wiki de ce repo ou à la PHPDoc située dans le dossier doc/PHPDoc/.
