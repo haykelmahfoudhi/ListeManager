@@ -1,7 +1,7 @@
 <?php 
 
 
-/*-******************************************************************************************************
+/*-*******************************************************************************************************
  **                                                                                                     **
  **    88888888ba,                                     88                                               **
  **    88      `"8b                 ,d                 88                                               **
@@ -57,9 +57,9 @@ class Database {
 	 */
 	private $passwd;
 	/**
-	 * @var string $errorMessage le dernier message d'erreur enregistré
+	 * @var array $errorMessages le tableau contenatn l'ensemble des messages d'erreur enregistrés
 	 */
-	private static $errorMessage = null;
+	private static $errorMessages = null;
 	/**
 	 * @var array $instances tableau contenant l'ensemble des objet Database instanciés dans l'application. La clé d'une entrée correspond à l'étiquette de la base de données.
 	 */
@@ -72,7 +72,7 @@ class Database {
 	
 	/**
 	 * Instancie la connexion avec la base de donnees via un objet PDO contenu dans l'objet Database.
-	 * Si la connection n'est pas possible le message d'erreur sera produit, vous pourrez l'afficher avec la methode getErrorMessage.
+	 * Si la connection n'est pas possible le message d'erreur sera produit, vous pourrez l'afficher avec la methode geterrorMessages.
 	 * @param string $dsn le DSN (voir le manuel PHP concernant **PDO**)
 	 * @param string $login le nom d'utilisateur pour la connexion
 	 * @param string $passwd son mot de passe
@@ -84,14 +84,14 @@ class Database {
 		$this->passwd = $passwd;
 		try {
 			// Test si BD Oracle
-			if (explode($dns, ':')[0] === 'oci')
+			if (strpos($this->dsn, 'oci:') !== false)
 				$this->pdo = new PDOOCI\PDO($this->dsn, $this->login, $this->passwd);
 			else 
 				$this->pdo = new PDO($this->dsn, $this->login, $this->passwd);
 		}
 		catch (Exception $e) {
 			$this->pdo = null;
-			self::$errorMessage = "<br><b>[!]</b>Connection a la base de donnees impossible (etiquette = '$label') :\n".$e->getMessage()
+			self::$errorMessages[] = "<br><b>[!]</b>Connection a la base de donnees impossible (etiquette = '$label') :\n".$e->getMessage()
 				.'<br>';
 		}
 	}
@@ -116,7 +116,7 @@ class Database {
 			return null;
 
 		if(isset(self::$instances[$etiquette])){
-			self::$errorMessage = '<br><b>[!]</b>Database::instantiate() : Il existe deje une BD portant l\'etiquette "'
+			self::$errorMessages[] = '<br><b>[!]</b>Database::instantiate() : Il existe deje une BD portant l\'etiquette "'
 				.$etiquette.'", veuillez en specifier une nouvelle<br>';
 			return null;
 		}
@@ -138,11 +138,17 @@ class Database {
 			$request = $request->__toString();
 
 		//Execution de la requete
-		$statement = $this->pdo->query($request);
-		if($statement == false)
-			return new RequestResponse(null, true,$this->pdo->errorInfo()[2]);
-		else 
-			return new RequestResponse($statement);
+		try {
+			$statement = $this->pdo->query($request);
+			if($statement == false)
+				return new RequestResponse(null, true, $this->pdo->errorInfo()[2]);
+			else 
+				return new RequestResponse($statement);
+		}
+		catch(Exception $e) {
+			self::$errorMessages[] = "<br><b>Database::execute()</b>(etiquette = '$this->label') : ".$e->getMessage();
+			return new RequestResponse(null, true, $e->getMessage());
+		}
 	}
 
 	/**
@@ -194,11 +200,18 @@ class Database {
 	}
 
 	/**
-	 * Retourne le dernier message d'erreur enregistré par la classe Database
+	 * Retourne le tableau des messages d'erreur enregistrés par la classe Database
 	 * @return string le dernier message d'erreur
 	 */
-	public static function getErrorMessage(){
-		return self::$errorMessage;
+	public static function getErrorMessages(){
+		return self::$errorMessages;
+	}
+
+	/**
+	 * @return bool true si l'objet est connecté sur une base de données Oracle, false sinon
+	 */
+	public function oracle() {
+		return $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) == 'oci';
 	}
 
 	/**

@@ -173,7 +173,10 @@ class RequestResponse {
 		for ($i=0; $i < $len; $i++) {
 			$meta = $this->statement->getColumnMeta($i);
 			$obj = new stdClass();
-			$obj->type = $meta['native_type'];
+			if(!isset($meta['native_type']))
+				$obj->type = $meta['driver:decl_type'];
+			else
+				$obj->type = $meta['native_type'];
 			$obj->len  = $meta['len'];
 			$ret[] = $obj;
 		}

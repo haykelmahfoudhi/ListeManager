@@ -96,9 +96,9 @@ class ListManager {
 	 * Construit un nouvel objet ListManager définit par son comportement de base.
 	 * Tente de récupérer la base de données principale de l'application. Vous pouvez donc utiliser la méthode *Database::instantaite()* au préalable pour ne pas avoir à spécifier la base de données à utiliserpar la suite.
 	 * Précisez l'etiquette de la base de données à utiliser si nécessaire
-	 * @var string $labelDB l'étiquette de la base de données que doit utiliser listManager. Laissez null si vous n'avez qu'une seule base de données.
+	 * @var Database|string $db l'insatnce de Database à utiliser ou son étiquette. Laissez null si vous n'avez qu'une seule base de données.
 	 */
-	public function __construct($labelDB=null){
+	public function __construct($db=null){
 		$this->responseType = ResponseType::TEMPLATE;
 		$this->template = new ListTemplate();
 		$this->useGET = true;
@@ -108,14 +108,11 @@ class ListManager {
 		$this->verbose = true;
 		$this->mask = null;
 		$this->messages = array();
-		if($labelDB == null)
-			$this->db = Database::getInstance();
-		else 
-			$this->db = Database::getInstance($labelDB);
+		$this->setDatabase($db);
 
 		//Enregistre le message d'erreur de connection à la BD
 		if($this->db == null) {
-			$message = Database::getErrorMessage();
+			$message = end(Database::getErrorMessage());
 			$this->messages[] = $message;
 			if($this->verbose)
 				echo $message;
@@ -136,12 +133,7 @@ class ListManager {
 	 * * l'objet de reponse dependant de $ResponseType, parametrable via la methode *setResponseType()*
 	 * * false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données
 	 */
-	public function construct($baseSQL){
-		if($baseSQL instanceof SQLRequest)
-			$requete = $baseSQL;
-		else 
-			$requete = new SQLRequest($baseSQL);
-
+	public function construct($requete){
 		//Construction de la requete a partir de variables GET disponibles
 		if($this->useGET){
 			
@@ -204,6 +196,10 @@ class ListManager {
 				echo $message;
 			return false;
 		}
+
+		// Si BD ORacle : on supprime les ';' de la requete
+		if($this->db->oracle())
+			$request = str_replace(';', '', $request);
 
 		//Execution de la requete
 		$reponse = $this->db->execute($requete);
@@ -311,6 +307,7 @@ class ListManager {
 	 * @param string|Database $dataBase la base de données à utiliser. Peut être de type string ou Database :
 	 * * Si string : represente l'etiquette de la base de donnees a utiliser.
 	 * * Si null ou non spécifié : recupere la base de donnee principale de la classe Database.
+	 * @return bool true si l'operation est un succès, false sinon + affichage d'un message d'erreur si verbose
 	 */
 	public function setDatabase($dataBase=null){
 		if($dataBase == null)
@@ -327,7 +324,9 @@ class ListManager {
 			$this->messages[] = $message;
 			if($this->verbose)
 				echo $message;
+			return false;
 		}
+		return true;
 	}
 
 	/**

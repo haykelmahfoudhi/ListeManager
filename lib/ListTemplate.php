@@ -162,17 +162,18 @@ class ListTemplate {
 		}
 
 		// Preparation de l'array a afficher
-		$donnees = $reponse->dataList();
+		while(($ligne = $reponse->nextLine()) != null)
+			$donnees[] = $ligne;
 		$nbLignes = $reponse->getRowsCount();
 		$debut = ($this->currentPage-1) * $this->nbResultsPerPage;
 		$titres = $reponse->getColumnsName();
 
 		// Enregistrement des donnees dans le cache
-		if($this->useCache && $nbLignes > Cache::NB_LIGNES_MIN){
-			$cacheID = md5(uniqid());
-			$cache = new Cache($cacheID);
-			$cache->write($reponse, $this->nbResultsPerPage);
-		}
+		// if($this->useCache && $nbLignes > Cache::NB_LIGNES_MIN){
+		// 	$cacheID = md5(uniqid());
+		// 	$cache = new Cache($cacheID);
+		// 	$cache->write($reponse, $this->nbResultsPerPage);
+		// }
 
 		// $donnees ne contient plus que les valeurs a afficher
 		$donnees = array_slice($donnees, $debut, $this->nbResultsPerPage);
@@ -211,8 +212,6 @@ class ListTemplate {
 			$ret .= "<br><a href='$this->helpLink'>Legende</a>";
 		}
 
-		$ret .= "<div>\n";
-
 		//Bouton RaZ
 		if(isset($_GET['tabSelect']) || isset($_GET['orderBy'])) {
 			$tabGet = $_GET;
@@ -225,6 +224,7 @@ class ListTemplate {
 			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'">Effacer</a>';
 		}
 
+		$ret .= "</div>\n";
 
 		// Initialisation de la liste
 		$ret .= '<table'.(($this->id == null)?'' : " id ='$this->id' ").'>'."\n<tr>";

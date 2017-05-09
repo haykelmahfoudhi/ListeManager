@@ -52,6 +52,10 @@ class SQLRequest {
 	 * @var RequestType $requestType : énumération sur le type de la requete SQL
 	 */
 	private $requestType;
+	/**
+	 * @var bool $forOracle : détemrine si cette requête SQL est destinée à etre exécutée par une base de données Oracle ou non
+	 */
+	private $forOracle;
 
 
 			/*-*********************
@@ -63,13 +67,14 @@ class SQLRequest {
 	* * de clause ODER BY (pour le moment...) -> TODO
 	* @param string $requestBasis la base de la requete SQL
 	*/
-	public function __construct($baseRequete){
+	public function __construct($baseRequete, $forOracle=false){
 		$this->requestBasis = str_replace(';', '', $baseRequete);
 		$this->whereBlock = '';
 		$this->havingBlock = '';
 		$this->orderByArray = array();
 		$this->limit = null;
 		$this->offset = null;
+		$this->forOracle = $forOracle;
 		$this->matchRequete();
 	}
 
@@ -217,8 +222,13 @@ class SQLRequest {
 			array(RequestType::SELECT, RequestType::UPDATE, RequestType::DELETE))) {
 			
 			//Ajout du bloc WHERE
-			if(strlen($this->whereBlock) > 0)
+			if(strlen($this->whereBlock) > 0) {
 				$ret .= ' WHERE '.$this->whereBlock;
+				// Ajout de la limit (ROWNUM oracle)
+				if($this->forOracle && $this->limit != null && intval($this->limit) == $this->limit){
+					$ret .= ' AND ROWNUM > '.intval($this->limit);
+				}
+			}
 
 			if($this->requestType == RequestType::SELECT){
 				
@@ -236,14 +246,14 @@ class SQLRequest {
 				}
 
 				//Ajout de la limit
-				if($this->limit !== null) {
+				if($this->limit !== null && !$this->forOracle) {
 					$ret .= ' LIMIT '.$this->limit;
 					if($this->offset != null)
 						$ret .= " $this->offset";
 				}
 			}
 		}
-		return $ret.((mb_strpos($ret,';') === false)? ';' : '');
+		return $ret.(($this->forOracle)? '' : ';');
 	}
 
 
