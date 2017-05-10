@@ -1,7 +1,8 @@
 <?php
 
-define('LM_ROOT', dirname(__FILE__).'/');
-define('LM_SRC', 'src/');
+defined('LM_ROOT') or die('Veuillez définir la constante LM_ROOT avant d\'utiliser ListManager');
+
+define('LM_SRC', LM_ROOT.'src/');
 define('LM_LIB', LM_ROOT.'lib/');
 define('LM_PHPXL', LM_ROOT.'PHPExcel/Classes/');
 define('LM_XLS', LM_SRC.'excel/');

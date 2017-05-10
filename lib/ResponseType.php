@@ -1,5 +1,7 @@
 <?php
 
+namespace LM;
+
 /**
  * Enumération des formats de réponse possible de ListManager
  * Cette classe ne contient que des constantes exprimant le tyupe de données renvoyées par les méthodes *construct()* et *execute()* de la classe ListManager.
@@ -8,7 +10,7 @@
  * * ARRAY pour obtenir les resultats dans un array PHP (equivalent a PDOStaement::fetchAll())
  * * JSON pour obtenir les donnees dans un objet encode en JSON
  * * EXCEL pour obtenir les resultats dans une feuille de calcul Excel
- * * OBJET pour obtenir un objet stdClass
+ * * OBJET pour obtenir un objet \stdClass
  * 
  * @author RookieRed
  *

@@ -1,5 +1,6 @@
 <?php
 
+namespace LM;
 
 /*-**********************************************************************************************
 **                                                                                             ** 
@@ -50,7 +51,7 @@ class ListTemplate {
 	/**
 	 * @var string l'id du tableau HTML
 	 */
-	private $id;
+	private $idTable;
 	/**
 	 * Varaibles contenatn les classes HTML appliquees aux lignes paires / impaires
 	 * @var string classe des lignes imparaires
@@ -62,9 +63,13 @@ class ListTemplate {
 	 */
 	private $enableSearch;
 	/**
-	 * @var string le message qui sera affiche si la liste ne contient pas de donnees
+	 * @var string $emptyListMessage le message qui sera affiche si la liste ne contient pas de donnees
 	 */
 	private $emptyListMessage;
+	/**
+	 * @var array $mask tableau contenant le nom des colonnes qui seront masquées lors de la construction de la liste HTML 
+	 */
+	private $mask;
 	/**
 	 * @var string  le nom de la classe HTML des balises p qui contiendront le message d'erreur
 	 */
@@ -97,6 +102,10 @@ class ListTemplate {
 	 * @var string $helpLink lien vers la page d'aide associée à cette liste
 	 */
 	private $helpLink;
+	/**
+	 * @var bool $displayNbResults définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete
+	 */
+	private $displayNbResults;
 	
 	/**
 	 * @var string classe par défaut des lignes impaires du tableau
@@ -125,15 +134,17 @@ class ListTemplate {
 		$this->class1 = (($classe1 == null)? self::$CLASSE1 : $classe1);
 		$this->class2 = (($classe2 == null)? self::$CLASSE2 : $classe2);
 		$this->enableSearch = true;
+		$this->mask = array();
 		$this->emptyListMessage = "Aucun resultat!";
 		$this->errorClass = 'erreur';
-		$this->currentPage = ((isset($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] : 1 );
+		$this->currentPage = ((isset($_GET['lm_page']) && $_GET['lm_page'] > 0) ? $_GET['lm_page'] : 1 );
 		$this->nbResultsPerPage = 50;
 		$this->maxPagesDisplayed = 10;
 		$this->cellCallback = null;
 		$this->useCache = false;
 		$this->enableExcel = true;
 		$this->helpLink = null;
+		$this->displayNbResults = true;
 	}
 	
 	
@@ -178,19 +189,19 @@ class ListTemplate {
 		// $donnees ne contient plus que les valeurs a afficher
 		$donnees = array_slice($donnees, $debut, $this->nbResultsPerPage);
 
-
 		// Creation de la div HTML parente
 		$ret = "\n".'<div class="liste-parent">';
 
 		//Affichage du nombre de resultats
 		$debut++;
 		$fin = min(($this->currentPage) * $this->nbResultsPerPage, $nbLignes);
-		$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", null);
+		if($this->displayNbResults)
+			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", null);
 		
 		//Ajout des boutons options sur le cete
 		$ret .= "\n<div id='boutons-options'>";
-
-		// Bouton pour reset le mask
+		
+		// Bouton pour reset le mask en JS
 		$ret .= '<a id="annuler-masque" href="#">Annuler masque</a>';
 
 		// Bouton excel
@@ -221,7 +232,7 @@ class ListTemplate {
 			if(isset($_GET['orderBy']))
 				unset($tabGet['orderBy']);
 			
-			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'">Effacer</a>';
+			$ret .= '<br><a href="'.self::creerUrlGET(null, null, $tabGet).'">RAZ</a>';
 		}
 
 		$ret .= "</div>\n";
@@ -233,35 +244,39 @@ class ListTemplate {
 		$i = 0;
 		foreach ($titres as $titre) {
 
-			//Gestion du order by
-			if(isset($_GET['orderBy'])){
-				$orderArray = explode(',', $_GET['orderBy']);
+			// On vérifie que la colonne en cours n'est aps masquée
+			if(!in_array($titre, $this->mask)) {
 
-				// Construction de la chaine orderBy
-				if(($key = array_search(($i + 1), $orderArray)) !== false ) {
-					unset($orderArray[$key]);
-					array_unshift($orderArray, -1*($i + 1));
-				}
-				else if (($key = array_search(-1 * ($i + 1), $orderArray)) !== false ){
-					unset($orderArray[$key]);
-					array_unshift($orderArray, $i + 1);
+				//Gestion du order by
+				if(isset($_GET['orderBy'])){
+					$orderArray = explode(',', $_GET['orderBy']);
+
+					// Construction de la chaine orderBy
+					if(($key = array_search(($i + 1), $orderArray)) !== false ) {
+						unset($orderArray[$key]);
+						array_unshift($orderArray, -1*($i + 1));
+					}
+					else if (($key = array_search(-1 * ($i + 1), $orderArray)) !== false ){
+						unset($orderArray[$key]);
+						array_unshift($orderArray, $i + 1);
+					}
+					else {
+						array_unshift($orderArray, ($i + 1));
+					}
+					$orderString = implode(',', $orderArray);
 				}
 				else {
-					array_unshift($orderArray, ($i + 1));
+					$orderString = $i+1;
 				}
-				$orderString = implode(',', $orderArray);
-			}
-			else {
-				$orderString = $i+1;
-			}
-			$lienOrderBy = '<a class="titre-colonne" href="'
-				.self::creerUrlGET('orderBy', $orderString)."\">$titre</a>";
+				$lienOrderBy = '<a class="titre-colonne" href="'
+					.self::creerUrlGET('orderBy', $orderString)."\">$titre</a>";
 
-			$lienMasque = '<a class="masque" href="#">x</a>';
+				$lienMasque = '<a class="masque" href="#">x</a>';
 
-			// Affiche les liens et les titres
-			$ret .= '<th>'.$lienMasque.$lienOrderBy."</th>\n";
-			$i++;
+				// Affiche les liens et les titres
+				$ret .= '<th>'.$lienMasque.$lienOrderBy."</th>\n";
+				$i++;
+			}
 		}
 		$ret .= "</tr>\n";
 
@@ -296,18 +311,23 @@ class ListTemplate {
 				$classe = (($i % 2)? $this->class1 : $this->class2);
 				$ret .= '<tr'.(($classe == null)? '' : " class='$classe' ").'>';
 
-				//Construction des cellules
+				//Construction des cellules colonne par colonne
 				$j = 0;
 				foreach ($ligne as $cellule){
-					// Application du callback (si non null)
-					if($this->cellCallback != null) {
-						$fct = $this->cellCallback;
-						$cellule = ( (($retFCT = $fct($cellule, $titres[$j], $i)) == null)? $cellule : $retFCT ) ;
+
+					// On vérifie que la colonne en cours n'est pas masquée
+					if(!in_array($titres[$j], $this->mask)) {
+
+						// Application du callback (si non null)
+						if($this->cellCallback != null) {
+							$fct = $this->cellCallback;
+							$cellule = ( (($retFCT = $fct($cellule, $titres[$j], $i, $ligne)) === null)? $cellule : $retFCT ) ;
+						}
+						// Si la cellule ne contient rien -> '-'
+						if(strlen($cellule) == 0)
+							$cellule = '-';
+						$ret .= '<td>'.$cellule.'</td>';
 					}
-					// Si la cellule ne contient rien -> '-'
-					if(strlen($cellule) == 0)
-						$cellule = '-';
-					$ret .= '<td>'.$cellule.'</td>';
 					$j++;
 				}
 				$ret .= "</tr>\n";
@@ -318,7 +338,7 @@ class ListTemplate {
 
 		// Affichage du tableau des numeros de page
 		if($nbLignes > $this->nbResultsPerPage){
-			$ret .= '<table id="pagination"><tr>';
+			$ret .= '<table id="pagination" align="center"><tr>';
 			$nbPages = (is_int($nbPages = ($nbLignes / $this->nbResultsPerPage))? $nbPages : round($nbPages + 0.5) );
 
 			// S'il y a plus de pages que la limite affichable
@@ -330,7 +350,7 @@ class ListTemplate {
 				}
 				// Ajout de la 1re page si besoin
 				else {
-					$ret .= '<td><a href="'.self::creerUrlGET('page', 1).'">&lt;&lt;</td>';
+					$ret .= '<td><a href="'.self::creerUrlGET('lm_page', 1).'">&lt;&lt;</td>';
 					$fin = min($debut + $this->maxPagesDisplayed, $nbPages);
 				}
 			}
@@ -348,13 +368,13 @@ class ListTemplate {
 					$ret .= "$i";
 				else {	
 					// Construction du lien de la page
-					$ret .= '<a href="'.self::creerUrlGET('page', $i).'">'.$i.'</a>';
+					$ret .= '<a href="'.self::creerUrlGET('lm_page', $i).'">'.$i.'</a>';
 				}
 				$ret .= '</td>';
 			}
 			// Ajout du lien vers la derniere page si besoin
 			if($fin != $nbPages){
-				$ret .= '<td><a href="'.self::creerUrlGET('page', $nbPages).'">&gt;&gt;</td>';
+				$ret .= '<td><a href="'.self::creerUrlGET('lm_page', $nbPages).'">&gt;&gt;</td>';
 			}
 
 			$ret .= "</tr></table>\n</div>\n";
@@ -379,6 +399,30 @@ class ListTemplate {
 	*/
 	public function setEmptyListMessage($message){
 		$this->emptyListMessage = $message;
+	}
+
+	/**
+	 * Définit l'id HTML de la balise table correspondant à la liste. 
+	 * / ! \ Attention si vous changez l'id du tableau il se peut que le fichier JS associé ne fonctionne plus et que certaines telles que le masquage des colonnes ne soient plus possibles
+	 * @param string $id le nouvel id du tableau. Si null aucun ID ne sera affiché.
+	 */
+	public function setIdTable($id) {
+		$this->id = $id;
+	}
+
+	/**
+	 * Définit le nouveau masque à appliquer. =
+	 * Le masque est un tableau contenant le nom des colonnes que vous ne souhaitez pas afficher dans la liste HTML
+	 * @var array $mask le nouveau masque à appliquer. Si null : aucun masque ne sera applqiué
+	 * @return bool false si le paramètre en entré n'est ni null, ni un array
+	 */
+	public function setMask($mask) {
+		if($mask == null)
+			$this->mask = array();
+		else if (is_array($mask))
+			$this->mask = $mask;
+		else
+			return false;
 	}
 
 	/**
@@ -449,7 +493,8 @@ class ListTemplate {
 	 *    1. cellule : la valeur de l'element en cours
 	 *    2. colonne : le nom de la colonne en cours
 	 *    3. ligne   : le numero de la ligne en cours
-	 * * valeur de retour de type string (ou du moins un type qui peut être transformé en string). [!] Si vous ne modifiez pas la valeur de la cellule penser tout de même à la retourner
+	 *    4. ligne    : un array associatif contenant toutes les données de la ligne en cours
+	 * * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
 	 * @param string|null $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
 	 * @return boolean true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)
 	 */
@@ -487,11 +532,11 @@ class ListTemplate {
 	}
 
 	/**
-	 * Définit si ListTemplatet doit proposer l'export de données en format excel à l'utilisateur. Valeur apr défaut : true
+	 * Définit si ListTemplate doit proposer l'export de données en format excel à l'utilisateur. Valeur apr défaut : true
 	 * @param bool $valeur : la nouvelle valeur à appliquer
 	 * @return bool false si le paramètre n'est aps un booléen
 	 */
-	public function ennableExcel($valeur){
+	public function enableExcel($valeur){
 		if(!is_bool($valeur))
 			return false;
 
@@ -514,6 +559,18 @@ class ListTemplate {
 			$this->helpLink = $link;
 		else
 			$this->helpLink = null;
+	}
+
+	/**
+	 * Définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete
+	 * @param bool $valeur true pour activer, false pour desactiver
+	 * @return bool false si l'argument n'est pas un booleen
+	 */
+	public function displayNbResults($valeur) {
+		if(!is_bool($valeur))
+			return false;
+
+		$this->displayNbResults = $valeur;
 	}
 
 			/*-****************

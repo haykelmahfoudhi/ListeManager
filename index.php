@@ -1,5 +1,7 @@
 <?php
 
+define('LM_ROOT', '');
+
 require_once 'includes.php';
 ?>
 <!DOCTYPE html>
@@ -14,19 +16,19 @@ require_once 'includes.php';
 
 
 // Connection aux BD
-Database::instantiate('pgsql:host=periscope;port=5432;dbname=warehouse;','php_liste', 'php_liste', 'postgre');
-Database::instantiate("mysql:host=localhost;dbname=marklate", "marquage","marquage", 'mysql');
-Database::instantiate("oci:dbname=MECAPROTEC;", "DEMOV15","octal", 'oracle');
+\LM\Database::instantiate('pgsql:host=periscope;port=5432;dbname=warehouse;','php_liste', 'php_liste', 'postgre');
+\LM\Database::instantiate('mysql:host=localhost;dbname=marklate', "marquage","marquage", 'mysql');
+\LM\Database::instantiate('oci:dbname=MECAPROTEC;', "DEMOV15","octal", 'oracle');
 
 
 //Base de la requete SQL
 // $req = new SQLRequest("select * from fact_1_delais where of='1727562';");
 // $req = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000 ");
-$req = new SQLRequest('SELECT * FROM ordre_fabrication WHERE ROWNUM < 100', true);
+$req = new \LM\SQLRequest('SELECT * FROM ordre_fabrication WHERE ROWNUM < 100', true);
 
 
 // Liste Manager
-$lm = new ListManager('oracle');
+$lm = new \LM\ListManager('oracle');
 $html = $lm->construct($req);
 
 ?><pre><?=$req?></pre>

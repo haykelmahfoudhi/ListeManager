@@ -1,5 +1,6 @@
 <?php 
 
+namespace LM;
 
 /*-*******************************************************************************************************
  **                                                                                                     **
@@ -59,7 +60,7 @@ class Database {
 	/**
 	 * @var array $errorMessages le tableau contenatn l'ensemble des messages d'erreur enregistrés
 	 */
-	private static $errorMessages = null;
+	private static $errorMessages = array();
 	/**
 	 * @var array $instances tableau contenant l'ensemble des objet Database instanciés dans l'application. La clé d'une entrée correspond à l'étiquette de la base de données.
 	 */
@@ -85,9 +86,9 @@ class Database {
 		try {
 			// Test si BD Oracle
 			if (strpos($this->dsn, 'oci:') !== false)
-				$this->pdo = new PDOOCI\PDO($this->dsn, $this->login, $this->passwd);
+				$this->pdo = new \PDOOCI\PDO($this->dsn, $this->login, $this->passwd);
 			else 
-				$this->pdo = new PDO($this->dsn, $this->login, $this->passwd);
+				$this->pdo = new \PDO($this->dsn, $this->login, $this->passwd);
 		}
 		catch (Exception $e) {
 			$this->pdo = null;
@@ -211,7 +212,7 @@ class Database {
 	 * @return bool true si l'objet est connecté sur une base de données Oracle, false sinon
 	 */
 	public function oracle() {
-		return $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) == 'oci';
+		return $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME) == 'oci';
 	}
 
 	/**

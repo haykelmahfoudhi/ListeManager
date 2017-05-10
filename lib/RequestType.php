@@ -1,5 +1,7 @@
 <?php
 
+namespace LM;
+
 /**
  * Enumération des types de requete SQL.
  * Cette classe ne contient que des constantes permettant de définir le type des requetes SQL parmi :
