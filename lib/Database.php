@@ -85,7 +85,7 @@ class Database {
 		$this->passwd = $passwd;
 		try {
 			// Test si BD Oracle
-			if (strpos($this->dsn, 'oci:') !== false)
+			if (strpos($this->dsn, 'oci:') !== false && !extension_loaded('pdo_oci'))
 				$this->pdo = new \PDOOCI\PDO($this->dsn, $this->login, $this->passwd);
 			else 
 				$this->pdo = new \PDO($this->dsn, $this->login, $this->passwd);

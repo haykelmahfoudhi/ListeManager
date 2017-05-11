@@ -132,8 +132,10 @@ class ListManager {
 		// Gestion du parametre
 		if(!$baseSQL instanceof \LM\SQLRequest)
 			$requete = new \LM\SQLRequest($baseSQL, $this->db->oracle());
-		else 
+		else {
+			$baseSQL->prepareForOracle($this->db->oracle());
 			$requete = $baseSQL;
+		}
 
 		//Construction de la requete a partir de variables GET disponibles
 		if($this->useGET){
@@ -182,8 +184,10 @@ class ListManager {
 	public function execute($request){
 
 		// Gestion du parametre
-		if($request instanceof \LM\SQLRequest)
+		if($request instanceof \LM\SQLRequest) {
+			$request->prepareForOracle($this->db->oracle());
 			$requete = $request->__toString();
+		}
 		else 
 			$requete = $request;
 
@@ -197,10 +201,6 @@ class ListManager {
 				echo $message;
 			return false;
 		}
-
-		// Si BD ORacle : on supprime les ';' de la requete
-		if($this->db->oracle())
-			$requete = str_replace(';', '', $requete);
 
 		//Execution de la requete
 		$reponse = $this->db->execute($requete);

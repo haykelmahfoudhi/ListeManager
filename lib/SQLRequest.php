@@ -70,7 +70,7 @@ class SQLRequest {
 	* @param string $requestBasis la base de la requete SQL
 	*/
 	public function __construct($baseRequete, $forOracle=false){
-		$this->requestBasis = str_replace(';', '', $baseRequete);
+		$this->requestBasis = $baseRequete;
 		$this->whereBlock = '';
 		$this->havingBlock = '';
 		$this->orderByArray = array();
@@ -255,7 +255,7 @@ class SQLRequest {
 				}
 			}
 		}
-		return $ret.(($this->forOracle)? '' : ';');
+		return $ret.((!$this->forOracle && (strpos($ret, ';') === false))? ';' : '');
 	}
 
 
@@ -298,6 +298,16 @@ class SQLRequest {
 			return false;
 
 		$this->limit = $valeur;
+	}
+
+	/**
+	 *
+	 */
+	public function prepareForOracle($valeur) {
+		if(!is_bool($valeur))
+			return false;
+
+		$this->forOracle = $valeur;
 	}
 
 
