@@ -1,8 +1,9 @@
 <?php
 
-/**
-* 
-*/
+namespace LM;
+
+
+/*
 class Cache {
 	
 	private $file;
@@ -33,7 +34,7 @@ class Cache {
 	* @var RequestResponse $reponse : l'objet réponse produit par l'exécution de la requete
 	* @var int $nbResultatsParPage : le nombre de lignes contenues dans une seule page
 	* @return boolean true si l'opération d'ecriture s'est bien passée, false en cas d'erreur
-	*/
+	
 	public function write(RequestResponse $reponse, $nbResultatsParPage) {
 		// On vérifie que le cache est vide et qu'il y a suffisemment de données
 		if($this->exists() && $reponse->getNbLignes() >= self::NB_LIGNES_MIN)
@@ -53,7 +54,7 @@ class Cache {
 	/**
 	* Charges la totalité des données contenues dans le fichier cache
 	* @return mixed : un array contenant toutes les données enregistrées, ou false en cas d'erreur
-	*/
+	
 	public function load() {
 		// On vérifie si le cache contient quelque chose
 		if(! $this->exists())
@@ -71,7 +72,7 @@ class Cache {
 	* définit par l'attribut nbResultatsParPage du fichier cache
 	* @param int $prage : le numéro de la page à charger
 	* @return mixed : un array contenant toutes les données enregistrées, ou false en cas d'erreur
-	*/
+	
 	public function loadPage($page) {
 		// On charge toutes les données enregistrées
 		$obj = $this->load();
@@ -91,7 +92,7 @@ class Cache {
 	* 		array(	[nomColonne1] => 'valeur recherchée',
 	* 				[nomColonne2] => 'valeur recherchée' ... )  
 	* @return l'ensemble des données correpsondant à la recherche ou faux en cas d'erreur
-	*/
+	
 	public function search(array $recherche){
 		// On charge toutes les données enregistrées
 		$obj = $this->load();
@@ -123,7 +124,7 @@ class Cache {
 	/**
 	* Supprime les données contenues dans le cache, ainsi que le fichier qui les contenaient
 	* @return boolean true en cas de succès, faux sinon;
-	*/
+	
 	public function delete() {
 		//Fermeture du fichier
 		if(! fclose($this->file))
@@ -141,7 +142,7 @@ class Cache {
 
 	/**
 	* @return boolean true si le fichier cache est ecrit en dur et existe, false sinon
-	*/
+	
 	public function exists() {
 		return $this->cacheExists && ($this->file !== false);
 	}
@@ -149,6 +150,6 @@ class Cache {
 	public function getPathFile() {
 		return $this->fileName;
 	}
-}
+}*/
 
 ?>

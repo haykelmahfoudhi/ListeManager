@@ -1,5 +1,7 @@
 <?php
 
+namespace LM;
+
 /**
  * Singleton pour la gestion des sessions PHP
  * 

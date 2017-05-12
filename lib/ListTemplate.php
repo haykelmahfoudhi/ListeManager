@@ -38,7 +38,7 @@ namespace LM;
  * * Utiliser un callback pour modifier le contenu des cellules
  * * Utiliser le système de cache pour accélérer la navigation entre les pages
  * 
- * @author celoundou
+ * @author RookieRed
  *
  */
 class ListTemplate {
@@ -83,9 +83,21 @@ class ListTemplate {
      */
 	private $currentPage;
 	/**
-	 * @var string nom du callback a appeler lors de l'affichage d'une cellule
+	 * @var array tableau associatif pour l'affichage des titres des colonnes. Ce tableau à pour format [titre_colonne] => [titre_a_afficher]
+	 */
+	private $listTitles;
+	/**
+	 * @var string nom du callback a appeler lors de l'affichage d'une cellule (balises 'td')
 	 */
 	private $cellCallback;
+	/**
+	 * @var string $rowCallback nom du callback a appeler lors de l'affichage des des lignes (balises 'tr')
+	 */
+	private $rowCallback;
+	/**
+	 * @var string $columnCallback nom du callback qui servira à ajouter des colonnes à la liste 
+	 */
+	private $columnCallback;
 	/**
 	 * @var boolean definit l'utilisation du système de cache pour les requêtes lourdes
 	 */
@@ -106,6 +118,14 @@ class ListTemplate {
 	 * @var bool $displayNbResults définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete
 	 */
 	private $displayNbResults;
+	/**
+	 * @var bool $enableDefaultCSS déinit si le template doit appliquer le style par defaut du fichier base.css ou non
+	 */
+	private $applyDefaultCSS;
+	/**
+	 * @var integer longueur maximale des champs de saisie pour la recherche par colonne
+	 */
+	private $maxSizeInputs;
 	
 	/**
 	 * @var string classe par défaut des lignes impaires du tableau
@@ -113,10 +133,6 @@ class ListTemplate {
 	 */
 	public static $CLASSE1 = 'gris', $CLASSE2 = 'orange';
 	
-	/**
-	 * @var integer longueur maximale des champs de saisie pour la recherche par colonne
-	 */
-	const MAX_LEN_INPUT = 30;
 	
 	
 			/*-*********************
@@ -140,11 +156,16 @@ class ListTemplate {
 		$this->currentPage = ((isset($_GET['lm_page']) && $_GET['lm_page'] > 0) ? $_GET['lm_page'] : 1 );
 		$this->nbResultsPerPage = 50;
 		$this->maxPagesDisplayed = 10;
+		$this->listTitles = array();
 		$this->cellCallback = null;
+		$this->rowCallback = null;
+		$this->columnCallback = null;
 		$this->useCache = false;
 		$this->enableExcel = true;
 		$this->helpLink = null;
 		$this->displayNbResults = true;
+		$this->applyDefaultCSS = true;
+		$this->maxSizeInputs = 30;
 	}
 	
 	
@@ -190,7 +211,7 @@ class ListTemplate {
 		$donnees = array_slice($donnees, $debut, $this->nbResultsPerPage);
 
 		// Creation de la div HTML parente
-		$ret = "\n".'<div class="liste-parent">';
+		$ret = "\n".'<div id="liste-parent">';
 
 		//Affichage du nombre de resultats
 		$debut++;
@@ -199,28 +220,37 @@ class ListTemplate {
 			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", null);
 		
 		//Ajout des boutons options sur le cete
-		$ret .= "\n<div id='boutons-options'>";
+		$ret .= "\n<div><div id='boutons-options'>";
 		
 		// Bouton pour reset le mask en JS
-		$ret .= '<a id="annuler-masque" href="#">Annuler masque</a>';
+		$ret .= '<a id="annuler-masque" href="#"><img height="40" width="40" src="'.LM_IMG.'mask-cross.png"></a>';
 
 		// Bouton excel
 		if($this->enableExcel){
-			$ret .= '<br><a href="'.self::creerUrlGET('excel', 1).'" id="lien-excel">Excel</a>';
+			$ret .= '<a href="'.self::creerUrlGET('excel', 1).'" id="btn-excel"><img height="40" width="40" src="'.LM_IMG.'excel-ico.png"></a>';
 		}
 
 		//Bouton quest (recherche)
 		if($this->enableSearch){
-			$ret .= '<br><a class="recherche" href="#">Rechercher</a>'; 
+			$ret .= '<a id="btn-recherche" href="#"><img height="40" width="40" src="'.LM_IMG.'search-ico.png"></a>'; 
 			
 			// Ajout du form si recherche activee
 			$ret .= "\n<form id='recherche' action='' method='GET'"
-				.'><input type="submit" value="Go!"/></form>';
+				.'><input type="submit" value="Go!"/>';
+
+			// Ajout des paramètres GET déjà présents
+			foreach ($_GET as $nom => $valeur) {
+				if($nom != 'tabSelect' && !is_array($valeur)) {
+					$ret .= "<input type='hidden' name='$nom' value='$valeur'/>";
+				}
+			}
+
+			$ret .= '</form>';
 		}
 
 		// Lien veers la rubrique d'aide / légende associée
 		if($this->helpLink != null){
-			$ret .= "<br><a href='$this->helpLink'>Legende</a>";
+			$ret .= "<a href='$this->helpLink' id='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
 		}
 
 		//Bouton RaZ
@@ -232,13 +262,13 @@ class ListTemplate {
 			if(isset($_GET['orderBy']))
 				unset($tabGet['orderBy']);
 			
-			$ret .= '<br><a href="'.self::creerUrlGET(null, null, $tabGet).'">RAZ</a>';
+			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'"><img height="40" width="40" src="'.LM_IMG.'eraser-ico.png"></a>';
 		}
 
 		$ret .= "</div>\n";
 
 		// Initialisation de la liste
-		$ret .= '<table'.(($this->id == null)?'' : " id ='$this->id' ").'>'."\n<tr>";
+		$ret .= '<div><table'.(($this->id == null)?'' : " id='$this->id' ").'>'."\n<tr>";
 
 		//Creation des titres
 		$i = 0;
@@ -268,8 +298,16 @@ class ListTemplate {
 				else {
 					$orderString = $i+1;
 				}
+
+				// Préparation du titre à afficher
+				if(isset($this->listTitles[$titre]))
+					$titreAffiche = $this->listTitles[$titre];
+				else 
+					$titreAffiche = $titre;
+
+				// Création du lien pour order by
 				$lienOrderBy = '<a class="titre-colonne" href="'
-					.self::creerUrlGET('orderBy', $orderString)."\">$titre</a>";
+					.self::creerUrlGET('orderBy', $orderString)."\">$titreAffiche</a>";
 
 				$lienMasque = '<a class="masque" href="#">x</a>';
 
@@ -278,6 +316,13 @@ class ListTemplate {
 				$i++;
 			}
 		}
+
+		// Utilisation du callback pour ajouter une colonne
+		if($this->columnCallback != null) {
+			$fct = $this->columnCallback;
+			$ret .= $fct(0, null, true);
+		}
+
 		$ret .= "</tr>\n";
 
 		//Affichage des champs de saisie pour la  recherche
@@ -285,13 +330,18 @@ class ListTemplate {
 			$ret .= "<tr class='tabSelect'>";
 			$types = $reponse->getColumnsType();
 			for ($i=0; $i < count($titres); $i++) {
-				//Determine le contenu du champs
-				$valeur = (isset($_GET['tabSelect'][$titres[$i]])? 
-					$_GET['tabSelect'][$titres[$i]] : null);
-				//Determine la taille du champs
-				$taille = min($types[$i]->len, self::MAX_LEN_INPUT);
-				$ret .= '<td><input type="text" name="tabSelect['.$titres[$i].']"'
-					." form='recherche' size='$taille' value='$valeur'/></td>";
+
+				// On vérifie que la colonne en cours n'est aps masquée
+				if(!in_array($titres[$i], $this->mask)) {
+
+					//Determine le contenu du champs
+					$valeur = (isset($_GET['tabSelect'][$titres[$i]])? 
+						$_GET['tabSelect'][$titres[$i]] : null);
+					//Determine la taille du champs
+					$taille = min($types[$i]->len, $this->maxSizeInputs);
+					$ret .= '<td><input type="text" name="tabSelect['.$titres[$i].']"'
+						." form='recherche' size='$taille' value='$valeur'/></td>";
+				}
 			}
 			$ret .= "</tr>\n";
 		}
@@ -309,7 +359,14 @@ class ListTemplate {
 			foreach ($donnees as $ligne) {
 				//Gestion des classes
 				$classe = (($i % 2)? $this->class1 : $this->class2);
-				$ret .= '<tr'.(($classe == null)? '' : " class='$classe' ").'>';
+				$ret .= '<tr'.(($classe == null)? '' : " class='$classe' ");
+
+				// Utilisation du callback
+				if($this->rowCallback != null) {
+					$fct = $this->rowCallback;
+					$ret .= ' '.$fct($i, $ligne);
+				}
+				$ret .= '>';
 
 				//Construction des cellules colonne par colonne
 				$j = 0;
@@ -330,6 +387,13 @@ class ListTemplate {
 					}
 					$j++;
 				}
+
+				// Ajout des colonnes par callback
+				if($this->columnCallback != null) {
+					$fct = $this->columnCallback;
+					$ret .= $fct($i, $ligne, false);
+				}
+
 				$ret .= "</tr>\n";
 				$i++;
 			}
@@ -377,12 +441,15 @@ class ListTemplate {
 				$ret .= '<td><a href="'.self::creerUrlGET('lm_page', $nbPages).'">&gt;&gt;</td>';
 			}
 
-			$ret .= "</tr></table>\n</div>\n";
+			$ret .= "</tr></table></div></div>\n</div>\n";
 		}
 
 		// Ajout des scripts
 		$ret .= '<script type="text/javascript" src="'.LM_JS.'jquery-3.2.1.min.js"></script>'
 			."\n".'<script type="text/javascript" src="'.LM_JS.'listeManager.js"></script>'."\n";
+		// Ajout du css si appliqué
+		if($this->applyDefaultCSS)
+			$ret .= '<link rel="stylesheet" type="text/css" href="'.LM_CSS.'base.css">'."\n";
 
 		// Fin
 		return $ret;
@@ -444,6 +511,20 @@ class ListTemplate {
 		
 		$this->enableSearch = $valeur;
 	}
+
+	/**
+	 * Permet de changer les titres des colonnes de la liste
+	 * Le tableau à passer en paramètre est un tableau associatif où la clé correspond au nom de la colonne tel qu'il est restitué lors de la selection des données, associé au titre que vous souhaitez afficher
+	 * @param array le tableau des nouveaux titres
+	 * @return bool false si l'argument apssé n'est pas un tableau 
+	 */
+	public function setListTitles($array) {
+		if(!is_array($array))
+			return false;
+
+		$this->listTitles = $array;
+	}
+
 	
 	/**
 	 * Attribue les nouvelles classes HTML a appliquer une ligne sur deux dans la liste HTML
@@ -487,12 +568,12 @@ class ListTemplate {
 	}
 
 	/**
-	 * Définir un callback à utiliser dans le template.
+	 * Définir un callback à appeler dans chaque cellule de la liste.
 	 * Definit le callback (la fonction) qui sera executee pour chaque valeur lors de l'affichage des donnees dans les cellules du tableau. Cette fonction doit etre definie comme il suit :
-	 * * 3 parametres d'entree :
+	 * * 4 parametres d'entree :
 	 *    1. cellule : la valeur de l'element en cours
 	 *    2. colonne : le nom de la colonne en cours
-	 *    3. ligne   : le numero de la ligne en cours
+	 *    3. numLigne   : le numero de la ligne en cours
 	 *    4. ligne    : un array associatif contenant toutes les données de la ligne en cours
 	 * * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
 	 * @param string|null $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
@@ -505,6 +586,49 @@ class ListTemplate {
 		}
 		else {
 			$this->cellCallback = null;
+			return false;
+		}
+	}
+
+	/**
+	 * Définir un callback à appeler à la création de chaque ligne de la liste.
+	 * Ce callback sera appelé par le template à la création d'une nouvelle balise tr (balise ouvrante) et doit avoir pour caractéristiques :
+	 *  * 2 paramètres d'entrée :
+	 *    * 1. numero  : correspond au numéro de la ligne en cours
+	 *    * 2. donnees : array php contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau
+	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string).
+	 * @param string $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
+	 * @return boolean true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)
+	 */
+	public function setRowCallback($fonction=null){
+		if($fonction != null && function_exists($fonction)){
+			$this->rowCallback = $fonction;
+			return true;
+		}
+		else {
+			$this->rowCallback = null;
+			return false;
+		}
+	}
+
+	/**
+	 * Définir un callback pour rajouter manuellement des colonnes dans votre liste
+	 * Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque ligne de la liste. La fonction doit correspondre au format suivant
+	 *  * 3 paramètres d'entrée :
+	 *    * 1. numLigne  : int correspond au numéro de la ligne en cours
+	 *    * 2. donnees   : array contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
+	 *    * 3. estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon 
+	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string).
+	 * @param string $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
+	 * @return boolean true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)
+	 */
+	public function setColumnCallback($fonction=null){
+		if($fonction != null && function_exists($fonction)){
+			$this->columnCallback = $fonction;
+			return true;
+		}
+		else {
+			$this->columnCallback = null;
 			return false;
 		}
 	}
@@ -571,6 +695,31 @@ class ListTemplate {
 			return false;
 
 		$this->displayNbResults = $valeur;
+	}
+
+	/**
+	 * Définit si le template doit charger le fichier CSS par défaut et appliquer le style du template par déaut
+	 * Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver cette option et inclure votre propre fichier CSS
+	 * @param bool $valeur false pour desactiver, true pour activer
+	 * @return bool false si l'argument n'est pas un booleen
+	 */
+	public function applyDefaultCSS($valeur) {
+		if(!is_bool($valeur))
+			return false;
+
+		$this->applyDefaultCSS = $valeur;
+	}
+
+	/**
+	 * Définit la taille maximale des champs de saisie pour la recherche
+	 * @param int $valeur la nouvelle taille maximale des champs de saisie pour al recherche
+	 * @return bool false si l'argument est incorrect (pas un int, infèrieur à 0)
+	 */
+	public function setMaxSizeInputs($valeur) {
+		if($valeur != intval($valeur) || $valeur <= 0)
+			return false;
+
+		$this->maxSizeInputs = $valeur;
 	}
 
 			/*-****************

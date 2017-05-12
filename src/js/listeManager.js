@@ -104,7 +104,7 @@ else {
 --  APPLICAITON DES LISTENNERS
 -----------------------------------------------------*/
 $('a.masque').click(masquerColonnesOnClick);
-$('#boutons-options a.recherche').click(function (event) {
+$('#boutons-options a#btn-recherche').click(function (event) {
 	event.preventDefault();
 	afficherChampsRecherche(JSON.parse(sessionStorage.getItem('quest')) != true);
 });

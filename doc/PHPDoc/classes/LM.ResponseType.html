@@ -87,6 +87,14 @@
 
             <div class="nav-collapse">
                 <ul class="nav pull-right">
+                                        <li class="dropdown">
+                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
+                            API Documentation <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                                                        <li><a href="../namespaces/LM.html">\LM</a></li>
+                                                    </ul>
+                    </li>
                                         <li class="dropdown" id="charts-menu">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             Charts <b class="caret"></b>
@@ -106,7 +114,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">55</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">44</span>
                                 </a>
                             </li>
                             <li>
@@ -136,24 +144,40 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1292705140"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1825821693"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1292705140" class="accordion-body collapse in">
+            <div id="namespace-1825821693" class="accordion-body collapse in">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1591494542"></a>
+                                <a href="../namespaces/LM.html" style="margin-left: 30px; padding-left: 0">LM</a>
+            </div>
+            <div id="namespace-1591494542" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
                     <ul>
-                                                                                                    <li class="class"><a href="../classes/Cache.html">Cache</a></li>
-                                                    <li class="class"><a href="../classes/Database.html">Database</a></li>
-                                                    <li class="class"><a href="../classes/ListManager.html">ListManager</a></li>
-                                                    <li class="class"><a href="../classes/ListTemplate.html">ListTemplate</a></li>
-                                                    <li class="class"><a href="../classes/RequestResponse.html">RequestResponse</a></li>
-                                                    <li class="class"><a href="../classes/RequestType.html">RequestType</a></li>
-                                                    <li class="class"><a href="../classes/ResponseType.html">ResponseType</a></li>
-                                                    <li class="class"><a href="../classes/Session.html">Session</a></li>
-                                                    <li class="class"><a href="../classes/SQLRequest.html">SQLRequest</a></li>
+                                                                                                    <li class="class"><a href="../classes/LM.Database.html">Database</a></li>
+                                                    <li class="class"><a href="../classes/LM.ListManager.html">ListManager</a></li>
+                                                    <li class="class"><a href="../classes/LM.ListTemplate.html">ListTemplate</a></li>
+                                                    <li class="class"><a href="../classes/LM.RequestResponse.html">RequestResponse</a></li>
+                                                    <li class="class"><a href="../classes/LM.RequestType.html">RequestType</a></li>
+                                                    <li class="class"><a href="../classes/LM.ResponseType.html">ResponseType</a></li>
+                                                    <li class="class"><a href="../classes/LM.Session.html">Session</a></li>
+                                                    <li class="class"><a href="../classes/LM.SQLRequest.html">SQLRequest</a></li>
                                             </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
                 </div>
             </div>
         </div>
@@ -166,11 +190,11 @@
             <div class="row-fluid">
                 <div class="span8 content class">
                     <nav>
-                                                <a href="../namespaces/default.html">\</a> <i class="icon-level-up"></i>
+                                                <a href="../namespaces/LM.html">\LM</a> <i class="icon-level-up"></i>
                                             </nav>
                     <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
 
-                    <h1><small>\</small>ResponseType</h1>
+                    <h1><small>\LM</small>ResponseType</h1>
                     <p><em>Enumération des formats de réponse possible de ListManager
 Cette classe ne contient que des constantes exprimant le tyupe de données renvoyées par les méthodes *construct()* et *execute()* de la classe ListManager.</em></p>
                     <p>Les valeurs possibles sont :</p>
@@ -179,7 +203,7 @@ Cette classe ne contient que des constantes exprimant le tyupe de données renvo
 <li>ARRAY pour obtenir les resultats dans un array PHP (equivalent a PDOStaement::fetchAll())</li>
 <li>JSON pour obtenir les donnees dans un objet encode en JSON</li>
 <li>EXCEL pour obtenir les resultats dans une feuille de calcul Excel</li>
-<li>OBJET pour obtenir un objet stdClass</li>
+<li>OBJET pour obtenir un objet \stdClass</li>
 </ul>
                     
                                         
@@ -204,11 +228,11 @@ Cette classe ne contient que des constantes exprimant le tyupe de données renvo
                                                                     <em>No public properties found</em>
                                                             </section>
                             <section class="span4">
-                                                                    <a href="../classes/ResponseType.html#constant_OBJET" class="">OBJET</a><br />
-                                                                    <a href="../classes/ResponseType.html#constant_TABLEAU" class="">TABLEAU</a><br />
-                                                                    <a href="../classes/ResponseType.html#constant_EXCEL" class="">EXCEL</a><br />
-                                                                    <a href="../classes/ResponseType.html#constant_TEMPLATE" class="">TEMPLATE</a><br />
-                                                                    <a href="../classes/ResponseType.html#constant_JSON" class="">JSON</a><br />
+                                                                    <a href="../classes/LM.ResponseType.html#constant_OBJET" class="">OBJET</a><br />
+                                                                    <a href="../classes/LM.ResponseType.html#constant_TABLEAU" class="">TABLEAU</a><br />
+                                                                    <a href="../classes/LM.ResponseType.html#constant_EXCEL" class="">EXCEL</a><br />
+                                                                    <a href="../classes/LM.ResponseType.html#constant_TEMPLATE" class="">TEMPLATE</a><br />
+                                                                    <a href="../classes/LM.ResponseType.html#constant_JSON" class="">JSON</a><br />
                                                             </section>
                         </section>
                         <section class="row-fluid protected">
@@ -245,7 +269,7 @@ Cette classe ne contient que des constantes exprimant le tyupe de données renvo
                             <dd><div class="namespace-wrapper">Default</div></dd>
                                                 <dt>Class hierarchy</dt>
                             <dd class="hierarchy">
-                                                                                                                                                                    <div class="namespace-wrapper">\ResponseType</div>
+                                                                                                                                                                    <div class="namespace-wrapper">\LM\ResponseType</div>
                             </dd>
 
                         
@@ -404,6 +428,7 @@ Cette classe ne contient que des constantes exprimant le tyupe de données renvo
                                                         <h1><i class="icon-code"></i></h1>
                             <div>
                                 <ul>
+                                                                            <li><a href="../namespaces/LM.html">\LM</a></li>
                                                                     </ul>
                             </div>
                         </section>
@@ -431,7 +456,7 @@ Cette classe ne contient que des constantes exprimant le tyupe de données renvo
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on May 9th, 2017 at 11:53.
+                    on May 12th, 2017 at 08:56.
                 </section>
             </section>
         </section>

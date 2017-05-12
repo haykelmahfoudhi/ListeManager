@@ -36,5 +36,5 @@ function lm_autoLoader($name) {
 	}
 }
 
-spl_autoload_register('lm_autoLoader',false);
+spl_autoload_register('lm_autoLoader', false, true);
 ?>

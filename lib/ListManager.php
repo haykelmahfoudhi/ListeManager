@@ -182,7 +182,7 @@ class ListManager {
 	 * * false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données
 	 */
 	public function execute($request){
-
+		
 		// Gestion du parametre
 		if($request instanceof \LM\SQLRequest) {
 			$request->prepareForOracle($this->db->oracle());
@@ -352,7 +352,7 @@ class ListManager {
 	}
 
 	/**
-	 * Définit le nouveau masque à appliquer. =
+	 * Définit le nouveau masque à appliquer.
 	 * Le masque est un tableau contenant le nom des colonnes que vous ne souhaitez pas afficher dans la liste HTML
 	 * @var array $mask le nouveau masque à appliquer. Si null : aucun masque ne sera applqiué
 	 * @return bool false si le paramètre en entré n'est ni null, ni un array
@@ -389,6 +389,17 @@ class ListManager {
 	}
 
 	/**
+	 * Permet de changer les titres des colonnes de la liste
+	 * Le tableau à passer en paramètre est un tableau associatif où la clé correspond au nom de la colonne tel qu'il est restitué lors de la selection des données, associé au titre que vous souhaitez afficher
+	 * @param array le tableau des nouveaux titres
+	 * @return bool false si l'argument apssé n'est pas un tableau 
+	 */
+	public function setListTitles($array) {
+		return $this->template->setListTitles($array);
+	}
+
+
+	/**
 	 * Definit le tableau à utiliser pour filtrer les données à selectionner.
 	 * Ce tableau doit avoir pour format [nomColonne] => 'valeur filtre'. Pour le format des filtres veuillez consulter la doc de la methode *SQLRequeste->where()*.
 	 * Cette methode passe automatiqument a false l'attribut sur l'utilisation des variables GET.
@@ -422,12 +433,12 @@ class ListManager {
 	}
 
 	/**
-	 * Définir un callback à utiliser dans le template.
+	 * Définir un callback à appeler dans chaque cellule de la liste.
 	 * Definit le callback (la fonction) qui sera executee pour chaque valeur lors de l'affichage des donnees dans les cellules du tableau. Cette fonction doit etre definie comme il suit :
 	 * * 4 parametres d'entree :
-	 *    1. cellule  : la valeur de l'element en cours
-	 *    2. colonne  : le nom de la colonne en cours
-	 *    3. numLigne : le numero de la ligne en cours
+	 *    1. cellule : la valeur de l'element en cours
+	 *    2. colonne : le nom de la colonne en cours
+	 *    3. numLigne   : le numero de la ligne en cours
 	 *    4. ligne    : un array associatif contenant toutes les données de la ligne en cours
 	 * * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
 	 * @param string $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
@@ -437,6 +448,34 @@ class ListManager {
 		return $this->template->setCellCallback($fonction);
 	}
 
+	/**
+	 * Définir un callback à appeler à la création de chaque ligne de la liste.
+	 * Ce callback sera appelé par le template à la création d'une nouvelle balise tr (balise ouvrante) et doit avoir pour caractéristiques :
+	 *  * 2 paramètres d'entrée :
+	 *    * 1. numero  : correspond au numéro de la ligne en cours
+	 *    * 2. donnees : array php contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau
+	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
+	 * @param string $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
+	 * @return boolean true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)
+	 */
+	public function setRowCallback($fonction){
+		return $this->template->setRowCallback($fonction);
+	}
+
+	/**
+	 * Définir un callback pour rajouter manuellement des colonnes dans votre liste
+	 * Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque ligne de la liste. La fonction doit correspondre au format suivant
+	 *  * 3 paramètres d'entrée :
+	 *    * 1. numLigne  : int correspond au numéro de la ligne en cours
+	 *    * 2. donnees   : array contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
+	 *    * 3. estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon 
+	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string).
+	 * @param string $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
+	 * @return boolean true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)
+	 */
+	public function setColumnCallback($fonction){
+		return $this->template->setColumnCallback($fonction);
+	}
 
 	/**
 	 * Definit le nombre de resultats a afficher sur une page. Valeur par defaut = 50
@@ -468,6 +507,16 @@ class ListManager {
 		return $this->template->setMaxPagesDisplayed($valeur);
 	}
 
+
+	/**
+	 * Définit la taille maximale des champs de saisie pour la recherche
+	 * @param int $valeur la nouvelle taille maximale des champs de saisie pour al recherche
+	 * @return bool false si l'argument est incorrect (pas un int, infèrieur à 0)
+	 */
+	public function setMaxSizeInputs($valeur) {
+		return $this->template->setMaxSizeInputs($valeur);
+	}
+
 	/**
 	 * Définit si ListTemplate doit proposer l'export de données en format excel à l'utilisateur. Valeur apr défaut : true
 	 * @param bool $valeur : la nouvelle valeur à appliquer
@@ -487,37 +536,21 @@ class ListManager {
 		return $this->template->displayNbResults($valeur);
 	}
 
-
-			/*-****************
-			***   GETTERS   ***
-			******************/
-	
 	/**
-	 * 
-	 * @return ListTemplate l'objet template utilise par ListManager
+	 * Définit si le template doit charger le fichier CSS par défaut et appliquer le style du template par déaut
+	 * Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver cette option et inclure votre propre fichier CSS
+	 * @param bool $valeur false pour desactiver, true pour activer
+	 * @return bool false si l'argument n'est pas un booleen
 	 */
-	public function getTemplate() {
-		return $this->template;
-	}
-	
-	/**
-	 * 
-	 * @return array le tableau utilisé pour filtrer les données par colonne
-	 */
-	public function getTabSelect() {
-		return $this->tabSelect;
-	}
-	
-	/**
-	 * 
-	 * @return string le numéro des colonnes utilisées pour trier les données, séparés par par des virgules. Une colonne dont le numéro est négatif représente le tri décroissant.
-	 */
-	public function getOrderBy() {
-		return $this->orderBy;
+	public function applyDefaultCSS($valeur) {
+		return $this->template->applyDefaultCSS($valeur);
 	}
 
 	/**
-	 *
+	 * Définit si ListManager doit afficher ou non les messages d'erreur générés.
+	 * Dans les deux cas vous pourrez récupérer tous els messages d'erreur produits grâce a la méthode getErrorMessages
+	 * @param bool $valeur la nouvelle valeur à appliquer pour la verbosité
+	 * @return bool false si l'argument n'est pas un booléen
 	 */
 	public function verbose($valeur) {
 		if(!is_bool($valeur))
@@ -526,8 +559,34 @@ class ListManager {
 		$this->verbose = $valeur;
 	}
 
+
+			/*-****************
+			***   GETTERS   ***
+			******************/
+	
 	/**
-	 *
+	 * @return ListTemplate l'objet template utilise par ListManager
+	 */
+	public function getTemplate() {
+		return $this->template;
+	}
+	
+	/**
+	 * @return array le tableau utilisé pour filtrer les données par colonne
+	 */
+	public function getTabSelect() {
+		return $this->tabSelect;
+	}
+	
+	/**
+	 * @return string le numéro des colonnes utilisées pour trier les données, séparés par par des virgules. Une colonne dont le numéro est négatif représente le tri décroissant.
+	 */
+	public function getOrderBy() {
+		return $this->orderBy;
+	}
+
+	/**
+	 * @return array l'ensemble des messages d'erreur générés par cet objet
 	 */
 	public function getErrorMessages() {
 		return $this->messages;
@@ -549,7 +608,7 @@ class ListManager {
 			return false;
 
 		// Création de l'objet PHPExcel
-		$phpExcel = new PHPExcel();
+		$phpExcel = new \PHPExcel();
 		$phpExcel->setActiveSheetIndex(0);
 
 		// Ajout des propriétés
@@ -577,7 +636,7 @@ class ListManager {
 	 					'size' => 13,
 	 				),
 	 				'fill' => array(
-	 					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+	 					'type' => \PHPExcel_Style_Fill::FILL_SOLID,
 	 					'color' => array('rgb' => 'CCCCCC'),
 	 				),
 	 			));
@@ -607,11 +666,11 @@ class ListManager {
 		
 		// Ecriture du fichier
 		try {
-			$writer = PHPExcel_IOFactory::createWriter($phpExcel, 'Excel2007');
+			$writer = \PHPExcel_IOFactory::createWriter($phpExcel, 'Excel2007');
 			$chemin = LM_XLS.'Liste LM-'.uniqid().'.xlsx';
 			$writer->save($chemin);
 		}
-		catch (Exception $e) {
+		catch (\Exception $e) {
 			if($this->verbose)
 				echo "<br><b>[!]</b>ListManager::generateExcel() erreur création excel : ".$e->getMessage();
 			return null;

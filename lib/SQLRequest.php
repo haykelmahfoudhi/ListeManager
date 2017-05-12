@@ -241,8 +241,11 @@ class SQLRequest {
 				//Ajout du order by
 				if(count($this->orderByArray) > 0){
 					$ret .= ' ORDER BY ';
-					foreach ($this->orderByArray as $num) {
-						$ret .= abs($num).(($num > 0)?'':' DESC ').',';
+					foreach ($this->orderByArray as $colonne) {
+						if(is_numeric($colonne))
+							$ret .= abs($colonne).(($colonne > 0)?'':' DESC ').',';
+						else 
+							$ret .= $colonne.',';
 					}
 					$ret = substr($ret, 0, strlen($ret) - 1);
 				}
@@ -255,6 +258,7 @@ class SQLRequest {
 				}
 			}
 		}
+		echo $ret;
 		return $ret.((!$this->forOracle && (strpos($ret, ';') === false))? ';' : '');
 	}
 
@@ -325,6 +329,7 @@ class SQLRequest {
 		//Traitement bloc WHERE & HAVING & LIMIT
 		$reWhere = '/^([\s\S]+)(\s+WHERE\s+)([\s\S]+)$/i';
 		$reHaving = '/^([\s\S]+)(\s+HAVING\s+)([\s\S]+)$/i';
+		$reOrderBy = '/^([\s\S]+)(\s+ORDER\s+BY\s+)([\s\S]+)$/i';
 		$reLimit = '/^([\s\S]+)(\s+LIMIT\s+)([0-9]+)([\s\S]*)$/i';
 		if(preg_match($reLimit, $this->requestBasis, $tabMatch) === 1){
 			$this->requestBasis = $tabMatch[1];
@@ -334,6 +339,10 @@ class SQLRequest {
 		if(preg_match($reHaving, $this->requestBasis, $tabMatch) === 1){
 			$this->requestBasis = $tabMatch[1];
 			$this->havingBlock = $tabMatch[3];
+		}
+		if(preg_match($reOrderBy, $this->requestBasis, $tabMatch) === 1){
+			$this->requestBasis = $tabMatch[1];
+			$this->orderByArray[0] = $tabMatch[3];
 		}
 		if(preg_match($reWhere, $this->requestBasis, $tabMatch) === 1){
 			$this->requestBasis = $tabMatch[1];

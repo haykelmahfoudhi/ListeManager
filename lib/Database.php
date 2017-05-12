@@ -77,6 +77,8 @@ class Database {
 	 * @param string $dsn le DSN (voir le manuel PHP concernant **PDO**)
 	 * @param string $login le nom d'utilisateur pour la connexion
 	 * @param string $passwd son mot de passe
+	 * @param string $etiquette l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont
+	 * utilisees en meme temps dans l'application
 	 */
 	private function __construct($dsn, $login, $passwd, $label) {
 		$this->label = $label;
@@ -90,7 +92,7 @@ class Database {
 			else 
 				$this->pdo = new \PDO($this->dsn, $this->login, $this->passwd);
 		}
-		catch (Exception $e) {
+		catch (\Exception $e) {
 			$this->pdo = null;
 			self::$errorMessages[] = "<br><b>[!]</b>Connection a la base de donnees impossible (etiquette = '$label') :\n".$e->getMessage()
 				.'<br>';
