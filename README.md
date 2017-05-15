@@ -7,7 +7,7 @@ Mecaprotec utilise à l'heure actuelle une librairie de fonctions PHP pour la r�
 
 ## Mission
 
-Vous pouvez consulter la page **Wiki** du projet dans [le menu Wiki de ce repository](wikis/home)
+Vous pouvez consulter la page **Wiki** du projet dans le menu Wiki de ce repository, ou en [cliquant sur ce lien](http://list-manager.torchpad.com/)
 
 La mission ici sera donc de refondre cette librairie en la rendant plus facile à manipuler pour le développeur. La nouvelle librairie PHPLib, renommée ListManager, consistera en 2 classes principales :
 * Un objet **Database** basé sur le design pattern multiton, utilisant PDO et un certain nombre de drivers pour permettre la connection vers n'importe quel type de base de données
@@ -23,7 +23,7 @@ La mission ici sera donc de refondre cette librairie en la rendant plus facile �
             * modification des messages d'erreur / liste vide
         * Activation / désactivation d'un système de cache pour la navigation entre les pages pour les requêtes SQL lourdes *(à venir...)*
 A voir pour la suite ... 
-* [?] Un patron MVC léger facilement implémentable pour créer rapidement un petit ensemble de pages dans un site web dynamique.
+[?] Une API JSON
 
 ---------------------------------------------------------------
 
@@ -33,7 +33,7 @@ A voir pour la suite ...
         [o] Connection & interactions avec la BD
             [x] Multiton Database
             [x] Drivers Oracle / Postgre
-        [o] Fonctionnalités liste
+        [x] Fonctionnalités liste
             [x] Masquage des colonnes / affichage cahmps saisie en JS
             [x] Réécriture des ORDER BY
             [x] Réécriture clauses where
@@ -59,13 +59,11 @@ A voir pour la suite ...
 
 ## Inclure ListManager à votre projet
 
-Pour utiliser les fonctionnalités de ListManager il faut tout d'abord inclure la bibliothèque à votre projet PHP. Pour se faire 2 méthodes sont possibles : 
-* **Vous n'utilisez pas autoload** : il vous suffira d'inclure le fichier "includes.php" à votre projet, de manière à ce qu'il soit accessible partout dans vote projet.
-* **Vous utilisez autoload** : il vous faudra inclure le fichier "includes.php" ainsi que penser à inclure le dossier contenant l'ensemble des classes de ListManager et représenté par la constante 'LM_LIB' à votre fonction autoload.
-
+Pour utiliser les fonctionnalités de ListManager il faut l'inclure à votre projet PHP, en clonant ce repo à al racine de votre projet par exemple. Ensuite il faudra définir la constante **LM_ROOT** qui correspond au chemin relatif vers la racine de ListManager, et inclure le fichier includes comme ceci :
 ```php
 <?php
-require PATH_TO_LISTMANAGER.'includes.php';
+define('LM_ROOT', 'path/to/ListManager/');
+require LM_ROOT.'includes.php';
 ?>
 ```
 

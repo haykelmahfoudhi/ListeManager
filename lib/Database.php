@@ -148,7 +148,7 @@ class Database {
 			else 
 				return new RequestResponse($statement);
 		}
-		catch(Exception $e) {
+		catch(\Exception $e) {
 			self::$errorMessages[] = "<br><b>Database::execute()</b>(etiquette = '$this->label') : ".$e->getMessage();
 			return new RequestResponse(null, true, $e->getMessage());
 		}

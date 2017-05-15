@@ -92,7 +92,7 @@ class Database {
 			else 
 				$this->pdo = new \PDO($this->dsn, $this->login, $this->passwd);
 		}
-		catch (Exception $e) {
+		catch (\Exception $e) {
 			$this->pdo = null;
 			self::$errorMessages[] = "<br><b>[!]</b>Connection a la base de donnees impossible (etiquette = '$label') :\n".$e->getMessage()
 				.'<br>';
@@ -148,7 +148,7 @@ class Database {
 			else 
 				return new RequestResponse($statement);
 		}
-		catch(Exception $e) {
+		catch(\Exception $e) {
 			self::$errorMessages[] = "<br><b>Database::execute()</b>(etiquette = '$this->label') : ".$e->getMessage();
 			return new RequestResponse(null, true, $e->getMessage());
 		}

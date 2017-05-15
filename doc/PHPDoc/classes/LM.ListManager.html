@@ -144,19 +144,19 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1446349857"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-775052493"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1446349857" class="accordion-body collapse in">
+            <div id="namespace-775052493" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-336954409"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-333697487"></a>
                                 <a href="../namespaces/LM.html" style="margin-left: 30px; padding-left: 0">LM</a>
             </div>
-            <div id="namespace-336954409" class="accordion-body collapse ">
+            <div id="namespace-333697487" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -203,8 +203,8 @@ ListManager possède un comportement de base :</p>
 <li>Utilisation d'une requête SQL de base permettant la sélection</li>
 <li>Utilisation des données situées dans les variables GET de l'url pour modifier la requete SQL de base, à savoir
 <ul>
-<li>'tabSelect' : permet de filtrer les données par colonnes (se rajoute à la clause WHERE de la requete)</li>
-<li>'orderBy' : permet de trier els données par ordre croissant / décroissant selon une colonne (ajoute le numéro de la colonne à la clause ORDER BY)</li>
+<li>'lm_tabSelect' : permet de filtrer les données par colonnes (se rajoute à la clause WHERE de la requete)</li>
+<li>'lm_orderBy' : permet de trier els données par ordre croissant / décroissant selon une colonne (ajoute le numéro de la colonne à la clause ORDER BY)</li>
 </ul></li>
 <li>L'exécution de la requête SQL</li>
 <li>La mise en forme des données dans une liste HTML dans un template correpsondant à la classe ListTemplate</li>
@@ -238,14 +238,20 @@ ListManager possède un comportement de base :</p>
                                                                     <a href="../classes/LM.ListManager.html#method_setMask" class="">setMask()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_useGET" class="">useGET()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_setRowsClasses" class="">setRowsClasses()</a><br />
+                                                                    <a href="../classes/LM.ListManager.html#method_setListTitles" class="">setListTitles()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_setTabSelect" class="">setTabSelect()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_setOrderBy" class="">setOrderBy()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_enableSearch" class="">enableSearch()</a><br />
+                                                                    <a href="../classes/LM.ListManager.html#method_enableOrderBy" class="">enableOrderBy()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_setCellCallback" class="">setCellCallback()</a><br />
+                                                                    <a href="../classes/LM.ListManager.html#method_setRowCallback" class="">setRowCallback()</a><br />
+                                                                    <a href="../classes/LM.ListManager.html#method_setColumnCallback" class="">setColumnCallback()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_setNbResultsPerPage" class="">setNbResultsPerPage()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_useCache" class="">useCache()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_setMaxPagesDisplayed" class="">setMaxPagesDisplayed()</a><br />
+                                                                    <a href="../classes/LM.ListManager.html#method_setMaxSizeInputs" class="">setMaxSizeInputs()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_enableExcel" class="">enableExcel()</a><br />
+                                                                    <a href="../classes/LM.ListManager.html#method_enableMask" class="">enableMask()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_displayNbResults" class="">displayNbResults()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_applyDefaultCSS" class="">applyDefaultCSS()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_verbose" class="">verbose()</a><br />
@@ -281,6 +287,8 @@ ListManager possède un comportement de base :</p>
                                                                     <a href="../classes/LM.ListManager.html#property_template" class="">$template</a><br />
                                                                     <a href="../classes/LM.ListManager.html#property_db" class="">$db</a><br />
                                                                     <a href="../classes/LM.ListManager.html#property_useGET" class="">$useGET</a><br />
+                                                                    <a href="../classes/LM.ListManager.html#property_enableSearch" class="">$enableSearch</a><br />
+                                                                    <a href="../classes/LM.ListManager.html#property_enableOrderBy" class="">$enableOrderBy</a><br />
                                                                     <a href="../classes/LM.ListManager.html#property_tabSelect" class="">$tabSelect</a><br />
                                                                     <a href="../classes/LM.ListManager.html#property_orderBy" class="">$orderBy</a><br />
                                                                     <a href="../classes/LM.ListManager.html#property_messages" class="">$messages</a><br />
@@ -434,6 +442,54 @@ Valeur par défaut : false. Si cette valeur est passée à true, il vous sera po
 
                                     <div class="row-fluid">
         <div class="span8 content class">
+            <a id="property_enableSearch" name="property_enableSearch" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$enableSearch</h3>
+                <pre class="signature">$enableSearch : boolean</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                boolean
+                &mdash; specifie si la fonction recherche est diponible ou non. N&#039;a d&#039;effets que si vous construisez construct avec le template                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_enableOrderBy" name="property_enableOrderBy" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$enableOrderBy</h3>
+                <pre class="signature">$enableOrderBy : boolean</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                boolean
+                &mdash; spécifie si ListManger autorise le trie par colonne en modifiant la clause ORDER BY des requetes. N&#039;a d&#039;effet que si vous utilisez la méthode construct                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
             <a id="property_tabSelect" name="property_tabSelect" class="anchor"></a>
             <article class="property">
                 <h3 class="private ">$tabSelect</h3>
@@ -443,7 +499,7 @@ Valeur par défaut : false. Si cette valeur est passée à true, il vous sera po
 
                                 <h4>Type</h4>
                 array
-                &mdash; correpsond au tabelau $_GET[&#039;tabSelect&#039;]. Ce tableau doit avoir pour format [nomColonne] =&gt; &#039;valeur filtre&#039;
+                &mdash; correpsond au tabelau $_GET[&#039;lm_tabSelect&#039;]. Ce tableau doit avoir pour format [nomColonne] =&gt; &#039;valeur filtre&#039;
 A utiliser si vous ne souhaitez pas utiliser les variables GET pour filtrer les données par colonne.                            </article>
         </div>
         <aside class="span4 detailsbar">
@@ -468,7 +524,7 @@ A utiliser si vous ne souhaitez pas utiliser les variables GET pour filtrer les 
 
                                 <h4>Type</h4>
                 string
-                &mdash; correspond à l&#039;entrée $_GET[&#039;orderBy&#039;]. Liste les numéro de colonnes pour la clause ORDER BY spéraées par une virgule.
+                &mdash; correspond à l&#039;entrée $_GET[&#039;lm_orderBy&#039;]. Liste les numéro de colonnes pour la clause ORDER BY spéraées par une virgule.
 A utiliser si vous ne souhaitez pas passer par la variable GET pour trier les données                            </article>
         </div>
         <aside class="span4 detailsbar">
@@ -1005,6 +1061,44 @@ Par défaut le type de réponse est TEMPLATE. Vous pouvez le changer en indiquan
 
                                     <div class="row-fluid">
         <div class="span8 content class">
+            <a id="method_setListTitles" name="method_setListTitles" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setListTitles()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setListTitles(  <span class="argument">$array</span>) : boolean</pre>
+                <p><em>Permet de changer les titres des colonnes de la liste
+Le tableau à passer en paramètre est un tableau associatif où la clé correspond au nom de la colonne tel qu&#039;il est restitué lors de la selection des données, associé au titre que vous souhaitez afficher</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td></td>
+                                <td>$array </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>false si l'argument apssé n'est pas un tableau</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
             <a id="method_setTabSelect" name="method_setTabSelect" class="anchor"></a>
             <article class="method">
                 <h3 class="public ">setTabSelect()</h3>
@@ -1111,23 +1205,156 @@ Cette methode passe automatiqument a false l'attribut sur l'utilisation des vari
 
                                     <div class="row-fluid">
         <div class="span8 content class">
+            <a id="method_enableOrderBy" name="method_enableOrderBy" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">enableOrderBy()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">enableOrderBy(boolean  <span class="argument">$valeur</span>) : false</pre>
+                <p><em>Définit si l&#039;option de tri par colonne est acitvée ou non pour cette liste. Si désactivée, l&#039;utilisateur ne pourra plus cliquer sur les colonnes pour trier</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$valeur </td>
+                                <td><p>valeur par defaut : true</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    false
+                                            &mdash; <p>si la valeur spécifié n'est pas un booléen</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
             <a id="method_setCellCallback" name="method_setCellCallback" class="anchor"></a>
             <article class="method">
                 <h3 class="public ">setCellCallback()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">setCellCallback(string  <span class="argument">$fonction</span>) : boolean</pre>
-                <p><em>Définir un callback à utiliser dans le template.</em></p>
+                <p><em>Définir un callback à appeler dans chaque cellule de la liste.</em></p>
                 <p>Definit le callback (la fonction) qui sera executee pour chaque valeur lors de l'affichage des donnees dans les cellules du tableau. Cette fonction doit etre definie comme il suit :</p>
 <ul>
 <li>4 parametres d'entree :
 <ol>
-<li>cellule  : la valeur de l'element en cours</li>
-<li>colonne  : le nom de la colonne en cours</li>
-<li>numLigne : le numero de la ligne en cours</li>
+<li>cellule : la valeur de l'element en cours</li>
+<li>colonne : le nom de la colonne en cours</li>
+<li>numLigne   : le numero de la ligne en cours</li>
 <li>ligne    : un array associatif contenant toutes les données de la ligne en cours</li>
 </ol></li>
 <li>valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false</li>
 </ul>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$fonction </td>
+                                <td><p>le nom du callback a utiliser, null si aucun. Valeur par defaut : null</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setRowCallback" name="method_setRowCallback" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setRowCallback()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setRowCallback(string  <span class="argument">$fonction</span>) : boolean</pre>
+                <p><em>Définir un callback à appeler à la création de chaque ligne de la liste.</em></p>
+                <p>Ce callback sera appelé par le template à la création d'une nouvelle balise tr (balise ouvrante) et doit avoir pour caractéristiques :</p>
+<ul>
+<li>2 paramètres d'entrée :
+<ul>
+<li>
+<ol>
+<li>numero  : correspond au numéro de la ligne en cours</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>donnees : array php contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau</li>
+</ol>
+</li>
+</ul></li>
+<li>valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false</li>
+</ul>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$fonction </td>
+                                <td><p>le nom du callback a utiliser, null si aucun. Valeur par defaut : null</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setColumnCallback" name="method_setColumnCallback" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setColumnCallback()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setColumnCallback(string  <span class="argument">$fonction</span>) : boolean</pre>
+                <p><em>Définir un callback pour rajouter manuellement des colonnes dans votre liste
+Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque ligne de la liste. La fonction doit correspondre au format suivant
+ * 3 paramètres d&#039;entrée :
+   * 1. numLigne  : int correspond au numéro de la ligne en cours
+   * 2. donnees   : array contenant l&#039;ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
+   * 3. estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon
+ * valeur de retour de type string (ou du moins un type qui peut être transformé en string).</em></p>
+                
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
@@ -1264,12 +1491,86 @@ la navigation entre les pages de la liste</em></p>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
+            <a id="method_setMaxSizeInputs" name="method_setMaxSizeInputs" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setMaxSizeInputs()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setMaxSizeInputs(integer  <span class="argument">$valeur</span>) : boolean</pre>
+                <p><em>Définit la taille maximale des champs de saisie pour la recherche</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$valeur </td>
+                                <td><p>la nouvelle taille maximale des champs de saisie pour al recherche</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>false si l'argument est incorrect (pas un int, infèrieur à 0)</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
             <a id="method_enableExcel" name="method_enableExcel" class="anchor"></a>
             <article class="method">
                 <h3 class="public ">enableExcel()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">enableExcel(boolean  <span class="argument">$valeur</span>) : boolean</pre>
                 <p><em>Définit si ListTemplate doit proposer l&#039;export de données en format excel à l&#039;utilisateur. Valeur apr défaut : true</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$valeur </td>
+                                <td><p>: la nouvelle valeur à appliquer</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>false si le paramètre n'est aps un booléen</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_enableMask" name="method_enableMask" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">enableMask()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">enableMask(boolean  <span class="argument">$valeur</span>) : boolean</pre>
+                <p><em>Définit si le template propose la fonctionnalité de masquage des colonnes</em></p>
                 
 
                                     <h4>Parameters</h4>
@@ -1614,7 +1915,7 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on May 12th, 2017 at 08:56.
+                    on May 15th, 2017 at 17:27.
                 </section>
             </section>
         </section>

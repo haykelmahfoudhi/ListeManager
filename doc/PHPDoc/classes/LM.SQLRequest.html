@@ -144,19 +144,19 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1254684802"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1669444767"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1254684802" class="accordion-body collapse in">
+            <div id="namespace-1669444767" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-703472936"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-42326197"></a>
                                 <a href="../namespaces/LM.html" style="margin-left: 30px; padding-left: 0">LM</a>
             </div>
-            <div id="namespace-703472936" class="accordion-body collapse ">
+            <div id="namespace-42326197" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -605,7 +605,7 @@ La condition '!' est traduite par 'NOT NULL'</li>
             <article class="method">
                 <h3 class="public ">orderBy()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">orderBy(mixed  <span class="argument">$numColonne</span>) : boolean</pre>
+                <pre class="signature" style="margin-right: 54px;">orderBy(mixed  <span class="argument">$nomColonne</span>) : boolean</pre>
                 <p><em>Ajoute une ou plusieurs colonnes au bloc order by de la requete</em></p>
                 
 
@@ -613,17 +613,19 @@ La condition '!' est traduite par 'NOT NULL'</li>
                     <table class="table table-condensed table-hover">
                                                     <tr>
                                 <td>mixed</td>
-                                <td>$numColonne </td>
-                                <td><p>: correpsond numéro de la (ou des) colonne(s) à ajouter au group by.
-Pour ajouter plusieurs colonnes ce paramèttre doit etre un array, sinon c'est un int.
-Pour classer la colonnes par 'DESC' le numéro de colonne doit être négatif.</p></td>
+                                <td>$nomColonne </td>
+                                <td><p>: correpsond au nom / numéro de la (ou des) colonne(s) à ajouter au group by :</p>
+<ul>
+<li>Pour ajouter plusieurs colonnes ce paramèttre doit etre un array, sinon c'est un int.</li>
+<li>Pour classer la colonnes par 'DESC' le nom ou numéro doit commencer par '-'.</li>
+</ul></td>
                             </tr>
                                             </table>
                 
                 
                                     <h4>Returns</h4>
                     boolean
-                                            &mdash; <p>faux si le type de requete n'est pas SELECT ou si le paramètre $numColonne est vide.</p>
+                                            &mdash; <p>faux si le type de requete n'est pas SELECT ou si le paramètre $nomColonne est vide.</p>
                                     				
                             </article>
         </div>
@@ -930,7 +932,7 @@ Actualise les blocs where et having si necessaire. A appler dans le constructeur
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on May 12th, 2017 at 08:56.
+                    on May 15th, 2017 at 17:27.
                 </section>
             </section>
         </section>

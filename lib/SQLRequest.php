@@ -159,42 +159,40 @@ class SQLRequest {
 
 	/**
 	* Ajoute une ou plusieurs colonnes au bloc order by de la requete
-	* @param mixed $numColonne : correpsond numéro de la (ou des) colonne(s) à ajouter au group by.
-	*	Pour ajouter plusieurs colonnes ce paramèttre doit etre un array, sinon c'est un int.
-	*	Pour classer la colonnes par 'DESC' le numéro de colonne doit être négatif.
-	* @return boolean faux si le type de requete n'est pas SELECT ou si le paramètre $numColonne est vide.
+	* @param mixed $nomColonne : correpsond au nom / numéro de la (ou des) colonne(s) à ajouter au group by :
+	*  * Pour ajouter plusieurs colonnes ce paramèttre doit etre un array, sinon c'est un int.
+	*  * Pour classer la colonnes par 'DESC' le nom ou numéro doit commencer par '-'.
+	* @return boolean faux si le type de requete n'est pas SELECT ou si le paramètre $nomColonne est vide.
 	*/
-	public function orderBy($numColonne){
+	public function orderBy($nomColonne){
 		//Vérification du type de requete
 		if($this->requestType == RequestType::SELECT){
 
 			//Si $numColonne est un tableau
-			if(is_array($numColonne)){
+			if(is_array($nomColonne)){
 				// Suppression des colonnes déjà existantes
-				foreach ($numColonne as $val)
-						$negColonne[] = -1 * $val;
-				$orderBy = array_diff($this->orderByArray, $numColonne, $negColonne);
+				foreach ($nomColonne as $val)
+					$negColonne[] = "-$val";
+				$orderBy = array_diff($this->orderByArray, $nomColonne, $negColonne);
 				
-				foreach (array_reverse($numColonne) as $col){
-					if(intval($col) != 0)
-						array_unshift($orderBy, intval($col));
+				foreach (array_reverse($nomColonne) as $col){
+					array_unshift($orderBy, $col);
 				}
 				$this->orderByArray = array_unique($orderBy);
 			}
 
-			//Sinon si c'est un int
+			//Sinon si c'est un nom de colonne / int
 			else {
-				$numColonne = intval($numColonne);
-				if($numColonne == 0)
+				if(strlen($nomColonne) == 0)
 					return false;
 
 				//Suppression de la valeur existante
-				if(($key = array_search($numColonne, $this->orderByArray)) != false
-					|| ($key = array_search(-$numColonne, $this->orderByArray)) != false){
+				if(($key = array_search($nomColonne, $this->orderByArray)) != false
+					|| ($key = array_search(-$nomColonne, $this->orderByArray)) != false){
 					unset($this->orderByArray[$key]);
 				}
 				// Ajout de la colonne en début
-				array_unshift($this->orderByArray, $numColonne);
+				array_unshift($this->orderByArray, $nomColonne);
 			}
 			return true;
 		}
@@ -245,7 +243,7 @@ class SQLRequest {
 						if(is_numeric($colonne))
 							$ret .= abs($colonne).(($colonne > 0)?'':' DESC ').',';
 						else 
-							$ret .= $colonne.',';
+							$ret .= (($colonne[0] == '-')? substr($colonne, 1).' DESC': $colonne).',';
 					}
 					$ret = substr($ret, 0, strlen($ret) - 1);
 				}
@@ -258,7 +256,6 @@ class SQLRequest {
 				}
 			}
 		}
-		echo $ret;
 		return $ret.((!$this->forOracle && (strpos($ret, ';') === false))? ';' : '');
 	}
 

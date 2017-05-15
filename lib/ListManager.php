@@ -33,8 +33,8 @@ namespace LM;
  * * Connection à une base de données, ou utilisation d'une base de données particulière de l'applicaiton en spécifiant son étiquette (cf. la doc de l'objet Database)
  * * Utilisation d'une requête SQL de base permettant la sélection
  * * Utilisation des données situées dans les variables GET de l'url pour modifier la requete SQL de base, à savoir
- *   * 'tabSelect' : permet de filtrer les données par colonnes (se rajoute à la clause WHERE de la requete)
- *   * 'orderBy' : permet de trier els données par ordre croissant / décroissant selon une colonne (ajoute le numéro de la colonne à la clause ORDER BY)
+ *   * 'lm_tabSelect' : permet de filtrer les données par colonnes (se rajoute à la clause WHERE de la requete)
+ *   * 'lm_orderBy' : permet de trier els données par ordre croissant / décroissant selon une colonne (ajoute le numéro de la colonne à la clause ORDER BY)
  * * L'exécution de la requête SQL
  * * La mise en forme des données dans une liste HTML dans un template correpsondant à la classe ListTemplate
  * 
@@ -67,12 +67,20 @@ class ListManager {
 	 */
 	private $useGET;
 	/**
-	* @var array $tabSelect correpsond au tabelau $_GET['tabSelect']. Ce tableau doit avoir pour format [nomColonne] => 'valeur filtre'
+	 * @var boolean specifie si la fonction recherche est diponible ou non. N'a d'effets que si vous construisez construct avec le template
+	 */
+	private $enableSearch;
+	/**
+	 * @var boolean spécifie si ListManger autorise le trie par colonne en modifiant la clause ORDER BY des requetes. N'a d'effet que si vous utilisez la méthode construct
+	 */
+	private $enableOrderBy;
+	/**
+	* @var array $tabSelect correpsond au tabelau $_GET['lm_tabSelect']. Ce tableau doit avoir pour format [nomColonne] => 'valeur filtre'
 	* A utiliser si vous ne souhaitez pas utiliser les variables GET pour filtrer les données par colonne.
 	*/
 	private $tabSelect;
 	/**
-	* @var string $orderBy correspond à l'entrée $_GET['orderBy']. Liste les numéro de colonnes pour la clause ORDER BY spéraées par une virgule.
+	* @var string $orderBy correspond à l'entrée $_GET['lm_orderBy']. Liste les numéro de colonnes pour la clause ORDER BY spéraées par une virgule.
 	* A utiliser si vous ne souhaitez pas passer par la variable GET pour trier les données
 	*/
 	private $orderBy;
@@ -104,10 +112,12 @@ class ListManager {
 		$this->responseType = \LM\ResponseType::TEMPLATE;
 		$this->template = new \LM\ListTemplate();
 		$this->useGET = true;
-		$this->tabSelect = null;
+		$this->enableSearch = true;
+		$this->enableOrderBy = true;
+		$this->tabSelect = array();
 		$this->orderBy = null;
 		$this->recherche = true;
-		$this->mask = null;
+		$this->mask = array();
 		$this->messages = array();
 		$this->verbose = true;
 		$this->setDatabase($db);
@@ -141,9 +151,9 @@ class ListManager {
 		if($this->useGET){
 			
 			// Conditions (where)
-			if(isset($_GET['tabSelect'])){
+			if($this->enableSearch && isset($_GET['lm_tabSelect'])){
 				$tabWhere = array();
-				foreach ($_GET['tabSelect'] as $titre => $valeur) {
+				foreach ($_GET['lm_tabSelect'] as $titre => $valeur) {
 					if(strlen($valeur) > 0)
 						$tabWhere[$titre] = $valeur;
 				}
@@ -152,17 +162,17 @@ class ListManager {
 			}
 			
 			// Tri (Order By)
-			if(isset($_GET['orderBy'])){
-				$requete->orderBy(explode(',', $_GET['orderBy']));
+			if($this->enableOrderBy && isset($_GET['lm_orderBy'])){
+				$requete->orderBy(explode(',', $_GET['lm_orderBy']));
 			}
 
 			// Excel
-			if(isset($_GET['excel'])){
+			if(isset($_GET['lm_excel'])){
 				$this->setResponseType(\LM\ResponseType::EXCEL);
 			}
 		}
 		else {
-			if($this->tabSelect != null)	
+			if($this->enableSearch && $this->tabSelect != null)	
 				$requete->where($this->tabSelect);
 			if($this->orderBy != null)	
 				$requete->orderBy($this->orderBy);
@@ -211,11 +221,25 @@ class ListManager {
 			return $reponse;
 
 			case \LM\ResponseType::TABLEAU:
-				if($reponse->error())
+				if($reponse->error()) {
+					$this->messages[] = $reponse->getErrorMessage();
 					return null;
+				}
 				else {
-					while(($ligne = $reponse->nextLine()) != null)
-						$donnees[] = $ligne;
+					//Application du mask
+					if(count($this->mask) > 0 || $this->db->oracle()) {
+						while(($ligne = $reponse->nextLine()) != null) {
+							$aInserer = array();
+							foreach ($ligne as $colonne => $valeur) {
+								if(!in_array($colonne, $this->mask))
+									$aInserer[$colonne] = $valeur;
+							}
+							$donnees[] = $aInserer;
+						}
+					}
+					else {
+						$donnees = $reponse->dataList();
+					}
 					return $donnees;
 				}
 
@@ -247,9 +271,22 @@ class ListManager {
 				if($ret->error){
 					$ret->data = null;
 					$ret->errorMessage = $reponse->getErrorMessage();
+					$this->messages[] = $ret->errorMessage;
 				}
 				else{
-					$ret->data = $reponse->dataList();
+					// Applicaiton du mask
+					if(count($this->mask) > 0 || $this->db->oracle()) {
+						while (($ligne = $reponse->nextLine()) != null) {
+							$aInserer = array();
+							foreach ($ligne as $colonne => $valeur) {
+								if(!in_array($colonne, $this->mask))
+									$aInserer[$colonne] = $valeur;
+							}
+							$ret->data[] = $aInserer;
+						}
+					}
+					else
+						$ret->data = $reponse->dataList();
 				}
 			return json_encode($ret);
 
@@ -258,6 +295,10 @@ class ListManager {
 				// Utilisation du masque
 				if(count($this->mask) > 0)
 					$this->template->setMask($this->mask);
+
+				// Activation de la recehrche
+				$this->template->enableSearch($this->enableSearch);
+				$this->template->enableOrderBy($this->enableOrderBy);
 				return $this->template->construct($reponse);
 		}
 
@@ -429,7 +470,19 @@ class ListManager {
 		if(!is_bool($valeur))
 			return false;
 
-		$this->template->enableSearch($valeur);
+		$this->enableSearch = $valeur;
+	}
+
+	/**
+	 * Définit si l'option de tri par colonne est acitvée ou non pour cette liste. Si désactivée, l'utilisateur ne pourra plus cliquer sur les colonnes pour trier
+	 * @param boolean $valeur valeur par defaut : true
+	 * @return false si la valeur spécifié n'est pas un booléen
+	 */
+	public function enableOrderBy($valeur) {
+		if(!is_bool($valeur))
+			return false;
+
+		$this->enableOrderBy = $valeur;
 	}
 
 	/**
@@ -526,6 +579,14 @@ class ListManager {
 		return $this->template->enableExcel($valeur);
 	}
 
+	/**
+	 * Définit si le template propose la fonctionnalité de masquage des colonnes
+	 * @param bool $valeur : la nouvelle valeur à appliquer
+	 * @return bool false si le paramètre n'est aps un booléen
+	 */
+	public function enableMask($valeur){
+		return $this->template->enableMask($valeur);
+	}
 
 	/**
 	 * Définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete
@@ -604,7 +665,7 @@ class ListManager {
 	 * @return bool|string le chemin du fichier généré, ou false en cas d'erreur 
 	 */
 	private function generateExcel(\LM\RequestResponse $reponse) {
-		if($reponse->error() || $reponse->getRowsCount() < 1)
+		if($reponse->error())
 			return false;
 
 		// Création de l'objet PHPExcel
@@ -645,19 +706,20 @@ class ListManager {
 		}
 
 		// Insertion des données
-		$donnees = $reponse->dataList();
+		while(($ligne = $reponse->nextLine()) != null)
+			$donnees[] = $ligne;
 		$i = 2;
 		foreach ($donnees as $ligne) {
 			// Hauteur de ligne
 			$phpExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(25);
 			// Remplissage colonne par colonne
 			$col = 'A';
-			for($j = 0; $j < count($ligne); $j++){
+			foreach ($ligne as $titre => $cellule){
 				// On vérifie que la colonne n'est pas masquée
-				if(!in_array($titres[$j], $this->mask)) {
+				if(!in_array($titre, $this->mask)) {
 
 					// Insertion de la donnée
-					$phpExcel->getActiveSheet()->setCellValue($col.($i), $ligne[$j]);
+					$phpExcel->getActiveSheet()->setCellValue($col.($i), $cellule);
 					$col++;
 				}
 			}

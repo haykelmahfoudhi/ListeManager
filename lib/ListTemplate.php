@@ -59,10 +59,6 @@ class ListTemplate {
 	 */
 	private $class1, $class2;
 	/**
-	 * @var boolean specifie si la fonction recherche est diponible ou non
-	 */
-	private $enableSearch;
-	/**
 	 * @var string $emptyListMessage le message qui sera affiche si la liste ne contient pas de donnees
 	 */
 	private $emptyListMessage;
@@ -103,9 +99,21 @@ class ListTemplate {
 	 */
 	private $useCache;
 	/**
-	 * @var bool $enableExcel définit si ListTemplate propose la fonctionnalités d'eport Excel
+	 * @var bool $enableExcel définit si ListTemplate propose la fonctionnalité d'export Excel
 	 */
 	private $enableExcel;
+	/**
+	 * @var bool $enableSearch définit si ListTemplate propose la fonctionnalité de recherche par colonnes
+	 */
+	private $enableSearch;
+	/**
+	 * @var bool $enableOrderBy définit si ListTemplate propose la fonctionnalité de tri par colonne
+	 */
+	private $enableOrderBy;
+	/**
+	 * @var bool $enableMask définit si ListTemplate propose le masquage des colonnes
+	 */
+	private $enableMask;
 	/**
 	 * @var int nombre de liens de page à afficher au maximum dans la pagination
 	 */
@@ -119,7 +127,7 @@ class ListTemplate {
 	 */
 	private $displayNbResults;
 	/**
-	 * @var bool $enableDefaultCSS déinit si le template doit appliquer le style par defaut du fichier base.css ou non
+	 * @var bool $applyDefaultCSS déinit si le template doit appliquer le style par defaut du fichier base.css ou non
 	 */
 	private $applyDefaultCSS;
 	/**
@@ -144,12 +152,15 @@ class ListTemplate {
 	 * @param string $classe1 (facultatif) la classe à appliquer aux lignes paires. Si null : prend la valeur de self::$CLASSE1
 	 * @param string $classe2 (facultatif) la classe à appliquer aux lignes impaires. Si null : prend la valeur de self::$CLASSE2
 	 */
-	 public function __construct($classe1=null, $classe2=null){
+	 public function __construct(){
 	 	// [!] => si vous changez l'id de la liste pensez à le mettre à jour dans le fichier listManager.js
 		$this->id = 'liste';
 		$this->class1 = (($classe1 == null)? self::$CLASSE1 : $classe1);
 		$this->class2 = (($classe2 == null)? self::$CLASSE2 : $classe2);
 		$this->enableSearch = true;
+		$this->enableOrderBy = true;
+		$this->enableExcel = true;
+		$this->enableMask = true;
 		$this->mask = array();
 		$this->emptyListMessage = "Aucun resultat!";
 		$this->errorClass = 'erreur';
@@ -161,8 +172,7 @@ class ListTemplate {
 		$this->rowCallback = null;
 		$this->columnCallback = null;
 		$this->useCache = false;
-		$this->enableExcel = true;
-		$this->helpLink = null;
+		$this->helpLink = 'http://list-manager.torchpad.com/Presentation+liste';
 		$this->displayNbResults = true;
 		$this->applyDefaultCSS = true;
 		$this->maxSizeInputs = 30;
@@ -223,11 +233,12 @@ class ListTemplate {
 		$ret .= "\n<div><div id='boutons-options'>";
 		
 		// Bouton pour reset le mask en JS
-		$ret .= '<a id="annuler-masque" href="#"><img height="40" width="40" src="'.LM_IMG.'mask-cross.png"></a>';
+		if($this->enableMask)
+			$ret .= '<a id="annuler-masque" href="#"><img height="40" width="40" src="'.LM_IMG.'mask-cross.png"></a>';
 
 		// Bouton excel
 		if($this->enableExcel){
-			$ret .= '<a href="'.self::creerUrlGET('excel', 1).'" id="btn-excel"><img height="40" width="40" src="'.LM_IMG.'excel-ico.png"></a>';
+			$ret .= '<a href="'.self::creerUrlGET('lm_excel', 1).'" id="btn-excel"><img height="40" width="40" src="'.LM_IMG.'excel-ico.png"></a>';
 		}
 
 		//Bouton quest (recherche)
@@ -240,7 +251,7 @@ class ListTemplate {
 
 			// Ajout des paramètres GET déjà présents
 			foreach ($_GET as $nom => $valeur) {
-				if($nom != 'tabSelect' && !is_array($valeur)) {
+				if($nom != 'lm_tabSelect' && !is_array($valeur)) {
 					$ret .= "<input type='hidden' name='$nom' value='$valeur'/>";
 				}
 			}
@@ -250,17 +261,17 @@ class ListTemplate {
 
 		// Lien veers la rubrique d'aide / légende associée
 		if($this->helpLink != null){
-			$ret .= "<a href='$this->helpLink' id='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
+			$ret .= "<a href='$this->helpLink' target='_blank' id='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
 		}
 
 		//Bouton RaZ
-		if(isset($_GET['tabSelect']) || isset($_GET['orderBy'])) {
+		if(isset($_GET['lm_tabSelect']) || isset($_GET['lm_orderBy'])) {
 			$tabGet = $_GET;
 			
-			if(isset($_GET['tabSelect']))
-				unset($tabGet['tabSelect']);
-			if(isset($_GET['orderBy']))
-				unset($tabGet['orderBy']);
+			if(isset($_GET['lm_tabSelect']))
+				unset($tabGet['lm_tabSelect']);
+			if(isset($_GET['lm_orderBy']))
+				unset($tabGet['lm_orderBy']);
 			
 			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'"><img height="40" width="40" src="'.LM_IMG.'eraser-ico.png"></a>';
 		}
@@ -278,25 +289,28 @@ class ListTemplate {
 			if(!in_array($titre, $this->mask)) {
 
 				//Gestion du order by
-				if(isset($_GET['orderBy'])){
-					$orderArray = explode(',', $_GET['orderBy']);
+				$signeOrder = '';
+				if(isset($_GET['lm_orderBy'])){
+					$orderArray = explode(',', $_GET['lm_orderBy']);
 
 					// Construction de la chaine orderBy
-					if(($key = array_search(($i + 1), $orderArray)) !== false ) {
+					if(($key = array_search($titre, $orderArray)) !== false ) {
 						unset($orderArray[$key]);
-						array_unshift($orderArray, -1*($i + 1));
+						array_unshift($orderArray, "-$titre");
+						$signeOrder = '&Delta;';
 					}
-					else if (($key = array_search(-1 * ($i + 1), $orderArray)) !== false ){
+					else if (($key = array_search("-$titre", $orderArray)) !== false ){
 						unset($orderArray[$key]);
-						array_unshift($orderArray, $i + 1);
+						array_unshift($orderArray, $titre);
+						$signeOrder = '&nabla;';
 					}
 					else {
-						array_unshift($orderArray, ($i + 1));
+						array_unshift($orderArray, $titre);
 					}
 					$orderString = implode(',', $orderArray);
 				}
 				else {
-					$orderString = $i+1;
+					$orderString = $titre;
 				}
 
 				// Préparation du titre à afficher
@@ -306,10 +320,16 @@ class ListTemplate {
 					$titreAffiche = $titre;
 
 				// Création du lien pour order by
-				$lienOrderBy = '<a class="titre-colonne" href="'
-					.self::creerUrlGET('orderBy', $orderString)."\">$titreAffiche</a>";
+				if($this->enableOrderBy)
+					$lienOrderBy = '<a class="titre-colonne" href="'
+						.self::creerUrlGET('lm_orderBy', $orderString)."\">$titreAffiche</a><br>$signeOrder";
+				else
+					$lienOrderBy = $titreAffiche;
 
-				$lienMasque = '<a class="masque" href="#">x</a>';
+				if($this->enableMask)
+					$lienMasque = '<a class="masque" href="#">x</a>';
+				else 
+					$lienMasque = '';
 
 				// Affiche les liens et les titres
 				$ret .= '<th>'.$lienMasque.$lienOrderBy."</th>\n";
@@ -335,11 +355,11 @@ class ListTemplate {
 				if(!in_array($titres[$i], $this->mask)) {
 
 					//Determine le contenu du champs
-					$valeur = (isset($_GET['tabSelect'][$titres[$i]])? 
-						$_GET['tabSelect'][$titres[$i]] : null);
+					$valeur = (isset($_GET['lm_tabSelect'][$titres[$i]])? 
+						$_GET['lm_tabSelect'][$titres[$i]] : null);
 					//Determine la taille du champs
 					$taille = min($types[$i]->len, $this->maxSizeInputs);
-					$ret .= '<td><input type="text" name="tabSelect['.$titres[$i].']"'
+					$ret .= '<td><input type="text" name="lm_tabSelect['.$titres[$i].']"'
 						." form='recherche' size='$taille' value='$valeur'/></td>";
 				}
 			}
@@ -513,6 +533,18 @@ class ListTemplate {
 	}
 
 	/**
+	 * Active / desactive la fonction de masquage de colonne en JS
+	 * @param boolean $valeur la nouvele valeur pour ce paramètre, valeur par defaut true
+	 * @return boolean false si le paramètre netré n'est pas un boolean.
+	 */
+	public function enableMask($valeur){
+		if(!is_bool($valeur))
+			return false;
+		
+		$this->enableMask = $valeur;
+	}
+
+	/**
 	 * Permet de changer les titres des colonnes de la liste
 	 * Le tableau à passer en paramètre est un tableau associatif où la clé correspond au nom de la colonne tel qu'il est restitué lors de la selection des données, associé au titre que vous souhaitez afficher
 	 * @param array le tableau des nouveaux titres
@@ -665,6 +697,18 @@ class ListTemplate {
 			return false;
 
 		$this->enableExcel = $valeur;
+	}
+
+	/**
+	 * Définit si l'option de tri par colonne est acitvée ou non pour cette liste. Si désactivée, l'utilisateur ne pourra plus cliquer sur les colonnes pour trier
+	 * @param boolean $valeur valeur par defaut : true
+	 * @return false si la valeur spécifié n'est pas un booléen
+	 */
+	public function enableOrderBy($valeur) {
+		if(!is_bool($valeur))
+			return false;
+
+		$this->enableOrderBy = $valeur;
 	}
 
 	/**
