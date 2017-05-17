@@ -155,8 +155,8 @@ class ListTemplate {
 	 public function __construct(){
 	 	// [!] => si vous changez l'id de la liste pensez à le mettre à jour dans le fichier listManager.js
 		$this->id = 'liste';
-		$this->class1 = (($classe1 == null)? self::$CLASSE1 : $classe1);
-		$this->class2 = (($classe2 == null)? self::$CLASSE2 : $classe2);
+		$this->class1 = self::$CLASSE1;
+		$this->class2 = self::$CLASSE2;
 		$this->enableSearch = true;
 		$this->enableOrderBy = true;
 		$this->enableExcel = true;
@@ -204,6 +204,7 @@ class ListTemplate {
 		}
 
 		// Preparation de l'array a afficher
+		$donnees =  array();
 		while(($ligne = $reponse->nextLine()) != null)
 			$donnees[] = $ligne;
 		$nbLignes = $reponse->getRowsCount();
@@ -340,7 +341,7 @@ class ListTemplate {
 		// Utilisation du callback pour ajouter une colonne
 		if($this->columnCallback != null) {
 			$fct = $this->columnCallback;
-			$ret .= $fct(0, null, true);
+			$ret .= $fct(0, $titres, true);
 		}
 
 		$ret .= "</tr>\n";

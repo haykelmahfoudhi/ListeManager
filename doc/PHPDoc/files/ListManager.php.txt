@@ -132,12 +132,13 @@ class ListManager {
 	 * Execute la requete SQL dont la base est passee en parametres.
 	 * Cette base sera augmentee par les divers parametres fournis par la variable GET avant d'etre execute, ou par les attributs tabSelect et orderBy si vous ne souhaitez pas utiliser GET.
  	 * Le format des resultats obtenus par la requete dépend du ResponseType spécifié.
-	 * @param mixed $baseSQL : la requete a executer. Peut etre de type string ou SQLRequest.
+	 * @param mixed $baseSQL la requete a executer. Peut etre de type string ou SQLRequest.
+	 * @param array $params (facultatif) à utiliser si vous saouhaitez passer par les méthodes prepare puis exécute pour exécuter votre requete SQL
 	 * @return mixed
 	 * * l'objet de reponse dependant de $ResponseType, parametrable via la methode *setResponseType()*
 	 * * false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données
 	 */
-	public function construct($baseSQL){
+	public function construct($baseSQL, array $params=array()){
 
 		// Gestion du parametre
 		if(!$baseSQL instanceof \LM\SQLRequest)
@@ -179,7 +180,7 @@ class ListManager {
 		}
 
 		//Execution de la requete
-		return $this->execute($requete);
+		return $this->execute($requete, $params);
 
 	}
 
@@ -187,11 +188,12 @@ class ListManager {
 	 * Execute une requete SQL *sans prendre en compte les données GET ni les données tabSelect et orderBy*.
 	 * Retourne le resultat dans le format specifie par ResponseType
 	 * @param mixed $request : la requete a executer. Peut etre de type string ou SQLRequest.
- 	 * @return string|bool :
+	 * @param array $params (facultatif) à utiliser si vous saouhaitez passer par les méthodes prepare puis exécute pour exécuter votre requete SQL
+ 	 * @return string|bool
 	 * * l'objet de reponse dependant de $this->responseType, parametrable via la methode *setResponseType()*
 	 * * false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données
 	 */
-	public function execute($request){
+	public function execute($request, array $params=array()){
 		
 		// Gestion du parametre
 		if($request instanceof \LM\SQLRequest) {
@@ -213,7 +215,7 @@ class ListManager {
 		}
 
 		//Execution de la requete
-		$reponse = $this->db->execute($requete);
+		$reponse = $this->db->execute($requete, $params);
 
 		//Creation de l'objet de reponse
 		switch ($this->responseType){
@@ -620,6 +622,14 @@ class ListManager {
 		$this->verbose = $valeur;
 	}
 
+	/**
+	 * Permet d'ajouter une rubrique d'aide ou une legende à la liste actuelle
+	 * @param string|null $link : le lien url vers la page d'aide. Si null alors le lien sera desactivé
+	 */
+	public function setHelpLink($link) {
+		return $this->template->setHelpLink($link);
+	}
+
 
 			/*-****************
 			***   GETTERS   ***
@@ -689,7 +699,7 @@ class ListManager {
 			if(!in_array($titres[$i], $this->mask)) {
 
 				// Mise en forme & insertion des titres
-				$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth(max($types[$i]->len, strlen($titres[$i])));
+				$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth(strlen($titres[$i]));
 				$phpExcel->getActiveSheet()->setCellValue($col.'1', $titres[$i]);
 	 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
 	 				'font' => array(

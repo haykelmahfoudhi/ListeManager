@@ -132,7 +132,7 @@ class Database {
 	 * @param mixed $request la requete SQL a executer, peut etre string ou objet SQLRequest
 	 * @return RequestResponse l'objet repéresentant la reponse de la requete, ou false si la BD n'est pas connectee
 	 */
-	public function execute($request){
+	public function execute($request, array $params=array()){
 		if($this->pdo == null)
 			return false;
 
@@ -142,11 +142,28 @@ class Database {
 
 		//Execution de la requete
 		try {
-			$statement = $this->pdo->query($request);
-			if($statement == false)
-				return new RequestResponse(null, true, $this->pdo->errorInfo()[2]);
-			else 
-				return new RequestResponse($statement);
+			// Pas de prepare
+			if($params === array()){
+				$statement = $this->pdo->query($request);
+				if($statement == false)
+					return new RequestResponse(null, true, $this->pdo->errorInfo()[2]);
+				else 
+					return new RequestResponse($statement);
+			}
+
+			// Avec les params du prepare
+			else {
+				$statement = $this->pdo->prepare($request);
+				if($statement == false) {
+					return new RequestResponse(null, true, $this->pdo->errorInfo()[2]);
+				}
+				else {
+					if($statement->execute($params))
+						return new RequestResponse($statement);
+					else 
+						return new RequestResponse($statement, true, $statement->errorInfo()[2]);
+				}
+			}
 		}
 		catch(\Exception $e) {
 			self::$errorMessages[] = "<br><b>Database::execute()</b>(etiquette = '$this->label') : ".$e->getMessage();

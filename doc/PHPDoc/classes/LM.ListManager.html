@@ -114,7 +114,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">44</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">46</span>
                                 </a>
                             </li>
                             <li>
@@ -144,19 +144,19 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-775052493"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-2141751371"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-775052493" class="accordion-body collapse in">
+            <div id="namespace-2141751371" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-333697487"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-219439184"></a>
                                 <a href="../namespaces/LM.html" style="margin-left: 30px; padding-left: 0">LM</a>
             </div>
-            <div id="namespace-333697487" class="accordion-body collapse ">
+            <div id="namespace-219439184" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -255,6 +255,7 @@ ListManager possède un comportement de base :</p>
                                                                     <a href="../classes/LM.ListManager.html#method_displayNbResults" class="">displayNbResults()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_applyDefaultCSS" class="">applyDefaultCSS()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_verbose" class="">verbose()</a><br />
+                                                                    <a href="../classes/LM.ListManager.html#method_setHelpLink" class="">setHelpLink()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_getTemplate" class="">getTemplate()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_getTabSelect" class="">getTabSelect()</a><br />
                                                                     <a href="../classes/LM.ListManager.html#method_getOrderBy" class="">getOrderBy()</a><br />
@@ -665,7 +666,7 @@ Précisez l'etiquette de la base de données à utiliser si nécessaire</p>
             <article class="method">
                 <h3 class="public ">construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">construct(mixed  <span class="argument">$baseSQL</span>) : mixed</pre>
+                <pre class="signature" style="margin-right: 54px;">construct(mixed  <span class="argument">$baseSQL</span>, array  <span class="argument">$params = array()</span>) : mixed</pre>
                 <p><em>Execute la requete SQL dont la base est passee en parametres.</em></p>
                 <p>Cette base sera augmentee par les divers parametres fournis par la variable GET avant d'etre execute, ou par les attributs tabSelect et orderBy si vous ne souhaitez pas utiliser GET.
 Le format des resultats obtenus par la requete dépend du ResponseType spécifié.</p>
@@ -675,7 +676,12 @@ Le format des resultats obtenus par la requete dépend du ResponseType spécifi�
                                                     <tr>
                                 <td>mixed</td>
                                 <td>$baseSQL </td>
-                                <td><p>: la requete a executer. Peut etre de type string ou SQLRequest.</p></td>
+                                <td><p>la requete a executer. Peut etre de type string ou SQLRequest.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$params </td>
+                                <td><p>(facultatif) à utiliser si vous saouhaitez passer par les méthodes prepare puis exécute pour exécuter votre requete SQL</p></td>
                             </tr>
                                             </table>
                 
@@ -706,7 +712,7 @@ Le format des resultats obtenus par la requete dépend du ResponseType spécifi�
             <article class="method">
                 <h3 class="public ">execute()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">execute(mixed  <span class="argument">$request</span>) : string|boolean</pre>
+                <pre class="signature" style="margin-right: 54px;">execute(mixed  <span class="argument">$request</span>, array  <span class="argument">$params = array()</span>) : string|boolean</pre>
                 <p><em>Execute une requete SQL *sans prendre en compte les données GET ni les données tabSelect et orderBy*.</em></p>
                 <p>Retourne le resultat dans le format specifie par ResponseType</p>
 
@@ -717,13 +723,17 @@ Le format des resultats obtenus par la requete dépend du ResponseType spécifi�
                                 <td>$request </td>
                                 <td><p>: la requete a executer. Peut etre de type string ou SQLRequest.</p></td>
                             </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$params </td>
+                                <td><p>(facultatif) à utiliser si vous saouhaitez passer par les méthodes prepare puis exécute pour exécuter votre requete SQL</p></td>
+                            </tr>
                                             </table>
                 
                 
                                     <h4>Returns</h4>
                     string|boolean
-                                            &mdash; <p>:</p>
-<ul>
+                                            &mdash; <ul>
 <li>l'objet de reponse dependant de $this-&gt;responseType, parametrable via la methode <em>setResponseType()</em></li>
 <li>false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données</li>
 </ul>
@@ -1714,6 +1724,40 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
 
                                     <div class="row-fluid">
         <div class="span8 content class">
+            <a id="method_setHelpLink" name="method_setHelpLink" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setHelpLink()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setHelpLink(string|null  <span class="argument">$link</span>) </pre>
+                <p><em>Permet d&#039;ajouter une rubrique d&#039;aide ou une legende à la liste actuelle</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string|null</td>
+                                <td>$link </td>
+                                <td><p>: le lien url vers la page d'aide. Si null alors le lien sera desactivé</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
             <a id="method_getTemplate" name="method_getTemplate" class="anchor"></a>
             <article class="method">
                 <h3 class="public ">getTemplate()</h3>
@@ -1915,7 +1959,7 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on May 15th, 2017 at 17:27.
+                    on May 17th, 2017 at 08:45.
                 </section>
             </section>
         </section>
