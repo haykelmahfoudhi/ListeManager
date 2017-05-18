@@ -87,14 +87,6 @@
 
             <div class="nav-collapse">
                 <ul class="nav pull-right">
-                                        <li class="dropdown">
-                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
-                            API Documentation <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                                                        <li><a href="../namespaces/LM.html">\LM</a></li>
-                                                    </ul>
-                    </li>
                                         <li class="dropdown" id="charts-menu">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             Charts <b class="caret"></b>
@@ -114,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">46</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">48</span>
                                 </a>
                             </li>
                             <li>
@@ -144,40 +136,23 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-419858855"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-584461756"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-419858855" class="accordion-body collapse in">
-                <div class="accordion-inner">
-
-                                                    <div class="accordion" style="margin-bottom: 0">
-        <div class="accordion-group">
-            <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-2037963538"></a>
-                                <a href="../namespaces/LM.html" style="margin-left: 30px; padding-left: 0">LM</a>
-            </div>
-            <div id="namespace-2037963538" class="accordion-body collapse ">
+            <div id="namespace-584461756" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
                     <ul>
-                                                                                                    <li class="class"><a href="../classes/LM.Database.html">Database</a></li>
-                                                    <li class="class"><a href="../classes/LM.ListManager.html">ListManager</a></li>
-                                                    <li class="class"><a href="../classes/LM.ListTemplate.html">ListTemplate</a></li>
-                                                    <li class="class"><a href="../classes/LM.RequestResponse.html">RequestResponse</a></li>
-                                                    <li class="class"><a href="../classes/LM.RequestType.html">RequestType</a></li>
-                                                    <li class="class"><a href="../classes/LM.ResponseType.html">ResponseType</a></li>
-                                                    <li class="class"><a href="../classes/LM.Session.html">Session</a></li>
-                                                    <li class="class"><a href="../classes/LM.SQLRequest.html">SQLRequest</a></li>
+                                                                                                    <li class="class"><a href="../classes/Database.html">Database</a></li>
+                                                    <li class="class"><a href="../classes/ListManager.html">ListManager</a></li>
+                                                    <li class="class"><a href="../classes/ListTemplate.html">ListTemplate</a></li>
+                                                    <li class="class"><a href="../classes/RequestResponse.html">RequestResponse</a></li>
+                                                    <li class="class"><a href="../classes/RequestType.html">RequestType</a></li>
+                                                    <li class="class"><a href="../classes/ResponseType.html">ResponseType</a></li>
+                                                    <li class="class"><a href="../classes/Session.html">Session</a></li>
+                                                    <li class="class"><a href="../classes/SQLRequest.html">SQLRequest</a></li>
                                             </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-                    
-                    <ul>
-                                                                                            </ul>
                 </div>
             </div>
         </div>
@@ -190,13 +165,20 @@
             <div class="row-fluid">
                 <div class="span8 content class">
                     <nav>
-                                                <a href="../namespaces/LM.html">\LM</a> <i class="icon-level-up"></i>
+                                                <a href="../namespaces/default.html">\</a> <i class="icon-level-up"></i>
                                             </nav>
                     <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
 
-                    <h1><small>\LM</small>Session</h1>
-                    <p><em>Singleton pour la gestion des sessions PHP</em></p>
-                    
+                    <h1><small>\</small>RequestType</h1>
+                    <p><em>Enumération des types de requete SQL.</em></p>
+                    <p>Cette classe ne contient que des constantes permettant de définir le type des requetes SQL parmi :</p>
+<ul>
+<li>SELECT</li>
+<li>DELETE</li>
+<li>UPDATE</li>
+<li>INSERT INTO</li>
+<li>AUTRE pour tous les types qui ne peuvent pas rentrer dans les cases précédentes</li>
+</ul>
                     
                                         
                     <section id="summary">
@@ -214,16 +196,17 @@
                         </section>
                         <section class="row-fluid public">
                             <section class="span4">
-                                                                    <a href="../classes/LM.Session.html#method_start" class="">start()</a><br />
-                                                                    <a href="../classes/LM.Session.html#method_connectUser" class="">connectUser()</a><br />
-                                                                    <a href="../classes/LM.Session.html#method_userConnected" class="">userConnected()</a><br />
-                                                                    <a href="../classes/LM.Session.html#method_destroy" class="">destroy()</a><br />
+                                                                    <em>No public methods found</em>
                                                             </section>
                             <section class="span4">
                                                                     <em>No public properties found</em>
                                                             </section>
                             <section class="span4">
-                                                                    <em>No constants found</em>
+                                                                    <a href="../classes/RequestType.html#constant_SELECT" class="">SELECT</a><br />
+                                                                    <a href="../classes/RequestType.html#constant_DELETE" class="">DELETE</a><br />
+                                                                    <a href="../classes/RequestType.html#constant_UPDATE" class="">UPDATE</a><br />
+                                                                    <a href="../classes/RequestType.html#constant_INSERT" class="">INSERT</a><br />
+                                                                    <a href="../classes/RequestType.html#constant_AUTRE" class="">AUTRE</a><br />
                                                             </section>
                         </section>
                         <section class="row-fluid protected">
@@ -239,10 +222,10 @@
                         </section>
                         <section class="row-fluid private">
                             <section class="span4">
-                                                                    <a href="../classes/LM.Session.html#method___construct" class="">__construct()</a><br />
+                                                                    <em>No private methods found</em>
                                                             </section>
                             <section class="span4">
-                                                                    <a href="../classes/LM.Session.html#property_instance" class="">$instance</a><br />
+                                                                    <em>No private properties found</em>
                                                             </section>
                             <section class="span4">
                                 <em>N/A</em>
@@ -255,12 +238,12 @@
                     
                     <dl>
                         <dt>File</dt>
-                            <dd><a href="../files/Session.html"><div class="path-wrapper">Session.php</div></a></dd>
+                            <dd><a href="../files/RequestType.html"><div class="path-wrapper">RequestType.php</div></a></dd>
                                                 <dt>Package</dt>
                             <dd><div class="namespace-wrapper">Default</div></dd>
                                                 <dt>Class hierarchy</dt>
                             <dd class="hierarchy">
-                                                                                                                                                                    <div class="namespace-wrapper">\LM\Session</div>
+                                                                                                                                                                    <div class="namespace-wrapper">\RequestType</div>
                             </dd>
 
                         
@@ -282,195 +265,166 @@
                 </aside>
             </div>
 
-                        
-                                    <a id="properties" name="properties"></a>
+                                    <a id="constants" name="constants"></a>
             <div class="row-fluid">
                 <div class="span8 content class">
-                    <h2>Properties</h2>
+                    <h2>Constants</h2>
                 </div>
                 <aside class="span4 detailsbar"></aside>
             </div>
 
-                                                                    <div class="row-fluid">
+                                <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_instance" name="property_instance" class="anchor"></a>
-            <article class="property">
-                <h3 class="private ">$instance</h3>
-                <pre class="signature">$instance : </pre>
+            <a id="constant_SELECT" name="constant_SELECT" class="anchor"></a>
+            <article id="constant_SELECT" class="constant">
+                <h3 class="">SELECT</h3>
+                <pre class="signature">SELECT</pre>
                 <p><em></em></p>
                 
-
-                                <h4>Type</h4>
-                
-                                            </article>
+            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
                         <dl>
-                                                            </dl>
+                                                                            </dl>
             <h2>Tags</h2>
             <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                                    <tr>
+                        <th>
+                            const
+                        </th>
+                        <td>
+                                                            <p>type assigné aux requêtes qui sélectionnent des données.</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_DELETE" name="constant_DELETE" class="anchor"></a>
+            <article id="constant_DELETE" class="constant">
+                <h3 class="">DELETE</h3>
+                <pre class="signature">DELETE</pre>
+                <p><em></em></p>
+                
+            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            const
+                        </th>
+                        <td>
+                                                            <p>type assigné aux requêtes supprimant des données.</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_UPDATE" name="constant_UPDATE" class="anchor"></a>
+            <article id="constant_UPDATE" class="constant">
+                <h3 class="">UPDATE</h3>
+                <pre class="signature">UPDATE</pre>
+                <p><em></em></p>
+                
+            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            const
+                        </th>
+                        <td>
+                                                            <p>type assigné aux requêtes qui mettent à jour des données.</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_INSERT" name="constant_INSERT" class="anchor"></a>
+            <article id="constant_INSERT" class="constant">
+                <h3 class="">INSERT</h3>
+                <pre class="signature">INSERT</pre>
+                <p><em></em></p>
+                
+            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            const
+                        </th>
+                        <td>
+                                                            <p>type assigné aux requêtes qui ajoutent des données.</p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_AUTRE" name="constant_AUTRE" class="anchor"></a>
+            <article id="constant_AUTRE" class="constant">
+                <h3 class="">AUTRE</h3>
+                <pre class="signature">AUTRE</pre>
+                <p><em></em></p>
+                
+            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            const
+                        </th>
+                        <td>
+                                                            <p>type assigné aux requêtes dont le type n'est aps reconnu.</p>
+                                                    </td>
+                    </tr>
                             </table>
         </aside>
     </div>
 
                             
-                                    <a id="methods" name="methods"></a>
-            <div class="row-fluid">
-                <div class="span8 content class"><h2>Methods</h2></div>
-                <aside class="span4 detailsbar"></aside>
-            </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="method_start" name="method_start" class="anchor"></a>
-            <article class="method">
-                <h3 class="public ">start()</h3>
-                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">start() </pre>
-                <p><em>session_start et retourne l&#039;objet session</em></p>
-                
-
-                
-                
-                				
-                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                            <span class="label label-info">static</span>
-                                                            <dl>
-                                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="method_connectUser" name="method_connectUser" class="anchor"></a>
-            <article class="method">
-                <h3 class="public ">connectUser()</h3>
-                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">connectUser(  <span class="argument">$identifiant</span>) </pre>
-                <p><em></em></p>
-                
-
-                                    <h4>Parameters</h4>
-                    <table class="table table-condensed table-hover">
-                                                    <tr>
-                                <td></td>
-                                <td>$identifiant </td>
-                                <td></td>
-                            </tr>
-                                            </table>
-                
-                
-                				
-                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                                                            <dl>
-                                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="method_userConnected" name="method_userConnected" class="anchor"></a>
-            <article class="method">
-                <h3 class="public ">userConnected()</h3>
-                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">userConnected() </pre>
-                <p><em></em></p>
-                
-
-                
-                
-                				
-                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                                                            <dl>
-                                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="method_destroy" name="method_destroy" class="anchor"></a>
-            <article class="method">
-                <h3 class="public ">destroy()</h3>
-                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">destroy() </pre>
-                <p><em></em></p>
-                
-
-                
-                
-                				
-                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                                                            <dl>
-                                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="method___construct" name="method___construct" class="anchor"></a>
-            <article class="method">
-                <h3 class="private ">__construct()</h3>
-                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__construct() </pre>
-                <p><em></em></p>
-                
-
-                
-                
-                				
-                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                                                            <dl>
-                                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    </div>
+                        
+                                </div>
     </section>
 
     <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="source-view-label">Session.php</h3>
+            <h3 id="source-view-label">RequestType.php</h3>
         </div>
         <div class="modal-body">
-            <pre data-src="../files/Session.php.txt" class="language-php line-numbers"></pre>
+            <pre data-src="../files/RequestType.php.txt" class="language-php line-numbers"></pre>
         </div>
     </div>
 
@@ -483,7 +437,6 @@
                                                         <h1><i class="icon-code"></i></h1>
                             <div>
                                 <ul>
-                                                                            <li><a href="../namespaces/LM.html">\LM</a></li>
                                                                     </ul>
                             </div>
                         </section>
@@ -511,7 +464,7 @@
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on May 17th, 2017 at 08:45.
+                    on May 18th, 2017 at 14:59.
                 </section>
             </section>
         </section>

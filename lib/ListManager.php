@@ -1,6 +1,5 @@
 <?php
 
-namespace LM;
 
 /*-************************************************************************************************
 **                                                                                               **
@@ -96,6 +95,43 @@ class ListManager {
 	 * @var array $mask correspond aux titre des colonnes à ne pas retourner lors de la selection de données
 	 */
 	private $mask;
+
+			/*-*******************************************
+			***  CONSTANTES : OPTIONS DU CONSTRUCTEUR  ***
+			*********************************************/
+	/**
+	 * @var const NO_SEARCH à utiliser pour désactiver l'utilisation de la recherche par colonne 
+	 */
+	const NO_SEARCH = 1;
+	/**
+	 * @var const NO_EXCEL à utiliser dans le constructeur pour désactiver l'export de la liste en Excel
+	 */
+	const NO_EXCEL = 2;
+	/**
+	 * @var const NO_MASK à utiliser dans le constructeur pour désactiver l'utilisation du masquage de colonne en JS
+	 */
+	const NO_MASK = 4;
+	/**
+	 * @var const NO_ORDER_BY à utiliser dans le constructeur pour désactiver le tri des donénes par colonnes
+	 */
+	const NO_ORDER_BY = 8;
+	/**
+	 * @var const NO_CSS à utiliser dans le constructeur pour désactiver l'utilisation du CSS par déafut
+	 * Implique l'option UNFIXED_TITLES
+	 */
+	const NO_CSS = 16;
+	/**
+	 * @var const NO_PAGING à utiliser dans le constructeur pour désactiver la pagination et la navigation entre les pages de résutlats.
+	 */
+	const NO_PAGING = 32;
+	/**
+	 * @var const NO_VERBOSE à utiliser dans le constructeur pour désactiver le mode verbeux
+	 */
+	const NO_VERBOSE = 64;
+	/**
+	 * @var const UNFIXED_TITLES à utiliser dans le constructeur pour empecher les titres de rester fixés lorsque l'utilisateur scroll. 
+	 */
+	const UNFIXED_TITLES = 128;
 	
 	
 			/*-*********************
@@ -109,8 +145,8 @@ class ListManager {
 	 * @var Database|string $db l'insatnce de Database à utiliser ou son étiquette. Laissez null si vous n'avez qu'une seule base de données.
 	 */
 	public function __construct($db=null){
-		$this->responseType = \LM\ResponseType::TEMPLATE;
-		$this->template = new \LM\ListTemplate();
+		$this->responseType = ResponseType::TEMPLATE;
+		$this->template = new ListTemplate();
 		$this->useGET = true;
 		$this->enableSearch = true;
 		$this->enableOrderBy = true;
@@ -121,6 +157,47 @@ class ListManager {
 		$this->messages = array();
 		$this->verbose = true;
 		$this->setDatabase($db);
+
+		// Gestions des options : desactivation des fonctionnalités
+		for ($i=1; $i < func_num_args(); $i++) { 
+			switch (func_get_arg($i)) {
+				case self::NO_SEARCH:
+					$this->enableSearch(false);
+					break;
+
+				case self::NO_VERBOSE:
+					$this->verbose(false);
+					break;
+
+				case self::NO_CSS:
+					$this->applyDefaultCSS(false);
+					break;
+
+				case self::NO_EXCEL:
+					$this->enableExcel(false);
+					break;
+
+				case self::NO_MASK:
+					$this->enableMask(false);
+					break;
+
+				case self::NO_ORDER_BY:
+					$this->enableOrderBy(false);
+					break;
+
+				case self::UNFIXED_TITLES:
+					$this->fixTitles(false);
+					break;
+
+				case self::NO_PAGING:
+					$this->setMaxPagesDisplayed(false);
+					break;
+					
+				default:
+					$this->messages[] = '<br><b>[!]</b> ListManager::__construct() : option '.func_get_arg($i).' non reconnue<br>';
+
+			}
+		}
 	}
 
 
@@ -141,8 +218,8 @@ class ListManager {
 	public function construct($baseSQL, array $params=array()){
 
 		// Gestion du parametre
-		if(!$baseSQL instanceof \LM\SQLRequest)
-			$requete = new \LM\SQLRequest($baseSQL, $this->db->oracle());
+		if(!$baseSQL instanceof SQLRequest)
+			$requete = new SQLRequest($baseSQL, $this->db->oracle());
 		else {
 			$baseSQL->prepareForOracle($this->db->oracle());
 			$requete = $baseSQL;
@@ -169,7 +246,7 @@ class ListManager {
 
 			// Excel
 			if(isset($_GET['lm_excel'])){
-				$this->setResponseType(\LM\ResponseType::EXCEL);
+				$this->setResponseType(ResponseType::EXCEL);
 			}
 		}
 		else {
@@ -196,7 +273,7 @@ class ListManager {
 	public function execute($request, array $params=array()){
 		
 		// Gestion du parametre
-		if($request instanceof \LM\SQLRequest) {
+		if($request instanceof SQLRequest) {
 			$request->prepareForOracle($this->db->oracle());
 			$requete = $request->__toString();
 		}
@@ -219,10 +296,10 @@ class ListManager {
 
 		//Creation de l'objet de reponse
 		switch ($this->responseType){
-			case \LM\ResponseType::OBJET:
+			case ResponseType::OBJET:
 			return $reponse;
 
-			case \LM\ResponseType::TABLEAU:
+			case ResponseType::TABLEAU:
 				if($reponse->error()) {
 					$this->messages[] = $reponse->getErrorMessage();
 					return null;
@@ -245,7 +322,7 @@ class ListManager {
 					return $donnees;
 				}
 
-			case \LM\ResponseType::EXCEL:
+			case ResponseType::EXCEL:
 				if($this->template->excelIsEnabled()){
 					$chemin = $this->generateExcel($reponse);
 					if($chemin != false) {
@@ -267,7 +344,7 @@ class ListManager {
 					return false;
 				}
 
-			case \LM\ResponseType::JSON:
+			case ResponseType::JSON:
 				$ret = new \stdClass();
 				$ret->error = $reponse->error();
 				if($ret->error){
@@ -293,7 +370,7 @@ class ListManager {
 			return json_encode($ret);
 
 
-			case \LM\ResponseType::TEMPLATE:
+			case ResponseType::TEMPLATE:
 				// Utilisation du masque
 				if(count($this->mask) > 0)
 					$this->template->setMask($this->mask);
@@ -336,9 +413,9 @@ class ListManager {
 	 */
 	public function connectDatabase($dsn, $login, $mdp, $label=null){
 		if($label == null)
-			$this->db = \LM\Database::instantiate($dsn, $login, $mdp);
+			$this->db = Database::instantiate($dsn, $login, $mdp);
 		else 
-			$this->db = \LM\Database::instantiate($dsn, $login, $mdp, $label);
+			$this->db = Database::instantiate($dsn, $login, $mdp, $label);
 			
 		if($this->db == null) {
 			$message = '<br><b>[!]</b> ListManager::connectDatabase() : echec de connection<br>';
@@ -358,12 +435,12 @@ class ListManager {
 	 */
 	public function setDatabase($dataBase=null){
 		if($dataBase == null)
-			$this->db = \LM\Database::getInstance();
+			$this->db = Database::getInstance();
 		else {
-			if($dataBase instanceof \LM\Database)
+			if($dataBase instanceof Database)
 				$this->db = $dataBase;
 			else 
-				$this->db = \LM\Database::getInstance($dataBase);
+				$this->db = Database::getInstance($dataBase);
 		}
 
 		if($this->db == null) {
@@ -380,7 +457,7 @@ class ListManager {
 	 * Definit un nouvel objet ListTemplate pour l'affichage des listes
 	 * @param ListTemplate $template le nouveau template a definir.
 	 */
-	public function setTemplate(\LM\ListTemplate $template){
+	public function setTemplate(ListTemplate $template){
 		$this->template = $template;
 	}
 
@@ -496,11 +573,12 @@ class ListManager {
 	 *    3. numLigne   : le numero de la ligne en cours
 	 *    4. ligne    : un array associatif contenant toutes les données de la ligne en cours
 	 * * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
-	 * @param string $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
+	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
+	 * @param bool $replaceTagTD définit si le callback définit réécrit les balises td ou non. Par défaut ce paramètre vaut false, ce qui signifit que ListTemplate écrit automatiquement des balises td de la liste.
 	 * @return boolean true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)
 	 */
-	public function setCellCallback($fonction){
-		return $this->template->setCellCallback($fonction);
+	public function setCellCallback(callable $fonction, $replaceTagTD=false){
+		return $this->template->setCellCallback($fonction, $replaceTagTD);
 	}
 
 	/**
@@ -510,11 +588,10 @@ class ListManager {
 	 *    * 1. numero  : correspond au numéro de la ligne en cours
 	 *    * 2. donnees : array php contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau
 	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
-	 * @param string $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
-	 * @return boolean true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)
+	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
 	 */
-	public function setRowCallback($fonction){
-		return $this->template->setRowCallback($fonction);
+	public function setRowCallback(callable $fonction){
+		$this->template->setRowCallback($fonction);
 	}
 
 	/**
@@ -525,11 +602,10 @@ class ListManager {
 	 *    * 2. donnees   : array contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
 	 *    * 3. estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon 
 	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string).
-	 * @param string $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
-	 * @return boolean true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)
+	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
 	 */
-	public function setColumnCallback($fonction){
-		return $this->template->setColumnCallback($fonction);
+	public function setColumnCallback(callable $fonction){
+		$this->template->setColumnCallback($fonction);
 	}
 
 	/**
@@ -582,7 +658,7 @@ class ListManager {
 	}
 
 	/**
-	 * Définit si le template propose la fonctionnalité de masquage des colonnes
+	 * Définit si le template propose la fonctionnalité de masquage des colonnes coté client en JS
 	 * @param bool $valeur : la nouvelle valeur à appliquer
 	 * @return bool false si le paramètre n'est aps un booléen
 	 */
@@ -630,6 +706,15 @@ class ListManager {
 		return $this->template->setHelpLink($link);
 	}
 
+	/**
+	 * Définit sui les titres de votre liste restent fixés en haut de l'écran lorsque l'utilisateur scroll sur la page.
+	 * @var bool valeur true pour activer false pour désactiver cette option
+	 * @return bool false si l'arguemnt n'est pas un booléen.
+	 */
+	public function fixTitles($valeur) {
+		return $this->template->fixTitles($valeur);
+	}
+
 
 			/*-****************
 			***   GETTERS   ***
@@ -674,7 +759,7 @@ class ListManager {
 	 * @param RequestResponse $reponse l'objet réponse produit par l'exécution de la requete SQL
 	 * @return bool|string le chemin du fichier généré, ou false en cas d'erreur 
 	 */
-	private function generateExcel(\LM\RequestResponse $reponse) {
+	private function generateExcel(RequestResponse $reponse) {
 		if($reponse->error())
 			return false;
 

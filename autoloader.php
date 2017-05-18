@@ -21,12 +21,6 @@
 function lm_autoLoader($name) {
 	$dossiers = array(LM_LIB);
 
-	// Gestion du namespace
-	$posSeparator = stripos($name, '\\');
-	if($posSeparator !== false) {
-		$name = substr($name, $posSeparator  + 1);
-	}
-
 	foreach ($dossiers as $dossier) {
 		//On teste l'existence du fichier contenant la classe
 		if(file_exists($dossier.$name.'.php')){

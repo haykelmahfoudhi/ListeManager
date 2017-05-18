@@ -43,8 +43,21 @@ table {
 	text-align: center;
 }
 
-tr {
+table#liste {
+	margin-bottom: 40px;
+}
 
+#ligne-titres {
+	background-color: white;
+}
+
+#ligne-titres.fixed {
+	position: fixed;
+	top: 0;
+	box-shadow: 0 -2px 5px black;
+}
+#ligne-titres.fixed th:not(:first-child) {
+	border-left: 1px solid #888;
 }
 
 tr:not(:first-child):hover {
@@ -53,7 +66,7 @@ tr:not(:first-child):hover {
 
 th {
 	text-decoration: none;
-	padding: 5px 3px;
+	padding: 5px;
 }
 
 tr.tabSelect input {
@@ -77,23 +90,44 @@ th > a.masque:visited {
 
 td {
 	border: 1px solid white;
-	padding: 5px 15px;
+	padding: 5px;
 }
 
-.gris {
-	background-color: #888;
+tr.noir {
+	background-color: black;
+	color: white;
 }
-
-.gris-clair {
+tr.gris {
+	background-color: #999;
+}
+tr.gris-clair {
 	background-color: #ccc;
 }
-
-.orange {
-	background-color: orange;
+tr.orange {
+	background-color: #fd6;
+}
+tr.bleu-fonce {
+	background-color: #58f;
+}
+tr.bleu-clair {
+	background-color: #ADF;
+}
+tr.rouge {
+	background-color: #b55;
+}
+tr.vert {
+	background-color: #5d6;
 }
 
 #pagination {
-	margin: 10px auto;
+	margin: 0 auto;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	background-color: white;
+	width: 100%;
+	box-shadow: 0 2px 5px black;
+	padding: 7px 0;
 }
 
 #pagination td:hover {

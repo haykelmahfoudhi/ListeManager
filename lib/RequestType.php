@@ -1,6 +1,5 @@
 <?php
 
-namespace LM;
 
 /**
  * Enumération des types de requete SQL.

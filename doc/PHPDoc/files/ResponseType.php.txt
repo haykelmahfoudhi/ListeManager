@@ -1,6 +1,5 @@
 <?php
 
-namespace LM;
 
 /**
  * Enumération des formats de réponse possible de ListManager
@@ -17,23 +16,23 @@ namespace LM;
  */
 class ResponseType {
 	/**
-	 * @var const pour retourner un objet php contenant le résultat de la requete
+	 * @const pour retourner un objet php contenant le résultat de la requete
 	 */
 	const OBJET = 1;
 	/**
-	 * @var const pour retourner un array php contenant les lignes selectionnées
+	 * @const pour retourner un array php contenant les lignes selectionnées
 	 */
 	const TABLEAU = 2;
 	/**
-	 * @var const pour générer une feuille de calcul Excel contenant les données selectionnées
+	 * @const pour générer une feuille de calcul Excel contenant les données selectionnées
 	 */
 	const EXCEL = 3;
 	/**
-	 * @var const pour utiliser le ListTemplate
+	 * @const pour utiliser le ListTemplate
 	 */
 	const TEMPLATE = 4;
 	/**
-	 * @var const pour renvoyer les données sous format JSON
+	 * @const pour renvoyer les données sous format JSON
 	 */
 	const JSON = 5;
 }

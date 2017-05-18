@@ -15,24 +15,29 @@ require_once 'includes.php';
 
 
 // Connection aux BD
-LM\Database::instantiate('pgsql:host=periscope;port=5432;dbname=warehouse;','php_liste', 'php_liste', 'postgre');
-LM\Database::instantiate('mysql:host=localhost;dbname=marklate', "marquage","marquage", 'mysql');
-LM\Database::instantiate('oci:dbname=MECAPROTEC;', "DEMOV15","octal", 'oracle');
+Database::instantiate('pgsql:host=periscope;port=5432;dbname=warehouse;','php_liste', 'php_liste', 'postgre');
+Database::instantiate('mysql:host=localhost;dbname=marklate', "marquage","marquage", 'mysql');
+Database::instantiate('oci:dbname=MECAPROTEC;', "DEMOV15","octal", 'oracle');
 
 
 //Base de la requete SQL
-// $req = new \LM\SQLRequest("select * from fact_1_delais where of='1727562';");
-$req = new \LM\SQLRequest("SELECT * FROM Trace where of > :of LIMIT 2000 ");
-// $req = new \LM\SQLRequest('SELECT * FROM ordre_fabrication WHERE ROWNUM < 100', true);
+// $req = new SQLRequest("select * from fact_1_delais where of='1727562';");
+$req = new SQLRequest("SELECT * FROM Trace where of > :of LIMIT 2000 ");
+// $req = new SQLRequest('SELECT * FROM ordre_fabrication WHERE ROWNUM < 100', true);
 
 // Liste Manager
-$lm = new \LM\ListManager('mysql');
+$lm = new ListManager('mysql'
+	// ListManager::NO_CSS 
+	// ListManager::NO_SEARCH, 
+	// ListManager::NO_EXCEL, 
+	// ListManager::NO_VERBOSE,
+	// ListManager::NO_ORDER_BY,
+	// ListManager::NO_MASK,
+	// ListManager::UNFIXED_TITLES,
+	// ListManager::NO_PAGING
+	);
 // $lm->setRowsClasses('gris', 'gris-clair');
 $lm->setMask(array('SOF', 'CodeDisposition'));
-$lm->enableOrderBy(true);
-$lm->enableSearch(true);
-$lm->enableMask(true);
-$lm->enableExcel(true);
 $html = $lm->construct($req, array(':of' => 2000));
 
 

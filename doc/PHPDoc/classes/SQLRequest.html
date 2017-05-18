@@ -87,14 +87,6 @@
 
             <div class="nav-collapse">
                 <ul class="nav pull-right">
-                                        <li class="dropdown">
-                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
-                            API Documentation <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                                                        <li><a href="../namespaces/LM.html">\LM</a></li>
-                                                    </ul>
-                    </li>
                                         <li class="dropdown" id="charts-menu">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             Charts <b class="caret"></b>
@@ -114,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">46</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">48</span>
                                 </a>
                             </li>
                             <li>
@@ -144,40 +136,23 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1535593621"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1767324248"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1535593621" class="accordion-body collapse in">
-                <div class="accordion-inner">
-
-                                                    <div class="accordion" style="margin-bottom: 0">
-        <div class="accordion-group">
-            <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1113499283"></a>
-                                <a href="../namespaces/LM.html" style="margin-left: 30px; padding-left: 0">LM</a>
-            </div>
-            <div id="namespace-1113499283" class="accordion-body collapse ">
+            <div id="namespace-1767324248" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
                     <ul>
-                                                                                                    <li class="class"><a href="../classes/LM.Database.html">Database</a></li>
-                                                    <li class="class"><a href="../classes/LM.ListManager.html">ListManager</a></li>
-                                                    <li class="class"><a href="../classes/LM.ListTemplate.html">ListTemplate</a></li>
-                                                    <li class="class"><a href="../classes/LM.RequestResponse.html">RequestResponse</a></li>
-                                                    <li class="class"><a href="../classes/LM.RequestType.html">RequestType</a></li>
-                                                    <li class="class"><a href="../classes/LM.ResponseType.html">ResponseType</a></li>
-                                                    <li class="class"><a href="../classes/LM.Session.html">Session</a></li>
-                                                    <li class="class"><a href="../classes/LM.SQLRequest.html">SQLRequest</a></li>
+                                                                                                    <li class="class"><a href="../classes/Database.html">Database</a></li>
+                                                    <li class="class"><a href="../classes/ListManager.html">ListManager</a></li>
+                                                    <li class="class"><a href="../classes/ListTemplate.html">ListTemplate</a></li>
+                                                    <li class="class"><a href="../classes/RequestResponse.html">RequestResponse</a></li>
+                                                    <li class="class"><a href="../classes/RequestType.html">RequestType</a></li>
+                                                    <li class="class"><a href="../classes/ResponseType.html">ResponseType</a></li>
+                                                    <li class="class"><a href="../classes/Session.html">Session</a></li>
+                                                    <li class="class"><a href="../classes/SQLRequest.html">SQLRequest</a></li>
                                             </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-                    
-                    <ul>
-                                                                                            </ul>
                 </div>
             </div>
         </div>
@@ -190,15 +165,13 @@
             <div class="row-fluid">
                 <div class="span8 content class">
                     <nav>
-                                                <a href="../namespaces/LM.html">\LM</a> <i class="icon-level-up"></i>
+                                                <a href="../namespaces/default.html">\</a> <i class="icon-level-up"></i>
                                             </nav>
                     <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
 
-                    <h1><small>\LM</small>Database</h1>
-                    <p><em>Database permet la connection aux bases de données.</em></p>
-                    <p>L'interaction de l'application avec les bases de données se fait de façon générique pour tous les types de BD (Postgre, Oracle, MySql) grâce à l'objet <em>PDO</em> de PHP
-Cette classe est basée sur le design pattern du multiton : il est possible d'avoir plusieurs instances de l'objet Database en les identifiant avec une étiquette unique, et d'y accéder partout dans l'application via la méthode statique <em>getInstance()</em>.
-De ce fait, le constructeur de Database est private. Pour créer une nouvelle instance il faut utiliser la méthode de classe <em>instantiate()</em> en précisant une étiquette si vous utilisez plusieurs bases de données pour l'application.</p>
+                    <h1><small>\</small>SQLRequest</h1>
+                    <p><em>Classe représentant les requetes SQL.</em></p>
+                    <p>Un objet SQLRequest est composé d'une requete de base à laquelle il est possible de rajouter des clauses WHERE, un ORDER By ou de supprimer des colonnes.</p>
                     
                                         
                     <section id="summary">
@@ -216,16 +189,16 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
                         </section>
                         <section class="row-fluid public">
                             <section class="span4">
-                                                                    <a href="../classes/LM.Database.html#method_instantiate" class="">instantiate()</a><br />
-                                                                    <a href="../classes/LM.Database.html#method_execute" class="">execute()</a><br />
-                                                                    <a href="../classes/LM.Database.html#method___sleep" class="">__sleep()</a><br />
-                                                                    <a href="../classes/LM.Database.html#method___wakeup" class="">__wakeup()</a><br />
-                                                                    <a href="../classes/LM.Database.html#method_getInstance" class="">getInstance()</a><br />
-                                                                    <a href="../classes/LM.Database.html#method_getPDO" class="">getPDO()</a><br />
-                                                                    <a href="../classes/LM.Database.html#method_getLabel" class="">getLabel()</a><br />
-                                                                    <a href="../classes/LM.Database.html#method_getErrorMessages" class="">getErrorMessages()</a><br />
-                                                                    <a href="../classes/LM.Database.html#method_oracle" class="">oracle()</a><br />
-                                                                    <a href="../classes/LM.Database.html#method_setLabel" class="">setLabel()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method___construct" class="">__construct()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_where" class="">where()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_orderBy" class="">orderBy()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_removeOrderBy" class="">removeOrderBy()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method___toString" class="">__toString()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_getType" class="">getType()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_getOrderByArray" class="">getOrderByArray()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_getLimit" class="">getLimit()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_setLimit" class="">setLimit()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_prepareForOracle" class="">prepareForOracle()</a><br />
                                                             </section>
                             <section class="span4">
                                                                     <em>No public properties found</em>
@@ -247,16 +220,17 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
                         </section>
                         <section class="row-fluid private">
                             <section class="span4">
-                                                                    <a href="../classes/LM.Database.html#method___construct" class="">__construct()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_matchRequete" class="">matchRequete()</a><br />
                                                             </section>
                             <section class="span4">
-                                                                    <a href="../classes/LM.Database.html#property_pdo" class="">$pdo</a><br />
-                                                                    <a href="../classes/LM.Database.html#property_label" class="">$label</a><br />
-                                                                    <a href="../classes/LM.Database.html#property_dsn" class="">$dsn</a><br />
-                                                                    <a href="../classes/LM.Database.html#property_login" class="">$login</a><br />
-                                                                    <a href="../classes/LM.Database.html#property_passwd" class="">$passwd</a><br />
-                                                                    <a href="../classes/LM.Database.html#property_errorMessages" class="">$errorMessages</a><br />
-                                                                    <a href="../classes/LM.Database.html#property_instances" class="">$instances</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_requestBasis" class="">$requestBasis</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_whereBlock" class="">$whereBlock</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_havingBlock" class="">$havingBlock</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_orderByArray" class="">$orderByArray</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_limit" class="">$limit</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_offset" class="">$offset</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_requestType" class="">$requestType</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property_forOracle" class="">$forOracle</a><br />
                                                             </section>
                             <section class="span4">
                                 <em>N/A</em>
@@ -269,20 +243,18 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
                     
                     <dl>
                         <dt>File</dt>
-                            <dd><a href="../files/Database.html"><div class="path-wrapper">Database.php</div></a></dd>
+                            <dd><a href="../files/SQLRequest.html"><div class="path-wrapper">SQLRequest.php</div></a></dd>
                                                 <dt>Package</dt>
                             <dd><div class="namespace-wrapper">Default</div></dd>
                                                 <dt>Class hierarchy</dt>
                             <dd class="hierarchy">
-                                                                                                                                                                    <div class="namespace-wrapper">\LM\Database</div>
+                                                                                                                                                                    <div class="namespace-wrapper">\SQLRequest</div>
                             </dd>
 
                         
                         
                         
-                                                                            <dt>See also</dt>
-                                                                                    <dd><a href="http://php.net/manual/fr/intro.pdo.php"><div class="namespace-wrapper">Manuel PDO sur php.net</div></a></dd>
-                                                    
+                        
                                                                         </dl>
                     <h2>Tags</h2>
                     <table class="table table-condensed">
@@ -309,40 +281,16 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
 
                                                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_pdo" name="property_pdo" class="anchor"></a>
+            <a id="property_requestBasis" name="property_requestBasis" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$pdo</h3>
-                <pre class="signature">$pdo : \LM\PDO</pre>
-                <p><em>Objet PDO</em></p>
-                
-
-                                <h4>Type</h4>
-                \LM\PDO
-                &mdash; le pointeur vers l&#039;objet PDO utilisé par Database pour se connecter et interargir avec la base de données                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                        <dl>
-                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="property_label" name="property_label" class="anchor"></a>
-            <article class="property">
-                <h3 class="private ">$label</h3>
-                <pre class="signature">$label : string</pre>
+                <h3 class="private ">$requestBasis</h3>
+                <pre class="signature">$requestBasis : string</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
                 string
-                &mdash; l&#039;etiquette de la base de données                            </article>
+                &mdash; bloc de base SQL (sans WHERE, ORDER BY, HAVING...)                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -357,16 +305,16 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_dsn" name="property_dsn" class="anchor"></a>
+            <a id="property_whereBlock" name="property_whereBlock" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$dsn</h3>
-                <pre class="signature">$dsn : string</pre>
+                <h3 class="private ">$whereBlock</h3>
+                <pre class="signature">$whereBlock : string</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
                 string
-                                            </article>
+                &mdash; correspond à la partie Where de la requete SQL                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -381,16 +329,16 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_login" name="property_login" class="anchor"></a>
+            <a id="property_havingBlock" name="property_havingBlock" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$login</h3>
-                <pre class="signature">$login : string</pre>
+                <h3 class="private ">$havingBlock</h3>
+                <pre class="signature">$havingBlock : string</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
                 string
-                                            </article>
+                &mdash; correspond à la partie Having de la requete SQL                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -405,40 +353,16 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_passwd" name="property_passwd" class="anchor"></a>
+            <a id="property_orderByArray" name="property_orderByArray" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$passwd</h3>
-                <pre class="signature">$passwd : string</pre>
-                <p><em></em></p>
-                
-
-                                <h4>Type</h4>
-                string
-                                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                        <dl>
-                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="property_errorMessages" name="property_errorMessages" class="anchor"></a>
-            <article class="property">
-                <h3 class="private ">$errorMessages</h3>
-                <pre class="signature">$errorMessages : array</pre>
+                <h3 class="private ">$orderByArray</h3>
+                <pre class="signature">$orderByArray : array</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
                 array
-                &mdash; le tableau contenatn l&#039;ensemble des messages d&#039;erreur enregistrés                            </article>
+                &mdash; tableau contenant le numéro/nom de colonnes pour le tri des données                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -453,16 +377,88 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_instances" name="property_instances" class="anchor"></a>
+            <a id="property_limit" name="property_limit" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$instances</h3>
-                <pre class="signature">$instances : array</pre>
+                <h3 class="private ">$limit</h3>
+                <pre class="signature">$limit : integer</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
-                array
-                &mdash; tableau contenant l&#039;ensemble des objet Database instanciés dans l&#039;application. La clé d&#039;une entrée correspond à l&#039;étiquette de la base de données.                            </article>
+                integer
+                &mdash; correpsond à la valeur de la clause &#039;LIMIT&#039; d&#039;une requete SELECT                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_offset" name="property_offset" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$offset</h3>
+                <pre class="signature">$offset : string</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                string
+                &mdash; correpsond à la valeur de la clause &#039;OFFSET&#039; d&#039;une requete SELECT                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_requestType" name="property_requestType" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$requestType</h3>
+                <pre class="signature">$requestType : \RequestType</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                <a href="../classes/RequestType.html">\RequestType</a>
+                &mdash; : énumération sur le type de la requete SQL                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_forOracle" name="property_forOracle" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$forOracle</h3>
+                <pre class="signature">$forOracle : boolean</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                boolean
+                &mdash; : détemrine si cette requête SQL est destinée à etre exécutée par une base de données Oracle ou non                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -484,139 +480,29 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_instantiate" name="method_instantiate" class="anchor"></a>
+            <a id="method___construct" name="method___construct" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">instantiate()</h3>
+                <h3 class="public ">__construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">instantiate(string  <span class="argument">$dsn</span>, string  <span class="argument">$login</span>, string  <span class="argument">$mdp</span>, string  <span class="argument">$etiquette = &#039;principale&#039;</span>) : \LM\Database</pre>
-                <p><em>Instancie une nouvelle connexion avec la base de donnees via un objet PDO</em></p>
-                
+                <pre class="signature" style="margin-right: 54px;">__construct(  <span class="argument">$baseRequete</span>,   <span class="argument">$forOracle = false</span>) </pre>
+                <p><em>Construit une nouvelle requete SQL à partir d&#039;une requete de base
+La requete SQL de base passée en paramètre ne doit pas contenir :
+* de clause ODER BY (pour le moment.</em></p>
+                <p>..) -&gt; TODO</p>
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td>string</td>
-                                <td>$dsn </td>
-                                <td><p>le DSN de la connection (voir le manuel PHP concernant PDO)</p></td>
+                                <td></td>
+                                <td>$baseRequete </td>
+                                <td></td>
                             </tr>
                                                     <tr>
-                                <td>string</td>
-                                <td>$login </td>
-                                <td><p>le nom d'utilisateur de la BD</p></td>
-                            </tr>
-                                                    <tr>
-                                <td>string</td>
-                                <td>$mdp </td>
-                                <td><p>le mot de passe de l'utilisateur</p></td>
-                            </tr>
-                                                    <tr>
-                                <td>string</td>
-                                <td>$etiquette </td>
-                                <td><p>(facultatif) l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont
-utilisees en meme temps dans l'application</p></td>
-                            </tr>
-                                            </table>
-                
-                
-                                    <h4>Returns</h4>
-                    <a href="../classes/LM.Database.html">\LM\Database</a>
-                                            &mdash; <p>: l'instance de Database cree et connecte, ou null en cas d'echec.</p>
-                                    				
-                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                            <span class="label label-info">static</span>
-                                                            <dl>
-                                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="method_execute" name="method_execute" class="anchor"></a>
-            <article class="method">
-                <h3 class="public ">execute()</h3>
-                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">execute(mixed  <span class="argument">$request</span>, array  <span class="argument">$params = array()</span>) : \LM\RequestResponse</pre>
-                <p><em>Execute la requete SQL passee en parametres</em></p>
-                
-
-                                    <h4>Parameters</h4>
-                    <table class="table table-condensed table-hover">
-                                                    <tr>
-                                <td>mixed</td>
-                                <td>$request </td>
-                                <td><p>la requete SQL a executer, peut etre string ou objet SQLRequest</p></td>
-                            </tr>
-                                                    <tr>
-                                <td>array</td>
-                                <td>$params </td>
+                                <td></td>
+                                <td>$forOracle </td>
                                 <td></td>
                             </tr>
                                             </table>
-                
-                
-                                    <h4>Returns</h4>
-                    <a href="../classes/LM.RequestResponse.html">\LM\RequestResponse</a>
-                                            &mdash; <p>l'objet repéresentant la reponse de la requete, ou false si la BD n'est pas connectee</p>
-                                    				
-                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                                                            <dl>
-                                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="method___sleep" name="method___sleep" class="anchor"></a>
-            <article class="method">
-                <h3 class="public ">__sleep()</h3>
-                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__sleep() : array</pre>
-                <p><em>Fonction magique PHP : permet la sérialisation de Database.</em></p>
-                
-
-                
-                
-                                    <h4>Returns</h4>
-                    array
-                                            &mdash; <p>un tableau contenant le nom des attributs à enregistrer lors de la sérialisation</p>
-                                    				
-                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                                                            <dl>
-                                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="method___wakeup" name="method___wakeup" class="anchor"></a>
-            <article class="method">
-                <h3 class="public ">__wakeup()</h3>
-                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__wakeup() </pre>
-                <p><em>Fonction magique PHP : permet la désérialisation de Database</em></p>
-                
-
                 
                 
                 				
@@ -635,33 +521,91 @@ utilisees en meme temps dans l'application</p></td>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_getInstance" name="method_getInstance" class="anchor"></a>
+            <a id="method_where" name="method_where" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">getInstance()</h3>
+                <h3 class="public ">where()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">getInstance(string  <span class="argument">$etiquette = &#039;principale&#039;</span>) : \LM\Database</pre>
-                <p><em>Retourne l&#039;instance de la base de donnees dont l&#039;étiquette est apssée en paramètre. Si vous n&#039;utilisez qu&#039;une seule base de données vous n&#039;avez pas besoin de spécifier ce paramètre.</em></p>
+                <pre class="signature" style="margin-right: 54px;">where(array  <span class="argument">$tabWhere</span>) </pre>
+                <p><em>Ajoute des clauses where à la requête.</em></p>
                 
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td>string</td>
-                                <td>$etiquette </td>
-                                <td><p>: l'etiquette de la base de donnees. Par defaut retourne la base de données étiquettée 'principale'</p></td>
+                                <td>array</td>
+                                <td>$tabWhere </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            var
+                        </th>
+                        <td>
+                                                                                            <p>: le tableau contenant toutes les conditions à rajouter. Ce tableau aura la forme suivante :
+-&gt; 'nomColonne1' =&gt; 'condition1', 'nomColonne2' =&gt; 'condition2' ...
+Une condition prend la forme suivante : [OPERATEUR][VALEUR]
+Les opérateurs possibles sont :</p>
+<ul>
+<li>(pas d'opérateur) : égalité stricte avec la valeur entrée</li>
+<li>
+< > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égale (pour les valeurs numériques)
+</li>
+<li>! : opérateur 'différent de'</li>
+<li>&lt;&lt; : opérateur 'BETWEEN' pour les dates</li>
+<li>_ % : opérateurs joker SQL, remplacent respectivement un seul caractère ou un nombre indéfini de caractère dans une chaine.
+Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' =&gt; 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
+La condition '!' est traduite par 'NOT NULL'</li>
+</ul>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_orderBy" name="method_orderBy" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">orderBy()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">orderBy(mixed  <span class="argument">$nomColonne</span>) : boolean</pre>
+                <p><em>Ajoute une ou plusieurs colonnes au bloc order by de la requete</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>mixed</td>
+                                <td>$nomColonne </td>
+                                <td><p>: correpsond au nom / numéro de la (ou des) colonne(s) à ajouter au group by :</p>
+<ul>
+<li>Pour ajouter plusieurs colonnes ce paramèttre doit etre un array, sinon c'est un int.</li>
+<li>Pour classer la colonnes par 'DESC' le nom ou numéro doit commencer par '-'.</li>
+</ul></td>
                             </tr>
                                             </table>
                 
                 
                                     <h4>Returns</h4>
-                    <a href="../classes/LM.Database.html">\LM\Database</a>
-                                            &mdash; <p>: l'instance de Database ou null si l'étiquette ne correspond pas</p>
+                    boolean
+                                            &mdash; <p>faux si le type de requete n'est pas SELECT ou si le paramètre $nomColonne est vide.</p>
                                     				
                             </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
-                            <span class="label label-info">static</span>
                                                             <dl>
                                                                             </dl>
             <h2>Tags</h2>
@@ -673,19 +617,19 @@ utilisees en meme temps dans l'application</p></td>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_getPDO" name="method_getPDO" class="anchor"></a>
+            <a id="method_removeOrderBy" name="method_removeOrderBy" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">getPDO()</h3>
+                <h3 class="public ">removeOrderBy()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">getPDO() : \LM\PDO</pre>
-                <p><em>Fonction de debug</em></p>
+                <pre class="signature" style="margin-right: 54px;">removeOrderBy() : boolean</pre>
+                <p><em>Remet à zéro le contenu du bloc ORDER BY</em></p>
                 
 
                 
                 
                                     <h4>Returns</h4>
-                    \LM\PDO
-                                            &mdash; <p>l'objet PDO de contenu dans cette instance de Database.</p>
+                    boolean
+                                            &mdash; <p>vrai si opération ok, faux sinon (type de requete incompatible)</p>
                                     				
                             </article>
         </div>
@@ -702,78 +646,19 @@ utilisees en meme temps dans l'application</p></td>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_getLabel" name="method_getLabel" class="anchor"></a>
+            <a id="method___toString" name="method___toString" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">getLabel()</h3>
+                <h3 class="public ">__toString()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">getLabel() : string</pre>
-                <p><em>Retourne l&#039;étiquette de la base de données</em></p>
-                
-
-                
-                
-                                    <h4>Returns</h4>
-                    string
-                                            &mdash; <p>l'etiquette de la base de donnees</p>
-                                    				
-                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                                                            <dl>
-                                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="method_getErrorMessages" name="method_getErrorMessages" class="anchor"></a>
-            <article class="method">
-                <h3 class="public ">getErrorMessages()</h3>
-                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">getErrorMessages() : string</pre>
-                <p><em>Retourne le tableau des messages d&#039;erreur enregistrés par la classe Database</em></p>
-                
-
-                
-                
-                                    <h4>Returns</h4>
-                    string
-                                            &mdash; <p>le dernier message d'erreur</p>
-                                    				
-                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                            <span class="label label-info">static</span>
-                                                            <dl>
-                                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="method_oracle" name="method_oracle" class="anchor"></a>
-            <article class="method">
-                <h3 class="public ">oracle()</h3>
-                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">oracle() : boolean</pre>
+                <pre class="signature" style="margin-right: 54px;">__toString() : string</pre>
                 <p><em></em></p>
                 
 
                 
                 
                                     <h4>Returns</h4>
-                    boolean
-                                            &mdash; <p>true si l'objet est connecté sur une base de données Oracle, false sinon</p>
+                    string
+                                            &mdash; <p>la requete SQL complete</p>
                                     				
                             </article>
         </div>
@@ -790,28 +675,147 @@ utilisees en meme temps dans l'application</p></td>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_setLabel" name="method_setLabel" class="anchor"></a>
+            <a id="method_getType" name="method_getType" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">setLabel()</h3>
+                <h3 class="public ">getType()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">setLabel(string  <span class="argument">$nouvEtiquette</span>) : boolean</pre>
-                <p><em>Definit une nouvelle etiquette pour la base de donnees.</em></p>
-                <p>Cette nouvelle etiquette ne doit pas etre deja utilisee par une autre base de donnees.</p>
+                <pre class="signature" style="margin-right: 54px;">getType() : \RequestType</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/RequestType.html">\RequestType</a>
+                                            &mdash; <p>: le type de la requete SQL</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getOrderByArray" name="method_getOrderByArray" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getOrderByArray()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getOrderByArray() : array</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; <p>les numéros des colonnes du order by, négatif si tri décroissant
+retourne faux s'il n'y a pas d'order by.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getLimit" name="method_getLimit" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getLimit()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getLimit() : integer</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    integer
+                                            &mdash; <p>la valeur de la clause 'LIMIT' de la requete, ou null si non définie</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setLimit" name="method_setLimit" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setLimit()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setLimit(integer  <span class="argument">$valeur</span>) </pre>
+                <p><em>Définit la nouvelle valeur de la clause LIMIT pour les requêtes de type SELECT</em></p>
+                
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td>string</td>
-                                <td>$nouvEtiquette </td>
-                                <td><p>la nouvelle etiquette de la base de donnees</p></td>
+                                <td>integer</td>
+                                <td>$valeur </td>
+                                <td><p>: la nouvelle valeur limit. Si null cette clause sera desactivée.</p></td>
                             </tr>
                                             </table>
                 
                 
-                                    <h4>Returns</h4>
-                    boolean
-                                            &mdash; <p>true si la BD a ete re-étiquettée, false sinon</p>
-                                    				
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_prepareForOracle" name="method_prepareForOracle" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">prepareForOracle()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">prepareForOracle(  <span class="argument">$valeur</span>) </pre>
+                <p><em></em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td></td>
+                                <td>$valeur </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
                             </article>
         </div>
         <aside class="span4 detailsbar">
@@ -827,37 +831,16 @@ utilisees en meme temps dans l'application</p></td>
 
                                                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method___construct" name="method___construct" class="anchor"></a>
+            <a id="method_matchRequete" name="method_matchRequete" class="anchor"></a>
             <article class="method">
-                <h3 class="private ">__construct()</h3>
+                <h3 class="private ">matchRequete()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__construct(string  <span class="argument">$dsn</span>, string  <span class="argument">$login</span>, string  <span class="argument">$passwd</span>,   <span class="argument">$label</span>) </pre>
-                <p><em>Instancie la connexion avec la base de donnees via un objet PDO contenu dans l&#039;objet Database.</em></p>
-                <p>Si la connection n'est pas possible le message d'erreur sera produit, vous pourrez l'afficher avec la methode geterrorMessages.</p>
+                <pre class="signature" style="margin-right: 54px;">matchRequete() </pre>
+                <p><em>Définit le type de la base de requête en paramètre parmi
+	- SELECT - UPDATE - DELETE - INSERT - AUTRE -
+Actualise les blocs where et having si necessaire. A appler dans le constructeur</em></p>
+                
 
-                                    <h4>Parameters</h4>
-                    <table class="table table-condensed table-hover">
-                                                    <tr>
-                                <td>string</td>
-                                <td>$dsn </td>
-                                <td><p>le DSN (voir le manuel PHP concernant <strong>PDO</strong>)</p></td>
-                            </tr>
-                                                    <tr>
-                                <td>string</td>
-                                <td>$login </td>
-                                <td><p>le nom d'utilisateur pour la connexion</p></td>
-                            </tr>
-                                                    <tr>
-                                <td>string</td>
-                                <td>$passwd </td>
-                                <td><p>son mot de passe</p></td>
-                            </tr>
-                                                    <tr>
-                                <td></td>
-                                <td>$label </td>
-                                <td></td>
-                            </tr>
-                                            </table>
                 
                 
                 				
@@ -880,10 +863,10 @@ utilisees en meme temps dans l'application</p></td>
     <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="source-view-label">Database.php</h3>
+            <h3 id="source-view-label">SQLRequest.php</h3>
         </div>
         <div class="modal-body">
-            <pre data-src="../files/Database.php.txt" class="language-php line-numbers"></pre>
+            <pre data-src="../files/SQLRequest.php.txt" class="language-php line-numbers"></pre>
         </div>
     </div>
 
@@ -896,7 +879,6 @@ utilisees en meme temps dans l'application</p></td>
                                                         <h1><i class="icon-code"></i></h1>
                             <div>
                                 <ul>
-                                                                            <li><a href="../namespaces/LM.html">\LM</a></li>
                                                                     </ul>
                             </div>
                         </section>
@@ -924,7 +906,7 @@ utilisees en meme temps dans l'application</p></td>
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on May 17th, 2017 at 08:45.
+                    on May 18th, 2017 at 14:59.
                 </section>
             </section>
         </section>

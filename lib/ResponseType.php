@@ -1,6 +1,5 @@
 <?php
 
-namespace LM;
 
 /**
  * Enumération des formats de réponse possible de ListManager

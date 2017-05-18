@@ -1,6 +1,5 @@
 <?php
 
-namespace LM;
 
 /*-**********************************************************************************************
 **                                                                                             ** 
@@ -87,6 +86,10 @@ class ListTemplate {
 	 */
 	private $cellCallback;
 	/**
+	 * @var bool définit si le callback de cellule réécrit les balises TD des cellules ou non. Passez cet attribut à faux pour ajouter manuellement des attributs aux balises td
+	 */
+	private $replaceTagTD;
+	/**
 	 * @var string $rowCallback nom du callback a appeler lors de l'affichage des des lignes (balises 'tr')
 	 */
 	private $rowCallback;
@@ -134,12 +137,16 @@ class ListTemplate {
 	 * @var integer longueur maximale des champs de saisie pour la recherche par colonne
 	 */
 	private $maxSizeInputs;
+	/**
+	 * @var bool $fixedTitles définti si les titres de la listes sont fixés lorsque l'utilisateur scroll
+	 */
+	private $fixedTitles;
 	
 	/**
 	 * @var string classe par défaut des lignes impaires du tableau
 	 * @var string classe par défaut des lignes paires du tableau
 	 */
-	public static $CLASSE1 = 'gris', $CLASSE2 = 'orange';
+	public static $CLASSE1 = 'bleu-fonce', $CLASSE2 = 'bleu-clair';
 	
 	
 	
@@ -149,8 +156,6 @@ class ListTemplate {
 	
 	/**
 	 * Construit un objet ListTemplate et lui assigne son comportemetn par défaut
-	 * @param string $classe1 (facultatif) la classe à appliquer aux lignes paires. Si null : prend la valeur de self::$CLASSE1
-	 * @param string $classe2 (facultatif) la classe à appliquer aux lignes impaires. Si null : prend la valeur de self::$CLASSE2
 	 */
 	 public function __construct(){
 	 	// [!] => si vous changez l'id de la liste pensez à le mettre à jour dans le fichier listManager.js
@@ -169,13 +174,15 @@ class ListTemplate {
 		$this->maxPagesDisplayed = 10;
 		$this->listTitles = array();
 		$this->cellCallback = null;
+		$this->replaceTagTD = false;
 		$this->rowCallback = null;
 		$this->columnCallback = null;
 		$this->useCache = false;
-		$this->helpLink = 'http://list-manager.torchpad.com/Presentation+liste';
+		$this->helpLink = null;
 		$this->displayNbResults = true;
 		$this->applyDefaultCSS = true;
 		$this->maxSizeInputs = 30;
+		$this->fixedTitles = true;
 	}
 	
 	
@@ -280,7 +287,8 @@ class ListTemplate {
 		$ret .= "</div>\n";
 
 		// Initialisation de la liste
-		$ret .= '<div><table'.(($this->id == null)?'' : " id='$this->id' ").'>'."\n<tr>";
+		$ret .= '<div><table'.(($this->fixedTitles)? ' fixed-titles="true"' : '')
+			.(($this->id == null)?'' : " id='$this->id' ").'>'."\n<tr id='ligne-titres'>";
 
 		//Creation des titres
 		$i = 0;
@@ -341,7 +349,7 @@ class ListTemplate {
 		// Utilisation du callback pour ajouter une colonne
 		if($this->columnCallback != null) {
 			$fct = $this->columnCallback;
-			$ret .= $fct(0, $titres, true);
+			$ret .= call_user_func_array($fct, array(0, $titres, true));
 		}
 
 		$ret .= "</tr>\n";
@@ -385,7 +393,7 @@ class ListTemplate {
 				// Utilisation du callback
 				if($this->rowCallback != null) {
 					$fct = $this->rowCallback;
-					$ret .= ' '.$fct($i, $ligne);
+					$ret .= ' '.call_user_func_array($fct, array($i, $ligne));
 				}
 				$ret .= '>';
 
@@ -399,12 +407,12 @@ class ListTemplate {
 						// Application du callback (si non null)
 						if($this->cellCallback != null) {
 							$fct = $this->cellCallback;
-							$cellule = ( (($retFCT = $fct($cellule, $titres[$j], $i, $ligne)) === null)? $cellule : $retFCT ) ;
+							$cellule = ( (($retFCT = call_user_func_array($fct, array($cellule, $titres[$j], $i, $ligne))) === null)? $cellule : $retFCT ) ;
 						}
 						// Si la cellule ne contient rien -> '-'
 						if(strlen($cellule) == 0)
 							$cellule = '-';
-						$ret .= '<td>'.$cellule.'</td>';
+						$ret .= (($this->replaceTagTD)? '' : '<td>') .$cellule. (($this->replaceTagTD)? '' : '</td>');
 					}
 					$j++;
 				}
@@ -412,7 +420,7 @@ class ListTemplate {
 				// Ajout des colonnes par callback
 				if($this->columnCallback != null) {
 					$fct = $this->columnCallback;
-					$ret .= $fct($i, $ligne, false);
+					$ret .= call_user_func_array($fct, array($i, $ligne, false));
 				}
 
 				$ret .= "</tr>\n";
@@ -422,8 +430,8 @@ class ListTemplate {
 		}
 
 		// Affichage du tableau des numeros de page
-		if($nbLignes > $this->nbResultsPerPage){
-			$ret .= '<table id="pagination" align="center"><tr>';
+		if($nbLignes > $this->nbResultsPerPage && $this->maxPagesDisplayed != false){
+			$ret .= '<div id="pagination"><table align="center"><tr>';
 			$nbPages = (is_int($nbPages = ($nbLignes / $this->nbResultsPerPage))? $nbPages : round($nbPages + 0.5) );
 
 			// S'il y a plus de pages que la limite affichable
@@ -462,8 +470,10 @@ class ListTemplate {
 				$ret .= '<td><a href="'.self::creerUrlGET('lm_page', $nbPages).'">&gt;&gt;</td>';
 			}
 
-			$ret .= "</tr></table></div></div>\n</div>\n";
+			$ret .= "</tr></table></div>\n";
 		}
+
+		$ret .= "</div></div>\n</div>\n";
 
 		// Ajout des scripts
 		$ret .= '<script type="text/javascript" src="'.LM_JS.'jquery-3.2.1.min.js"></script>'
@@ -609,18 +619,17 @@ class ListTemplate {
 	 *    3. numLigne   : le numero de la ligne en cours
 	 *    4. ligne    : un array associatif contenant toutes les données de la ligne en cours
 	 * * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
-	 * @param string|null $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
-	 * @return boolean true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)
+	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
+	 * @param bool $replaceTagTD définit si le callback définit réécrit les balises td ou non. Par défaut ce paramètre vaut false, ce qui signifit que ListTemplate écrit automatiquement des balises td de la liste.
+	 * Cette option est utile si vous souhaitez ajouter des attributs particuliers aux cellules de votre liste
+	 * @return bool false si le paramète $replaceTagTD n'est pas un booléen
 	 */
-	public function setCellCallback($fonction=null){
-		if($fonction != null && function_exists($fonction)){
-			$this->cellCallback = $fonction;
-			return true;
-		}
-		else {
-			$this->cellCallback = null;
+	public function setCellCallback(callable $fonction, $replaceTagTD=false){
+		if(!is_bool($replaceTagTD)){
 			return false;
 		}
+		$this->replaceTagTD = $replaceTagTD;
+		$this->cellCallback = $fonction;
 	}
 
 	/**
@@ -630,18 +639,10 @@ class ListTemplate {
 	 *    * 1. numero  : correspond au numéro de la ligne en cours
 	 *    * 2. donnees : array php contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau
 	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string).
-	 * @param string $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
-	 * @return boolean true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)
+	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
 	 */
-	public function setRowCallback($fonction=null){
-		if($fonction != null && function_exists($fonction)){
-			$this->rowCallback = $fonction;
-			return true;
-		}
-		else {
-			$this->rowCallback = null;
-			return false;
-		}
+	public function setRowCallback(callable $fonction){
+		$this->rowCallback = $fonction;
 	}
 
 	/**
@@ -652,18 +653,10 @@ class ListTemplate {
 	 *    * 2. donnees   : array contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
 	 *    * 3. estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon 
 	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string).
-	 * @param string $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
-	 * @return boolean true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)
+	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
 	 */
-	public function setColumnCallback($fonction=null){
-		if($fonction != null && function_exists($fonction)){
-			$this->columnCallback = $fonction;
-			return true;
-		}
-		else {
-			$this->columnCallback = null;
-			return false;
-		}
+	public function setColumnCallback(callable $fonction){
+		$this->columnCallback = $fonction;
 	}
 
 	/**
@@ -682,7 +675,7 @@ class ListTemplate {
 	 * @param int $valeur le nombre de liens max à afficher.
 	 */
 	public function setMaxPagesDisplayed($valeur){
-		if($valeur != intval($valeur))
+		if(intval($valeur) < 0)
 			return false;
 
 		$this->maxPagesDisplayed = $valeur;
@@ -745,6 +738,8 @@ class ListTemplate {
 	/**
 	 * Définit si le template doit charger le fichier CSS par défaut et appliquer le style du template par déaut
 	 * Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver cette option et inclure votre propre fichier CSS
+	 * Cette méthode désactive aussi l'option des titres fixés lorsque l'tuilisateur scroll, car sans le CSS par défaut cette seconde option peut créer des résultats inattendus.
+	 * Si toutesfois vous ne souhaitez pas désactiver cette option utilisez la méthode *fixTitles(true)* pour la réactiver.
 	 * @param bool $valeur false pour desactiver, true pour activer
 	 * @return bool false si l'argument n'est pas un booleen
 	 */
@@ -753,6 +748,8 @@ class ListTemplate {
 			return false;
 
 		$this->applyDefaultCSS = $valeur;
+		if(!$valeur)
+			$this->fixTitles($valeur);
 	}
 
 	/**
@@ -765,6 +762,17 @@ class ListTemplate {
 			return false;
 
 		$this->maxSizeInputs = $valeur;
+	}
+
+	/**
+	 * Définit sui les titres de votre liste restent fixés en haut de l'écran lorsque l'utilisateur scroll sur la page.
+	 * @var bool valeur true pour activer false pour désactiver cette option
+	 * @return bool false si l'arguemnt n'est pas un booléen.
+	 */
+	public function fixTitles($valeur) {
+		if(!is_bool($valeur))
+			return false;
+		$this->fixedTitles = $valeur;
 	}
 
 			/*-****************

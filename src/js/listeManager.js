@@ -1,3 +1,4 @@
+window.onload = function() {
 
 // Retourne un array unique
 Array.prototype.unique = function() {
@@ -100,6 +101,37 @@ else {
 	$('a#annuler-masque').hide();
 }
 
+
+// Fixer les titres de la liste sur le doc
+if(document.querySelector('#liste').getAttribute('fixed-titles') != null) {
+
+	var ligneTitres = document.querySelector("#ligne-titres");
+	var ths = $(ligneTitres).children('th');
+	var tds = $("#liste tr:not(.tabSelect, #ligne-titres):eq(0) td");
+
+	// On fixe la largeur des td & th avant le 1er scroll
+	tds.each(function(index, td) {
+		$(td).css('min-width', Math.min(td.clientWidth, ths[index].clientWidth)+'px');
+	});
+	for (var i = ths.length - 1; i >= 0; i--) {
+		$(ths[i]).css('min-width', $(tds[i]).css('min-width'));
+	}
+
+	// Callback sur le scroll
+	function scrollTitre(){
+		var currentScroll = document.body.scrollTop || document.documentElement.scrollTop;
+		var fixed = currentScroll >= (ligneTitres).offsetHeight;
+		ligneTitres.className = (fixed) ? "fixed" : "";
+		if(fixed) {
+			for (var i = ths.length - 1; i >= 0; i--) {
+				$(ths[i]).css('min-width', $(tds[i]).css('min-width'));
+			}
+		}
+	}
+}
+
+
+
 /*----------------------------------------------------
 --  APPLICAITON DES LISTENNERS
 -----------------------------------------------------*/
@@ -110,3 +142,6 @@ $('#boutons-options a#btn-recherche').click(function (event) {
 });
 $('a#annuler-masque').click(afficherColonnes);
 $('tr.recherche > input')
+addEventListener("scroll", scrollTitre, false);
+
+}
