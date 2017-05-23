@@ -120,7 +120,7 @@ class ListTemplate {
 	/**
 	 * @var int nombre de liens de page à afficher au maximum dans la pagination
 	 */
-	private $maxPagesDisplayed;
+	private $nbPagingLinks;
 	/**
 	 * @var string $helpLink lien vers la page d'aide associée à cette liste
 	 */
@@ -146,7 +146,7 @@ class ListTemplate {
 	 * @var string classe par défaut des lignes impaires du tableau
 	 * @var string classe par défaut des lignes paires du tableau
 	 */
-	public static $CLASSE1 = 'bleu-fonce', $CLASSE2 = 'bleu-clair';
+	public static $CLASSE1 = 'gris-clair', $CLASSE2 = 'blanc';
 	
 	
 	
@@ -169,9 +169,9 @@ class ListTemplate {
 		$this->mask = array();
 		$this->emptyListMessage = "Aucun resultat!";
 		$this->errorClass = 'erreur';
-		$this->currentPage = ((isset($_GET['lm_page']) && $_GET['lm_page'] > 0) ? $_GET['lm_page'] : 1 );
+		$this->currentPage = 1;
 		$this->nbResultsPerPage = 50;
-		$this->maxPagesDisplayed = 10;
+		$this->nbPagingLinks = 10;
 		$this->listTitles = array();
 		$this->cellCallback = null;
 		$this->replaceTagTD = false;
@@ -215,7 +215,7 @@ class ListTemplate {
 		while(($ligne = $reponse->nextLine()) != null)
 			$donnees[] = $ligne;
 		$nbLignes = $reponse->getRowsCount();
-		$debut = ($this->currentPage-1) * $this->nbResultsPerPage;
+		$debut = ($this->currentPage - 1) * $this->nbResultsPerPage;
 		$titres = $reponse->getColumnsName();
 
 		// Enregistrement des donnees dans le cache
@@ -230,12 +230,6 @@ class ListTemplate {
 
 		// Creation de la div HTML parente
 		$ret = "\n".'<div id="liste-parent">';
-
-		//Affichage du nombre de resultats
-		$debut++;
-		$fin = min(($this->currentPage) * $this->nbResultsPerPage, $nbLignes);
-		if($this->displayNbResults)
-			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", null);
 		
 		//Ajout des boutons options sur le cete
 		$ret .= "\n<div><div id='boutons-options'>";
@@ -287,7 +281,15 @@ class ListTemplate {
 		$ret .= "</div>\n";
 
 		// Initialisation de la liste
-		$ret .= '<div><table'.(($this->fixedTitles)? ' fixed-titles="true"' : '')
+		$ret .= '<div>';
+
+		//Affichage du nombre de resultats
+		$debut++;
+		$fin = min(($this->currentPage) * $this->nbResultsPerPage, $nbLignes);
+		if($this->displayNbResults)
+			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", 'info-resultats', 'p', true)."\n";
+
+		$ret .= '<table'.(($this->fixedTitles)? ' fixed-titles="true"' : '')
 			.(($this->id == null)?'' : " id='$this->id' ").'>'."\n<tr id='ligne-titres'>";
 
 		//Creation des titres
@@ -430,21 +432,21 @@ class ListTemplate {
 		}
 
 		// Affichage du tableau des numeros de page
-		if($nbLignes > $this->nbResultsPerPage && $this->maxPagesDisplayed != false){
+		if($nbLignes > $this->nbResultsPerPage && $this->nbPagingLinks != false){
 			$ret .= '<div id="pagination"><table align="center"><tr>';
 			$nbPages = (is_int($nbPages = ($nbLignes / $this->nbResultsPerPage))? $nbPages : round($nbPages + 0.5) );
 
 			// S'il y a plus de pages que la limite affichable
-			if($nbPages > $this->maxPagesDisplayed){
-				$debut = $this->currentPage - intval($this->maxPagesDisplayed / 2);
+			if($nbPages > $this->nbPagingLinks){
+				$debut = $this->currentPage - intval($this->nbPagingLinks / 2);
 				if($debut <= 1){
 					$debut = 1;
-					$fin = $this->maxPagesDisplayed + 1;
+					$fin = $this->nbPagingLinks + 1;
 				}
 				// Ajout de la 1re page si besoin
 				else {
 					$ret .= '<td><a href="'.self::creerUrlGET('lm_page', 1).'">&lt;&lt;</td>';
-					$fin = min($debut + $this->maxPagesDisplayed, $nbPages);
+					$fin = min($debut + $this->nbPagingLinks, $nbPages);
 				}
 			}
 			else {
@@ -559,12 +561,8 @@ class ListTemplate {
 	 * Permet de changer les titres des colonnes de la liste
 	 * Le tableau à passer en paramètre est un tableau associatif où la clé correspond au nom de la colonne tel qu'il est restitué lors de la selection des données, associé au titre que vous souhaitez afficher
 	 * @param array le tableau des nouveaux titres
-	 * @return bool false si l'argument apssé n'est pas un tableau 
 	 */
-	public function setListTitles($array) {
-		if(!is_array($array))
-			return false;
-
+	public function setListTitles(array $array) {
 		$this->listTitles = $array;
 	}
 
@@ -604,7 +602,7 @@ class ListTemplate {
 	 * @return boolean faux si la valeur entree est incorrecte
 	 */
 	public function setCurrentPage($numeroPage){
-		if(!is_int($valeur) || $numeroPage <= 0)
+		if(intval($numeroPage) != $numeroPage || $numeroPage <= 0)
 			return false;
 
 		$this->currentPage = $numeroPage;
@@ -674,11 +672,11 @@ class ListTemplate {
 	 * Définit le nombre de liens max à afficher dans la pagination.
 	 * @param int $valeur le nombre de liens max à afficher.
 	 */
-	public function setMaxPagesDisplayed($valeur){
+	public function setNbPagingLinks($valeur){
 		if(intval($valeur) < 0)
 			return false;
 
-		$this->maxPagesDisplayed = $valeur;
+		$this->nbPagingLinks = $valeur;
 	}
 
 	/**
@@ -773,6 +771,13 @@ class ListTemplate {
 		if(!is_bool($valeur))
 			return false;
 		$this->fixedTitles = $valeur;
+	}
+
+	/**
+	 * @return bool true si le tableau de pagination sera affiché, false sinon
+	 */
+	public function issetPaging() {
+		return $this->nbPagingLinks != false;
 	}
 
 			/*-****************

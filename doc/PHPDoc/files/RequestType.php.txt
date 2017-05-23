@@ -14,23 +14,23 @@
  */
 class RequestType {
 	/**
-	 * @const type assigné aux requêtes qui sélectionnent des données.
+	 * @var const type assigné aux requêtes qui sélectionnent des données.
 	 */
 	const SELECT = 0;
 	/**
-	 * @const type assigné aux requêtes supprimant des données.
+	 * @var const type assigné aux requêtes supprimant des données.
 	 */
 	const DELETE = 1;
 	/**
-	 * @const type assigné aux requêtes qui mettent à jour des données.
+	 * @var const type assigné aux requêtes qui mettent à jour des données.
 	 */
 	const UPDATE = 2;
 	/**
-	 * @const type assigné aux requêtes qui ajoutent des données.
+	 * @var const type assigné aux requêtes qui ajoutent des données.
 	 */
 	const INSERT = 3;
 	/**
-	 * @const type assigné aux requêtes dont le type n'est aps reconnu.
+	 * @var const type assigné aux requêtes dont le type n'est aps reconnu.
 	 */
 	const AUTRE  = -1;
 }

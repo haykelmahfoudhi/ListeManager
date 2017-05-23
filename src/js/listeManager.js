@@ -72,6 +72,28 @@ function afficherColonnes(event) {
 	$('a#annuler-masque').hide();
 }
 
+// Permet d'actualiser la largeur des colonnes des titres de la liste
+var titresFixes = document.querySelector('#liste').getAttribute('fixed-titles') != null;
+function actualiserLargeurCol() {
+	if(titresFixes) {
+		var ths = $(ligneTitres).children('th'),
+			tds = $("#liste tr:not(.tabSelect, #ligne-titres):eq(0) td");
+		// On fixe la largeur des td
+		tds.each(function(index, td) {
+			if(index < ths.length) {
+				var tdWidth = parseInt(window.getComputedStyle(td, null).width),
+					thWidth = parseInt(window.getComputedStyle(ths[index], null).width);
+				$(td).css('min-width', Math.max(tdWidth, thWidth)+'px');
+			}
+		});
+		// On fixe la largeur des th en fonction de celles des tds
+		for (var i = ths.length - 1; i >= 0; i--) {
+			$(ths[i]).css('min-width', $(tds[i]).css('min-width'));
+		}
+	}
+}
+
+
 // Affiche / masque les champs de saisie
 function afficherChampsRecherche(val) {
 	var inputSelect = $('#liste tr.tabSelect');
@@ -85,6 +107,9 @@ function afficherChampsRecherche(val) {
 			inputSelect.hide();
 			$('form#recherche').hide();
 		}
+
+		// Actualisation largeur des colonnes de la liste
+		actualiserLargeurCol();
 	}
 }
 afficherChampsRecherche(JSON.parse(sessionStorage.getItem('quest')));
@@ -103,30 +128,16 @@ else {
 
 
 // Fixer les titres de la liste sur le doc
-if(document.querySelector('#liste').getAttribute('fixed-titles') != null) {
-
-	var ligneTitres = document.querySelector("#ligne-titres");
-	var ths = $(ligneTitres).children('th');
-	var tds = $("#liste tr:not(.tabSelect, #ligne-titres):eq(0) td");
-
-	// On fixe la largeur des td & th avant le 1er scroll
-	tds.each(function(index, td) {
-		$(td).css('min-width', Math.min(td.clientWidth, ths[index].clientWidth)+'px');
-	});
-	for (var i = ths.length - 1; i >= 0; i--) {
-		$(ths[i]).css('min-width', $(tds[i]).css('min-width'));
-	}
+if(titresFixes) {
+	var ligneTitres = document.querySelector("#ligne-titres"),
+		offsetTop = $(ligneTitres).offset().top;
+	
+	actualiserLargeurCol();
 
 	// Callback sur le scroll
 	function scrollTitre(){
-		var currentScroll = document.body.scrollTop || document.documentElement.scrollTop;
-		var fixed = currentScroll >= (ligneTitres).offsetHeight;
+		var fixed = (document.body.scrollTop || document.documentElement.scrollTop) >= offsetTop;
 		ligneTitres.className = (fixed) ? "fixed" : "";
-		if(fixed) {
-			for (var i = ths.length - 1; i >= 0; i--) {
-				$(ths[i]).css('min-width', $(tds[i]).css('min-width'));
-			}
-		}
 	}
 }
 
@@ -142,6 +153,7 @@ $('#boutons-options a#btn-recherche').click(function (event) {
 });
 $('a#annuler-masque').click(afficherColonnes);
 $('tr.recherche > input')
-addEventListener("scroll", scrollTitre, false);
+if(titresFixes)
+	addEventListener("scroll", scrollTitre, false);
 
 }

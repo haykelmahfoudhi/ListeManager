@@ -1,6 +1,6 @@
 <?php
 
-defined('LM_ROOT') or die('Veuillez définir la constante LM_ROOT avant d\'utiliser ListManager');
+defined('LM_ROOT') or die('Veuillez définir la constante LM_ROOT avant d\'utiliser ListManager. Consultez le Wiki pour plus d\'informations');
 
 define('LM_SRC', LM_ROOT.'src/');
 define('LM_LIB', LM_ROOT.'lib/');

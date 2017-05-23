@@ -54,20 +54,31 @@ table#liste {
 #ligne-titres.fixed {
 	position: fixed;
 	top: 0;
-	box-shadow: 0 -2px 5px black;
-}
-#ligne-titres.fixed th:not(:first-child) {
-	border-left: 1px solid #888;
+	box-shadow: 0 2px 5px #222;
 }
 
 tr:not(:first-child):hover {
 	background-color: #ddd;
 }
 
-th {
-	text-decoration: none;
+th, .tabSelect td {
+	padding: 10px 5px;
+	border-bottom: 3px solid #999;
+}
+
+.fixed th {
 	padding: 5px;
 }
+tr.fixed > th {
+	border-right: 1px solid #eee;
+	border-left: 1px solid #eee;
+}
+
+th > a {
+	text-decoration: none;
+	font-bold: bold;
+}
+
 
 tr.tabSelect input {
 	border-radius: 0;
@@ -97,11 +108,14 @@ tr.noir {
 	background-color: black;
 	color: white;
 }
+tr.blanc {
+	background-color: white;
+}
 tr.gris {
-	background-color: #999;
+	background-color: #ccc;
 }
 tr.gris-clair {
-	background-color: #ccc;
+	background-color: #eee;
 }
 tr.orange {
 	background-color: #fd6;
@@ -126,7 +140,7 @@ tr.vert {
 	left: 0;
 	background-color: white;
 	width: 100%;
-	box-shadow: 0 2px 5px black;
+	box-shadow: 0 -2px 5px #222;
 	padding: 7px 0;
 }
 

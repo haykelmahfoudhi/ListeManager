@@ -95,43 +95,61 @@ class ListManager {
 	 * @var array $mask correspond aux titre des colonnes à ne pas retourner lors de la selection de données
 	 */
 	private $mask;
+	/**
+	 * @var array tableau associatif pour l'affichage des titres des colonnes. Ce tableau à pour format [titre_colonne] => [titre_a_afficher]
+	 */
+	private $listTitles;
 
 			/*-*******************************************
 			***  CONSTANTES : OPTIONS DU CONSTRUCTEUR  ***
 			*********************************************/
 	/**
-	 * @const NO_SEARCH à utiliser pour désactiver l'utilisation de la recherche par colonne 
+	 * @var const NO_SEARCH à utiliser pour désactiver l'utilisation de la recherche par colonne 
 	 */
 	const NO_SEARCH = 1;
 	/**
-	 * @const NO_EXCEL à utiliser dans le constructeur pour désactiver l'export de la liste en Excel
+	 * @var const NO_EXCEL à utiliser dans le constructeur pour désactiver l'export de la liste en Excel
 	 */
 	const NO_EXCEL = 2;
 	/**
-	 * @const NO_MASK à utiliser dans le constructeur pour désactiver l'utilisation du masquage de colonne en JS
+	 * @var const NO_MASK à utiliser dans le constructeur pour désactiver l'utilisation du masquage de colonne en JS
 	 */
 	const NO_MASK = 4;
 	/**
-	 * @const NO_ORDER_BY à utiliser dans le constructeur pour désactiver le tri des donénes par colonnes
+	 * @var const NO_ORDER_BY à utiliser dans le constructeur pour désactiver le tri des donénes par colonnes
 	 */
 	const NO_ORDER_BY = 8;
 	/**
-	 * @const NO_CSS à utiliser dans le constructeur pour désactiver l'utilisation du CSS par déafut
+	 * @var const NO_CSS à utiliser dans le constructeur pour désactiver l'utilisation du CSS par déafut
 	 * Implique l'option UNFIXED_TITLES
 	 */
 	const NO_CSS = 16;
 	/**
-	 * @const NO_PAGING à utiliser dans le constructeur pour désactiver la pagination et la navigation entre les pages de résutlats.
+	 * @var const NO_PAGING à utiliser dans le constructeur pour désactiver la pagination et la navigation entre les pages de résutlats.
 	 */
 	const NO_PAGING = 32;
 	/**
-	 * @const NO_VERBOSE à utiliser dans le constructeur pour désactiver le mode verbeux
+	 * @var const NO_VERBOSE à utiliser dans le constructeur pour désactiver le mode verbeux
 	 */
 	const NO_VERBOSE = 64;
 	/**
-	 * @const UNFIXED_TITLES à utiliser dans le constructeur pour empecher les titres de rester fixés lorsque l'utilisateur scroll. 
+	 * @var const UNFIXED_TITLES à utiliser dans le constructeur pour empecher les titres de rester fixés lorsque l'utilisateur scroll. 
 	 */
 	const UNFIXED_TITLES = 128;
+
+	/**
+	 * @var array $optionsArray tableau associatif entre chaque option du constructeur et la méthode permettant de desactiver la fonctionnalité correspondate
+	 */
+	private static $optionsArray = [
+		self::NO_SEARCH => 'enableSearch',
+		self::NO_EXCEL => 'enableExcel',
+		self::NO_MASK => 'enableMask',
+		self::NO_ORDER_BY => 'enableOrderBy',
+		self::NO_CSS => 'applyDefaultCSS',
+		self::NO_PAGING => 'setNbPagingLinks',
+		self::NO_VERBOSE => 'verbose',
+		self::UNFIXED_TITLES => 'fixTitles'
+	];
 	
 	
 			/*-*********************
@@ -156,46 +174,32 @@ class ListManager {
 		$this->mask = array();
 		$this->messages = array();
 		$this->verbose = true;
-		$this->setDatabase($db);
+		$this->listTitles = array();
 
-		// Gestions des options : desactivation des fonctionnalités
-		for ($i=1; $i < func_num_args(); $i++) { 
-			switch (func_get_arg($i)) {
-				case self::NO_SEARCH:
-					$this->enableSearch(false);
-					break;
+		// Récupération des options
+		$options = array_slice(func_get_args(), 1);
 
-				case self::NO_VERBOSE:
-					$this->verbose(false);
-					break;
+		// Il est possible que le preier paramètre soit une option...
+		if(array_key_exists($db, self::$optionsArray)) {
+			$options[] = $db;
+			$this->setDatabase(null);
+		}
+		// ... si c'est pas le cas on le traite comme une Database
+		else 
+			$this->setDatabase($db);
+		
 
-				case self::NO_CSS:
-					$this->applyDefaultCSS(false);
-					break;
+		// Gestion des options : désactivation de fonctionnalités
+		foreach ($options as $option) {
+			if(isset(self::$optionsArray[$option]))
+				call_user_func_array([$this, self::$optionsArray[$option]], array(false));
 
-				case self::NO_EXCEL:
-					$this->enableExcel(false);
-					break;
-
-				case self::NO_MASK:
-					$this->enableMask(false);
-					break;
-
-				case self::NO_ORDER_BY:
-					$this->enableOrderBy(false);
-					break;
-
-				case self::UNFIXED_TITLES:
-					$this->fixTitles(false);
-					break;
-
-				case self::NO_PAGING:
-					$this->setMaxPagesDisplayed(false);
-					break;
-					
-				default:
-					$this->messages[] = '<br><b>[!]</b> ListManager::__construct() : option '.func_get_arg($i).' non reconnue<br>';
-
+			// Option non reconnue
+			else {
+				$message = '<br><b>[!]</b> ListManager::__construct() : l\'option "'.$option.'" n\'est pas reconnue<br>';
+				if($this->verbose)
+					echo $message;
+				$this->messages[] = $message;
 			}
 		}
 	}
@@ -375,9 +379,15 @@ class ListManager {
 				if(count($this->mask) > 0)
 					$this->template->setMask($this->mask);
 
-				// Activation de la recehrche
+				// Modifications des titres
+				$this->template->setListTitles($this->listTitles);
+				// Activation des options
 				$this->template->enableSearch($this->enableSearch);
 				$this->template->enableOrderBy($this->enableOrderBy);
+
+				// Selection de la page
+				if($this->template->issetPaging() && isset($_GET['lm_page']) && $_GET['lm_page'] > 0)
+					var_dump($this->template->setCurrentPage($_GET['lm_page']));
 				return $this->template->construct($reponse);
 		}
 
@@ -512,10 +522,9 @@ class ListManager {
 	 * Permet de changer les titres des colonnes de la liste
 	 * Le tableau à passer en paramètre est un tableau associatif où la clé correspond au nom de la colonne tel qu'il est restitué lors de la selection des données, associé au titre que vous souhaitez afficher
 	 * @param array le tableau des nouveaux titres
-	 * @return bool false si l'argument apssé n'est pas un tableau 
 	 */
-	public function setListTitles($array) {
-		return $this->template->setListTitles($array);
+	public function setListTitles(array $liste) {
+		$this->listTitles = $liste;
 	}
 
 
@@ -634,8 +643,8 @@ class ListManager {
 	 * La valeur par défaut est 15 : c'est à dire que par exemple le template propose les liens des pages 1 à 15 si l'utilisateur est sur la 1re page.
 	 * @param int $valeur le nombre de liens à proposer
 	 */
-	public function setMaxPagesDisplayed($valeur){
-		return $this->template->setMaxPagesDisplayed($valeur);
+	public function setNbPagingLinks($valeur){
+		return $this->template->setNbPagingLinks($valeur);
 	}
 
 
@@ -779,13 +788,23 @@ class ListManager {
 		$types  = $reponse->getColumnsType();
 		$col = 'A';
 		$phpExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(20);
+		$witdh = [];
+		$maxWidth = 30;
 		for ($i = 0; $i < count($titres); $i++) {
 			// On vérifie que la colonne n'est pas masquée
 			if(!in_array($titres[$i], $this->mask)) {
 
+				// Préparation du titre à insérer
+				if(isset($this->listTitles[$titres[$i]]))
+					$titre = $this->listTitles[$titres[$i]];
+				else
+					$titre = $titres[$i];
+
 				// Mise en forme & insertion des titres
-				$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth(strlen($titres[$i]));
-				$phpExcel->getActiveSheet()->setCellValue($col.'1', $titres[$i]);
+				$width[$col] = min(strlen($titre), $maxWidth);
+				$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($width[$col]);
+				$phpExcel->getActiveSheet()->setCellValue('G'.($i+1), $types[$i]->ty);
+				$phpExcel->getActiveSheet()->setCellValue($col.'1', $titre);
 	 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
 	 				'font' => array(
 	 					'bold' => true,
@@ -812,9 +831,15 @@ class ListManager {
 			foreach ($ligne as $titre => $cellule){
 				// On vérifie que la colonne n'est pas masquée
 				if(!in_array($titre, $this->mask)) {
-
 					// Insertion de la donnée
 					$phpExcel->getActiveSheet()->setCellValue($col.($i), $cellule);
+
+					//Modification largeur colonne
+					$cellWidth = min(strlen($cellule), $maxWidth);
+					if($cellWidth > $witdh[$col]){
+						$witdh[$col] = $cellWidth;
+						$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($cellWidth);
+					}
 					$col++;
 				}
 			}

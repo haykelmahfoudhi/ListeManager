@@ -16,23 +16,23 @@
  */
 class ResponseType {
 	/**
-	 * @const pour retourner un objet php contenant le résultat de la requete
+	 * @var const pour retourner un objet php contenant le résultat de la requete
 	 */
 	const OBJET = 1;
 	/**
-	 * @const pour retourner un array php contenant les lignes selectionnées
+	 * @var const pour retourner un array php contenant les lignes selectionnées
 	 */
 	const TABLEAU = 2;
 	/**
-	 * @const pour générer une feuille de calcul Excel contenant les données selectionnées
+	 * @var const pour générer une feuille de calcul Excel contenant les données selectionnées
 	 */
 	const EXCEL = 3;
 	/**
-	 * @const pour utiliser le ListTemplate
+	 * @var const pour utiliser le ListTemplate
 	 */
 	const TEMPLATE = 4;
 	/**
-	 * @const pour renvoyer les données sous format JSON
+	 * @var const pour renvoyer les données sous format JSON
 	 */
 	const JSON = 5;
 }
