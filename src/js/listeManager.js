@@ -32,8 +32,8 @@ var _GET = function () {
 }();
 
 // Masquage de colonnes
-function masquerColonne(index) {
-	var cases = $('table#liste').find('td, th');
+function masquerColonne(index, dataId) {
+	var cases = $('table' + ((dataId.length)? '[data-id='+dataId+']' : '') + '.liste').find('td, th');
 	for (var i = 0; i < cases.length; i++) {
 		var td = $(cases[i]);
 		if(td.index() == index){
@@ -42,42 +42,59 @@ function masquerColonne(index) {
 	}
 }
 
-// Fonction qui sera appelé au click des bouton pour masquer les colonnes
+// Fonction qui sera appelée au click des bouton pour masquer les colonnes
 function masquerColonnesOnClick(event) {
 	event.preventDefault();
-	$('a#annuler-masque').show();
+	var listeParent = $(event.currentTarget).parents('div.liste-parent');
+		dataId = listeParent.find('table.liste').attr('data-id'),
+		dataId = ((typeof dataId == 'undefined')? '' : dataId);
+	listeParent.find('a.annuler-masque').show();
 	var index = $(event.target).parent().index();
-	masquerColonne(index);
-	// Ajout du masque dans la sessions
+	masquerColonne(index, dataId);
+
+	if(!dataId.length)
+		dataId = 'defaut';
+	// Ajout du masque dans la session
 	var tabMask = JSON.parse(sessionStorage.getItem('mask'));
 	if(tabMask != null){
-		tabMask.push(index);
+		tabMask[dataId].push(index);
+		tabMask[dataId] = tabMask[dataId].unique();
 	}
 	else {
-		tabMask = [index];
+		var tabMask = new Object();
+		tabMask[dataId] = [index];
 	}
-	sessionStorage.setItem('mask', JSON.stringify(tabMask.unique()));
+	sessionStorage.setItem('mask', JSON.stringify(tabMask));
 }
 
 
 // Afficher les colonnes masquées
 function afficherColonnes(event) {
 	event.preventDefault();
-	var cols = $('table#liste').find('td, th');
+	var dataId = $(event.currentTarget).parent('table.liste').attr('data-id'),
+		dataId = ((typeof dataId == 'undefined')? '' : dataId);
+	var cols = $('table.liste').find('td, th');
 	for (var i = 0; i < cols.length; i++) {
 		$(cols[i]).show();
 	}
 	//Suppression du mask
-	sessionStorage.removeItem('mask');
-	$('a#annuler-masque').hide();
+	var tabMask = JSON.parse(sessionStorage.getItem('mask'));
+	if(tabMask != null) {
+		if(dataId.length)
+			tabMask[dataId] = null;
+		else 
+			tabMask.defaut = null;
+		sessionStorage.setItem('mask', JSON.stringify(tabMask));
+	}
+	$(event.currentTarget).parents('div.liste-parent').find('a.annuler-masque').hide();
 }
 
 // Permet d'actualiser la largeur des colonnes des titres de la liste
-var titresFixes = document.querySelector('#liste').getAttribute('fixed-titles') != null;
+var titresFixes = document.querySelector('.liste').getAttribute('fixed-titles') != null;
 function actualiserLargeurCol() {
 	if(titresFixes) {
 		var ths = $(ligneTitres).children('th'),
-			tds = $("#liste tr:not(.tabSelect, #ligne-titres):eq(0) td");
+			tds = $(".liste tr:not(.tabSelect, #ligne-titres):eq(0) td");
 		// On fixe la largeur des td
 		tds.each(function(index, td) {
 			if(index < ths.length) {
@@ -96,7 +113,7 @@ function actualiserLargeurCol() {
 
 // Affiche / masque les champs de saisie
 function afficherChampsRecherche(val) {
-	var inputSelect = $('#liste tr.tabSelect');
+	var inputSelect = $('.liste tr.tabSelect');
 	if(inputSelect.length > 0){
 		sessionStorage.setItem('quest', val);
 		if(val) {
@@ -114,16 +131,17 @@ function afficherChampsRecherche(val) {
 }
 afficherChampsRecherche(JSON.parse(sessionStorage.getItem('quest')));
 
-
 // Masquer les colonnes correspondantes dans sasseionStorage
 var tabMask = JSON.parse(sessionStorage.getItem('mask'));
 if(tabMask != null){
-	for (var i = 0; i < tabMask.length; i++) {
-		masquerColonne(tabMask[i]);
-	}
+	$.each(tabMask, function(index, element){
+		for (var i = 0; i < element.length; i++) {
+			masquerColonne(element[i], index);
+		}
+	});
 }
 else {
-	$('a#annuler-masque').hide();
+	$('a.annuler-masque').hide();
 }
 
 
@@ -151,7 +169,7 @@ $('#boutons-options a#btn-recherche').click(function (event) {
 	event.preventDefault();
 	afficherChampsRecherche(JSON.parse(sessionStorage.getItem('quest')) != true);
 });
-$('a#annuler-masque').click(afficherColonnes);
+$('a.annuler-masque').click(afficherColonnes);
 $('tr.recherche > input')
 if(titresFixes)
 	addEventListener("scroll", scrollTitre, false);

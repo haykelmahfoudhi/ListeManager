@@ -34,6 +34,8 @@
  * * Utilisation des données situées dans les variables GET de l'url pour modifier la requete SQL de base, à savoir
  *   * 'lm_tabSelect' : permet de filtrer les données par colonnes (se rajoute à la clause WHERE de la requete)
  *   * 'lm_orderBy' : permet de trier els données par ordre croissant / décroissant selon une colonne (ajoute le numéro de la colonne à la clause ORDER BY)
+ *   * 'lm_excel' : lance le téléchargemennt du fichier excel généré par ListManager
+ *   * 'lm_page' : correspond à la page de résultat affichée
  * * L'exécution de la requête SQL
  * * La mise en forme des données dans une liste HTML dans un template correpsondant à la classe ListTemplate
  * 
@@ -48,6 +50,10 @@ class ListManager {
 			***   ATTRIBUTS   ***
 			********************/
 	/**
+	 * @var string $id correspond à l'id du ListManager, cet attribu est utile si vous utilisez plusieurs listes sur la meme page
+	 */
+	private $id;
+	/**
 	 * @var ResponseType $responseType correspond au format de données retourné par ListManager
 	 * Valeur par défaut : TEMPLATE.
 	 */
@@ -61,11 +67,6 @@ class ListManager {
 	 */
 	private $db;
 	/**
-	 * @var boolean $useGET définit si ListManager doit utiliser ou non les données GET de l'url pour modifier la requete SQL de base.
-	 * Valeur par défaut : false. Si cette valeur est passée à true, il vous sera possible de spécifier vous même les objets à utiliser pour modifier la requete SQL (tabSelect & orderBy)
-	 */
-	private $useGET;
-	/**
 	 * @var boolean specifie si la fonction recherche est diponible ou non. N'a d'effets que si vous construisez construct avec le template
 	 */
 	private $enableSearch;
@@ -74,15 +75,9 @@ class ListManager {
 	 */
 	private $enableOrderBy;
 	/**
-	* @var array $tabSelect correpsond au tabelau $_GET['lm_tabSelect']. Ce tableau doit avoir pour format [nomColonne] => 'valeur filtre'
-	* A utiliser si vous ne souhaitez pas utiliser les variables GET pour filtrer les données par colonne.
-	*/
-	private $tabSelect;
-	/**
-	* @var string $orderBy correspond à l'entrée $_GET['lm_orderBy']. Liste les numéro de colonnes pour la clause ORDER BY spéraées par une virgule.
-	* A utiliser si vous ne souhaitez pas passer par la variable GET pour trier les données
-	*/
-	private $orderBy;
+	 * @var bool $enableExcel définit si ListTemplate propose la fonctionnalité d'export Excel
+	 */
+	private $enableExcel;
 	/**
 	 * @var array $meesages le tableau contenant l'ensemble des messages d'erreur générés par l'objet ListManager. S'affichent automatiquement si verbose = true
 	 */
@@ -112,9 +107,9 @@ class ListManager {
 	 */
 	const NO_EXCEL = 2;
 	/**
-	 * @var const NO_MASK à utiliser dans le constructeur pour désactiver l'utilisation du masquage de colonne en JS
+	 * @var const NO_JS_MASK à utiliser dans le constructeur pour désactiver l'utilisation du masquage de colonne en JS
 	 */
-	const NO_MASK = 4;
+	const NO_JS_MASK = 4;
 	/**
 	 * @var const NO_ORDER_BY à utiliser dans le constructeur pour désactiver le tri des donénes par colonnes
 	 */
@@ -143,10 +138,10 @@ class ListManager {
 	private static $optionsArray = [
 		self::NO_SEARCH => 'enableSearch',
 		self::NO_EXCEL => 'enableExcel',
-		self::NO_MASK => 'enableMask',
 		self::NO_ORDER_BY => 'enableOrderBy',
+		self::NO_JS_MASK => 'enableJSMask',
 		self::NO_CSS => 'applyDefaultCSS',
-		self::NO_PAGING => 'setNbPagingLinks',
+		self::NO_PAGING => 'setPagingLinksNb',
 		self::NO_VERBOSE => 'verbose',
 		self::UNFIXED_TITLES => 'fixTitles'
 	];
@@ -162,41 +157,29 @@ class ListManager {
 	 * Précisez l'etiquette de la base de données à utiliser si nécessaire
 	 * @var Database|string $db l'insatnce de Database à utiliser ou son étiquette. Laissez null si vous n'avez qu'une seule base de données.
 	 */
-	public function __construct($db=null){
+	public function __construct($id, $db, array $options){
+		$this->setId($id);
+		$this->setDatabase($db);
+		$this->template = new ListTemplate($this);
 		$this->responseType = ResponseType::TEMPLATE;
-		$this->template = new ListTemplate();
-		$this->useGET = true;
 		$this->enableSearch = true;
 		$this->enableOrderBy = true;
-		$this->tabSelect = array();
-		$this->orderBy = null;
-		$this->recherche = true;
+		$this->enableExcel = true;
 		$this->mask = array();
 		$this->messages = array();
 		$this->verbose = true;
 		$this->listTitles = array();
 
-		// Récupération des options
-		$options = array_slice(func_get_args(), 1);
-
-		// Il est possible que le preier paramètre soit une option...
-		if(array_key_exists($db, self::$optionsArray)) {
-			$options[] = $db;
-			$this->setDatabase(null);
-		}
-		// ... si c'est pas le cas on le traite comme une Database
-		else 
-			$this->setDatabase($db);
-		
-
 		// Gestion des options : désactivation de fonctionnalités
+		$i = 0;
 		foreach ($options as $option) {
+			$i++;
 			if(isset(self::$optionsArray[$option]))
 				call_user_func_array([$this, self::$optionsArray[$option]], array(false));
 
 			// Option non reconnue
 			else {
-				$message = '<br><b>[!]</b> ListManager::__construct() : l\'option "'.$option.'" n\'est pas reconnue<br>';
+				$message = '<br><b>[!]</b> ListManager::__construct() : l\'option n°'.$i.' (valeur = "'.$option.'") n\'est pas reconnue<br>';
 				if($this->verbose)
 					echo $message;
 				$this->messages[] = $message;
@@ -229,35 +212,26 @@ class ListManager {
 			$requete = $baseSQL;
 		}
 
-		//Construction de la requete a partir de variables GET disponibles
-		if($this->useGET){
-			
-			// Conditions (where)
-			if($this->enableSearch && isset($_GET['lm_tabSelect'])){
-				$tabWhere = array();
-				foreach ($_GET['lm_tabSelect'] as $titre => $valeur) {
-					if(strlen($valeur) > 0)
-						$tabWhere[$titre] = $valeur;
-				}
-				if(count($tabWhere) > 0)
-					$requete->where($tabWhere);
+		// Construction de la requete a partir de variables GET disponibles :
+		// Conditions (where)
+		if($this->enableSearch && isset($_GET['lm_tabSelect'.$this->id])){
+			$tabWhere = array();
+			foreach ($_GET['lm_tabSelect'.$this->id] as $titre => $valeur) {
+				if(strlen($valeur) > 0)
+					$tabWhere[$titre] = $valeur;
 			}
-			
-			// Tri (Order By)
-			if($this->enableOrderBy && isset($_GET['lm_orderBy'])){
-				$requete->orderBy(explode(',', $_GET['lm_orderBy']));
-			}
-
-			// Excel
-			if(isset($_GET['lm_excel'])){
-				$this->setResponseType(ResponseType::EXCEL);
-			}
+			if(count($tabWhere) > 0)
+				$requete->where($tabWhere);
 		}
-		else {
-			if($this->enableSearch && $this->tabSelect != null)	
-				$requete->where($this->tabSelect);
-			if($this->orderBy != null)	
-				$requete->orderBy($this->orderBy);
+		
+		// Tri (Order By)
+		if($this->enableOrderBy && isset($_GET['lm_orderBy'.$this->id])){
+			$requete->orderBy(explode(',', $_GET['lm_orderBy'.$this->id]));
+		}
+
+		// Excel
+		if(isset($_GET['lm_excel'.$this->id])){
+			$this->setResponseType(ResponseType::EXCEL);
 		}
 
 		//Execution de la requete
@@ -327,7 +301,7 @@ class ListManager {
 				}
 
 			case ResponseType::EXCEL:
-				if($this->template->excelIsEnabled()){
+				if($this->enableExcel){
 					$chemin = $this->generateExcel($reponse);
 					if($chemin != false) {
 						header('Location:'.$chemin);
@@ -375,19 +349,9 @@ class ListManager {
 
 
 			case ResponseType::TEMPLATE:
-				// Utilisation du masque
-				if(count($this->mask) > 0)
-					$this->template->setMask($this->mask);
-
-				// Modifications des titres
-				$this->template->setListTitles($this->listTitles);
-				// Activation des options
-				$this->template->enableSearch($this->enableSearch);
-				$this->template->enableOrderBy($this->enableOrderBy);
-
 				// Selection de la page
-				if($this->template->issetPaging() && isset($_GET['lm_page']) && $_GET['lm_page'] > 0)
-					var_dump($this->template->setCurrentPage($_GET['lm_page']));
+				if($this->template->issetPaging() && isset($_GET['lm_page'.$this->id]) && $_GET['lm_page'.$this->id] > 0)
+					$this->template->setCurrentPage($_GET['lm_page'.$this->id]);
 				return $this->template->construct($reponse);
 		}
 
@@ -464,21 +428,14 @@ class ListManager {
 	}
 
 	/**
-	 * Definit un nouvel objet ListTemplate pour l'affichage des listes
-	 * @param ListTemplate $template le nouveau template a definir.
-	 */
-	public function setTemplate(ListTemplate $template){
-		$this->template = $template;
-	}
-
-
-	/**
 	 * Définit l'id HTML de la balise table correspondant à la liste
-	 * / ! \ Attention si vous changez l'id du tableau il se peut que le fichier JS associé ne fonctionne plus et que certaines telles que le masquage des colonnes ne soient plus possibles
 	 * @param string $id le nouvel id du tableau. Si null aucun ID ne sera affiché.
 	 */
-	public function setIdTable($id) {
-		$this->template->setIdTable($id);
+	public function setId($id) {
+		if(strlen($id) > 0)
+			$this->id = '_'.$id;
+		else 
+			$this->id = '';
 	}
 
 	/**
@@ -494,18 +451,6 @@ class ListManager {
 			$this->mask = $mask;
 		else
 			return false;
-	}
-
-	/**
-	 * Utiliser les variables get ou non.
-	 * Definit si ListManager doit utiliser ou non les valeurs contenues dans GET pour construire le order by et le tabSelect de la requete SQL qui sera executee.
-	 * @param boolean $valeur true ou false. Valeur par defaut : true
-	 */
-	public function useGET($valeur){
-		if(!is_bool($valeur))
-			return false;
-
-		$this->useGET = $valeur;
 	}
 
 	/**
@@ -525,28 +470,6 @@ class ListManager {
 	 */
 	public function setListTitles(array $liste) {
 		$this->listTitles = $liste;
-	}
-
-
-	/**
-	 * Definit le tableau à utiliser pour filtrer les données à selectionner.
-	 * Ce tableau doit avoir pour format [nomColonne] => 'valeur filtre'. Pour le format des filtres veuillez consulter la doc de la methode *SQLRequeste->where()*.
-	 * Cette methode passe automatiqument a false l'attribut sur l'utilisation des variables GET.
-	 * @param array $tabSelect le tableau contenant les associations colonnes -> filtre à utiliser pour filtrer les données
-	 */
-	public function setTabSelect(array $tabSelect){
-		$this->useGET = false;
-		$this->tabSelect = $tabSelect;
-	}
-
-	/**
-	 * Definit la façon de trier les donénes selectionnées dans la base de données représenté par un string.
-	 * Passe automatiqument a faux l'attribut sur l'utilisation des variables GET pour la reecriture des requetes SQL
-	 * @param string la liste des colonnes pour effectuer le tri
-	 */
-	public function setOrderBy($orderBy){
-		$this->useGET = false;
-		$this->orderBy = $orderBy;
 	}
 
 	/**
@@ -626,25 +549,25 @@ class ListManager {
 		return $this->template->setNbResultsPerPage($valeur);
 	}
 
-	/**
+	/* TODO
 	 * Definit si ListManager doit utiliser ou non le systeme de cache pour accelerer
 	 * la navigation entre les pages de la liste
 	 * @param boolean $valeur : true pour activer le fonctionnement par cache, false sinon
 	 */
-	public function useCache($valeur){
-		if(!is_bool($valeur))
-			return false;
+	// public function useCache($valeur){
+	// 	if(!is_bool($valeur))
+	// 		return false;
 
-		$this->template->useCache($valeur);
-	}
+	// 	$this->template->useCache($valeur);
+	// }
 
 	/**
 	 * Définit le nombre max de liens vers les pages de la liste proposés par la pagination du template.
 	 * La valeur par défaut est 15 : c'est à dire que par exemple le template propose les liens des pages 1 à 15 si l'utilisateur est sur la 1re page.
 	 * @param int $valeur le nombre de liens à proposer
 	 */
-	public function setNbPagingLinks($valeur){
-		return $this->template->setNbPagingLinks($valeur);
+	public function setPagingLinksNb($valeur){
+		return $this->template->setPagingLinksNb($valeur);
 	}
 
 
@@ -671,8 +594,8 @@ class ListManager {
 	 * @param bool $valeur : la nouvelle valeur à appliquer
 	 * @return bool false si le paramètre n'est aps un booléen
 	 */
-	public function enableMask($valeur){
-		return $this->template->enableMask($valeur);
+	public function enableJSMask($valeur){
+		return $this->template->enableJSMask($valeur);
 	}
 
 	/**
@@ -680,8 +603,8 @@ class ListManager {
 	 * @param bool $valeur true pour activer, false pour desactiver
 	 * @return bool false si l'argument n'est pas un booleen
 	 */
-	public function displayNbResults($valeur) {
-		return $this->template->displayNbResults($valeur);
+	public function displayResultsNb($valeur) {
+		return $this->template->displayResultsNb($valeur);
 	}
 
 	/**
@@ -728,12 +651,29 @@ class ListManager {
 			/*-****************
 			***   GETTERS   ***
 			******************/
-	
-	/**
-	 * @return ListTemplate l'objet template utilise par ListManager
-	 */
-	public function getTemplate() {
-		return $this->template;
+
+	public function getId() {
+		return $this->id;
+	}
+
+	public function getListTitles() {
+		return $this->listTitles;
+	}
+
+	public function getMask() {
+		return $this->mask;
+	}
+
+	public function isExcelEnabled() {
+		return $this->enableExcel;
+	}
+
+	public function isSearchEnabled() {
+		return $this->enableSearch;
+	}
+
+	public function isOrderByEnabled() {
+		return $this->enableOrderBy;
 	}
 	
 	/**
@@ -785,10 +725,9 @@ class ListManager {
 		
 		// Création des titres
 		$titres = $reponse->getColumnsName();
-		$types  = $reponse->getColumnsType();
 		$col = 'A';
 		$phpExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(20);
-		$witdh = [];
+		$width = [];
 		$maxWidth = 30;
 		for ($i = 0; $i < count($titres); $i++) {
 			// On vérifie que la colonne n'est pas masquée
@@ -836,8 +775,8 @@ class ListManager {
 
 					//Modification largeur colonne
 					$cellWidth = min(strlen($cellule), $maxWidth);
-					if($cellWidth > $witdh[$col]){
-						$witdh[$col] = $cellWidth;
+					if($cellWidth > $width[$col]){
+						$width[$col] = $cellWidth;
 						$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($cellWidth);
 					}
 					$col++;

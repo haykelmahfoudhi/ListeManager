@@ -4,19 +4,19 @@
 		*************************************************/
 
 
-#liste-parent > div {
+.liste-parent > div {
 	display: flex;
 }
 
-#liste-parent > div > * {
+.liste-parent > div > * {
 	float: left;
 }
 
-#boutons-options {
+.boutons-options {
 	margin-top: 60px;
 }
 
-#boutons-options > a, #boutons-options input[type="submit"] {
+.boutons-options > a, .boutons-options input[type="submit"] {
   display: block;
   text-decoration: none;
   width: 40px;
@@ -26,12 +26,12 @@
   color: black;
   line-height: 40px;
   border: 1px solid black;
-  background-color: #fff;
+  background-color: .fff;
   box-sizing: content-box;
   cursor: pointer;
 }
 
-#boutons-options > a > img {
+.boutons-options > a > img {
 	user-select: none;
 	-moz-user-select: none;
 	-webkit-user-select: none;
@@ -43,35 +43,35 @@ table {
 	text-align: center;
 }
 
-table#liste {
+table.liste {
 	margin-bottom: 40px;
 }
 
-#ligne-titres {
+.ligne-titres {
 	background-color: white;
 }
 
-#ligne-titres.fixed {
+.ligne-titres.fixed {
 	position: fixed;
 	top: 0;
-	box-shadow: 0 2px 5px #222;
+	box-shadow: 0 2px 5px .222;
 }
 
 tr:not(:first-child):hover {
-	background-color: #ddd;
+	background-color: .ddd;
 }
 
 th, .tabSelect td {
 	padding: 10px 5px;
-	border-bottom: 3px solid #999;
+	border-bottom: 3px solid .999;
 }
 
 .fixed th {
 	padding: 5px;
 }
 tr.fixed > th {
-	border-right: 1px solid #eee;
-	border-left: 1px solid #eee;
+	border-right: 1px solid .eee;
+	border-left: 1px solid .eee;
 }
 
 th > a {
@@ -82,7 +82,7 @@ th > a {
 
 tr.tabSelect input {
 	border-radius: 0;
-	border: 1px solid #999;
+	border: 1px solid .999;
 	padding: 3px;
 }
 
@@ -112,56 +112,56 @@ tr.blanc {
 	background-color: white;
 }
 tr.gris {
-	background-color: #ccc;
+	background-color: .ccc;
 }
 tr.gris-clair {
-	background-color: #eee;
+	background-color: .eee;
 }
 tr.orange {
-	background-color: #fd6;
+	background-color: .fd6;
 }
 tr.bleu-fonce {
-	background-color: #58f;
+	background-color: .58f;
 }
 tr.bleu-clair {
-	background-color: #ADF;
+	background-color: .ADF;
 }
 tr.rouge {
-	background-color: #b55;
+	background-color: .b55;
 }
 tr.vert {
-	background-color: #5d6;
+	background-color: .5d6;
 }
 
-#pagination {
+.pagination {
 	margin: 0 auto;
 	position: fixed;
 	bottom: 0;
 	left: 0;
 	background-color: white;
 	width: 100%;
-	box-shadow: 0 -2px 5px #222;
+	box-shadow: 0 -2px 5px .222;
 	padding: 7px 0;
 }
 
-#pagination td:hover {
-	background-color: #eee;
+.pagination td:hover {
+	background-color: .eee;
 }
 
-#pagination tr:hover {
+.pagination tr:hover {
 	background-color: white;
 }
 
-#pagination td {
+.pagination td {
 	border: none;
 	padding: 0 10px;
 	font-size: 22px;
 }
 
-#pagination td {
+.pagination td {
 	color: red;
 }
 
-#pagination td > a {
+.pagination td > a {
 	color: black;
 }
