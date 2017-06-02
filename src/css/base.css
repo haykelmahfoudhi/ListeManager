@@ -26,7 +26,7 @@
   color: black;
   line-height: 40px;
   border: 1px solid black;
-  background-color: .fff;
+  background-color: #fff;
   box-sizing: content-box;
   cursor: pointer;
 }
@@ -58,20 +58,19 @@ table.liste {
 }
 
 tr:not(:first-child):hover {
-	background-color: .ddd;
+	background-color: #ddd;
 }
 
 th, .tabSelect td {
 	padding: 10px 5px;
-	border-bottom: 3px solid .999;
+	border-bottom: 3px solid #999;
 }
 
 .fixed th {
 	padding: 5px;
 }
 tr.fixed > th {
-	border-right: 1px solid .eee;
-	border-left: 1px solid .eee;
+	border-left: 1px solid #eee;
 }
 
 th > a {
@@ -82,7 +81,7 @@ th > a {
 
 tr.tabSelect input {
 	border-radius: 0;
-	border: 1px solid .999;
+	border: 1px solid #999;
 	padding: 3px;
 }
 
@@ -112,40 +111,43 @@ tr.blanc {
 	background-color: white;
 }
 tr.gris {
-	background-color: .ccc;
+	background-color: #ccc;
 }
 tr.gris-clair {
-	background-color: .eee;
+	background-color: #eee;
 }
 tr.orange {
-	background-color: .fd6;
+	background-color: #fd6;
 }
 tr.bleu-fonce {
-	background-color: .58f;
+	background-color: #58f;
 }
 tr.bleu-clair {
-	background-color: .ADF;
+	background-color: #ADF;
 }
 tr.rouge {
-	background-color: .b55;
+	background-color: #b55;
 }
 tr.vert {
-	background-color: .5d6;
+	background-color: #5d6;
 }
 
 .pagination {
 	margin: 0 auto;
-	position: fixed;
-	bottom: 0;
-	left: 0;
 	background-color: white;
 	width: 100%;
-	box-shadow: 0 -2px 5px .222;
 	padding: 7px 0;
 }
 
+.pagination.fixed {
+	bottom: 0;
+	left: 0;
+	position: fixed;
+	box-shadow: 0 -2px 5px #222;
+}
+
 .pagination td:hover {
-	background-color: .eee;
+	background-color: #eee;
 }
 
 .pagination tr:hover {

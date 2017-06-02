@@ -220,7 +220,7 @@ class Database {
 
 	/**
 	 * Retourne le tableau des messages d'erreur enregistrés par la classe Database
-	 * @return string le dernier message d'erreur
+	 * @return array le tableau des messages d'erreur enregistrés par la classe
 	 */
 	public static function getErrorMessages(){
 		return self::$errorMessages;

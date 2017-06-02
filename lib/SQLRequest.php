@@ -69,7 +69,7 @@ class SQLRequest {
 	* @param string $requestBasis la base de la requete SQL
 	*/
 	public function __construct($baseRequete, $forOracle=false){
-		$this->requestBasis = $baseRequete;
+		$this->requestBasis = ((substr($baseRequete, -1) == ';')? substr($baseRequete, 0, strlen($baseRequete)-1) : $baseRequete );
 		$this->whereBlock = '';
 		$this->havingBlock = '';
 		$this->orderByArray = array();

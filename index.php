@@ -21,31 +21,32 @@ Database::instantiate('oci:dbname=MECAPROTEC;', "DEMOV15","octal", 'oracle');
 
 
 //Base de la requete SQL
-// $req = new SQLRequest("select * from fact_1_delais where of='1727562';");
-$req1 = new SQLRequest("SELECT * FROM Trace where of > :of LIMIT 2000 ");
-$req = new SQLRequest('SELECT * FROM ordre_fabrication WHERE ROWNUM < 100', true);
+$req2 = new SQLRequest("select * from fact_1_delais where of='1727562';");
+$req = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000 ");
+// $req = new SQLRequest('SELECT * FROM ordre_fabrication WHERE ROWNUM < :num', true);
 
 // Liste Manager
-$lm1 = new ListManager(
-	// ListManager::NO_CSS, 
+$lm = new ListManager(
+	// '',
+	// 'oracle'
+	// [ListManager::NO_CSS, 
 	// ListManager::NO_SEARCH, 
 	// ListManager::NO_EXCEL, 
 	// ListManager::NO_VERBOSE,
 	// ListManager::NO_ORDER_BY,
-	// ListManager::NO_MASK,
+	// ListManager::NO_JS_MASK,
 	// ListManager::UNFIXED_TITLES,
-	// ListManager::NO_PAGING
+	// ListManager::NO_PAGING]
 	);
-// $lm1->setRowsClasses('gris', 'gris-clair');
-$lm1->setMask(array('SOF', 'CodeDisposition'));
-$lm1->setId('yolo');
-$html = $lm1->construct($req1, array(':of' => 2000));
 
-// $lm2 = new ListManager('oracle');
-// $lm2->setIdTable('tab2');
-// $html2 = $lm2->construct($req);
+?><pre>
+<?php
 
-?><pre><?=$req?></pre>
+$html = $lm->construct($req
+	// , [':num' => ($a = 100)]
+);
+
+?></pre>
 <?=$html?>
 </body>
 </html>

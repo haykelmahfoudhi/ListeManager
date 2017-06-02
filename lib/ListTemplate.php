@@ -53,11 +53,13 @@ class ListTemplate {
 	 */
 	private $lm;
 	/**
-	 * Varaibles contenatn les classes HTML appliquees aux lignes paires / impaires
-	 * @var string classe des lignes imparaires
-	 * @var string classe des lignes paires
+	 * @var string $class1 nom de la classe HTML appliquée aux lignes imparaires
 	 */
-	private $class1, $class2;
+	private $class1;
+	/**
+	 * @var string $class2 nom de la classe HTML appliquée aux lignes paires
+	 */
+	private $class2;
 	/**
 	 * @var string $emptyListMessage le message qui sera affiche si la liste ne contient pas de donnees
 	 */
@@ -79,11 +81,12 @@ class ListTemplate {
 	 */
 	private $cellCallback;
 	/**
-	 * @var bool définit si le callback de cellule réécrit les balises TD des cellules ou non. Passez cet attribut à faux pour ajouter manuellement des attributs aux balises td
+	 * @var bool définit si le callback de cellule réécrit les balises TD des cellules ou non. Passez cet attribut à true pour ajouter manuellement 
+	 * les balises td avec le callback et pour modifier leurs attribus
 	 */
 	private $replaceTagTD;
 	/**
-	 * @var string $rowCallback nom du callback a appeler lors de l'affichage des des lignes (balises 'tr')
+	 * @var string $rowCallback nom du callback a appeler lors de l'affichage des des lignes (balises 'tr'). Permet de modifer les attributs HTML de la balise
 	 */
 	private $rowCallback;
 	/**
@@ -107,9 +110,9 @@ class ListTemplate {
 	 */
 	private $helpLink;
 	/**
-	 * @var bool $displayResultsNb définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete
+	 * @var bool $displayResultsInfos définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete
 	 */
-	private $displayResultsNb;
+	private $displayResultsInfos;
 	/**
 	 * @var bool $applyDefaultCSS déinit si le template doit appliquer le style par defaut du fichier base.css ou non
 	 */
@@ -124,10 +127,13 @@ class ListTemplate {
 	private $fixedTitles;
 	
 	/**
-	 * @var string classe par défaut des lignes impaires du tableau
-	 * @var string classe par défaut des lignes paires du tableau
+	 * @var string $CLASS1 classe par défaut des lignes impaires du tableau
 	 */
-	public static $CLASSE1 = 'gris-clair', $CLASSE2 = 'blanc';
+	public static $CLASS1 = 'gris-clair';
+	/**
+	 * @var string $CLASS2 classe par défaut des lignes paires du tableau
+	 */
+	public static $CLASS2 = 'blanc';
 	
 	
 	
@@ -136,12 +142,13 @@ class ListTemplate {
 			***********************/
 	
 	/**
-	 * Construit un objet ListTemplate et lui assigne son comportemetn par défaut
+	 * Construit un objet ListTemplate et lui assigne son comportement par défaut.
+	 * @param ListManager $lm l'objet ListManager appelant qui utilise cet objet template
 	 */
 	 public function __construct(ListManager $lm){
 		$this->lm = $lm;
-		$this->class1 = self::$CLASSE1;
-		$this->class2 = self::$CLASSE2;
+		$this->class1 = self::$CLASS1;
+		$this->class2 = self::$CLASS2;
 		$this->enableJSMask = true;
 		$this->emptyListMessage = "Aucun resultat!";
 		$this->errorClass = 'erreur';
@@ -154,7 +161,7 @@ class ListTemplate {
 		$this->columnCallback = null;
 		// $this->useCache = false;
 		$this->helpLink = null;
-		$this->displayResultsNb = true;
+		$this->displayResultsInfos = true;
 		$this->applyDefaultCSS = true;
 		$this->maxSizeInputs = 30;
 		$this->fixedTitles = true;
@@ -167,9 +174,9 @@ class ListTemplate {
 
 	/**
 	 * Construit une liste HTML à partir d'un objet RequestResponse.
-	 * Il s'agit de la fonction principale de la classe. L'obje génère un template à partir des valeurs de ses attributs et contenant le résultat de la requqete apssée en paramètre.
+	 * Il s'agit de la fonction principale de la classe. L'obje génère un template à partir des valeurs de ses attributs et contenant le résultat de la requete passée en paramètre.
 	 * Le template se découpe en 4 parties :
-	 * * *Tout en haut* : le nombre de résultat de la page en cours sur le nombre de résultats total
+	 * * *Tout en haut* : les titres des colonnes avec les liens permettant de les trier ou de les masquer.
 	 * * *Tout à gauche* : les boutons d'options permettant d'activer certaines fonctionnalitées
 	 * * *Au centre* : la liste de données
 	 * * *En bas* : la pagination et les liens vers les autres pages de la liste
@@ -223,7 +230,7 @@ class ListTemplate {
 			$ret .= '<a class="btn-recherche" href="#"><img height="40" width="40" src="'.LM_IMG.'search-ico.png"></a>'; 
 			
 			// Ajout du form si recherche activee
-			$ret .= "\n<form class='recherche' action='' method='GET'"
+			$ret .= "\n<form class='recherche' id='recherche".$this->lm->getId()."' action='' method='GET'"
 				.'><input type="submit" value="Go!"/>';
 
 			// Ajout des paramètres GET déjà présents
@@ -236,7 +243,7 @@ class ListTemplate {
 			$ret .= '</form>';
 		}
 
-		// Lien veers la rubrique d'aide / légende associée
+		// Lien vers la rubrique d'aide / légende associée
 		if($this->helpLink != null){
 			$ret .= "<a href='$this->helpLink' target='_blank' class='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
 		}
@@ -261,8 +268,8 @@ class ListTemplate {
 		//Affichage du nombre de resultats
 		$debut++;
 		$fin = min(($this->currentPage) * $this->nbResultsPerPage, $nbLignes);
-		if($this->displayResultsNb)
-			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", 'info-resultats', 'p', true)."\n";
+		if($this->displayResultsInfos)
+			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", 'info-resultats', 'p')."\n";
 
 		$ret .= '<table class="liste" '.(($this->fixedTitles)? ' fixed-titles="true"' : '')
 			.(($this->lm->getId() == null)?'' : " data-id='".$this->lm->getId()."' ").'>'."\n<tr class='ligne-titres'>";
@@ -347,7 +354,7 @@ class ListTemplate {
 					//Determine la taille du champs
 					$taille = min($types[$i]->len, $this->maxSizeInputs);
 					$ret .= '<td><input type="text" name="lm_tabSelect'.$this->lm->getId().'['.$titres[$i].']"'
-						." form='recherche' size='$taille' value='$valeur'/></td>";
+						." form='recherche".$this->lm->getId()."' size='$taille' value='$valeur'/></td>";
 				}
 			}
 			$ret .= "</tr>\n";
@@ -409,7 +416,7 @@ class ListTemplate {
 
 		// Affichage du tableau des numeros de page
 		if($nbLignes > $this->nbResultsPerPage && $this->pagingLinksNb != false){
-			$ret .= '<div class="pagination"><table align="center"><tr>';
+			$ret .= '<div class="pagination'.((strlen($this->lm->getId())? '' : ' fixed')).'"><table align="center"><tr>';
 			$nbPages = (is_int($nbPages = ($nbLignes / $this->nbResultsPerPage))? $nbPages : round($nbPages + 0.5) );
 
 			// S'il y a plus de pages que la limite affichable
@@ -417,7 +424,7 @@ class ListTemplate {
 				$debut = $this->currentPage - intval($this->pagingLinksNb / 2);
 				if($debut <= 1){
 					$debut = 1;
-					$fin = $this->pagingLinksNb;
+					$fin = $this->pagingLinksNb + 1;
 				}
 				// Ajout de la 1re page si besoin
 				else {
@@ -479,7 +486,7 @@ class ListTemplate {
 
 	/**
 	 * Definit le nom de la class HTML des messages d'erreurs affiches
-	 * @param string|null $classe le nouveau nom de la classe des messages d'erreur. Si null pas de classe affichée.
+	 * @param string $classe le nouveau nom de la classe des messages d'erreur. Si null pas de classe affichée.
 	 */
 	public function setErrorMessageClass($classe){
 		$this->errorClass = $classe;
@@ -488,7 +495,7 @@ class ListTemplate {
 	/**
 	 * Active / desactive la fonction de masquage de colonne en JS
 	 * @param boolean $valeur la nouvele valeur pour ce paramètre, valeur par defaut true
-	 * @return boolean false si le paramètre netré n'est pas un boolean.
+	 * @return boolean false si le paramètre entré n'est pas un boolean.
 	 */
 	public function enableJSMask($valeur){
 		if(!is_bool($valeur))
@@ -510,7 +517,7 @@ class ListTemplate {
 	/**
 	 * Definit le nombre de resultats a afficher sur une page.
 	 * @param int $valeur le nombre de lignes a afficher par pages
-     * @return boolean faux si la valeur entree est incorrecte
+     * @return boolean false si la valeur entree est incorrecte
 	 */
 	public function setNbResultsPerPage($valeur){
 		if(!is_int($valeur) || $valeur <= 0)
@@ -529,7 +536,7 @@ class ListTemplate {
 	/**
 	 * Definit quelle page de resultats doit afficher le template. Valeur par defaut : 1
 	 * @param int $numeroPage le numero de la page a afficher (pour la 1re page : 1)
-	 * @return boolean faux si la valeur entree est incorrecte
+	 * @return boolean false si la valeur entree est incorrecte
 	 */
 	public function setCurrentPage($numeroPage){
 		if(intval($numeroPage) != $numeroPage || $numeroPage <= 0)
@@ -625,11 +632,11 @@ class ListTemplate {
 	 * @param bool $valeur true pour activer, false pour desactiver
 	 * @return bool false si l'argument n'est pas un booleen
 	 */
-	public function displayResultsNb($valeur) {
+	public function displayResultsInfos($valeur) {
 		if(!is_bool($valeur))
 			return false;
 
-		$this->displayResultsNb = $valeur;
+		$this->displayResultsInfos = $valeur;
 	}
 
 	/**

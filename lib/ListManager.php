@@ -40,6 +40,7 @@
  * * La mise en forme des données dans une liste HTML dans un template correpsondant à la classe ListTemplate
  * 
  * Ce comportement de base et adaptable et modifibale grâce aux nombreuses méthodes de la classe. Vous pouvez entre autre choisir de retourner les données sous forme de array PHP, d'objet, de fichier excel... ou bien modifier le comportement du template HTML
+ * Il est également à noter que les setters de la classe retourne la référence de l'objet ($this) en cas de succès, ce qui vous permet d'appler à la suite un ensemble de setter dans la même instruction.
  * 
  * @author RookieRed
  *
@@ -94,6 +95,11 @@ class ListManager {
 	 * @var array tableau associatif pour l'affichage des titres des colonnes. Ce tableau à pour format [titre_colonne] => [titre_a_afficher]
 	 */
 	private $listTitles;
+	/**
+	 * @var bool $executeOnly détermine si la méthode execute est appelée depuis la méthode construct.
+	 * Initialisé à true, si cet attribut ne passe pas à false lors de l'appel à construct alors la recherche et le orderby sont désactivés.
+	 */
+	private $executeOnly;
 
 			/*-*******************************************
 			***  CONSTANTES : OPTIONS DU CONSTRUCTEUR  ***
@@ -152,12 +158,14 @@ class ListManager {
 			***********************/
 	
 	/**
-	 * Construit un nouvel objet ListManager définit par son comportement de base.
-	 * Tente de récupérer la base de données principale de l'application. Vous pouvez donc utiliser la méthode *Database::instantaite()* au préalable pour ne pas avoir à spécifier la base de données à utiliserpar la suite.
-	 * Précisez l'etiquette de la base de données à utiliser si nécessaire
-	 * @var Database|string $db l'insatnce de Database à utiliser ou son étiquette. Laissez null si vous n'avez qu'une seule base de données.
+	 * Construit un nouvel objet ListManager et définit son comportement de base.
+	 * Tous les paramètres de ce constructeurs sont facultatifs, et permettent dans l'ordre de définir l'identifiant de ListManager, la base de données à utilier pour les requêtes SQL, et un tableau 
+	 * d'options pour désactiver certaines fonctionnalités de base sans passer par les setters de la classe.
+	 * @var string $id l'identifiant de l'objet, à utiliser si vous souhaitez utiliser plusieurs listes sur la même page. Dans le cas contraire, laissez à null.
+	 * @var Database|string $db l'insatnce de Database ou l'etiquette de la base de données à utiliser si nécessaire. Laissez null si vous n'avez qu'une seule base de données.
+	 * @var array $options tableau de constantes permettant de désactiver certaines fonctionnalités de ListManager, c.f. la documention des constantes de la classe.
 	 */
-	public function __construct($id, $db, array $options){
+	public function __construct($id='', $db=null, array $options=array()){
 		$this->setId($id);
 		$this->setDatabase($db);
 		$this->template = new ListTemplate($this);
@@ -169,6 +177,7 @@ class ListManager {
 		$this->messages = array();
 		$this->verbose = true;
 		$this->listTitles = array();
+		$this->executeOnly = true;
 
 		// Gestion des options : désactivation de fonctionnalités
 		$i = 0;
@@ -179,10 +188,7 @@ class ListManager {
 
 			// Option non reconnue
 			else {
-				$message = '<br><b>[!]</b> ListManager::__construct() : l\'option n°'.$i.' (valeur = "'.$option.'") n\'est pas reconnue<br>';
-				if($this->verbose)
-					echo $message;
-				$this->messages[] = $message;
+				$this->addError('l\'option n°'.$i.' (valeur = "'.$option.'") n\'est pas reconnue' ,'__construct');
 			}
 		}
 	}
@@ -194,7 +200,7 @@ class ListManager {
 
 	/**
 	 * Execute la requete SQL dont la base est passee en parametres.
-	 * Cette base sera augmentee par les divers parametres fournis par la variable GET avant d'etre execute, ou par les attributs tabSelect et orderBy si vous ne souhaitez pas utiliser GET.
+	 * La méthode prend en paramètre la base de votre requête SQL, et la complète en fonction des paramètres d'url GET, en rajoutant soit des blocs à la clause WHERE soit à la clause ORDER BY si toutesfois ces deux foncitonnalitées sont activées.
  	 * Le format des resultats obtenus par la requete dépend du ResponseType spécifié.
 	 * @param mixed $baseSQL la requete a executer. Peut etre de type string ou SQLRequest.
 	 * @param array $params (facultatif) à utiliser si vous saouhaitez passer par les méthodes prepare puis exécute pour exécuter votre requete SQL
@@ -215,13 +221,13 @@ class ListManager {
 		// Construction de la requete a partir de variables GET disponibles :
 		// Conditions (where)
 		if($this->enableSearch && isset($_GET['lm_tabSelect'.$this->id])){
-			$tabWhere = array();
+			$tabSelect = array();
 			foreach ($_GET['lm_tabSelect'.$this->id] as $titre => $valeur) {
 				if(strlen($valeur) > 0)
-					$tabWhere[$titre] = $valeur;
+					$tabSelect[$titre] = $valeur;
 			}
-			if(count($tabWhere) > 0)
-				$requete->where($tabWhere);
+			if(count($tabSelect) > 0)
+				$requete->where($tabSelect);
 		}
 		
 		// Tri (Order By)
@@ -235,14 +241,15 @@ class ListManager {
 		}
 
 		//Execution de la requete
+		$this->executeOnly = false;
 		return $this->execute($requete, $params);
 
 	}
 
 	/**
-	 * Execute une requete SQL *sans prendre en compte les données GET ni les données tabSelect et orderBy*.
-	 * Retourne le resultat dans le format specifie par ResponseType
-	 * @param mixed $request : la requete a executer. Peut etre de type string ou SQLRequest.
+	 * Execute une requete SQL **sans prendre en compte les données GET concernant tabSelect et orderBy**.
+	 * De ce fait si cette méthode est directement appelée sans passer par *construct()* les fonctionnalités recherche et tri seront désactivées. La méthode retourne le resultat dans le format specifie par ResponseType
+	 * @param string|SQLRequest $request : la requete a executer. Peut etre de type string ou SQLRequest.
 	 * @param array $params (facultatif) à utiliser si vous saouhaitez passer par les méthodes prepare puis exécute pour exécuter votre requete SQL
  	 * @return string|bool
 	 * * l'objet de reponse dependant de $this->responseType, parametrable via la methode *setResponseType()*
@@ -260,17 +267,17 @@ class ListManager {
 
 		// Si la db est null alors on affiche une erreur
 		if($this->db == null) {
-			$message =  '<br><b>[!]</b> ListManager::execute() : aucune base de donnees n\'est disponible ou instanciee<br>';
-			$this->messages[] = $message;
-
-			//Affiche le message d'erreur
-			if($this->verbose) 
-				echo $message;
-			return false;
+			$this->addError('aucune base de donnees n\'est disponible ou instanciee', 'execute');
 		}
 
 		//Execution de la requete
 		$reponse = $this->db->execute($requete, $params);
+		
+		//Si construct n'est pas appelé avant => désactive la recherche + order by
+		if($this->executeOnly) {
+			$this->enableOrderBy(false);
+			$this->enableSearch(false);
+		}
 
 		//Creation de l'objet de reponse
 		switch ($this->responseType){
@@ -307,19 +314,11 @@ class ListManager {
 						header('Location:'.$chemin);
 					}
 					else {
-						$message = '<br><b>[!]</b>ListManager::execute() : le fichier excel n\'a pas pu être généré<br>';
-						$this->messages[] = $message;
-						if($this->verbose)
-							echo $message;
-						return false;
+						$this->addError('le fichier excel n\'a pas pu être généré', 'execute');
 					}
 				}
 				else{
-					$message = '<br><b>[!]</b>ListManager::execute() : la foncitonnalité d\'export excel est désactivée pour cette liste<br>';
-					$this->messages[] = $message;
-					if($this->verbose)
-						echo $message;
-					return false;
+					$this->addError('la foncitonnalité d\'export excel est désactivée pour cette liste', 'execute');
 				}
 
 			case ResponseType::JSON:
@@ -372,18 +371,25 @@ class ListManager {
 	 * * OBJET pour obtenir un objet \stdClass
 	 * Par défaut le type de réponse est TEMPLATE. Vous pouvez le changer en indiquant le paramètre suivant
 	 * @param ResponseType $responseType le nouveau type de réponse
+	 * @return mixed false si le paramètre n'est pas un type de reponse correct sinon retourne la référence de l'objet
 	 */
 	public function setResponseType($responseType){
+		if(!in_array($responseType, range(1,5)))
+			return false;
+		
 		$this->responseType = $responseType;
+		return $this;
 	}
 
 	/**
 	 * Instancie une nouvelle connexion a une base de donnees.
-	 * Cett méthode utilise la méthode *Database::instantiate()* et donc enregistre l'instance creee dans la classe Database. Spécifiez une etiquette si vous en utilisez plusieurs
+	 * Cette méthode utilise la méthode *Database::instantiate()* et donc enregistre l'instance creee dans la classe Database. Spécifiez une etiquette si vous en utilisez plusieurs
+	 * En cas d'erreur de connection le message correspondant est enregistré et affiché si la verbosité est activée.
 	 * @param string $dsn le DSN (voir le manuel PHP concernant PDO)
 	 * @param string $login le nom d'utilisateur pour la connexion
 	 * @param string $mdp son mot de passe
 	 * @param string $label l'etiquette de la base de données. Laisser à null si vous n'en utiliser qu'une seule
+	 * @return mixed false si ListManager ne parvient pas à connecter la base de données, sinon retourne la référence de l'objet
 	 */
 	public function connectDatabase($dsn, $login, $mdp, $label=null){
 		if($label == null)
@@ -392,11 +398,10 @@ class ListManager {
 			$this->db = Database::instantiate($dsn, $login, $mdp, $label);
 			
 		if($this->db == null) {
-			$message = '<br><b>[!]</b> ListManager::connectDatabase() : echec de connection<br>';
-			$this->messages[] = $message;
-			if($this->verbose)
-				echo $message;
+			$this->addError('echec de connection : '.end(Database::getErrorMessages()), 'connectDatabase');
+			return false;
 		}
+		return $this;
 	}
 
 	/**
@@ -405,7 +410,7 @@ class ListManager {
 	 * @param string|Database $dataBase la base de données à utiliser. Peut être de type string ou Database :
 	 * * Si string : represente l'etiquette de la base de donnees a utiliser.
 	 * * Si null ou non spécifié : recupere la base de donnee principale de la classe Database.
-	 * @return bool true si l'operation est un succès, false sinon + affichage d'un message d'erreur si verbose
+	 * @return mixed la référence de l'objet si l'operation est un succès, false sinon + enregistrement d'un message d'erreur et affichage si verbose
 	 */
 	public function setDatabase($dataBase=null){
 		if($dataBase == null)
@@ -417,32 +422,29 @@ class ListManager {
 				$this->db = Database::getInstance($dataBase);
 		}
 
-		if($this->db == null) {
-			$message = '<br><b>[!]</b> ListManager::setDatabase() : aucune base de donnees correspondante<br>';
-			$this->messages[] = $message;
-			if($this->verbose)
-				echo $message;
-			return false;
-		}
-		return true;
+		if($this->db == null)
+			$this->addError('aucune base de donnees trouvée, avez-vous instancié une connexion ?', 'setDatabase');
+		return $this;
 	}
 
 	/**
 	 * Définit l'id HTML de la balise table correspondant à la liste
 	 * @param string $id le nouvel id du tableau. Si null aucun ID ne sera affiché.
+	 * @return ListManager la référence de l'objet
 	 */
 	public function setId($id) {
 		if(strlen($id) > 0)
 			$this->id = '_'.$id;
 		else 
 			$this->id = '';
+		return $this;
 	}
 
 	/**
 	 * Définit le nouveau masque à appliquer.
 	 * Le masque est un tableau contenant le nom des colonnes que vous ne souhaitez pas afficher dans la liste HTML
 	 * @var array $mask le nouveau masque à appliquer. Si null : aucun masque ne sera applqiué
-	 * @return bool false si le paramètre en entré n'est ni null, ni un array
+	 * @return mixed false si le paramètre en entré n'est ni null, ni un array, sinon retourne la référence de l'objet
 	 */
 	public function setMask($mask) {
 		if($mask == null)
@@ -451,6 +453,7 @@ class ListManager {
 			$this->mask = $mask;
 		else
 			return false;
+		return $this;
 	}
 
 	/**
@@ -458,42 +461,48 @@ class ListManager {
 	 * Si les valeurs sont mises a null les classes ne seront pas affiche.
 	 * @param string $class1 le nom de la classe des lignes impaires. Mettre à null si vous ne souhaitez pas de classe
 	 * @param string $class2 le nom de la classe des lignes paires. Mettre a null si vous ne souhaitez pas de classe
+	 * @return ListManager la référence de l'objet
 	 */
 	public function setRowsClasses($classe1, $classe2){
 		$this->template->setRowsClasses($classe1, $classe2);
+		return $this;
 	}
 
 	/**
 	 * Permet de changer les titres des colonnes de la liste
 	 * Le tableau à passer en paramètre est un tableau associatif où la clé correspond au nom de la colonne tel qu'il est restitué lors de la selection des données, associé au titre que vous souhaitez afficher
 	 * @param array le tableau des nouveaux titres
+	 * @return ListManager la référence de l'objet
 	 */
 	public function setListTitles(array $liste) {
 		$this->listTitles = $liste;
+		return $this;
 	}
 
 	/**
 	 * Definit si l'option recherche doit etre activee ou non. Si cette valeur est passee a false il ne sera plus possible pour l'utilisateur de filtrer les données de la liste
-	 * @param boolean $valeur valeur par defaut : true
-	 * @return false si la valeur spécifié n'est pas un boolean
+	 * @param boolean $valeur la nouvelle valeur à attribuer.
+	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet
 	 */
 	public function enableSearch($valeur){
 		if(!is_bool($valeur))
 			return false;
 
 		$this->enableSearch = $valeur;
+		return $this;
 	}
 
 	/**
 	 * Définit si l'option de tri par colonne est acitvée ou non pour cette liste. Si désactivée, l'utilisateur ne pourra plus cliquer sur les colonnes pour trier
-	 * @param boolean $valeur valeur par defaut : true
-	 * @return false si la valeur spécifié n'est pas un booléen
+	 * @param boolean $valeur la nouvelle valeur à attribuer.
+	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet
 	 */
 	public function enableOrderBy($valeur) {
 		if(!is_bool($valeur))
 			return false;
 
 		$this->enableOrderBy = $valeur;
+		return $this;
 	}
 
 	/**
@@ -507,10 +516,12 @@ class ListManager {
 	 * * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
 	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
 	 * @param bool $replaceTagTD définit si le callback définit réécrit les balises td ou non. Par défaut ce paramètre vaut false, ce qui signifit que ListTemplate écrit automatiquement des balises td de la liste.
-	 * @return boolean true si l'opération s'est bien déroulée et que la fonction existe false sinon (renvoie false si le paramètre est null)
+	 * @return mixed false si vous entrez un non booléen comme 2e argument de cette méthode, sinon retourne la référence de l'objet
 	 */
 	public function setCellCallback(callable $fonction, $replaceTagTD=false){
-		return $this->template->setCellCallback($fonction, $replaceTagTD);
+		if($this->template->setCellCallback($fonction, $replaceTagTD) === false)
+			return false;
+		return $this;
 	}
 
 	/**
@@ -520,10 +531,11 @@ class ListManager {
 	 *    * 1. numero  : correspond au numéro de la ligne en cours
 	 *    * 2. donnees : array php contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau
 	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
-	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
+	 * @param callable $fonction le nom du callback a utiliser, null si aucun.
 	 */
 	public function setRowCallback(callable $fonction){
 		$this->template->setRowCallback($fonction);
+		return $this;
 	}
 
 	/**
@@ -534,19 +546,24 @@ class ListManager {
 	 *    * 2. donnees   : array contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
 	 *    * 3. estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon 
 	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string).
-	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
+	 * @param callable $fonction le nom du callback a utiliser, null si aucun.
+	 * @return ListManager la référence de l'objet
 	 */
 	public function setColumnCallback(callable $fonction){
 		$this->template->setColumnCallback($fonction);
+		return $this;
 	}
 
 	/**
 	 * Definit le nombre de resultats a afficher sur une page. Valeur par defaut = 50
 	 * @param int $valeur le nombre de lignes a afficher par pages
-     * @return boolean faux si la valeur entree est incorrecte
+     * @return boolean false si la valeur entree est incorrecte, sinon retourne la référence de l'objet
 	 */
 	public function setNbResultsPerPage($valeur){
-		return $this->template->setNbResultsPerPage($valeur);
+		if($this->template->setNbResultsPerPage($valeur) === false)
+			return false;
+		
+		return $this;
 	}
 
 	/* TODO
@@ -565,9 +582,13 @@ class ListManager {
 	 * Définit le nombre max de liens vers les pages de la liste proposés par la pagination du template.
 	 * La valeur par défaut est 15 : c'est à dire que par exemple le template propose les liens des pages 1 à 15 si l'utilisateur est sur la 1re page.
 	 * @param int $valeur le nombre de liens à proposer
+	 * @return mixed false si la valeur spécifié et un entier incorrect, sinon retourne la référence de l'objet
 	 */
 	public function setPagingLinksNb($valeur){
-		return $this->template->setPagingLinksNb($valeur);
+		if($this->template->setPagingLinksNb($valeur) === false)
+			return false;
+
+		return $this;
 	}
 
 
@@ -577,119 +598,147 @@ class ListManager {
 	 * @return bool false si l'argument est incorrect (pas un int, infèrieur à 0)
 	 */
 	public function setMaxSizeInputs($valeur) {
-		return $this->template->setMaxSizeInputs($valeur);
+		if($this->template->setMaxSizeInputs($valeur) === false)
+			return false;
+
+		return $this;
 	}
 
 	/**
 	 * Définit si ListTemplate doit proposer l'export de données en format excel à l'utilisateur. Valeur apr défaut : true
 	 * @param bool $valeur : la nouvelle valeur à appliquer
-	 * @return bool false si le paramètre n'est aps un booléen
+	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet
 	 */
 	public function enableExcel($valeur){
-		return $this->template->enableExcel($valeur);
+		if(!is_bool($valeur))
+			return false;
+
+		$this->enableExcel = $valeur;
+		return $this;
 	}
 
 	/**
 	 * Définit si le template propose la fonctionnalité de masquage des colonnes coté client en JS
 	 * @param bool $valeur : la nouvelle valeur à appliquer
-	 * @return bool false si le paramètre n'est aps un booléen
+	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet
 	 */
 	public function enableJSMask($valeur){
-		return $this->template->enableJSMask($valeur);
+		if($this->template->enableJSMask($valeur) === false)
+			return false;
+
+		return $this;
 	}
 
 	/**
 	 * Définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete
 	 * @param bool $valeur true pour activer, false pour desactiver
-	 * @return bool false si l'argument n'est pas un booleen
+	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet
 	 */
-	public function displayResultsNb($valeur) {
-		return $this->template->displayResultsNb($valeur);
+	public function displayResultsInfos($valeur) {
+		if($this->template->displayResultsInfos($valeur) === false)
+			return false;
+
+		return $this;
 	}
 
 	/**
 	 * Définit si le template doit charger le fichier CSS par défaut et appliquer le style du template par déaut
 	 * Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver cette option et inclure votre propre fichier CSS
 	 * @param bool $valeur false pour desactiver, true pour activer
-	 * @return bool false si l'argument n'est pas un booleen
+	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet
 	 */
 	public function applyDefaultCSS($valeur) {
-		return $this->template->applyDefaultCSS($valeur);
+		if($this->template->applyDefaultCSS($valeur) === false)
+			return false;
+
+		return $this;
 	}
 
 	/**
 	 * Définit si ListManager doit afficher ou non les messages d'erreur générés.
-	 * Dans les deux cas vous pourrez récupérer tous els messages d'erreur produits grâce a la méthode getErrorMessages
+	 * Dans les deux cas vous pourrez récupérer tous les messages d'erreur produits grâce a la méthode getErrorMessages
 	 * @param bool $valeur la nouvelle valeur à appliquer pour la verbosité
-	 * @return bool false si l'argument n'est pas un booléen
+	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet
 	 */
 	public function verbose($valeur) {
 		if(!is_bool($valeur))
 			return false;
 
 		$this->verbose = $valeur;
+		return $this;
 	}
 
 	/**
 	 * Permet d'ajouter une rubrique d'aide ou une legende à la liste actuelle
 	 * @param string|null $link : le lien url vers la page d'aide. Si null alors le lien sera desactivé
+	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet
 	 */
 	public function setHelpLink($link) {
-		return $this->template->setHelpLink($link);
+		if($this->template->setHelpLink($link) === false)
+			return false;
+
+		return $this;
 	}
 
 	/**
 	 * Définit sui les titres de votre liste restent fixés en haut de l'écran lorsque l'utilisateur scroll sur la page.
 	 * @var bool valeur true pour activer false pour désactiver cette option
-	 * @return bool false si l'arguemnt n'est pas un booléen.
+	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet
 	 */
 	public function fixTitles($valeur) {
-		return $this->template->fixTitles($valeur);
+		if($this->template->fixTitles($valeur) === false)
+			return false;
+
+		return $this;
 	}
 
 
 			/*-****************
 			***   GETTERS   ***
 			******************/
-
+	
+	/**
+	 * @return string l'id de l'objet ListManager tel qu'il sera affiché dans le template (avec un underscore avant)
+	 */
 	public function getId() {
 		return $this->id;
 	}
 
+	/**
+	 * @return array le tableau associatif des titres des colonnes à remplacer par des nouveaux titres
+	 */
 	public function getListTitles() {
 		return $this->listTitles;
 	}
 
+	/**
+	 * @return array le tableau contenant le nom des colonnes à ne pas afficher
+	 */
 	public function getMask() {
 		return $this->mask;
 	}
 
+	/**
+	 * @return bool true si la foncitonnalité export excel est activée, false sinon
+	 */
 	public function isExcelEnabled() {
 		return $this->enableExcel;
 	}
 
+	/**
+	 * @return bool true si la foncitonnalité recherche par colonne est activée, false sinon
+	 */
 	public function isSearchEnabled() {
 		return $this->enableSearch;
 	}
 
+	/**
+	 * @return bool true si la foncitonnalité tri par colonne est activée, false sinon
+	 */
 	public function isOrderByEnabled() {
 		return $this->enableOrderBy;
 	}
 	
-	/**
-	 * @return array le tableau utilisé pour filtrer les données par colonne
-	 */
-	public function getTabSelect() {
-		return $this->tabSelect;
-	}
-	
-	/**
-	 * @return string le numéro des colonnes utilisées pour trier les données, séparés par par des virgules. Une colonne dont le numéro est négatif représente le tri décroissant.
-	 */
-	public function getOrderBy() {
-		return $this->orderBy;
-	}
-
 	/**
 	 * @return array l'ensemble des messages d'erreur générés par cet objet
 	 */
@@ -701,6 +750,18 @@ class ListManager {
 			/*-****************
 			***   PRIVATE   ***
 			******************/
+	
+	/**
+	 * Ajoute une erreur au tableau des erreurs de l'objet, et l'affiche dans la page si verbose est activée
+	 * @param unknown $message le messgae d'erreur
+	 * @param unknown $method le nom de la méthode où il a été généré
+	 */
+	private function addError($message, $method) {
+		$this->messages[] = $message;
+		if($this->verbose) {
+			echo '<br><b>[!]</b>ListManager::'.$method.'() : '.$message.'<br>';
+		}
+	}
 
 	/**
 	 * Génère un fichier excel à partir d'une réponse de requete en utilisant la bibliothèque PHPExcel.
@@ -792,8 +853,7 @@ class ListManager {
 			$writer->save($chemin);
 		}
 		catch (\Exception $e) {
-			if($this->verbose)
-				echo "<br><b>[!]</b>ListManager::generateExcel() erreur création excel : ".$e->getMessage();
+			$this->addError('erreur création excel : '.$e->getMessage(), 'generateExcel');
 			return null;
 		}
 		return $chemin;
