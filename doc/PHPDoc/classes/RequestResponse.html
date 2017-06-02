@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">53</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">50</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1822407994"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-2126175372"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1822407994" class="accordion-body collapse in">
+            <div id="namespace-2126175372" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -170,12 +170,15 @@
                     <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
 
                     <h1><small>\</small>RequestResponse</h1>
-                    <p><em>Objet PHP utilise pour l&#039;execution de requetes SQL.</em></p>
+                    <p><em>Objet PHP généré par l&#039;execution des requetes SQL.</em></p>
                     <p>Cet objet est construit par Database suite à l'exécution d'une requête et permet de récupérer le status de la requete ainsi que les données générées. Il contient 3 champs :</p>
 <ul>
 <li>La requete SQL executee (qui correspond à un objet PDOStatement)</li>
 <li>Un booleen signalant la presence d'une erreur lors de l'execution de la requete</li>
-<li>Un champs contenant le message d'erreur associe</li>
+<li>Un champs contenant le message d'erreur associe
+Les méthodes de la classe permettent de récupérer les données séléctionnées grâces aux méthodes <em>nextLine()</em> et <em>dataList()</em> qui sont les homologues respectifs de <em>fetch()</em> et <em>fetchAll()</em>
+de la classe <em>PDOStatement</em>
+Vous pouvez tester le status de la réponse avec la méthode <em>error()</em> qui retourne un booléen, et récupérer le message d'erreur associé via la méthode <em>getErrorMessage()</em></li>
 </ul>
                     
                                         
@@ -391,14 +394,14 @@
             <article class="method">
                 <h3 class="public ">__construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__construct(\PDOStatement|null  <span class="argument">$statement</span>, boolean  <span class="argument">$erreur = false</span>, string  <span class="argument">$message = &#039;&#039;</span>) </pre>
+                <pre class="signature" style="margin-right: 54px;">__construct(\PDOStatement  <span class="argument">$statement</span>, boolean  <span class="argument">$erreur = false</span>, string  <span class="argument">$message = &#039;&#039;</span>) </pre>
                 <p><em>Construit un nouvel objet de réponse</em></p>
                 
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td>\PDOStatement|null</td>
+                                <td>\PDOStatement</td>
                                 <td>$statement </td>
                                 <td><p>l'objet PDOStatement retourné par la methodes <em>PDO-&gt;execute()</em>, ou null si erreur</p></td>
                             </tr>
@@ -472,7 +475,7 @@
                 
                                     <h4>Returns</h4>
                     array
-                                            &mdash; <p>: l'ensemble des resultats de la requete contenu dans un tableau (utilise la méthode PDOStatement-&gt;fetchAll()*)</p>
+                                            &mdash; <p>l'ensemble des resultats de la requete contenu dans un tableau (utilise la méthode PDOStatement-&gt;fetchAll()*)</p>
                                     				
                             </article>
         </div>
@@ -744,7 +747,7 @@ retourne false si erreur</li>
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 1st, 2017 at 13:45.
+                    on June 2nd, 2017 at 17:05.
                 </section>
             </section>
         </section>

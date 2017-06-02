@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">53</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">50</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-162033879"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-276687792"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-162033879" class="accordion-body collapse in">
+            <div id="namespace-276687792" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -225,7 +225,7 @@ Il est également à noter que les setters de la classe retourne la référence 
                                                                     <a href="../classes/ListManager.html#method_setMaxSizeInputs" class="">setMaxSizeInputs()</a><br />
                                                                     <a href="../classes/ListManager.html#method_enableExcel" class="">enableExcel()</a><br />
                                                                     <a href="../classes/ListManager.html#method_enableJSMask" class="">enableJSMask()</a><br />
-                                                                    <a href="../classes/ListManager.html#method_displayResultsNb" class="">displayResultsNb()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_displayResultsInfos" class="">displayResultsInfos()</a><br />
                                                                     <a href="../classes/ListManager.html#method_applyDefaultCSS" class="">applyDefaultCSS()</a><br />
                                                                     <a href="../classes/ListManager.html#method_verbose" class="">verbose()</a><br />
                                                                     <a href="../classes/ListManager.html#method_setHelpLink" class="">setHelpLink()</a><br />
@@ -833,9 +833,10 @@ Initialisé à true, si cet attribut ne passe pas à false lors de l&#039;appel 
             <article class="method">
                 <h3 class="public ">__construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__construct(  <span class="argument">$id = null</span>,   <span class="argument">$db = null</span>, array  <span class="argument">$options = array()</span>) </pre>
+                <pre class="signature" style="margin-right: 54px;">__construct(  <span class="argument">$id = &#039;&#039;</span>,   <span class="argument">$db = null</span>, array  <span class="argument">$options = array()</span>) </pre>
                 <p><em>Construit un nouvel objet ListManager et définit son comportement de base.</em></p>
-                <p>Tous les paramètres de ce constructeurs sont facultatifs, et permettent dans l'ordre de définir l'identifiant de ListManager, la base de données à utilier pour les requêtes SQL, et un tableau d'options pour désactiver certaines fonctionnalités de base sasn passer par les setters de la classe.</p>
+                <p>Tous les paramètres de ce constructeurs sont facultatifs, et permettent dans l'ordre de définir l'identifiant de ListManager, la base de données à utilier pour les requêtes SQL, et un tableau
+d'options pour désactiver certaines fonctionnalités de base sans passer par les setters de la classe.</p>
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
@@ -1677,11 +1678,11 @@ Ce callback sera appelé par le template à la fin de la création des titres ET
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_displayResultsNb" name="method_displayResultsNb" class="anchor"></a>
+            <a id="method_displayResultsInfos" name="method_displayResultsInfos" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">displayResultsNb()</h3>
+                <h3 class="public ">displayResultsInfos()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">displayResultsNb(boolean  <span class="argument">$valeur</span>) : mixed</pre>
+                <pre class="signature" style="margin-right: 54px;">displayResultsInfos(boolean  <span class="argument">$valeur</span>) : mixed</pre>
                 <p><em>Définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete</em></p>
                 
 
@@ -2196,7 +2197,7 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 1st, 2017 at 13:45.
+                    on June 2nd, 2017 at 17:05.
                 </section>
             </section>
         </section>

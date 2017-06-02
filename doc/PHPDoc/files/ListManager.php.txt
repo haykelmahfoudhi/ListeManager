@@ -159,12 +159,13 @@ class ListManager {
 	
 	/**
 	 * Construit un nouvel objet ListManager et définit son comportement de base.
-	 * Tous les paramètres de ce constructeurs sont facultatifs, et permettent dans l'ordre de définir l'identifiant de ListManager, la base de données à utilier pour les requêtes SQL, et un tableau d'options pour désactiver certaines fonctionnalités de base sasn passer par les setters de la classe.
+	 * Tous les paramètres de ce constructeurs sont facultatifs, et permettent dans l'ordre de définir l'identifiant de ListManager, la base de données à utilier pour les requêtes SQL, et un tableau 
+	 * d'options pour désactiver certaines fonctionnalités de base sans passer par les setters de la classe.
 	 * @var string $id l'identifiant de l'objet, à utiliser si vous souhaitez utiliser plusieurs listes sur la même page. Dans le cas contraire, laissez à null.
 	 * @var Database|string $db l'insatnce de Database ou l'etiquette de la base de données à utiliser si nécessaire. Laissez null si vous n'avez qu'une seule base de données.
 	 * @var array $options tableau de constantes permettant de désactiver certaines fonctionnalités de ListManager, c.f. la documention des constantes de la classe.
 	 */
-	public function __construct($id=null, $db=null, array $options=array()){
+	public function __construct($id='', $db=null, array $options=array()){
 		$this->setId($id);
 		$this->setDatabase($db);
 		$this->template = new ListTemplate($this);
@@ -308,6 +309,17 @@ class ListManager {
 
 			case ResponseType::EXCEL:
 				if($this->enableExcel){
+
+					// Récupération du masque dans les params GET
+					if(isset($_GET['lm_mask'.$this->id])){
+						$tabMask = [];
+						$titres = $reponse->getColumnsName();
+						foreach (explode(',', $_GET['lm_mask'.$this->id]) as $numCol) {
+							$tabMask[] = $titres[intval($numCol)];
+						}
+						$this->setMask($tabMask);
+					}
+
 					$chemin = $this->generateExcel($reponse);
 					if($chemin != false) {
 						header('Location:'.$chemin);
@@ -633,8 +645,8 @@ class ListManager {
 	 * @param bool $valeur true pour activer, false pour desactiver
 	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet
 	 */
-	public function displayResultsNb($valeur) {
-		if($this->template->displayResultsNb($valeur) === false)
+	public function displayResultsInfos($valeur) {
+		if($this->template->displayResultsInfos($valeur) === false)
 			return false;
 
 		return $this;

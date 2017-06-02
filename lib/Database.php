@@ -22,6 +22,10 @@
  * L'interaction de l'application avec les bases de données se fait de façon générique pour tous les types de BD (Postgre, Oracle, MySql) grâce à l'objet *PDO* de PHP
  * Cette classe est basée sur le design pattern du multiton : il est possible d'avoir plusieurs instances de l'objet Database en les identifiant avec une étiquette unique, et d'y accéder partout dans l'application via la méthode statique *getInstance()*.
  * De ce fait, le constructeur de Database est private. Pour créer une nouvelle instance il faut utiliser la méthode de classe *instantiate()* en précisant une étiquette si vous utilisez plusieurs bases de données pour l'application.
+ * Par la suite il vous sera possible d'exécuter vos requêtes SQL grâce à la méthode *execute()*, qui prend en paramètre une requete SQL (string ou objet SQLRequest) et si besoin un tableau de paramèttres variables.
+ * Si ce 2nd paramètre est précisé Databse fait appel aux méthodes *prepare()* puis *execute()* de PDO, sinon seul la méthode *query()* sera utilisée.
+ * La méthode *execute()* retourne un objet RequestResponse. Consultez la documentation de la classe pour plus d'informations.
+ * Database peut produire des messages d'erreur en cas de problème, mais ne les affiche pas dans le document. Pour les récuppérer utilisez la méthode statique *getErrorMessages()*
  * 
  * @link http://php.net/manual/fr/intro.pdo.php Manuel PDO sur php.net 
  * 
@@ -36,7 +40,6 @@ class Database {
 			********************/
 	
 	/**
-	 * Objet PDO
 	 * @var PDO $pdo le pointeur vers l'objet PDO utilisé par Database pour se connecter et interargir avec la base de données
 	 */
 	private $pdo;
@@ -45,19 +48,19 @@ class Database {
 	 */
 	private $label;
 	/**
-	 * @var string $dsn 
+	 * @var string $dsn chaine de cararctère contenant les données de connexion à la base de données
 	 */
 	private $dsn;
 	/**
-	 * @var string $login 
+	 * @var string $login correspond au nom d'utilisateur pour se connecter à la base de données
 	 */
 	private $login;
 	/**
-	 * @var string $passwd 
+	 * @var string $passwd mot de passe de l'utilisateur
 	 */
 	private $passwd;
 	/**
-	 * @var array $errorMessages le tableau contenatn l'ensemble des messages d'erreur enregistrés
+	 * @var array $errorMessages le tableau contenant l'ensemble des messages d'erreur enregistrés
 	 */
 	private static $errorMessages = array();
 	/**
@@ -76,8 +79,7 @@ class Database {
 	 * @param string $dsn le DSN (voir le manuel PHP concernant **PDO**)
 	 * @param string $login le nom d'utilisateur pour la connexion
 	 * @param string $passwd son mot de passe
-	 * @param string $etiquette l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont
-	 * utilisees en meme temps dans l'application
+	 * @param string $etiquette l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont utilisees en meme temps dans l'application
 	 */
 	private function __construct($dsn, $login, $passwd, $label) {
 		$this->label = $label;
@@ -108,9 +110,8 @@ class Database {
 	 * @param string $dsn le DSN de la connection (voir le manuel PHP concernant PDO)
 	 * @param string $login le nom d'utilisateur de la BD
 	 * @param string $mdp le mot de passe de l'utilisateur
-	 * @param string $etiquette (facultatif) l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont
-	 * utilisees en meme temps dans l'application
-	 * @return Database : l'instance de Database cree et connecte, ou null en cas d'echec.
+	 * @param string $etiquette (facultatif) l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont utilisees en meme temps dans l'application
+	 * @return Database l'instance de Database créée et connectée, ou null en cas d'echec.
 	 */
 	public static function instantiate($dsn, $login, $mdp, $etiquette='principale'){
 		$nouvelleInstance = new self($dsn, $login, $mdp, $etiquette);
@@ -191,7 +192,7 @@ class Database {
 			******************/
 	
 	/**
-	 * Retourne l'instance de la base de donnees dont l'étiquette est apssée en paramètre. Si vous n'utilisez qu'une seule base de données vous n'avez pas besoin de spécifier ce paramètre.
+	 * Retourne l'instance de la base de donnees dont l'étiquette est passée en paramètre. Si vous n'utilisez qu'une seule base de données vous n'avez pas besoin de spécifier ce paramètre.
 	 * @param string $etiquette : l'etiquette de la base de donnees. Par defaut retourne la base de données étiquettée 'principale'
 	 * @return Database : l'instance de Database ou null si l'étiquette ne correspond pas
 	 */

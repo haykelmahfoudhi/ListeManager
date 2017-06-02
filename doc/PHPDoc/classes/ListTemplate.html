@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">53</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">50</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1233087318"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1975105004"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1233087318" class="accordion-body collapse in">
+            <div id="namespace-1975105004" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -216,7 +216,7 @@
                                                                     <a href="../classes/ListTemplate.html#method_setColumnCallback" class="">setColumnCallback()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_setPagingLinksNb" class="">setPagingLinksNb()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_setHelpLink" class="">setHelpLink()</a><br />
-                                                                    <a href="../classes/ListTemplate.html#method_displayResultsNb" class="">displayResultsNb()</a><br />
+                                                                    <a href="../classes/ListTemplate.html#method_displayResultsInfos" class="">displayResultsInfos()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_applyDefaultCSS" class="">applyDefaultCSS()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_setMaxSizeInputs" class="">setMaxSizeInputs()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_fixTitles" class="">fixTitles()</a><br />
@@ -261,7 +261,7 @@
                                                                     <a href="../classes/ListTemplate.html#property_enableJSMask" class="">$enableJSMask</a><br />
                                                                     <a href="../classes/ListTemplate.html#property_pagingLinksNb" class="">$pagingLinksNb</a><br />
                                                                     <a href="../classes/ListTemplate.html#property_helpLink" class="">$helpLink</a><br />
-                                                                    <a href="../classes/ListTemplate.html#property_displayResultsNb" class="">$displayResultsNb</a><br />
+                                                                    <a href="../classes/ListTemplate.html#property_displayResultsInfos" class="">$displayResultsInfos</a><br />
                                                                     <a href="../classes/ListTemplate.html#property_applyDefaultCSS" class="">$applyDefaultCSS</a><br />
                                                                     <a href="../classes/ListTemplate.html#property_maxSizeInputs" class="">$maxSizeInputs</a><br />
                                                                     <a href="../classes/ListTemplate.html#property_fixedTitles" class="">$fixedTitles</a><br />
@@ -564,8 +564,8 @@
 
                                 <h4>Type</h4>
                 boolean
-                &mdash; définit si le callback de cellule réécrit les balises TD des cellules ou non. Passez cet attribut à true pour ajouter manuellement 
-les balises td avec le callback et pour modifier leurs attribus                            </article>
+                &mdash; définit si le callback de cellule réécrit les balises TD des cellules ou non. 
+Passez cet attribut à true pour ajouter manuellement les balises td avec le callback et pour modifier leurs attribus                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -589,7 +589,8 @@ les balises td avec le callback et pour modifier leurs attribus                 
 
                                 <h4>Type</h4>
                 string
-                &mdash; nom du callback a appeler lors de l&#039;affichage des des lignes (balises &#039;tr&#039;). Permet de modifer les attributs HTML de la balise                            </article>
+                &mdash; nom du callback a appeler lors de l&#039;affichage des des lignes (balises &#039;tr&#039;).
+Permet de modifer les attributs HTML de la balise                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -637,7 +638,8 @@ les balises td avec le callback et pour modifier leurs attribus                 
 
                                 <h4>Type</h4>
                 boolean
-                &mdash; définit si le template permet à l&#039;utilisateur de masquer les colonnes grâce à JavaScript avec la petite croix rouge                            </article>
+                &mdash; définit si le template permet à l&#039;utilisateur de masquer les colonnes grâce
+à JavaScript avecla petite croix rouge                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -700,10 +702,10 @@ les balises td avec le callback et pour modifier leurs attribus                 
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_displayResultsNb" name="property_displayResultsNb" class="anchor"></a>
+            <a id="property_displayResultsInfos" name="property_displayResultsInfos" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$displayResultsNb</h3>
-                <pre class="signature">$displayResultsNb : boolean</pre>
+                <h3 class="private ">$displayResultsInfos</h3>
+                <pre class="signature">$displayResultsInfos : boolean</pre>
                 <p><em></em></p>
                 
 
@@ -843,7 +845,8 @@ les balises td avec le callback et pour modifier leurs attribus                 
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">construct(\RequestResponse  <span class="argument">$reponse</span>) : string</pre>
                 <p><em>Construit une liste HTML à partir d&#039;un objet RequestResponse.</em></p>
-                <p>Il s'agit de la fonction principale de la classe. L'obje génère un template à partir des valeurs de ses attributs et contenant le résultat de la requete passée en paramètre.
+                <p>Il s'agit de la fonction principale de la classe. L'obje génère un template à partir des valeurs de ses attributs
+et contenant le résultat de la requete passée en paramètre.
 Le template se découpe en 4 parties :</p>
 <ul>
 <li><em>Tout en haut</em> : les titres des colonnes avec les liens permettant de les trier ou de les masquer.</li>
@@ -1134,7 +1137,8 @@ Le template se découpe en 4 parties :</p>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">setCellCallback(callable  <span class="argument">$fonction</span>, boolean  <span class="argument">$replaceTagTD = false</span>) : boolean</pre>
                 <p><em>Définir un callback à appeler dans chaque cellule de la liste.</em></p>
-                <p>Definit le callback (la fonction) qui sera executee pour chaque valeur lors de l'affichage des donnees dans les cellules du tableau. Cette fonction doit etre definie comme il suit :</p>
+                <p>Definit le callback (la fonction) qui sera executee pour chaque valeur lors de l'affichage des donnees
+dans les cellules du tableau. Cette fonction doit etre definie comme il suit :</p>
 <ul>
 <li>4 parametres d'entree :
 <ol>
@@ -1237,7 +1241,8 @@ Cette option est utile si vous souhaitez ajouter des attributs particuliers aux 
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">setColumnCallback(callable  <span class="argument">$fonction</span>) </pre>
                 <p><em>Définir un callback pour rajouter manuellement des colonnes dans votre liste
-Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque ligne de la liste. La fonction doit correspondre au format suivant
+Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque
+ligne de la liste. La fonction doit correspondre au format suivant
  * 3 paramètres d&#039;entrée :
    * 1. numLigne  : int correspond au numéro de la ligne en cours
    * 2. donnees   : array contenant l&#039;ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
@@ -1339,11 +1344,11 @@ Ce callback sera appelé par le template à la fin de la création des titres ET
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_displayResultsNb" name="method_displayResultsNb" class="anchor"></a>
+            <a id="method_displayResultsInfos" name="method_displayResultsInfos" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">displayResultsNb()</h3>
+                <h3 class="public ">displayResultsInfos()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">displayResultsNb(boolean  <span class="argument">$valeur</span>) : boolean</pre>
+                <pre class="signature" style="margin-right: 54px;">displayResultsInfos(boolean  <span class="argument">$valeur</span>) : boolean</pre>
                 <p><em>Définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete</em></p>
                 
 
@@ -1662,7 +1667,7 @@ Cette méthode désactive aussi l&#039;option des titres fixés lorsque l&#039;t
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 1st, 2017 at 13:45.
+                    on June 2nd, 2017 at 17:05.
                 </section>
             </section>
         </section>

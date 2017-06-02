@@ -36,6 +36,10 @@ class SQLRequest {
 	/**
 	 * @var string $havingBlock correspond à la partie Having de la requete SQL 
 	 */
+	private $groupByBlock;
+	/**
+	 * @var string $havingBlock correspond à la partie Having de la requete SQL 
+	 */
 	private $havingBlock;
 	/**
 	 * @var array $orderByArray tableau contenant le numéro/nom de colonnes pour le tri des données 
@@ -71,6 +75,7 @@ class SQLRequest {
 	public function __construct($baseRequete, $forOracle=false){
 		$this->requestBasis = ((substr($baseRequete, -1) == ';')? substr($baseRequete, 0, strlen($baseRequete)-1) : $baseRequete );
 		$this->whereBlock = '';
+		$this->groupByBlock = '';
 		$this->havingBlock = '';
 		$this->orderByArray = array();
 		$this->limit = null;
@@ -230,7 +235,11 @@ class SQLRequest {
 			}
 
 			if($this->requestType == RequestType::SELECT){
-				
+
+				// Ajout du bloc GROUP BY
+				if(strlen($this->groupByBlock) > 0)
+					$ret .= ' GROUP BY '.$this->groupByBlock;
+
 				//Ajout du bloc HAVING
 				if(strlen($this->havingBlock) > 0)
 					$ret .= ' HAVING '.$this->havingBlock;
@@ -246,6 +255,7 @@ class SQLRequest {
 					}
 					$ret = substr($ret, 0, strlen($ret) - 1);
 				}
+
 
 				//Ajout de la limit
 				if($this->limit !== null && !$this->forOracle) {
@@ -324,6 +334,7 @@ class SQLRequest {
 
 		//Traitement bloc WHERE & HAVING & LIMIT
 		$reWhere = '/^([\s\S]+)(\s+WHERE\s+)([\s\S]+)$/i';
+		$reGroupBy = '/^([\s\S]+)(\s+GROUP BY\s+)([\s\S]+)$/i';
 		$reHaving = '/^([\s\S]+)(\s+HAVING\s+)([\s\S]+)$/i';
 		$reOrderBy = '/^([\s\S]+)(\s+ORDER\s+BY\s+)([\s\S]+)$/i';
 		$reLimit = '/^([\s\S]+)(\s+LIMIT\s+)([0-9]+)([\s\S]*)$/i';
@@ -331,6 +342,10 @@ class SQLRequest {
 			$this->requestBasis = $tabMatch[1];
 			$this->limit = $tabMatch[3];
 			$this->offset = (( strlen($offset = trim($tabMatch[4])) > 0 )? $offset : null );
+		}
+		if(preg_match($reGroupBy, $this->requestBasis, $tabMatch) === 1){
+			$this->requestBasis = $tabMatch[1];
+			$this->groupByBlock = $tabMatch[3];
 		}
 		if(preg_match($reHaving, $this->requestBasis, $tabMatch) === 1){
 			$this->requestBasis = $tabMatch[1];

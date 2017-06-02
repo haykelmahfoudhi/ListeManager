@@ -31,6 +31,23 @@ var _GET = function () {
   return query_string;
 }();
 
+// Met à jour l'url de la page : à appeler à chaque changement de sessionStorage
+function updateURL() {
+	var tabUrl = document.URL.split('#');
+	if(sessionStorage.length)
+		document.location = tabUrl[0] + '#' + encodeURIComponent(JSON.stringify(sessionStorage));
+	else 
+		document.location = tabUrl[0];
+}
+
+// Récupère les données de session et les applique
+var tabUrl = document.URL.split('#');
+if(tabUrl.length == 2 && tabUrl[1].length){
+	$.each(JSON.parse(decodeURIComponent(tabUrl[1])), function(i, e){
+		sessionStorage.setItem(i, e);
+	});
+}
+
 // Masquage de colonnes
 function masquerColonne(index, dataId) {
 	var cases = $('table' + ((dataId.length && dataId != 'defaut')? '[data-id='+dataId+']' : '') + '.liste').find('td, th');
@@ -71,6 +88,7 @@ function masquerColonnesOnClick(event) {
 		tabMask[dataId] = [index];
 	}
 	sessionStorage.setItem('mask', JSON.stringify(tabMask));
+	updateURL();
 }
 
 
@@ -90,12 +108,12 @@ function afficherColonnes(event) {
 		if(dataId.length)
 			tabMask[dataId] = null;
 		else {
-			console.log(tabMask);
 			tabMask.defaut = null;
 		}
 		sessionStorage.setItem('mask', JSON.stringify(tabMask));
 	}
 	listeParent.parents('div.liste-parent').find('a.annuler-masque').hide();
+	updateURL();
 }
 
 // Permet d'actualiser la largeur des colonnes des titres de la liste
@@ -132,8 +150,13 @@ function afficherChampsRecherche(listeParent, premierChargement){
 	if(inputTr.length) {
 		var dataId = listeParent.find('.liste').attr('data-id'),
 			dataId = ((typeof dataId == 'undefined')? 'defaut' : dataId),
-			formQuest = listeParent.find('form.recherche'),
+			formQuest = listeParent.find('form.recherche');
+
+		try {
 			tabQuest = JSON.parse(sessionStorage.getItem('tabQuest'));
+		} catch(e) {
+			tabQuest = null;
+		}
 
 		if(tabQuest == null)
 			tabQuest = {};
@@ -157,6 +180,7 @@ function afficherChampsRecherche(listeParent, premierChargement){
 		sessionStorage.setItem('tabQuest', JSON.stringify(tabQuest));
 	}
 	actualiserLargeurCol();
+	updateURL();
 }
 $('.liste-parent').each(function(i, e){
 	afficherChampsRecherche($(e), true);
@@ -196,10 +220,15 @@ if(titresFixes) {
 	}
 }
 
+// Masque les colonnes enregistrées dans le sessionStorage 
 $('table.liste').each(function(i, e) {
 	var dataId = e.getAttribute('data-id'),
 		dataId = ((dataId == null)? 'defaut' : dataId),
 		tabMask = JSON.parse(sessionStorage.getItem('mask'));
+
+	if(tabMask == null)
+		tabMask = {};
+
 	if(typeof tabMask[dataId] != 'undefined' && tabMask[dataId] != null){
 		for(var j=0; j<tabMask[dataId].length; j++)
 			masquerColonne(tabMask[dataId][j], dataId);
@@ -207,6 +236,21 @@ $('table.liste').each(function(i, e) {
 	}
 });
 
+
+//Ajoute le masque à l'url avant export en excel
+function maskExportExcel(listeParent) {
+	var dataId = listeParent.find('.liste').attr('data-id'),
+		dataId = ((typeof dataId == 'undefined')? 'defaut' : dataId),
+		tabMask = JSON.parse(sessionStorage.getItem('mask'));
+
+	if(tabMask != null && typeof tabMask[dataId] == 'object'){
+		var maskUrl = encodeURIComponent(tabMask[dataId].join());
+		var tabUrl = document.URL.split('#');
+		document.location = tabUrl[0] + ((tabUrl[0].indexOf('?') !== -1)? '' : '?')
+			+ "&lm_excel" + ((dataId == 'defaut')? '' : dataId) + "=1"
+			+ '&lm_mask' + ((dataId == 'defaut')? '' : dataId) + "=" + maskUrl;
+	}
+}
 
 
 /*----------------------------------------------------
@@ -221,4 +265,10 @@ $('a.annuler-masque').click(afficherColonnes);
 $('tr.recherche > input')
 if(titresFixes)
 	addEventListener("scroll", scrollTitre, false);
+$('a.btn-excel').click(function(event) {
+	event.preventDefault();
+	maskExportExcel($(event.currentTarget).parents('.liste-parent'));
+});
+
+
 }

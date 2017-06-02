@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">53</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">50</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1892466735"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1797698105"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1892466735" class="accordion-body collapse in">
+            <div id="namespace-1797698105" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -173,7 +173,11 @@
                     <p><em>Database permet la connection aux bases de données.</em></p>
                     <p>L'interaction de l'application avec les bases de données se fait de façon générique pour tous les types de BD (Postgre, Oracle, MySql) grâce à l'objet <em>PDO</em> de PHP
 Cette classe est basée sur le design pattern du multiton : il est possible d'avoir plusieurs instances de l'objet Database en les identifiant avec une étiquette unique, et d'y accéder partout dans l'application via la méthode statique <em>getInstance()</em>.
-De ce fait, le constructeur de Database est private. Pour créer une nouvelle instance il faut utiliser la méthode de classe <em>instantiate()</em> en précisant une étiquette si vous utilisez plusieurs bases de données pour l'application.</p>
+De ce fait, le constructeur de Database est private. Pour créer une nouvelle instance il faut utiliser la méthode de classe <em>instantiate()</em> en précisant une étiquette si vous utilisez plusieurs bases de données pour l'application.
+Par la suite il vous sera possible d'exécuter vos requêtes SQL grâce à la méthode <em>execute()</em>, qui prend en paramètre une requete SQL (string ou objet SQLRequest) et si besoin un tableau de paramèttres variables.
+Si ce 2nd paramètre est précisé Databse fait appel aux méthodes <em>prepare()</em> puis <em>execute()</em> de PDO, sinon seul la méthode <em>query()</em> sera utilisée.
+La méthode <em>execute()</em> retourne un objet RequestResponse. Consultez la documentation de la classe pour plus d'informations.
+Database peut produire des messages d'erreur en cas de problème, mais ne les affiche pas dans le document. Pour les récuppérer utilisez la méthode statique <em>getErrorMessages()</em></p>
                     
                                         
                     <section id="summary">
@@ -288,7 +292,7 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
             <article class="property">
                 <h3 class="private ">$pdo</h3>
                 <pre class="signature">$pdo : \PDO</pre>
-                <p><em>Objet PDO</em></p>
+                <p><em></em></p>
                 
 
                                 <h4>Type</h4>
@@ -341,7 +345,7 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
 
                                 <h4>Type</h4>
                 string
-                                            </article>
+                &mdash; chaine de cararctère contenant les données de connexion à la base de données                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -365,7 +369,7 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
 
                                 <h4>Type</h4>
                 string
-                                            </article>
+                &mdash; correspond au nom d&#039;utilisateur pour se connecter à la base de données                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -389,7 +393,7 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
 
                                 <h4>Type</h4>
                 string
-                                            </article>
+                &mdash; mot de passe de l&#039;utilisateur                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -413,7 +417,7 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
 
                                 <h4>Type</h4>
                 array
-                &mdash; le tableau contenatn l&#039;ensemble des messages d&#039;erreur enregistrés                            </article>
+                &mdash; le tableau contenant l&#039;ensemble des messages d&#039;erreur enregistrés                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -487,15 +491,14 @@ De ce fait, le constructeur de Database est private. Pour créer une nouvelle in
                                                     <tr>
                                 <td>string</td>
                                 <td>$etiquette </td>
-                                <td><p>(facultatif) l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont
-utilisees en meme temps dans l'application</p></td>
+                                <td><p>(facultatif) l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont utilisees en meme temps dans l'application</p></td>
                             </tr>
                                             </table>
                 
                 
                                     <h4>Returns</h4>
                     <a href="../classes/Database.html">\Database</a>
-                                            &mdash; <p>: l'instance de Database cree et connecte, ou null en cas d'echec.</p>
+                                            &mdash; <p>l'instance de Database créée et connectée, ou null en cas d'echec.</p>
                                     				
                             </article>
         </div>
@@ -615,7 +618,7 @@ utilisees en meme temps dans l'application</p></td>
                 <h3 class="public ">getInstance()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">getInstance(string  <span class="argument">$etiquette = &#039;principale&#039;</span>) : \Database</pre>
-                <p><em>Retourne l&#039;instance de la base de donnees dont l&#039;étiquette est apssée en paramètre. Si vous n&#039;utilisez qu&#039;une seule base de données vous n&#039;avez pas besoin de spécifier ce paramètre.</em></p>
+                <p><em>Retourne l&#039;instance de la base de donnees dont l&#039;étiquette est passée en paramètre. Si vous n&#039;utilisez qu&#039;une seule base de données vous n&#039;avez pas besoin de spécifier ce paramètre.</em></p>
                 
 
                                     <h4>Parameters</h4>
@@ -898,7 +901,7 @@ utilisees en meme temps dans l'application</p></td>
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 1st, 2017 at 13:45.
+                    on June 2nd, 2017 at 17:05.
                 </section>
             </section>
         </section>

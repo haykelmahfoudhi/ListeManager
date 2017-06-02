@@ -28,12 +28,15 @@
 ********************************************************************************************************/
 
 /**
- * Objet PHP utilise pour l'execution de requetes SQL.
+ * Objet PHP généré par l'execution des requetes SQL.
  * Cet objet est construit par Database suite à l'exécution d'une requête et permet de récupérer le status de la requete ainsi que les données générées. Il contient 3 champs :
  * * La requete SQL executee (qui correspond à un objet PDOStatement)
  * * Un booleen signalant la presence d'une erreur lors de l'execution de la requete
  * * Un champs contenant le message d'erreur associe
- *
+ * Les méthodes de la classe permettent de récupérer les données séléctionnées grâces aux méthodes *nextLine()* et *dataList()* qui sont les homologues respectifs de *fetch()* et *fetchAll()*
+ * de la classe *PDOStatement*
+ * Vous pouvez tester le status de la réponse avec la méthode *error()* qui retourne un booléen, et récupérer le message d'erreur associé via la méthode *getErrorMessage()*
+ * 
  * @link http://php.net/manual/en/class.pdostatement.php Manuel PHP de PDOStatement
  *
  * @author RookieRed
@@ -68,7 +71,7 @@ class RequestResponse {
 	
 	/**
 	 * Construit un nouvel objet de réponse
-	 * @param PDOStatement|null $statement l'objet PDOStatement retourné par la methodes *PDO->execute()*, ou null si erreur
+	 * @param PDOStatement $statement l'objet PDOStatement retourné par la methodes *PDO->execute()*, ou null si erreur
 	 * @param boolean $erreur (facultatif) indique la présence ou non d'une erreur lors de l'exécution de la requete
 	 * @param string $message (facultatif) le message d'erreur associé
 	 */
@@ -100,7 +103,7 @@ class RequestResponse {
 	
 	/**
 	 * Retourne l'ensemble des lignes selectionnées par la requete SQL
-	 * @return array : l'ensemble des resultats de la requete contenu dans un tableau (utilise la méthode PDOStatement->fetchAll()*)
+	 * @return array l'ensemble des resultats de la requete contenu dans un tableau (utilise la méthode PDOStatement->fetchAll()*)
 	 */
 	public function dataList(){
 		if(!$this->error()){

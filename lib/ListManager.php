@@ -309,6 +309,17 @@ class ListManager {
 
 			case ResponseType::EXCEL:
 				if($this->enableExcel){
+
+					// Récupération du masque dans les params GET
+					if(isset($_GET['lm_mask'.$this->id])){
+						$tabMask = [];
+						$titres = $reponse->getColumnsName();
+						foreach (explode(',', $_GET['lm_mask'.$this->id]) as $numCol) {
+							$tabMask[] = $titres[intval($numCol)];
+						}
+						$this->setMask($tabMask);
+					}
+
 					$chemin = $this->generateExcel($reponse);
 					if($chemin != false) {
 						header('Location:'.$chemin);
