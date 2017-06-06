@@ -213,18 +213,18 @@ class ListManager {
 	 * * l'objet de reponse dependant de $ResponseType, parametrable via la methode *setResponseType()*
 	 * * false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données
 	 */
-	public function construct($baseSQL, array $params=array()){
+	public function construct($baseSQL, array $params=[], array $having=[]){
 
 		// Gestion du parametre
 		if(!$baseSQL instanceof SQLRequest)
-			$requete = new SQLRequest($baseSQL, $this->db->oracle());
+			$requete = new SQLRequest($baseSQL, $this->db->oracle(), $having);
 		else {
 			$baseSQL->prepareForOracle($this->db->oracle());
 			$requete = $baseSQL;
 		}
 
 		// Construction de la requete a partir de variables GET disponibles :
-		// Conditions (where)
+		// Conditions (where & having)
 		if($this->enableSearch && isset($_GET['lm_tabSelect'.$this->id])){
 			$tabSelect = array();
 			foreach ($_GET['lm_tabSelect'.$this->id] as $titre => $valeur) {
@@ -232,7 +232,7 @@ class ListManager {
 					$tabSelect[$titre] = $valeur;
 			}
 			if(count($tabSelect) > 0)
-				$requete->where($tabSelect);
+				$requete->filter($tabSelect, $having);
 		}
 		
 		// Tri (Order By)
@@ -260,7 +260,7 @@ class ListManager {
 	 * * l'objet de reponse dependant de $this->responseType, parametrable via la methode *setResponseType()*
 	 * * false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données
 	 */
-	public function execute($request, array $params=array()){
+	public function execute($request, array $params=[]){
 		
 		// Gestion du parametre
 		if($request instanceof SQLRequest) {

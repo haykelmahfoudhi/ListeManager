@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">50</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">51</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-276687792"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1448396254"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-276687792" class="accordion-body collapse in">
+            <div id="namespace-1448396254" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -250,6 +250,7 @@ Il est également à noter que les setters de la classe retourne la référence 
                                                                     <a href="../classes/ListManager.html#constant_NO_PAGING" class="">NO_PAGING</a><br />
                                                                     <a href="../classes/ListManager.html#constant_NO_VERBOSE" class="">NO_VERBOSE</a><br />
                                                                     <a href="../classes/ListManager.html#constant_UNFIXED_TITLES" class="">UNFIXED_TITLES</a><br />
+                                                                    <a href="../classes/ListManager.html#constant_NO_RESULTS" class="">NO_RESULTS</a><br />
                                                             </section>
                         </section>
                         <section class="row-fluid protected">
@@ -482,6 +483,27 @@ Il est également à noter que les setters de la classe retourne la référence 
             <article id="constant_UNFIXED_TITLES" class="constant">
                 <h3 class="">UNFIXED_TITLES</h3>
                 <pre class="signature">UNFIXED_TITLES</pre>
+                <p><em></em></p>
+                
+            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="constant_NO_RESULTS" name="constant_NO_RESULTS" class="anchor"></a>
+            <article id="constant_NO_RESULTS" class="constant">
+                <h3 class="">NO_RESULTS</h3>
+                <pre class="signature">NO_RESULTS</pre>
                 <p><em></em></p>
                 
             </article>
@@ -887,7 +909,7 @@ d'options pour désactiver certaines fonctionnalités de base sans passer par le
             <article class="method">
                 <h3 class="public ">construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">construct(mixed  <span class="argument">$baseSQL</span>, array  <span class="argument">$params = array()</span>) : mixed</pre>
+                <pre class="signature" style="margin-right: 54px;">construct(mixed  <span class="argument">$baseSQL</span>, array  <span class="argument">$params = array()</span>, array  <span class="argument">$having = array()</span>) : mixed</pre>
                 <p><em>Execute la requete SQL dont la base est passee en parametres.</em></p>
                 <p>La méthode prend en paramètre la base de votre requête SQL, et la complète en fonction des paramètres d'url GET, en rajoutant soit des blocs à la clause WHERE soit à la clause ORDER BY si toutesfois ces deux foncitonnalitées sont activées.
 Le format des resultats obtenus par la requete dépend du ResponseType spécifié.</p>
@@ -903,6 +925,11 @@ Le format des resultats obtenus par la requete dépend du ResponseType spécifi�
                                 <td>array</td>
                                 <td>$params </td>
                                 <td><p>(facultatif) à utiliser si vous saouhaitez passer par les méthodes prepare puis exécute pour exécuter votre requete SQL</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$having </td>
+                                <td></td>
                             </tr>
                                             </table>
                 
@@ -934,7 +961,7 @@ Le format des resultats obtenus par la requete dépend du ResponseType spécifi�
                 <h3 class="public ">execute()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">execute(string|\SQLRequest  <span class="argument">$request</span>, array  <span class="argument">$params = array()</span>) : string|boolean</pre>
-                <p><em>Execute une requete SQL **sans prendre en compte les données GET concernant tabSelect et orderBy**.</em></p>
+                <p><em>Execute une requete SQL *sans prendre en compte les données GET concernant tabSelect et orderBy*.</em></p>
                 <p>De ce fait si cette méthode est directement appelée sans passer par <em>construct()</em> les fonctionnalités recherche et tri seront désactivées. La méthode retourne le resultat dans le format specifie par ResponseType</p>
 
                                     <h4>Parameters</h4>
@@ -2197,7 +2224,7 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 2nd, 2017 at 17:05.
+                    on June 6th, 2017 at 15:41.
                 </section>
             </section>
         </section>

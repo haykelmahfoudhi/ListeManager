@@ -89,25 +89,39 @@ class SQLRequest {
 			*******************/
 
 	/**
-	* Ajoute des clauses where à la requête.
-	* @var array $tabWhere : le tableau contenant toutes les conditions à rajouter. Ce tableau aura la forme suivante :
-	*    -> 'nomColonne1' => 'condition1', 'nomColonne2' => 'condition2' ...
+	* Filtre les données sélectionnées par une requete.
+	* Cette méthode ajoute des clauses aux blocs WHERE et/ou HAVING de la requete SQL selon les tableaux qui lui sont passés en paramètre
+	* @param array $tabSelect le tableau contenant toutes les conditions à rajouter. Ce tableau aura la forme suivante :
+	*    -> 'nomColonne1' => 'condition1', 'nomColonne2' => 'cond2A,cond2B,cond3C' ... Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' => 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
 	* Une condition prend la forme suivante : [OPERATEUR][VALEUR]
 	* Les opérateurs possibles sont :
 	* * (pas d'opérateur) : égalité stricte avec la valeur entrée
 	* * < > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égale (pour les valeurs numériques)
-	* * ! : opérateur 'différent de'
+	* * ! : opérateur 'différent de'. La condition '!' est traduite par différent de '' et peut (devrait?) servir de 'NOT NULL'.
 	* * << : opérateur 'BETWEEN' pour les dates
 	* * _ % : opérateurs joker SQL, remplacent respectivement un seul caractère ou un nombre indéfini de caractère dans une chaine.
-	* Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' => 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
-	* La condition '!' est traduite par 'NOT NULL'
-	* @param array 
+	* @param array $colonnesHaving tableau contenant le nom des colonnes selectionnées dont le filtre doit se trouver dans la clause HAVING.
+	*    Ce tableau doit avoir pour fomrat : [ 'alias_colonne' => 'COUNT(t.id)' ]. Ddans cet exemple 'alias_colonne' est l'alias du COUNT tel quel dans le bloc SELECT de la requete. SI vous n'utilisez pas d'alias
+	*    laissez juste le 'COUNT(t.id)' dans le tableau.
 	*/
-	public function where(array $tabWhere){
-		$ret = ((strlen($this->whereBlock) > 0)? ' AND ' : '');
-		foreach ($tabWhere as $nomColonne => $conditions) {
+	public function filter(array $tabSelect, array $colonnesHaving=[]){
+		$retWhere = ((strlen($this->whereBlock) > 0)? ' AND ' : '');
+		$retHaving = ((strlen($this->havingBlock) > 0)? ' AND ' : '');
+
+		foreach ($tabSelect as $nomColonne => $conditions) {
+			// Gestion HAVING / WHERE
+			$estHaving = false;
+			if(isset($colonnesHaving[$nomColonne])) {
+				$estHaving = true;
+				$nomColonne = $colonnesHaving[$nomColonne];
+			}
+			else if (in_array($nomColonne, $colonnesHaving)) {
+				$estHaving = true;
+			}
+
+			// Gestion des conditions
 			$conditions = explode(',', $conditions);
-			$ret .= '(';
+			$ret = '(';
 			foreach ($conditions as &$condition) {
 				//Initilasation des variables
 				$operateur = '=';
@@ -153,12 +167,21 @@ class SQLRequest {
 				// Mise en forme de la condition
 				$ret .= (($not)? 'NOT ' : '')."$nomColonne $operateur $valeur OR ";
 			}
-			$ret = mb_substr($ret, 0, strlen($ret) - 4).')';
-			$ret .= ' AND ';
+			$ret = mb_substr($ret, 0, strlen($ret) - 4).') AND ';
+
+			// Ajout dans le bloc where ou having
+			if($estHaving) {
+				$retHaving .= $ret;
+			}
+			else {
+				$retWhere .= $ret;
+			}
 		}
 
-		$ret = mb_substr($ret, 0, strlen($ret) - 5);
-		$this->whereBlock .= $ret;
+		$retWhere = mb_substr($retWhere, 0, strlen($retWhere) - 5);
+		$retHaving = mb_substr($retHaving, 0, strlen($retHaving) - 5);
+		$this->whereBlock .= $retWhere;
+		$this->havingBlock .= $retHaving;
 	}
 
 	/**

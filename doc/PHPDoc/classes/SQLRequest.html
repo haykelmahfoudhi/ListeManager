@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">50</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">51</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-670069708"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-232761048"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-670069708" class="accordion-body collapse in">
+            <div id="namespace-232761048" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -190,7 +190,7 @@
                         <section class="row-fluid public">
                             <section class="span4">
                                                                     <a href="../classes/SQLRequest.html#method___construct" class="">__construct()</a><br />
-                                                                    <a href="../classes/SQLRequest.html#method_where" class="">where()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_filter" class="">filter()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_orderBy" class="">orderBy()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_removeOrderBy" class="">removeOrderBy()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method___toString" class="">__toString()</a><br />
@@ -546,20 +546,39 @@ La requete SQL de base passée en paramètre ne doit pas contenir :
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_where" name="method_where" class="anchor"></a>
+            <a id="method_filter" name="method_filter" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">where()</h3>
+                <h3 class="public ">filter()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">where(array  <span class="argument">$tabWhere</span>) </pre>
-                <p><em>Ajoute des clauses where à la requête.</em></p>
-                
+                <pre class="signature" style="margin-right: 54px;">filter(array  <span class="argument">$tabSelect</span>, array  <span class="argument">$colonnesHaving = array()</span>) </pre>
+                <p><em>Filtre les données sélectionnées par une requete.</em></p>
+                <p>Cette méthode ajoute des clauses aux blocs WHERE et/ou HAVING de la requete SQL selon les tableaux qui lui sont passés en paramètre</p>
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
                                 <td>array</td>
-                                <td>$tabWhere </td>
-                                <td></td>
+                                <td>$tabSelect </td>
+                                <td><p>le tableau contenant toutes les conditions à rajouter. Ce tableau aura la forme suivante :
+-&gt; 'nomColonne1' =&gt; 'condition1', 'nomColonne2' =&gt; 'cond2A,cond2B,cond3C' ... Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' =&gt; 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
+Une condition prend la forme suivante : [OPERATEUR][VALEUR]
+Les opérateurs possibles sont :</p>
+<ul>
+<li>(pas d'opérateur) : égalité stricte avec la valeur entrée</li>
+<li>
+< > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égale (pour les valeurs numériques)
+</li>
+<li>! : opérateur 'différent de'. La condition '!' est traduite par différent de '' et peut (devrait?) servir de 'NOT NULL'.</li>
+<li>&lt;&lt; : opérateur 'BETWEEN' pour les dates</li>
+<li>_ % : opérateurs joker SQL, remplacent respectivement un seul caractère ou un nombre indéfini de caractère dans une chaine.</li>
+</ul></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$colonnesHaving </td>
+                                <td><p>tableau contenant le nom des colonnes selectionnées dont le filtre doit se trouver dans la clause HAVING.
+Ce tableau doit avoir pour fomrat : [ 'alias_colonne' =&gt; 'COUNT(t.id)' ]. Ddans cet exemple 'alias_colonne' est l'alias du COUNT tel quel dans le bloc SELECT de la requete. SI vous n'utilisez pas d'alias
+laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
                             </tr>
                                             </table>
                 
@@ -573,28 +592,7 @@ La requete SQL de base passée en paramètre ne doit pas contenir :
                                                                             </dl>
             <h2>Tags</h2>
             <table class="table table-condensed">
-                                    <tr>
-                        <th>
-                            var
-                        </th>
-                        <td>
-                                                                                            <p>: le tableau contenant toutes les conditions à rajouter. Ce tableau aura la forme suivante :
--&gt; 'nomColonne1' =&gt; 'condition1', 'nomColonne2' =&gt; 'condition2' ...
-Une condition prend la forme suivante : [OPERATEUR][VALEUR]
-Les opérateurs possibles sont :</p>
-<ul>
-<li>(pas d'opérateur) : égalité stricte avec la valeur entrée</li>
-<li>
-< > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égale (pour les valeurs numériques)
-</li>
-<li>! : opérateur 'différent de'</li>
-<li>&lt;&lt; : opérateur 'BETWEEN' pour les dates</li>
-<li>_ % : opérateurs joker SQL, remplacent respectivement un seul caractère ou un nombre indéfini de caractère dans une chaine.
-Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' =&gt; 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
-La condition '!' est traduite par 'NOT NULL'</li>
-</ul>
-                                                    </td>
-                    </tr>
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
                             </table>
         </aside>
     </div>
@@ -931,7 +929,7 @@ Actualise les blocs where et having si necessaire. A appler dans le constructeur
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 2nd, 2017 at 17:05.
+                    on June 6th, 2017 at 15:41.
                 </section>
             </section>
         </section>
