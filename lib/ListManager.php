@@ -137,6 +137,10 @@ class ListManager {
 	 * @var const UNFIXED_TITLES à utiliser dans le constructeur pour empecher les titres de rester fixés lorsque l'utilisateur scroll. 
 	 */
 	const UNFIXED_TITLES = 128;
+	/**
+	 * @var const NO_RESULTS à utiliser dans le constructeur pour masquer la ligne contenant le nombre de résultats affichés et sélectionnés. 
+	 */
+	const NO_RESULTS = 256;
 
 	/**
 	 * @var array $optionsArray tableau associatif entre chaque option du constructeur et la méthode permettant de desactiver la fonctionnalité correspondate
@@ -149,7 +153,8 @@ class ListManager {
 		self::NO_CSS => 'applyDefaultCSS',
 		self::NO_PAGING => 'setPagingLinksNb',
 		self::NO_VERBOSE => 'verbose',
-		self::UNFIXED_TITLES => 'fixTitles'
+		self::UNFIXED_TITLES => 'fixTitles',
+		self::NO_RESULTS => 'displayResultsInfos'
 	];
 	
 	
@@ -247,7 +252,7 @@ class ListManager {
 	}
 
 	/**
-	 * Execute une requete SQL **sans prendre en compte les données GET concernant tabSelect et orderBy**.
+	 * Execute une requete SQL *sans prendre en compte les données GET concernant tabSelect et orderBy*.
 	 * De ce fait si cette méthode est directement appelée sans passer par *construct()* les fonctionnalités recherche et tri seront désactivées. La méthode retourne le resultat dans le format specifie par ResponseType
 	 * @param string|SQLRequest $request : la requete a executer. Peut etre de type string ou SQLRequest.
 	 * @param array $params (facultatif) à utiliser si vous saouhaitez passer par les méthodes prepare puis exécute pour exécuter votre requete SQL
@@ -601,7 +606,6 @@ class ListManager {
 
 		return $this;
 	}
-
 
 	/**
 	 * Définit la taille maximale des champs de saisie pour la recherche

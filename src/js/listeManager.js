@@ -129,7 +129,7 @@ function actualiserLargeurCol() {
 				var padding = 1,
 					tdWidth = parseInt(window.getComputedStyle(td, null).width) - padding,
 					thWidth = parseInt(window.getComputedStyle(ths[index], null).width) - padding,
-					tdSelectWidth = parseInt(window.getComputedStyle(tdSelect[index], null).width);
+					tdSelectWidth = ((tdSelect.length)? parseInt(window.getComputedStyle(tdSelect[index], null).width) :  0 );
 
 				if(tdSelectWidth > 0)
 					$(td).css('min-width', Math.max(tdWidth, thWidth, tdSelectWidth)+'px');
@@ -201,9 +201,10 @@ if(tabMask != null){
 }
 
 
-// Fixer les titres de la liste sur le doc
+// Fixer les titres & boutons de la liste sur le doc
 if(titresFixes) {
 	var ligneTitres = document.querySelector(".ligne-titres"),
+		divBoutons = document.querySelector(".boutons-options"),
 		offsetTop = $(ligneTitres).offset().top,
 		offsetLeft = $(ligneTitres).offset().left;
 	
@@ -213,10 +214,15 @@ if(titresFixes) {
 	function scrollTitre(){
 		if((document.body.scrollTop || document.documentElement.scrollTop) >= offsetTop) {
 			ligneTitres.classList.add("fixed");
+			divBoutons.classList.add('fixed');
 			$(ligneTitres).css('left', offsetLeft - $(window).scrollLeft());
+			$(divBoutons).next().css('margin-left', window.getComputedStyle(divBoutons, null).width);
 		}
-		else
+		else {
 			ligneTitres.classList.remove("fixed");
+			divBoutons.classList.remove("fixed");
+			$(divBoutons).next().css('margin-left', 0);
+		}
 	}
 }
 

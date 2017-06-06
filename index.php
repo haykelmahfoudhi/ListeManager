@@ -21,14 +21,17 @@ Database::instantiate('oci:dbname=MECAPROTEC;', "DEMOV15","octal", 'oracle');
 
 
 //Base de la requete SQL
-$req2 = new SQLRequest("select * from fact_1_delais where of='1727562';");
-$req = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000 ");
-// $req = new SQLRequest('SELECT * FROM ordre_fabrication WHERE ROWNUM < :num', true);
+// $req2 = new SQLRequest("select * from fact_1_delais where of='1727562';");
+// $req = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000 ");
+// $req2 = new SQLRequest('SELECT * FROM ordre_fabrication WHERE ROWNUM < 2000', true);
+$req = new SQLRequest('SELECT d.id, d.nom, COUNT(a.idDonneurOrdre) as nb FROM Avion a, DonnOrdre d
+	WHERE d.id = a.idDonneurOrdre
+	GROUP BY d.nom, d.id;');
 
 // Liste Manager
-$lm = new ListManager('mysql'
-	// '',
-	// 'oracle'
+$lm = new ListManager(
+	// 'yolo',
+	// null
 	// [ListManager::NO_CSS, 
 	// ListManager::NO_SEARCH, 
 	// ListManager::NO_EXCEL, 
@@ -43,13 +46,14 @@ $lm = new ListManager('mysql'
 <?php
 
 $html = 
-$lm	->setNbResultsPerPage(10)
+$lm	
+	// ->setNbResultsPerPage(10)
 	->construct($req
 	// , [':num' => ($a = 100)]
 );
 
-$lm2 = new ListManager('postgre', 'postgre');
-echo $lm2->construct($req2);
+// $lm2 = new ListManager('oracle', 'oracle');
+// echo $lm2->construct($req2);
 
 ?>
 <?=$html?>
