@@ -47,6 +47,11 @@ class RequestResponse {
 			/********************
 			***   ATTRIBUTS   ***
 			********************/
+	
+	/**
+	 *
+	 */
+	private $sqlRequest;
 	/**
 	 * @var PDOStatement l'objet PDOStatement généré par l'execution d'une requete SQL
 	 */
@@ -63,6 +68,7 @@ class RequestResponse {
 	 * @var array contient l'ensemble des lignes retournées par une requete de sélection
 	 */
 	private $data;
+
 	
 
 		/*-*********************
@@ -75,7 +81,8 @@ class RequestResponse {
 	 * @param boolean $erreur (facultatif) indique la présence ou non d'une erreur lors de l'exécution de la requete
 	 * @param string $message (facultatif) le message d'erreur associé
 	 */
-	public function __construct($statement, $erreur=false, $message=''){
+	public function __construct(SQLRequest $request, $statement, $erreur=false, $message=''){
+		$this->sqlRequest = $request;
 		$this->statement = $statement;
 		$this->error = $erreur;
 		$this->errorMessage = $message;
@@ -144,11 +151,33 @@ class RequestResponse {
 		if($this->error())
 			return null;
 		
-		$ret = array();
-		$nbCol = $this->getColumnsCount();
-		for ($i=0; $i < $nbCol; $i++){
-			array_push($ret, $this->statement->getColumnMeta($i)['name']);
+		$colonnes = $this->sqlRequest->getSelectedColumns();
+		$infos = $this->getColumnsInfos();
+		
+		// S'il y a le meme nombre de colonnes dans la requete et dans la réponse
+		if(count($colonnes) == count($infos))
+			return $colonnes;
+		
+		// Sinon => présence d'une '*' ou d'une procédure
+		$ret = [];
+		$i = 0;
+		foreach ($colonnes as $col) {
+			$tabCol = explode('.', $col);
+			// table.*
+			if(isset($tabCol[1]) && $tabCol[1] == '*'){
+
+			}
+			// Procédure
+			else if(false){
+
+			}
+			// Ni * ni procédure
+			else {
+				$ret[] = $col;
+			}
+			$i++;
 		}
+
 		return $ret;
 	}
 
@@ -166,11 +195,12 @@ class RequestResponse {
 	/**
 	 * Retourne les informations relatives au type de données des colonnes selectionnées
 	 * @return object[]|boolean un tableau d'objets contenant les infos relatives au type de donnees de chaque colonne. Cet objet possede les attribus suivants :
+	 * * -> name : le nom de la colonne tel que retourné
 	 * * -> type : le type de donnees SQL 
 	 * * -> len  : la taille de la donnee
 	 * retourne false si erreur
 	 */
-	public function getColumnsType(){
+	public function getColumnsInfos(){
 		if(($len = $this->getColumnsCount()) == -1)
 			return false;
 		
@@ -182,6 +212,7 @@ class RequestResponse {
 			else
 				$obj->type = $meta['native_type'];
 			$obj->len  = $meta['len'];
+			$obj->name  = $meta['name'];
 			$ret[] = $obj;
 		}
 		return $ret;

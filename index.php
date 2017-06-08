@@ -11,48 +11,44 @@ require_once 'includes.php';
 	<meta charset="utf-8" author="RookieRed">
 </head>
 <body>
-<?php
+<pre><?php
 
+$sql = "SELECT DISTINCT Article, DonnOrdre.Nom, Ref.Client, clnt_nom, gf, MasquePere, 
+            DATE_FORMAT(Ref.DateModif,'%Y-%m-%d %H:%i'), Statut, Username, 'apercu', Article
+        FROM Ref 
+        LEFT JOIN  Masque
+        ON Ref.IdMasque = Masque.Id
+        JOIN client
+        ON clnt_code = Ref.Client
+        JOIN DonnOrdre
+        ON DonnOrdre.Id = (select ma.IdDonneurOrdre from Masque ma where ma.CodeDisposition = Masque.MasquePere)";
+
+
+$req = new SQLRequest($sql);
+var_dump($req->getSelectedColumns());
 
 // Connection aux BD
-Database::instantiate('pgsql:host=periscope;port=5432;dbname=warehouse;','php_liste', 'php_liste', 'postgre');
-Database::instantiate('mysql:host=localhost;dbname=marklate', "marquage","marquage");
-Database::instantiate('oci:dbname=MECAPROTEC;', "DEMOV15","octal", 'oracle');
+// Database::instantiate('pgsql:host=periscope;port=5432;dbname=warehouse;','php_liste', 'php_liste', 'postgre');
+// Database::instantiate('oci:dbname=MECAPROTEC;', "DEMOV15","octal", 'oracle');
+// $db = Database::instantiate('mysql:host=localhost;dbname=marklate', "marquage","marquage");
 
 
-//Base de la requete SQL
+// //Base de la requete SQL
 // $req2 = new SQLRequest("select * from fact_1_delais where of='1727562';");
-$req = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000 ");
 // $req2 = new SQLRequest('SELECT * FROM ordre_fabrication WHERE ROWNUM < 2000', true);
-$req2 = new SQLRequest('SELECT d.id, d.nom, COUNT(a.idDonneurOrdre) as nb FROM Avion a, DonnOrdre d WHERE d.id = a.idDonneurOrdre GROUP BY d.nom, d.id;');
+// $req = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000 ");
 
-// Liste Manager
-$lm = new ListManager(
-	'yolo'
-	// null
-	// [ListManager::NO_CSS, 
-	// ListManager::NO_SEARCH, 
-	// ListManager::NO_EXCEL, 
-	// ListManager::NO_VERBOSE,
-	// ListManager::NO_ORDER_BY,
-	// ListManager::NO_JS_MASK,
-	// ListManager::UNFIXED_TITLES,
-	// ListManager::NO_RESULTS,
-	// ListManager::NO_PAGING]
-	);
+// // Liste Manager
+// $lm = new ListManager('uno', $db, []);
+// $lm->setNbResultsPerPage(30);
+// echo $html = $lm->construct($req);
 
-?><pre></pre>
-<?php
 
-// $lm->having();
+// // 2e liste
+// $lm2 = new ListManager('dos', $db);
+// $lm2->setNbResultsPerPage(15);
+// echo $lm2->construct($req2);
 
-$lm->setNbResultsPerPage(10);
-$html = $lm	->construct($req, [], ['nb' => 'COUNT(a.idDonneurOrdre)']);
-
-$lm2 = new ListManager('having');
-echo $lm2->construct($req2);
-
-?>
-<?=$html?>
+?></pre>
 </body>
 </html>

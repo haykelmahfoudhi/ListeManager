@@ -213,14 +213,14 @@ class ListManager {
 	 * * l'objet de reponse dependant de $ResponseType, parametrable via la methode *setResponseType()*
 	 * * false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données
 	 */
-	public function construct($baseSQL, array $params=[], array $having=[]){
+	public function construct($baseSQL, array $params=array(), array $having=array()){
 
 		// Gestion du parametre
 		if(!$baseSQL instanceof SQLRequest)
-			$requete = new SQLRequest($baseSQL, $this->db->oracle(), $having);
+			$requete = new SQLRequest($baseSQL, $this->db->oracle());
 		else {
-			$baseSQL->prepareForOracle($this->db->oracle());
 			$requete = $baseSQL;
+			$requete->prepareForOracle($this->db->oracle());
 		}
 
 		// Construction de la requete a partir de variables GET disponibles :
@@ -244,6 +244,10 @@ class ListManager {
 		if(isset($_GET['lm_excel'.$this->id])){
 			$this->setResponseType(ResponseType::EXCEL);
 		}
+		
+		// Selection de la page
+		if($this->template->issetPaging() && isset($_GET['lm_page'.$this->id]) && $_GET['lm_page'.$this->id] > 0)
+			$this->template->setCurrentPage($_GET['lm_page'.$this->id]);
 
 		//Execution de la requete
 		$this->executeOnly = false;
@@ -364,9 +368,6 @@ class ListManager {
 
 
 			case ResponseType::TEMPLATE:
-				// Selection de la page
-				if($this->template->issetPaging() && isset($_GET['lm_page'.$this->id]) && $_GET['lm_page'.$this->id] > 0)
-					$this->template->setCurrentPage($_GET['lm_page'.$this->id]);
 				return $this->template->construct($reponse);
 		}
 

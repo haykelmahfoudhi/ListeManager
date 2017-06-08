@@ -285,12 +285,13 @@ class ListTemplate {
 			.(($lmId == null)?'' : " data-id='".$lmId."' ").'>'."\n<tr class='ligne-titres'>";
 
 		//Creation des titres
-		$titres = $reponse->getColumnsName();
+		$types = $reponse->getColumnsInfos();
+		$colonnes = $reponse->getColumnsName();
 		$i = 0;
-		foreach ($titres as $titre) {
+		foreach ($types as $obj) {
 
 			// On vérifie que la colonne en cours n'est aps masquée
-			if(!in_array($titre, $this->lm->getMask())) {
+			if(!in_array($obj->name, $this->lm->getMask())) {
 
 				//Gestion du order by
 				$signeOrder = '';
@@ -298,31 +299,31 @@ class ListTemplate {
 					$orderArray = explode(',', $_GET['lm_orderBy'.$lmId]);
 
 					// Construction de la chaine orderBy
-					if(($key = array_search($titre, $orderArray)) !== false ) {
+					if(($key = array_search($obj->name, $orderArray)) !== false ) {
 						unset($orderArray[$key]);
-						array_unshift($orderArray, "-$titre");
+						array_unshift($orderArray, "-$obj->name");
 						$signeOrder = '&Delta;';
 					}
-					else if (($key = array_search("-$titre", $orderArray)) !== false ){
+					else if (($key = array_search("-$obj->name", $orderArray)) !== false ){
 						unset($orderArray[$key]);
-						array_unshift($orderArray, $titre);
+						array_unshift($orderArray, $obj->name);
 						$signeOrder = '&nabla;';
 					}
 					else {
-						array_unshift($orderArray, $titre);
+						array_unshift($orderArray, $obj->name);
 					}
 					$orderString = implode(',', $orderArray);
 				}
 				else {
-					$orderString = $titre;
+					$orderString = $obj->name;
 				}
 
 				// Préparation du titre à afficher
 				$listTitles = $this->lm->getListTitles();
-				if(isset($listTitles[$titre]))
-					$titreAffiche = $listTitles[$titre];
+				if(isset($listTitles[$obj->name]))
+					$titreAffiche = $listTitles[$obj->name];
 				else 
-					$titreAffiche = $titre;
+					$titreAffiche = $obj->name;
 
 				// Création du lien pour order by
 				if($this->lm->isOrderByEnabled())
@@ -353,7 +354,6 @@ class ListTemplate {
 		//Affichage des champs de saisie pour la  recherche
 		if($this->lm->isSearchEnabled()){
 			$ret .= "<tr class='tabSelect'>";
-			$types = $reponse->getColumnsType();
 			for ($i=0; $i < count($titres); $i++) {
 
 				// On vérifie que la colonne en cours n'est aps masquée

@@ -137,8 +137,13 @@ class Database {
 			return false;
 
 		//On transforme l'objet SQLRequest en string
-		if($request instanceof SQLRequest)
+		if($request instanceof SQLRequest) {
+			$sqlReq = $request;
 			$request = $request->__toString();
+		}
+		else {
+			$sqlReq = new SQLRequest($request, $this->oracle());
+		}
 
 		//Execution de la requete
 		try {
@@ -146,28 +151,28 @@ class Database {
 			if($params === array()){
 				$statement = $this->pdo->query($request);
 				if($statement == false)
-					return new RequestResponse(null, true, $this->pdo->errorInfo()[2]);
+					return new RequestResponse($sqlReq, null, true, $this->pdo->errorInfo()[2]);
 				else 
-					return new RequestResponse($statement);
+					return new RequestResponse($sqlReq, $statement);
 			}
 
 			// Avec les params du prepare
 			else {
 				$statement = $this->pdo->prepare($request);
 				if($statement == false) {
-					return new RequestResponse(null, true, $this->pdo->errorInfo()[2]);
+					return new RequestResponse($sqlReq, null, true, $this->pdo->errorInfo()[2]);
 				}
 				else {
 					if($statement->execute($params))
-						return new RequestResponse($statement);
+						return new RequestResponse($sqlReq, $statement);
 					else 
-						return new RequestResponse($statement, true, $statement->errorInfo()[2]);
+						return new RequestResponse($sqlReq, $statement, true, $statement->errorInfo()[2]);
 				}
 			}
 		}
 		catch(\Exception $e) {
 			self::$errorMessages[] = "<br><b>Database::execute()</b>(etiquette = '$this->label') : ".$e->getMessage();
-			return new RequestResponse(null, true, $e->getMessage());
+			return new RequestResponse($sqlReq, null, true, $e->getMessage());
 		}
 	}
 

@@ -62,6 +62,9 @@ class SQLRequest {
 	 */
 	private $forOracle;
 
+	private $tables;
+	private $columns;
+
 
 			/*-*********************
 			***   CONSTRUCTEUR   ***
@@ -74,6 +77,9 @@ class SQLRequest {
 	*/
 	public function __construct($baseRequete, $forOracle=false){
 		$this->requestBasis = ((substr($baseRequete, -1) == ';')? substr($baseRequete, 0, strlen($baseRequete)-1) : $baseRequete );
+		$this->requestType = RequestType::AUTRE;
+		$this->tables = [];
+		$this->columns = [];
 		$this->whereBlock = '';
 		$this->groupByBlock = '';
 		$this->havingBlock = '';
@@ -115,9 +121,8 @@ class SQLRequest {
 				$estHaving = true;
 				$nomColonne = $colonnesHaving[$nomColonne];
 			}
-			else if (in_array($nomColonne, $colonnesHaving)) {
+			else if (in_array($nomColonne, $colonnesHaving))
 				$estHaving = true;
-			}
 
 			// Gestion des conditions
 			$conditions = explode(',', $conditions);
@@ -303,6 +308,18 @@ class SQLRequest {
 		return $this->requestType;
 	}
 
+	public function getSelectedColumns() {
+		if($this->requestType !== RequestType::SELECT)
+			return false;
+		return $this->columns;
+	}
+
+	public function getSelectedTables() {
+		if($this->requestType !== RequestType::SELECT)
+			return false;
+		return $this->tables;
+	}
+
 	/**
 	* @return array les numéros des colonnes du order by, négatif si tri décroissant
 	* retourne faux s'il n'y a pas d'order by.
@@ -355,74 +372,112 @@ class SQLRequest {
 	*/
 	private function matchRequete(){
 
-		//Traitement bloc WHERE & HAVING & LIMIT
-		$reWhere = '/^([\s\S]+)(\s+WHERE\s+)([\s\S]+)$/i';
-		$reGroupBy = '/^([\s\S]+)(\s+GROUP BY\s+)([\s\S]+)$/i';
-		$reHaving = '/^([\s\S]+)(\s+HAVING\s+)([\s\S]+)$/i';
-		$reOrderBy = '/^([\s\S]+)(\s+ORDER\s+BY\s+)([\s\S]+)$/i';
-		$reLimit = '/^([\s\S]+)(\s+LIMIT\s+)([0-9]+)([\s\S]*)$/i';
-		if(preg_match($reLimit, $this->requestBasis, $tabMatch) === 1){
-			$this->requestBasis = $tabMatch[1];
-			$this->limit = $tabMatch[3];
-			$this->offset = (( strlen($offset = trim($tabMatch[4])) > 0 )? $offset : null );
+		// Récuppération & suppression des blocks parenthésés de la requete
+		$regParentheses = '/\(([^\(\)]|(?R))*\)/';
+		preg_match_all($regParentheses, $this->requestBasis, $matchParentheses);
+		$replaceArray = [];
+		for ($i=0; $i < count($matchParentheses); $i++) { 
+			$replaceArray[] = "($i)";
 		}
-		if(preg_match($reGroupBy, $this->requestBasis, $tabMatch) === 1){
-			$this->requestBasis = $tabMatch[1];
-			$this->groupByBlock = $tabMatch[3];
-		}
-		if(preg_match($reHaving, $this->requestBasis, $tabMatch) === 1){
-			$this->requestBasis = $tabMatch[1];
-			$this->havingBlock = $tabMatch[3];
-		}
-		if(preg_match($reOrderBy, $this->requestBasis, $tabMatch) === 1){
-			$this->requestBasis = $tabMatch[1];
-			$this->orderByArray[0] = $tabMatch[3];
-		}
-		if(preg_match($reWhere, $this->requestBasis, $tabMatch) === 1){
-			$this->requestBasis = $tabMatch[1];
-			$this->whereBlock = $tabMatch[3];
+		$sqlReplaced = str_replace($matchParentheses[0], $replaceArray, $this->requestBasis);
+
+		//Traitement bloc WHERE & HAVING & ORDER BY & LIMIT
+		$regArray = [
+			'limit' 		=> '/^([\s\S]+)(\s+LIMIT\s+)([0-9]+)([\s\S]*)$/i',
+			'orderByArray' 	=> '/^([\s\S]+)(\s+ORDER\s+BY\s+)([\s\S]+)$/i',
+			'havingBlock' 	=> '/^([\s\S]+)(\s+HAVING\s+)([\s\S]+)$/i',
+			'groupByBlock' 	=> '/^([\s\S]+)(\s+GROUP BY\s+)([\s\S]+)$/i',
+			'whereBlock' 	=> '/^([\s\S]+)(\s+WHERE\s+)([\s\S]+)$/i'
+		];
+		foreach ($regArray as $attribu => $regEx) {
+			$tabMatch = [];
+			// On teste si le pattern est présent dans la requete
+			if(preg_match($regEx, $sqlReplaced, $tabMatch) === 1){
+				$sqlReplaced = $tabMatch[1];
+
+				$valeur = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
+					return $matchParentheses[0][$match[1]];
+				} , $tabMatch[3]);
+
+				// Mise à jour des attribus
+				if($attribu == 'limit') {
+					$this->limit = $valeur;
+					$this->offset = ( (strlen($offset = trim($tabMatch[4])) > 0 )? $offset : null );
+				}
+				else if($attribu == 'orderByArray')
+					$this->orderByArray[0] = $valeur;
+				else
+					$this->$attribu = $valeur;
+			}
 		}
 
-		//Expressions régulières
-		$reSelect = '/^[\s]*(SELECT([\s\S]+))$/i';
+		// Mise à jour de la base de la requete
+		$this->requestBasis = $sqlReplaced;
+
+		// Définition du type de requete
+		$reSelect = '/^[\s]*(SELECT([\s]+DISTINCT)?([\s\S]+)FROM([\s\S]+))$/i';
 		$reInsert = '/^[\s]*(INSERT([\s\S]+))$/i';
 		$reUpdate = '/^[\s]*(UPDATE([\s\S]+))$/i';
 		$reDelete = '/^[\s]*(DELETE([\s\S]+))$/i';
 
-		$tabMatch = array();
 		// Teste si SELECT
-		preg_match($reSelect, $this->requestBasis, $tabMatch);
-		if($tabMatch != array()){
+		if(preg_match($reSelect, $this->requestBasis, $tabMatch) === 1){
+			
+			// Test si JOIN présent
+			if(preg_match_all('/([\S]+)([\S\s]+)(JOIN)[\s]+([\S]+)([\S\s]+)/', $tabMatch[4], $tabJoin) === 1) {
+				var_dump($tabJoin);
+				$this->columns = [$tabJoin[0][1], $tabJoin[0][4]];
+			}
+			// Récupération des noms de table et leurs alias dans le FROM
+			else {
+				$tabTables = explode(',', $tabMatch[4]);
+				foreach ($tabTables as $table) {
+					$tabAlias = [];
+					preg_match('/^[\s]*([\S]+)[\s]+((AS[\s]+)?([\S]+))/i', $table, $tabAlias);
+					if($tabAlias == []) {
+						$this->tables[] = trim($table);
+					}
+					else {
+						// [nom de la table => alias utilisé]
+						$this->tables[$tabAlias[1]] = $tabAlias[4];
+					}
+				}
+			}
+
+			// Récupération des nom de colonnes selectionnées
+			$this->columns = explode(',', $tabMatch[3]);
+			foreach($this->columns as &$col) {
+				$tabAlias = [];
+				preg_match('/^[\s]*([\S]+)[\s]*(\.)?(?(2)([\s]*[\S]+)|([\s]*))/i', $col, $tabAlias);
+				$col = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
+					return $matchParentheses[0][$match[1]];
+				}, trim($tabAlias[1]));
+			}
 			$this->requestType = RequestType::SELECT;
-			return;
 		}
 		
 		// Teste si INSERT
-		preg_match($reInsert, $this->requestBasis, $tabMatch);
-		if($tabMatch != array()){
+		if(preg_match($reInsert, $this->requestBasis, $tabMatch) === 1){
 			$this->requestBasis = $tabMatch[1];
 			$this->requestType = RequestType::INSERT;
-			return;
 		}
 
 		// Teste si DELETE
-		preg_match($reDelete, $this->requestBasis, $tabMatch);
-		if($tabMatch != array()){
+		if(preg_match($reDelete, $this->requestBasis, $tabMatch) === 1){
 			$this->requestType = RequestType::DELETE;
 			$this->requestBasis = $tabMatch[1];
-			return;
 		}
 
 		//Teste si UPDATE
-		preg_match($reUpdate, $this->requestBasis, $tabMatch);
-		if($tabMatch != array()){
+		if(preg_match($reUpdate, $this->requestBasis, $tabMatch) === 1){
 			$this->requestType = RequestType::UPDATE;
 			$this->requestBasis = $tabMatch[1];
-			return;
 		}
 
-		// Si rien de tout cela
-		$this->requestType = RequestType::AUTRE;
+		// Mise à jour de la base de la requete
+		$this->requestBasis = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
+			return $matchParentheses[0][$match[1]];
+		}, $sqlReplaced);
 	}
 
 }

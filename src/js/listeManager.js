@@ -36,16 +36,21 @@ function updateURL() {
 	var tabUrl = document.URL.split('#');
 	if(sessionStorage.length)
 		document.location = tabUrl[0] + '#' + encodeURIComponent(JSON.stringify(sessionStorage));
-	else 
-		document.location = tabUrl[0];
+	else
+		document.location = tabUrl[0] + '#{}';
 }
 
 // Récupère les données de session et les applique
 var tabUrl = document.URL.split('#');
 if(tabUrl.length == 2 && tabUrl[1].length){
-	$.each(JSON.parse(decodeURIComponent(tabUrl[1])), function(i, e){
-		sessionStorage.setItem(i, e);
-	});
+	try {
+		$.each(JSON.parse(decodeURIComponent(tabUrl[1])), function(i, e){
+			sessionStorage.setItem(i, e);
+		});
+	}
+	catch(e) {
+		updateURL();
+	}
 }
 
 // Masquage de colonnes
@@ -215,6 +220,7 @@ if(titresFixes) {
 		if((document.body.scrollTop || document.documentElement.scrollTop) >= offsetTop) {
 			ligneTitres.classList.add("fixed");
 			divBoutons.classList.add('fixed');
+			$(divBoutons).css('left', $(divBoutons).offset().left - $(window).scrollLeft());
 			$(ligneTitres).css('left', offsetLeft - $(window).scrollLeft());
 			$(divBoutons).next().css('margin-left', window.getComputedStyle(divBoutons, null).width);
 		}
