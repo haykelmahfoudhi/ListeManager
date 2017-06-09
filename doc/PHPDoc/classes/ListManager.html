@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">51</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">48</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1448396254"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-366138507"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1448396254" class="accordion-body collapse in">
+            <div id="namespace-366138507" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -178,7 +178,7 @@ ListManager possède un comportement de base :</p>
 <li>Utilisation d'une requête SQL de base permettant la sélection</li>
 <li>Utilisation des données situées dans les variables GET de l'url pour modifier la requete SQL de base, à savoir
 <ul>
-<li>'lm_tabSelect' : permet de filtrer les données par colonnes (se rajoute à la clause WHERE de la requete)</li>
+<li>'lm_tabSelect' : permet de filtrer les données par colonnes (se rajoute à la clause WHERE ou HAVING de la requete)</li>
 <li>'lm_orderBy' : permet de trier els données par ordre croissant / décroissant selon une colonne (ajoute le numéro de la colonne à la clause ORDER BY)</li>
 <li>'lm_excel' : lance le téléchargemennt du fichier excel généré par ListManager</li>
 <li>'lm_page' : correspond à la page de résultat affichée</li>
@@ -186,8 +186,9 @@ ListManager possède un comportement de base :</p>
 <li>L'exécution de la requête SQL</li>
 <li>La mise en forme des données dans une liste HTML dans un template correpsondant à la classe ListTemplate</li>
 </ul>
-<p>Ce comportement de base et adaptable et modifibale grâce aux nombreuses méthodes de la classe. Vous pouvez entre autre choisir de retourner les données sous forme de array PHP, d'objet, de fichier excel... ou bien modifier le comportement du template HTML
-Il est également à noter que les setters de la classe retourne la référence de l'objet ($this) en cas de succès, ce qui vous permet d'appler à la suite un ensemble de setter dans la même instruction.</p>
+<p>Ce comportement de base et adaptable et modifibale grâce aux nombreuses méthodes de la classe. Vous pouvez entre autre choisir
+de retourner les données sous forme de array PHP, d'objet, de fichier excel... ou bien modifier le comportement du template HTML.
+Il est également à noter que les setters de la classe retourne la référence de l'objet ($this) ($this) en cas de succès, ce qui vous permet d'appler à la suite un ensemble de setter dans la même instruction.</p>
                     
                                         
                     <section id="summary">
@@ -270,18 +271,18 @@ Il est également à noter que les setters de la classe retourne la référence 
                                                                     <a href="../classes/ListManager.html#method_generateExcel" class="">generateExcel()</a><br />
                                                             </section>
                             <section class="span4">
-                                                                    <a href="../classes/ListManager.html#property_id" class="">$id</a><br />
-                                                                    <a href="../classes/ListManager.html#property_responseType" class="">$responseType</a><br />
-                                                                    <a href="../classes/ListManager.html#property_template" class="">$template</a><br />
-                                                                    <a href="../classes/ListManager.html#property_db" class="">$db</a><br />
-                                                                    <a href="../classes/ListManager.html#property_enableSearch" class="">$enableSearch</a><br />
-                                                                    <a href="../classes/ListManager.html#property_enableOrderBy" class="">$enableOrderBy</a><br />
-                                                                    <a href="../classes/ListManager.html#property_enableExcel" class="">$enableExcel</a><br />
-                                                                    <a href="../classes/ListManager.html#property_messages" class="">$messages</a><br />
-                                                                    <a href="../classes/ListManager.html#property_verbose" class="">$verbose</a><br />
-                                                                    <a href="../classes/ListManager.html#property_mask" class="">$mask</a><br />
-                                                                    <a href="../classes/ListManager.html#property_listTitles" class="">$listTitles</a><br />
-                                                                    <a href="../classes/ListManager.html#property_executeOnly" class="">$executeOnly</a><br />
+                                                                    <a href="../classes/ListManager.html#property__id" class="">$_id</a><br />
+                                                                    <a href="../classes/ListManager.html#property__responseType" class="">$_responseType</a><br />
+                                                                    <a href="../classes/ListManager.html#property__template" class="">$_template</a><br />
+                                                                    <a href="../classes/ListManager.html#property__db" class="">$_db</a><br />
+                                                                    <a href="../classes/ListManager.html#property__enableSearch" class="">$_enableSearch</a><br />
+                                                                    <a href="../classes/ListManager.html#property__enableOrderBy" class="">$_enableOrderBy</a><br />
+                                                                    <a href="../classes/ListManager.html#property__enableExcel" class="">$_enableExcel</a><br />
+                                                                    <a href="../classes/ListManager.html#property__messages" class="">$_messages</a><br />
+                                                                    <a href="../classes/ListManager.html#property__verbose" class="">$_verbose</a><br />
+                                                                    <a href="../classes/ListManager.html#property__mask" class="">$_mask</a><br />
+                                                                    <a href="../classes/ListManager.html#property__listTitles" class="">$_listTitles</a><br />
+                                                                    <a href="../classes/ListManager.html#property__executeOnly" class="">$_executeOnly</a><br />
                                                                     <a href="../classes/ListManager.html#property_optionsArray" class="">$optionsArray</a><br />
                                                             </section>
                             <section class="span4">
@@ -530,16 +531,16 @@ Il est également à noter que les setters de la classe retourne la référence 
 
                                                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_id" name="property_id" class="anchor"></a>
+            <a id="property__id" name="property__id" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$id</h3>
-                <pre class="signature">$id : string</pre>
+                <h3 class="private ">$_id</h3>
+                <pre class="signature">$_id : string</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
                 string
-                &mdash; correspond à l&#039;id du ListManager, cet attribu est utile si vous utilisez plusieurs listes sur la meme page                            </article>
+                &mdash; _$_id correspond à l&#039;id du ListManager, cet attribu est utile si vous utilisez plusieurs listes sur la meme page                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -554,10 +555,10 @@ Il est également à noter que les setters de la classe retourne la référence 
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_responseType" name="property_responseType" class="anchor"></a>
+            <a id="property__responseType" name="property__responseType" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$responseType</h3>
-                <pre class="signature">$responseType : \ResponseType</pre>
+                <h3 class="private ">$_responseType</h3>
+                <pre class="signature">$_responseType : \ResponseType</pre>
                 <p><em></em></p>
                 
 
@@ -579,10 +580,10 @@ Valeur par défaut : TEMPLATE.                            </article>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_template" name="property_template" class="anchor"></a>
+            <a id="property__template" name="property__template" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$template</h3>
-                <pre class="signature">$template : \ListTemplate</pre>
+                <h3 class="private ">$_template</h3>
+                <pre class="signature">$_template : \ListTemplate</pre>
                 <p><em></em></p>
                 
 
@@ -603,10 +604,10 @@ Valeur par défaut : TEMPLATE.                            </article>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_db" name="property_db" class="anchor"></a>
+            <a id="property__db" name="property__db" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$db</h3>
-                <pre class="signature">$db : \Database</pre>
+                <h3 class="private ">$_db</h3>
+                <pre class="signature">$_db : \Database</pre>
                 <p><em></em></p>
                 
 
@@ -627,10 +628,10 @@ Valeur par défaut : TEMPLATE.                            </article>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_enableSearch" name="property_enableSearch" class="anchor"></a>
+            <a id="property__enableSearch" name="property__enableSearch" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$enableSearch</h3>
-                <pre class="signature">$enableSearch : boolean</pre>
+                <h3 class="private ">$_enableSearch</h3>
+                <pre class="signature">$_enableSearch : boolean</pre>
                 <p><em></em></p>
                 
 
@@ -651,10 +652,10 @@ Valeur par défaut : TEMPLATE.                            </article>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_enableOrderBy" name="property_enableOrderBy" class="anchor"></a>
+            <a id="property__enableOrderBy" name="property__enableOrderBy" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$enableOrderBy</h3>
-                <pre class="signature">$enableOrderBy : boolean</pre>
+                <h3 class="private ">$_enableOrderBy</h3>
+                <pre class="signature">$_enableOrderBy : boolean</pre>
                 <p><em></em></p>
                 
 
@@ -675,10 +676,10 @@ Valeur par défaut : TEMPLATE.                            </article>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_enableExcel" name="property_enableExcel" class="anchor"></a>
+            <a id="property__enableExcel" name="property__enableExcel" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$enableExcel</h3>
-                <pre class="signature">$enableExcel : boolean</pre>
+                <h3 class="private ">$_enableExcel</h3>
+                <pre class="signature">$_enableExcel : boolean</pre>
                 <p><em></em></p>
                 
 
@@ -699,10 +700,10 @@ Valeur par défaut : TEMPLATE.                            </article>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_messages" name="property_messages" class="anchor"></a>
+            <a id="property__messages" name="property__messages" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$messages</h3>
-                <pre class="signature">$messages : array</pre>
+                <h3 class="private ">$_messages</h3>
+                <pre class="signature">$_messages : array</pre>
                 <p><em></em></p>
                 
 
@@ -723,10 +724,10 @@ Valeur par défaut : TEMPLATE.                            </article>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_verbose" name="property_verbose" class="anchor"></a>
+            <a id="property__verbose" name="property__verbose" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$verbose</h3>
-                <pre class="signature">$verbose : boolean</pre>
+                <h3 class="private ">$_verbose</h3>
+                <pre class="signature">$_verbose : boolean</pre>
                 <p><em></em></p>
                 
 
@@ -747,10 +748,10 @@ Valeur par défaut : TEMPLATE.                            </article>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_mask" name="property_mask" class="anchor"></a>
+            <a id="property__mask" name="property__mask" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$mask</h3>
-                <pre class="signature">$mask : array</pre>
+                <h3 class="private ">$_mask</h3>
+                <pre class="signature">$_mask : array</pre>
                 <p><em></em></p>
                 
 
@@ -771,10 +772,10 @@ Valeur par défaut : TEMPLATE.                            </article>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_listTitles" name="property_listTitles" class="anchor"></a>
+            <a id="property__listTitles" name="property__listTitles" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$listTitles</h3>
-                <pre class="signature">$listTitles : array</pre>
+                <h3 class="private ">$_listTitles</h3>
+                <pre class="signature">$_listTitles : array</pre>
                 <p><em></em></p>
                 
 
@@ -795,10 +796,10 @@ Valeur par défaut : TEMPLATE.                            </article>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_executeOnly" name="property_executeOnly" class="anchor"></a>
+            <a id="property__executeOnly" name="property__executeOnly" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$executeOnly</h3>
-                <pre class="signature">$executeOnly : boolean</pre>
+                <h3 class="private ">$_executeOnly</h3>
+                <pre class="signature">$_executeOnly : boolean</pre>
                 <p><em></em></p>
                 
 
@@ -855,7 +856,7 @@ Initialisé à true, si cet attribut ne passe pas à false lors de l&#039;appel 
             <article class="method">
                 <h3 class="public ">__construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__construct(  <span class="argument">$id = &#039;&#039;</span>,   <span class="argument">$db = null</span>, array  <span class="argument">$options = array()</span>) </pre>
+                <pre class="signature" style="margin-right: 54px;">__construct(string  <span class="argument">$id = &#039;&#039;</span>, \Database|string  <span class="argument">$db = null</span>, array  <span class="argument">$options = array()</span>) </pre>
                 <p><em>Construit un nouvel objet ListManager et définit son comportement de base.</em></p>
                 <p>Tous les paramètres de ce constructeurs sont facultatifs, et permettent dans l'ordre de définir l'identifiant de ListManager, la base de données à utilier pour les requêtes SQL, et un tableau
 d'options pour désactiver certaines fonctionnalités de base sans passer par les setters de la classe.</p>
@@ -863,19 +864,19 @@ d'options pour désactiver certaines fonctionnalités de base sans passer par le
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td></td>
+                                <td>string</td>
                                 <td>$id </td>
-                                <td></td>
+                                <td><p>l'identifiant de l'objet, à utiliser si vous souhaitez utiliser plusieurs listes sur la même page. Dans le cas contraire, laissez à null.</p></td>
                             </tr>
                                                     <tr>
-                                <td></td>
+                                <td><a href="../classes/Database.html">\Database</a>|string</td>
                                 <td>$db </td>
-                                <td></td>
+                                <td><p>l'insatnce de Database ou l'etiquette de la base de données à utiliser si nécessaire. Laissez null si vous n'avez qu'une seule base de données.</p></td>
                             </tr>
                                                     <tr>
                                 <td>array</td>
                                 <td>$options </td>
-                                <td></td>
+                                <td><p>tableau de constantes permettant de désactiver certaines fonctionnalités de ListManager, c.f. la documention des constantes de la classe.</p></td>
                             </tr>
                                             </table>
                 
@@ -889,16 +890,7 @@ d'options pour désactiver certaines fonctionnalités de base sans passer par le
                                                                             </dl>
             <h2>Tags</h2>
             <table class="table table-condensed">
-                                    <tr>
-                        <th>
-                            var
-                        </th>
-                        <td>
-                                                                                            <p>l'identifiant de l'objet, à utiliser si vous souhaitez utiliser plusieurs listes sur la même page. Dans le cas contraire, laissez à null.</p>
-                                                                                            <p>l'insatnce de Database ou l'etiquette de la base de données à utiliser si nécessaire. Laissez null si vous n'avez qu'une seule base de données.</p>
-                                                                                            <p>tableau de constantes permettant de désactiver certaines fonctionnalités de ListManager, c.f. la documention des constantes de la classe.</p>
-                                                    </td>
-                    </tr>
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
                             </table>
         </aside>
     </div>
@@ -911,7 +903,7 @@ d'options pour désactiver certaines fonctionnalités de base sans passer par le
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">construct(mixed  <span class="argument">$baseSQL</span>, array  <span class="argument">$params = array()</span>, array  <span class="argument">$having = array()</span>) : mixed</pre>
                 <p><em>Execute la requete SQL dont la base est passee en parametres.</em></p>
-                <p>La méthode prend en paramètre la base de votre requête SQL, et la complète en fonction des paramètres d'url GET, en rajoutant soit des blocs à la clause WHERE soit à la clause ORDER BY si toutesfois ces deux foncitonnalitées sont activées.
+                <p>La méthode prend en paramètre la base de votre requête SQL, et la complète en fonction des paramètres d'url GET, en rajoutant soit des blocs à la clause WHERE ou HAVING soit à la clause ORDER BY si toutesfois ces deux foncitonnalitées sont activées.
 Le format des resultats obtenus par la requete dépend du ResponseType spécifié.</p>
 
                                     <h4>Parameters</h4>
@@ -929,7 +921,7 @@ Le format des resultats obtenus par la requete dépend du ResponseType spécifi�
                                                     <tr>
                                 <td>array</td>
                                 <td>$having </td>
-                                <td></td>
+                                <td><p>tableau contenant le nom des colonnes selectionnées dont le filtre doit se trouver dans la clause HAVING.</p></td>
                             </tr>
                                             </table>
                 
@@ -937,8 +929,8 @@ Le format des resultats obtenus par la requete dépend du ResponseType spécifi�
                                     <h4>Returns</h4>
                     mixed
                                             &mdash; <ul>
-<li>l'objet de reponse dependant de $ResponseType, parametrable via la methode <em>setResponseType()</em></li>
-<li>false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données</li>
+<li>l'objet de reponse dependant de $responseType, parametrable via la methode <em>setResponseType()</em>.</li>
+<li>false en cas d'erreur, par exemple si ListManager ne parvient pas à utiliser la base de données.</li>
 </ul>
                                     				
                             </article>
@@ -1029,7 +1021,7 @@ Par défaut le type de réponse est TEMPLATE. Vous pouvez le changer en indiquan
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si le paramètre n'est pas un type de reponse correct sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si le paramètre n'est pas un type de reponse correct sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1082,7 +1074,7 @@ En cas d'erreur de connection le message correspondant est enregistré et affich
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si ListManager ne parvient pas à connecter la base de données, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si ListManager ne parvient pas à connecter la base de données, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1123,7 +1115,7 @@ En cas d'erreur de connection le message correspondant est enregistré et affich
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>la référence de l'objet si l'operation est un succès, false sinon + enregistrement d'un message d'erreur et affichage si verbose</p>
+                                            &mdash; <p>la référence de l'objet ($this) si l'operation est un succès, false sinon + enregistrement d'un message d'erreur et affichage si verbose</p>
                                     				
                             </article>
         </div>
@@ -1160,7 +1152,7 @@ En cas d'erreur de connection le message correspondant est enregistré et affich
                 
                                     <h4>Returns</h4>
                     <a href="../classes/ListManager.html">\ListManager</a>
-                                            &mdash; <p>la référence de l'objet</p>
+                                            &mdash; <p>la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1197,7 +1189,7 @@ En cas d'erreur de connection le message correspondant est enregistré et affich
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si le paramètre en entré n'est ni null, ni un array, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si le paramètre en entré n'est ni null, ni un array, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1225,28 +1217,28 @@ En cas d'erreur de connection le message correspondant est enregistré et affich
             <article class="method">
                 <h3 class="public ">setRowsClasses()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">setRowsClasses(  <span class="argument">$classe1</span>,   <span class="argument">$classe2</span>) : \ListManager</pre>
+                <pre class="signature" style="margin-right: 54px;">setRowsClasses(string  <span class="argument">$class1</span>, string  <span class="argument">$class2</span>) : \ListManager</pre>
                 <p><em>Redefinit le nom des classes qui seront affectees une ligne sur deux dans la liste HTML (balises tr).</em></p>
                 <p>Si les valeurs sont mises a null les classes ne seront pas affiche.</p>
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td></td>
-                                <td>$classe1 </td>
-                                <td></td>
+                                <td>string</td>
+                                <td>$class1 </td>
+                                <td><p>le nom de la classe des lignes impaires. Mettre à null si vous ne souhaitez pas de classe</p></td>
                             </tr>
                                                     <tr>
-                                <td></td>
-                                <td>$classe2 </td>
-                                <td></td>
+                                <td>string</td>
+                                <td>$class2 </td>
+                                <td><p>le nom de la classe des lignes paires. Mettre a null si vous ne souhaitez pas de classe</p></td>
                             </tr>
                                             </table>
                 
                 
                                     <h4>Returns</h4>
                     <a href="../classes/ListManager.html">\ListManager</a>
-                                            &mdash; <p>la référence de l'objet</p>
+                                            &mdash; <p>la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1284,7 +1276,7 @@ Le tableau à passer en paramètre est un tableau associatif où la clé corresp
                 
                                     <h4>Returns</h4>
                     <a href="../classes/ListManager.html">\ListManager</a>
-                                            &mdash; <p>la référence de l'objet</p>
+                                            &mdash; <p>la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1321,7 +1313,7 @@ Le tableau à passer en paramètre est un tableau associatif où la clé corresp
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1358,7 +1350,7 @@ Le tableau à passer en paramètre est un tableau associatif où la clé corresp
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1410,7 +1402,7 @@ Le tableau à passer en paramètre est un tableau associatif où la clé corresp
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si vous entrez un non booléen comme 2e argument de cette méthode, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si vous entrez un non booléen comme 2e argument de cette méthode, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1503,7 +1495,7 @@ Ce callback sera appelé par le template à la fin de la création des titres ET
                 
                                     <h4>Returns</h4>
                     <a href="../classes/ListManager.html">\ListManager</a>
-                                            &mdash; <p>la référence de l'objet</p>
+                                            &mdash; <p>la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1540,7 +1532,7 @@ Ce callback sera appelé par le template à la fin de la création des titres ET
                 
                                     <h4>Returns</h4>
                     boolean
-                                            &mdash; <p>false si la valeur entree est incorrecte, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si la valeur entree est incorrecte, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1577,7 +1569,7 @@ Ce callback sera appelé par le template à la fin de la création des titres ET
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si la valeur spécifié et un entier incorrect, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si la valeur spécifié et un entier incorrect, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1651,7 +1643,7 @@ Ce callback sera appelé par le template à la fin de la création des titres ET
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1688,7 +1680,7 @@ Ce callback sera appelé par le template à la fin de la création des titres ET
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1725,7 +1717,7 @@ Ce callback sera appelé par le template à la fin de la création des titres ET
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1763,7 +1755,7 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1800,7 +1792,7 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1837,7 +1829,7 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -1874,7 +1866,7 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
                 
                                     <h4>Returns</h4>
                     mixed
-                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet</p>
+                                            &mdash; <p>false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)</p>
                                     				
                             </article>
         </div>
@@ -2224,7 +2216,7 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 6th, 2017 at 15:41.
+                    on June 9th, 2017 at 11:41.
                 </section>
             </section>
         </section>

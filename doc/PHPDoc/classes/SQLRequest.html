@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">51</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">48</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-232761048"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1936528451"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-232761048" class="accordion-body collapse in">
+            <div id="namespace-1936528451" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -171,7 +171,10 @@
 
                     <h1><small>\</small>SQLRequest</h1>
                     <p><em>Classe représentant les requetes SQL.</em></p>
-                    <p>Un objet SQLRequest est composé d'une requete de base à laquelle il est possible de rajouter des clauses WHERE, un ORDER By ou de supprimer des colonnes.</p>
+                    <p>Un objet SQLRequest se construit autour d'une requete SQL de base. Le constructeur parse la requete et récupère son type (cf RequestType).
+S'il s'agit d'un <em>SELECT</em> le constructeur tente de récupérer le nom de chaque colonne écrite dans la requete, ainsi que le nom des tables et leur alias
+Ensuite les blocs <em>LIMIT/OFFSET GROUP BY ORDER BY HAVING</em> et <em>WHERE</em> sont identifiés, ce qui permettra de les modifier par la suite.
+Les méthodes de la classe permettent donc de filtrer les données séléctionnées en completant les clauses <em>HAVING</em> ou <em>WHERE</em> de la requete, ainsi que de créer/modifier les clauses citées plus haut.</p>
                     
                                         
                     <section id="summary">
@@ -195,6 +198,8 @@
                                                                     <a href="../classes/SQLRequest.html#method_removeOrderBy" class="">removeOrderBy()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method___toString" class="">__toString()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_getType" class="">getType()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_getSelectedColumns" class="">getSelectedColumns()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_getSelectedTables" class="">getSelectedTables()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_getOrderByArray" class="">getOrderByArray()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_getLimit" class="">getLimit()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_setLimit" class="">setLimit()</a><br />
@@ -223,15 +228,17 @@
                                                                     <a href="../classes/SQLRequest.html#method_matchRequete" class="">matchRequete()</a><br />
                                                             </section>
                             <section class="span4">
-                                                                    <a href="../classes/SQLRequest.html#property_requestBasis" class="">$requestBasis</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_whereBlock" class="">$whereBlock</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_groupByBlock" class="">$groupByBlock</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_havingBlock" class="">$havingBlock</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_orderByArray" class="">$orderByArray</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_limit" class="">$limit</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_offset" class="">$offset</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_requestType" class="">$requestType</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property_forOracle" class="">$forOracle</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__requestBasis" class="">$_requestBasis</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__tables" class="">$_tables</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__columns" class="">$_columns</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__whereBlock" class="">$_whereBlock</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__groupByBlock" class="">$_groupByBlock</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__havingBlock" class="">$_havingBlock</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__orderByArray" class="">$_orderByArray</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__limit" class="">$_limit</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__offset" class="">$_offset</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__requestType" class="">$_requestType</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__forOracle" class="">$_forOracle</a><br />
                                                             </section>
                             <section class="span4">
                                 <em>N/A</em>
@@ -282,10 +289,10 @@
 
                                                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_requestBasis" name="property_requestBasis" class="anchor"></a>
+            <a id="property__requestBasis" name="property__requestBasis" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$requestBasis</h3>
-                <pre class="signature">$requestBasis : string</pre>
+                <h3 class="private ">$_requestBasis</h3>
+                <pre class="signature">$_requestBasis : string</pre>
                 <p><em></em></p>
                 
 
@@ -306,16 +313,16 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_whereBlock" name="property_whereBlock" class="anchor"></a>
+            <a id="property__tables" name="property__tables" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$whereBlock</h3>
-                <pre class="signature">$whereBlock : string</pre>
+                <h3 class="private ">$_tables</h3>
+                <pre class="signature">$_tables : array</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
-                string
-                &mdash; correspond à la partie Where de la requete SQL                            </article>
+                array
+                &mdash; contient le nom des tables et leurs alias récupérées dans la clause FROM de la requete                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -330,16 +337,16 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_groupByBlock" name="property_groupByBlock" class="anchor"></a>
+            <a id="property__columns" name="property__columns" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$groupByBlock</h3>
-                <pre class="signature">$groupByBlock : string</pre>
+                <h3 class="private ">$_columns</h3>
+                <pre class="signature">$_columns : array</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
-                string
-                &mdash; correspond à la partie Having de la requete SQL                            </article>
+                array
+                &mdash; contient le nom des colonnes récupérées dans la clause SELECT de la requete                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -354,16 +361,16 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_havingBlock" name="property_havingBlock" class="anchor"></a>
+            <a id="property__whereBlock" name="property__whereBlock" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$havingBlock</h3>
-                <pre class="signature">$havingBlock : string</pre>
+                <h3 class="private ">$_whereBlock</h3>
+                <pre class="signature">$_whereBlock : string</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
                 string
-                &mdash; correspond à la partie Having de la requete SQL                            </article>
+                &mdash; correspond à la clause Where de la requete SQL                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -378,10 +385,58 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_orderByArray" name="property_orderByArray" class="anchor"></a>
+            <a id="property__groupByBlock" name="property__groupByBlock" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$orderByArray</h3>
-                <pre class="signature">$orderByArray : array</pre>
+                <h3 class="private ">$_groupByBlock</h3>
+                <pre class="signature">$_groupByBlock : string</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                string
+                &mdash; correspond à la clause Having de la requete SQL                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property__havingBlock" name="property__havingBlock" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$_havingBlock</h3>
+                <pre class="signature">$_havingBlock : string</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                string
+                &mdash; correspond à la clause Having de la requete SQL                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property__orderByArray" name="property__orderByArray" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$_orderByArray</h3>
+                <pre class="signature">$_orderByArray : array</pre>
                 <p><em></em></p>
                 
 
@@ -402,16 +457,16 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_limit" name="property_limit" class="anchor"></a>
+            <a id="property__limit" name="property__limit" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$limit</h3>
-                <pre class="signature">$limit : integer</pre>
+                <h3 class="private ">$_limit</h3>
+                <pre class="signature">$_limit : integer</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
                 integer
-                &mdash; correpsond à la valeur de la clause &#039;LIMIT&#039; d&#039;une requete SELECT                            </article>
+                &mdash; correpsond à la valeur de la clause &#039;LIMIT&#039; de la requete                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -426,16 +481,16 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_offset" name="property_offset" class="anchor"></a>
+            <a id="property__offset" name="property__offset" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$offset</h3>
-                <pre class="signature">$offset : string</pre>
+                <h3 class="private ">$_offset</h3>
+                <pre class="signature">$_offset : string</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
                 string
-                &mdash; correpsond à la valeur de la clause &#039;OFFSET&#039; d&#039;une requete SELECT                            </article>
+                &mdash; correpsond à la valeur de la clause &#039;OFFSET&#039; de la requete                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -450,16 +505,16 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_requestType" name="property_requestType" class="anchor"></a>
+            <a id="property__requestType" name="property__requestType" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$requestType</h3>
-                <pre class="signature">$requestType : \RequestType</pre>
+                <h3 class="private ">$_requestType</h3>
+                <pre class="signature">$_requestType : \RequestType</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
                 <a href="../classes/RequestType.html">\RequestType</a>
-                &mdash; : énumération sur le type de la requete SQL                            </article>
+                &mdash; type de la requete SQL (SELECT, INSERT, DELETE, UPDATE, AUTRE)                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -474,16 +529,16 @@
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_forOracle" name="property_forOracle" class="anchor"></a>
+            <a id="property__forOracle" name="property__forOracle" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$forOracle</h3>
-                <pre class="signature">$forOracle : boolean</pre>
+                <h3 class="private ">$_forOracle</h3>
+                <pre class="signature">$_forOracle : boolean</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
                 boolean
-                &mdash; : détemrine si cette requête SQL est destinée à etre exécutée par une base de données Oracle ou non                            </article>
+                &mdash; détemrine si cette requête SQL est destinée à etre exécutée par une base de données Oracle ou non                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -509,23 +564,22 @@
             <article class="method">
                 <h3 class="public ">__construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__construct(  <span class="argument">$baseRequete</span>,   <span class="argument">$forOracle = false</span>) </pre>
+                <pre class="signature" style="margin-right: 54px;">__construct(string  <span class="argument">$requestBasis</span>, boolean  <span class="argument">$forOracle = false</span>) </pre>
                 <p><em>Construit une nouvelle requete SQL à partir d&#039;une requete de base
-La requete SQL de base passée en paramètre ne doit pas contenir :
-* de clause ODER BY (pour le moment.</em></p>
-                <p>..) -&gt; TODO</p>
+Définit le type de la requete et la parse pour récupérer les différentes clauses qui la compose.</em></p>
+                
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td></td>
-                                <td>$baseRequete </td>
-                                <td></td>
+                                <td>string</td>
+                                <td>$requestBasis </td>
+                                <td><p>la base de la requete SQL</p></td>
                             </tr>
                                                     <tr>
-                                <td></td>
+                                <td>boolean</td>
                                 <td>$forOracle </td>
-                                <td></td>
+                                <td><p>passez le paramètre à true si la requête sera exécutée par une BD Oracle</p></td>
                             </tr>
                                             </table>
                 
@@ -560,15 +614,15 @@ La requete SQL de base passée en paramètre ne doit pas contenir :
                                 <td>array</td>
                                 <td>$tabSelect </td>
                                 <td><p>le tableau contenant toutes les conditions à rajouter. Ce tableau aura la forme suivante :
--&gt; 'nomColonne1' =&gt; 'condition1', 'nomColonne2' =&gt; 'cond2A,cond2B,cond3C' ... Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' =&gt; 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
+['nomColonne1' =&gt; 'condition1', 'nomColonne2' =&gt; 'cond2A,cond2B,cond3C'] ... Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' =&gt; 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
 Une condition prend la forme suivante : [OPERATEUR][VALEUR]
 Les opérateurs possibles sont :</p>
 <ul>
 <li>(pas d'opérateur) : égalité stricte avec la valeur entrée</li>
 <li>
-< > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égale (pour les valeurs numériques)
+< > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal (pour les valeurs numériques)
 </li>
-<li>! : opérateur 'différent de'. La condition '!' est traduite par différent de '' et peut (devrait?) servir de 'NOT NULL'.</li>
+<li>! : opérateur 'différent de'. La condition '!' est traduite par 'différent de' et peut (detruet?) servir de 'NOT NULL'.</li>
 <li>&lt;&lt; : opérateur 'BETWEEN' pour les dates</li>
 <li>_ % : opérateurs joker SQL, remplacent respectivement un seul caractère ou un nombre indéfini de caractère dans une chaine.</li>
 </ul></td>
@@ -577,7 +631,7 @@ Les opérateurs possibles sont :</p>
                                 <td>array</td>
                                 <td>$colonnesHaving </td>
                                 <td><p>tableau contenant le nom des colonnes selectionnées dont le filtre doit se trouver dans la clause HAVING.
-Ce tableau doit avoir pour fomrat : [ 'alias_colonne' =&gt; 'COUNT(t.id)' ]. Ddans cet exemple 'alias_colonne' est l'alias du COUNT tel quel dans le bloc SELECT de la requete. SI vous n'utilisez pas d'alias
+Ce tableau doit avoir pour fomrat : [ 'alias_colonne' =&gt; 'COUNT(t.id)' ]. Dans cet exemple 'alias_colonne' est l'alias du COUNT tel quel dans le bloc SELECT de la requete. SI vous n'utilisez pas d'alias
 laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
                             </tr>
                                             </table>
@@ -612,7 +666,7 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
                                                     <tr>
                                 <td>mixed</td>
                                 <td>$nomColonne </td>
-                                <td><p>: correpsond au nom / numéro de la (ou des) colonne(s) à ajouter au group by :</p>
+                                <td><p>correpsond au nom / numéro de la (ou des) colonne(s) à ajouter au group by :</p>
 <ul>
 <li>Pour ajouter plusieurs colonnes ce paramèttre doit etre un array, sinon c'est un int.</li>
 <li>Pour classer la colonnes par 'DESC' le nom ou numéro doit commencer par '-'.</li>
@@ -623,7 +677,7 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
                 
                                     <h4>Returns</h4>
                     boolean
-                                            &mdash; <p>faux si le type de requete n'est pas SELECT ou si le paramètre $nomColonne est vide.</p>
+                                            &mdash; <p>false si le type de requete n'est pas SELECT ou si le paramètre $nomColonne est vide.</p>
                                     				
                             </article>
         </div>
@@ -652,7 +706,7 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
                 
                                     <h4>Returns</h4>
                     boolean
-                                            &mdash; <p>vrai si opération ok, faux sinon (type de requete incompatible)</p>
+                                            &mdash; <p>true si opération ok, false sinon (type de requete incompatible)</p>
                                     				
                             </article>
         </div>
@@ -710,7 +764,67 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
                 
                                     <h4>Returns</h4>
                     <a href="../classes/RequestType.html">\RequestType</a>
-                                            &mdash; <p>: le type de la requete SQL</p>
+                                            &mdash; <p>le type de la requete SQL</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getSelectedColumns" name="method_getSelectedColumns" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getSelectedColumns()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getSelectedColumns() : array</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; <p>tableau contenant le nom des colonnes telles qu'elles sont spécifiées dans la clause SELECT de la requete</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getSelectedTables" name="method_getSelectedTables" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getSelectedTables()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getSelectedTables() : array</pre>
+                <p><em>Retourne un tableau d&#039;objets concernant le nom des tables dans la requete. Chaque objet est composé comme il suit :
+  * -&gt; name  : le nom de la table
+  * -&gt; alias : l&#039;alias de la colonne, ou null si non précisé</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; <p>tableau contenant le nom des tables de la clause FROM et leur alias si précisé</p>
                                     				
                             </article>
         </div>
@@ -739,8 +853,7 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
                 
                                     <h4>Returns</h4>
                     array
-                                            &mdash; <p>les numéros des colonnes du order by, négatif si tri décroissant
-retourne faux s'il n'y a pas d'order by.</p>
+                                            &mdash; <p>le tableau contenant le nom / numéro des colonnes à inscrire dans le ORDER BY. Retourne false s'il n'y a pas d'order by.</p>
                                     				
                             </article>
         </div>
@@ -790,16 +903,21 @@ retourne faux s'il n'y a pas d'order by.</p>
             <article class="method">
                 <h3 class="public ">setLimit()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">setLimit(integer  <span class="argument">$valeur</span>) </pre>
-                <p><em>Définit la nouvelle valeur de la clause LIMIT pour les requêtes de type SELECT</em></p>
+                <pre class="signature" style="margin-right: 54px;">setLimit(integer  <span class="argument">$limit</span>, string  <span class="argument">$offset = &#039;&#039;</span>) </pre>
+                <p><em>Définit les nouvelles valeurs des clauses LIMIT et OFFSET pour les requêtes de type SELECT</em></p>
                 
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
                                 <td>integer</td>
-                                <td>$valeur </td>
-                                <td><p>: la nouvelle valeur limit. Si null cette clause sera desactivée.</p></td>
+                                <td>$limit </td>
+                                <td><p>la nouvelle valeur limit. Si null cette clause sera desactivée.</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$offset </td>
+                                <td><p>la clause OFFSET ENTIERE (et non la valeur seule de la clause). Pour MySQL ce paramètre doit prendre la forme 'OFFSET 2'. null pour désactiver</p></td>
                             </tr>
                                             </table>
                 
@@ -824,21 +942,24 @@ retourne faux s'il n'y a pas d'order by.</p>
             <article class="method">
                 <h3 class="public ">prepareForOracle()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">prepareForOracle(  <span class="argument">$valeur</span>) </pre>
-                <p><em></em></p>
+                <pre class="signature" style="margin-right: 54px;">prepareForOracle(boolean  <span class="argument">$valeur</span>) : boolean</pre>
+                <p><em>Définit si la requete est destinée à être exécuté par une base de données Oracle</em></p>
                 
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td></td>
+                                <td>boolean</td>
                                 <td>$valeur </td>
-                                <td></td>
+                                <td><p>nouvelle valeur</p></td>
                             </tr>
                                             </table>
                 
                 
-                				
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>false si le paramètre d'entrée n'est pas un booléen</p>
+                                    				
                             </article>
         </div>
         <aside class="span4 detailsbar">
@@ -859,10 +980,11 @@ retourne faux s'il n'y a pas d'order by.</p>
                 <h3 class="private ">matchRequete()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">matchRequete() </pre>
-                <p><em>Définit le type de la base de requête en paramètre parmi
+                <p><em>Parse la requete SQL
+Définit le type de la base de requête en paramètre parmi
 	- SELECT - UPDATE - DELETE - INSERT - AUTRE -
-Actualise les blocs where et having si necessaire. A appler dans le constructeur</em></p>
-                
+Parse la requête et détermine les blocs HAVING LIMIT OFFSET GROUP BY ORDER BY et WHERE.</em></p>
+                <p>Récupère le nom des colonnes selctionnées et le nom des tables et leur alias</p>
 
                 
                 
@@ -929,7 +1051,7 @@ Actualise les blocs where et having si necessaire. A appler dans le constructeur
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 6th, 2017 at 15:41.
+                    on June 9th, 2017 at 11:41.
                 </section>
             </section>
         </section>

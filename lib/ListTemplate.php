@@ -49,84 +49,84 @@ class ListTemplate {
 			***   ATTRIBUTS   ***
 			********************/
 	/**
-	 * @var ListManager $lm objet ListManager parent qui régit ce template
+	 * @var ListManager $_lm objet ListManager parent qui régit ce template
 	 */
-	private $lm;
+	private $_lm;
 	/**
-	 * @var string $class1 nom de la classe HTML appliquée aux lignes imparaires
+	 * @var string $_class1 nom de la classe HTML appliquée aux lignes imparaires
 	 */
-	private $class1;
+	private $_class1;
 	/**
-	 * @var string $class2 nom de la classe HTML appliquée aux lignes paires
+	 * @var string $_class2 nom de la classe HTML appliquée aux lignes paires
 	 */
-	private $class2;
+	private $_class2;
 	/**
-	 * @var string $emptyListMessage le message qui sera affiche si la liste ne contient pas de donnees
+	 * @var string $_emptyListMessage le message qui sera affiche si la liste ne contient pas de donnees
 	 */
-	private $emptyListMessage;
+	private $_emptyListMessage;
 	/**
-	 * @var string  le nom de la classe HTML des balises p qui contiendront le message d'erreur
+	 * @var string $_errorClass le nom de la classe HTML des balises p qui contiendront le message d'erreur
 	 */
-	private $errorClass;
+	private $_errorClass;
 	/**
-	 * @var int  nombre de resultats affiches par page. Valeur par defaut = 100
+	 * @var int $_nbResultsPerPage nombre de resultats affiches par page. Valeur par defaut = 100
 	 */
-	private $nbResultsPerPage;
+	private $_nbResultsPerPage;
     /**
-     * @var int numero de la page de resultats actuelle
+     * @var int $_currentPage numero de la page de resultats actuelle
      */
-	private $currentPage;
+	private $_currentPage;
 	/**
-	 * @var string nom du callback a appeler lors de l'affichage d'une cellule (balises 'td')
+	 * @var string $_cellCallback nom du callback a appeler lors de l'affichage d'une cellule (balises 'td')
 	 */
-	private $cellCallback;
+	private $_cellCallback;
 	/**
-	 * @var bool définit si le callback de cellule réécrit les balises TD des cellules ou non. 
+	 * @var bool $_replaceTagTD définit si le callback de cellule réécrit les balises TD des cellules ou non. 
 	 * Passez cet attribut à true pour ajouter manuellement les balises td avec le callback et pour modifier leurs attribus
 	 */
-	private $replaceTagTD;
+	private $_replaceTagTD;
 	/**
-	 * @var string $rowCallback nom du callback a appeler lors de l'affichage des des lignes (balises 'tr').
+	 * @var string $_rowCallback nom du callback a appeler lors de l'affichage des des lignes (balises 'tr').
 	 * Permet de modifer les attributs HTML de la balise
 	 */
-	private $rowCallback;
+	private $_rowCallback;
 	/**
-	 * @var string $columnCallback nom du callback qui servira à ajouter des colonnes à la liste 
+	 * @var string $_columnCallback nom du callback qui servira à ajouter des colonnes à la liste 
 	 */
-	private $columnCallback;
+	private $_columnCallback;
 	/* TODO
 	 * @var boolean definit l'utilisation du système de cache pour les requêtes lourdes
 	 */
 	// private $useCache;
 	/**
-	 * @var bool $enableJSMask définit si le template permet à l'utilisateur de masquer les colonnes grâce
+	 * @var bool $_enableJSMask définit si le template permet à l'utilisateur de masquer les colonnes grâce
 	 * à JavaScript avecla petite croix rouge
 	 */
-	private $enableJSMask;
+	private $_enableJSMask;
 	/**
-	 * @var int nombre de liens de page à afficher au maximum dans la pagination
+	 * @var int $_pagingLinksNb nombre de liens de page à afficher au maximum dans la pagination
 	 */
-	private $pagingLinksNb;
+	private $_pagingLinksNb;
 	/**
-	 * @var string $helpLink lien vers la page d'aide associée à cette liste
+	 * @var string $_helpLink lien vers la page d'aide associée à cette liste
 	 */
-	private $helpLink;
+	private $_helpLink;
 	/**
-	 * @var bool $displayResultsInfos définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete
+	 * @var bool $_displayResultsInfos définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete
 	 */
-	private $displayResultsInfos;
+	private $_displayResultsInfos;
 	/**
-	 * @var bool $applyDefaultCSS déinit si le template doit appliquer le style par defaut du fichier base.css ou non
+	 * @var bool $_applyDefaultCSS déinit si le template doit appliquer le style par defaut du fichier base.css ou non
 	 */
-	private $applyDefaultCSS;
+	private $_applyDefaultCSS;
 	/**
-	 * @var integer longueur maximale des champs de saisie pour la recherche par colonne
+	 * @var integer $_maxSizeInputs longueur maximale des champs de saisie pour la recherche par colonne
 	 */
-	private $maxSizeInputs;
+	private $_maxSizeInputs;
 	/**
-	 * @var bool $fixedTitles définti si les titres de la listes sont fixés lorsque l'utilisateur scroll
+	 * @var bool $_fixedTitles définti si les titres de la listes sont fixés lorsque l'utilisateur scroll
 	 */
-	private $fixedTitles;
+	private $_fixedTitles;
 	
 	/**
 	 * @var string $CLASS1 classe par défaut des lignes impaires du tableau
@@ -148,25 +148,25 @@ class ListTemplate {
 	 * @param ListManager $lm l'objet ListManager appelant qui utilise cet objet template
 	 */
 	 public function __construct(ListManager $lm){
-		$this->lm = $lm;
-		$this->class1 = self::$CLASS1;
-		$this->class2 = self::$CLASS2;
-		$this->enableJSMask = true;
-		$this->emptyListMessage = "Aucun resultat!";
-		$this->errorClass = 'erreur';
-		$this->currentPage = 1;
-		$this->nbResultsPerPage = 50;
-		$this->pagingLinksNb = 10;
-		$this->cellCallback = null;
-		$this->replaceTagTD = false;
-		$this->rowCallback = null;
-		$this->columnCallback = null;
+		$this->_lm = $lm;
+		$this->_class1 = self::$CLASS1;
+		$this->_class2 = self::$CLASS2;
+		$this->_enableJSMask = true;
+		$this->_emptyListMessage = "Aucun resultat!";
+		$this->_errorClass = 'erreur';
+		$this->_currentPage = 1;
+		$this->_nbResultsPerPage = 50;
+		$this->_pagingLinksNb = 10;
+		$this->_cellCallback = null;
+		$this->_replaceTagTD = false;
+		$this->_rowCallback = null;
+		$this->_columnCallback = null;
 		// $this->useCache = false;
-		$this->helpLink = null;
-		$this->displayResultsInfos = true;
-		$this->applyDefaultCSS = true;
-		$this->maxSizeInputs = 30;
-		$this->fixedTitles = true;
+		$this->_helpLink = null;
+		$this->_displayResultsInfos = true;
+		$this->_applyDefaultCSS = true;
+		$this->_maxSizeInputs = 30;
+		$this->_fixedTitles = true;
 	}
 	
 	
@@ -192,7 +192,7 @@ class ListTemplate {
 		if($reponse->error()){
 			$ret = "<div class='boutons-options'><a href='".self::creerUrlGET(null, null, array())."'>Clear</a></div>";
 			return $ret.self::messageHTML($reponse->getErrorMessage(),
-				$this->errorClass);
+				$this->_errorClass);
 		}
 
 		// Preparation de l'array a afficher
@@ -200,14 +200,14 @@ class ListTemplate {
 		while(($ligne = $reponse->nextLine()) != null)
 			$donnees[] = $ligne;
 		$nbLignes = $reponse->getRowsCount();
-		$debut = ($this->currentPage - 1) * $this->nbResultsPerPage;
-		$fin = min(($this->currentPage) * $this->nbResultsPerPage, $nbLignes);
+		$debut = ($this->_currentPage - 1) * $this->_nbResultsPerPage;
+		$fin = min(($this->_currentPage) * $this->_nbResultsPerPage, $nbLignes);
 
 		// Si la page actuelle n'existe aps -> redirection sur 1re page
 		if($debut > $fin) {
 			$debut = 0;
-			$fin = $this->nbResultsPerPage;
-			$this->currentPage = 1;
+			$fin = $this->_nbResultsPerPage;
+			$this->_currentPage = 1;
 		}
 
 		// Enregistrement des donnees dans le cache
@@ -218,8 +218,8 @@ class ListTemplate {
 		// }
 
 		// $donnees ne contient plus que les valeurs a afficher
-		$donnees = array_slice($donnees, $debut, $this->nbResultsPerPage);
-		$lmId = $this->lm->getId();
+		$donnees = array_slice($donnees, $debut, $this->_nbResultsPerPage);
+		$lmId = $this->_lm->getId();
 
 		// Creation de la div HTML parente
 		$ret = "\n".'<div class="liste-parent">';
@@ -228,16 +228,16 @@ class ListTemplate {
 		$ret .= "\n<div><div class='boutons-options'>";
 		
 		// Bouton pour reset le mask en JS
-		if($this->enableJSMask)
+		if($this->_enableJSMask)
 			$ret .= '<a class="annuler-masque" href="#"><img height="40" width="40" src="'.LM_IMG.'mask-cross.png"></a>';
 
 		// Bouton excel
-		if($this->lm->isExcelEnabled()){
+		if($this->_lm->isExcelEnabled()){
 			$ret .= '<a href="'.self::creerUrlGET('lm_excel'.$lmId, 1).'" class="btn-excel"><img height="40" width="40" src="'.LM_IMG.'excel-ico.png"></a>';
 		}
 
 		//Bouton quest (recherche)
-		if($this->lm->isSearchEnabled()){
+		if($this->_lm->isSearchEnabled()){
 			$ret .= '<a class="btn-recherche" href="#"><img height="40" width="40" src="'.LM_IMG.'search-ico.png"></a>'; 
 			
 			// Ajout du form si recherche activee
@@ -255,8 +255,8 @@ class ListTemplate {
 		}
 
 		// Lien vers la rubrique d'aide / légende associée
-		if($this->helpLink != null){
-			$ret .= "<a href='$this->helpLink' target='_blank' class='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
+		if($this->_helpLink != null){
+			$ret .= "<a href='$this->_helpLink' target='_blank' class='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
 		}
 
 		//Bouton RaZ
@@ -278,20 +278,22 @@ class ListTemplate {
 
 		//Affichage du nombre de resultats
 		$debut++;
-		if($this->displayResultsInfos)
+		if($this->_displayResultsInfos)
 			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", 'info-resultats', 'p')."\n";
 
-		$ret .= '<table class="liste'.((strlen($lmId))? '"' : ' fix-margin"').' '.(($this->fixedTitles)? ' fixed-titles="true"' : '')
+		$ret .= '<table class="liste'.((strlen($lmId))? '"' : ' fix-margin"').' '.(($this->_fixedTitles)? ' fixed-titles="true"' : '')
 			.(($lmId == null)?'' : " data-id='".$lmId."' ").'>'."\n<tr class='ligne-titres'>";
 
 		//Creation des titres
 		$types = $reponse->getColumnsInfos();
+		$titres = $reponse->getColumnsName();
+		var_dump($titres);
 		$colonnes = $reponse->getColumnsName();
 		$i = 0;
 		foreach ($types as $obj) {
 
 			// On vérifie que la colonne en cours n'est aps masquée
-			if(!in_array($obj->name, $this->lm->getMask())) {
+			if(!in_array($obj->name, $this->_lm->getMask())) {
 
 				//Gestion du order by
 				$signeOrder = '';
@@ -319,20 +321,20 @@ class ListTemplate {
 				}
 
 				// Préparation du titre à afficher
-				$listTitles = $this->lm->getListTitles();
+				$listTitles = $this->_lm->getListTitles();
 				if(isset($listTitles[$obj->name]))
 					$titreAffiche = $listTitles[$obj->name];
 				else 
 					$titreAffiche = $obj->name;
 
 				// Création du lien pour order by
-				if($this->lm->isOrderByEnabled())
+				if($this->_lm->isOrderByEnabled())
 					$lienOrderBy = '<a class="titre-colonne" href="'
 						.self::creerUrlGET('lm_orderBy'.$lmId, $orderString)."\">$titreAffiche</a><br>$signeOrder";
 				else
 					$lienOrderBy = $titreAffiche;
 
-				if($this->enableJSMask)
+				if($this->_enableJSMask)
 					$lienMasque = '<a class="masque" href="#">x</a>';
 				else 
 					$lienMasque = '';
@@ -344,27 +346,27 @@ class ListTemplate {
 		}
 
 		// Utilisation du callback pour ajouter une colonne
-		if($this->columnCallback != null) {
-			$fct = $this->columnCallback;
+		if($this->_columnCallback != null) {
+			$fct = $this->_columnCallback;
 			$ret .= call_user_func_array($fct, array(0, $titres, true));
 		}
 
 		$ret .= "</tr>\n";
 
 		//Affichage des champs de saisie pour la  recherche
-		if($this->lm->isSearchEnabled()){
+		if($this->_lm->isSearchEnabled()){
 			$ret .= "<tr class='tabSelect'>";
-			for ($i=0; $i < count($titres); $i++) {
+			foreach ($reponse->getColumnsName() as $colonne){
 
 				// On vérifie que la colonne en cours n'est aps masquée
-				if(!in_array($titres[$i], $this->lm->getMask())) {
+				if(!in_array($colonne, $this->_lm->getMask())) {
 
 					//Determine le contenu du champs
-					$valeur = (isset($_GET['lm_tabSelect'.$lmId][$titres[$i]])? 
-						$_GET['lm_tabSelect'.$lmId][$titres[$i]] : null);
+					$valeur = (isset($_GET['lm_tabSelect'.$lmId][$colonne])? 
+						$_GET['lm_tabSelect'.$lmId][$colonne] : '');
 					//Determine la taille du champs
-					$taille = min($types[$i]->len, $this->maxSizeInputs);
-					$ret .= '<td><input type="text" name="lm_tabSelect'.$lmId.'['.$titres[$i].']"'
+					$taille = min($types[$i]->len, $this->_maxSizeInputs);
+					$ret .= '<td><input type="text" name="lm_tabSelect'.$lmId.'['.$colonne.']"'
 						." form='recherche".$lmId."' size='$taille' value='$valeur'/></td>";
 				}
 			}
@@ -374,7 +376,7 @@ class ListTemplate {
 		// Si le tableau est vide -> retourne messageListeVide
 		if(count($donnees) == 0){
 			$ret .= "</table>\n";
-			$ret .= self::messageHTML($this->emptyListMessage, $this->errorClass);
+			$ret .= self::messageHTML($this->_emptyListMessage, $this->_errorClass);
 		}
 
 		
@@ -383,12 +385,12 @@ class ListTemplate {
 			$i = 0;
 			foreach ($donnees as $ligne) {
 				//Gestion des classes
-				$classe = (($i % 2)? $this->class1 : $this->class2);
+				$classe = (($i % 2)? $this->_class1 : $this->_class2);
 				$ret .= '<tr'.(($classe == null)? '' : " class='$classe' ");
 
 				// Utilisation du callback
-				if($this->rowCallback != null) {
-					$fct = $this->rowCallback;
+				if($this->_rowCallback != null) {
+					$fct = $this->_rowCallback;
 					$ret .= ' '.call_user_func_array($fct, array($i, $ligne));
 				}
 				$ret .= '>';
@@ -398,24 +400,24 @@ class ListTemplate {
 				foreach ($ligne as $cellule){
 
 					// On vérifie que la colonne en cours n'est pas masquée
-					if(!in_array($titres[$j], $this->lm->getMask())) {
+					if(!in_array($titres[$j], $this->_lm->getMask())) {
 
 						// Application du callback (si non null)
-						if($this->cellCallback != null) {
-							$fct = $this->cellCallback;
+						if($this->_cellCallback != null) {
+							$fct = $this->_cellCallback;
 							$cellule = ( (($retFCT = call_user_func_array($fct, array($cellule, $titres[$j], $i, $ligne))) === null)? $cellule : $retFCT ) ;
 						}
 						// Si la cellule ne contient rien -> '-'
 						if(strlen($cellule) == 0)
 							$cellule = '-';
-						$ret .= (($this->replaceTagTD)? '' : '<td>') .$cellule. (($this->replaceTagTD)? '' : '</td>');
+						$ret .= (($this->_replaceTagTD)? '' : '<td>') .$cellule. (($this->_replaceTagTD)? '' : '</td>');
 					}
 					$j++;
 				}
 
 				// Ajout des colonnes par callback
-				if($this->columnCallback != null) {
-					$fct = $this->columnCallback;
+				if($this->_columnCallback != null) {
+					$fct = $this->_columnCallback;
 					$ret .= call_user_func_array($fct, array($i, $ligne, false));
 				}
 
@@ -426,21 +428,21 @@ class ListTemplate {
 		}
 
 		// Affichage du tableau des numeros de page
-		if($nbLignes > $this->nbResultsPerPage && $this->pagingLinksNb != false){
+		if($nbLignes > $this->_nbResultsPerPage && $this->_pagingLinksNb != false){
 			$ret .= '<div class="pagination'.((strlen($lmId)? '' : ' fixed')).'"><table align="center"><tr>';
-			$nbPages = (is_int($nbPages = ($nbLignes / $this->nbResultsPerPage))? $nbPages : round($nbPages + 0.5) );
+			$nbPages = (is_int($nbPages = ($nbLignes / $this->_nbResultsPerPage))? $nbPages : round($nbPages + 0.5) );
 
 			// S'il y a plus de pages que la limite affichable
-			if($nbPages > $this->pagingLinksNb){
-				$debut = $this->currentPage - intval($this->pagingLinksNb / 2);
+			if($nbPages > $this->_pagingLinksNb){
+				$debut = $this->_currentPage - intval($this->_pagingLinksNb / 2);
 				if($debut <= 1){
 					$debut = 1;
-					$fin = $this->pagingLinksNb + 1;
+					$fin = $this->_pagingLinksNb + 1;
 				}
 				// Ajout de la 1re page si besoin
 				else {
 					$ret .= '<td><a href="'.self::creerUrlGET('lm_page'.$lmId, 1).'">&lt;&lt;</td>';
-					$fin = min($debut + $this->pagingLinksNb, $nbPages);
+					$fin = min($debut + $this->_pagingLinksNb, $nbPages);
 				}
 			}
 			else {
@@ -453,7 +455,7 @@ class ListTemplate {
 				$ret .= '<td>';
 
 				// Pas de lien si on est deje sur la pageActuelle
-				if($i == $this->currentPage)
+				if($i == $this->_currentPage)
 					$ret .= "$i";
 				else {	
 					// Construction du lien de la page
@@ -475,7 +477,7 @@ class ListTemplate {
 		$ret .= '<script type="text/javascript" src="'.LM_JS.'jquery-3.2.1.min.js"></script>'
 			."\n".'<script type="text/javascript" src="'.LM_JS.'listeManager.js"></script>'."\n";
 		// Ajout du css si appliqué
-		if($this->applyDefaultCSS)
+		if($this->_applyDefaultCSS)
 			$ret .= '<link rel="stylesheet" type="text/css" href="'.LM_CSS.'base.css">'."\n";
 
 		// Fin
@@ -492,7 +494,7 @@ class ListTemplate {
 	* @param string $message le nouveau message a definir
 	*/
 	public function setEmptyListMessage($message){
-		$this->emptyListMessage = $message;
+		$this->_emptyListMessage = $message;
 	}
 
 	/**
@@ -500,7 +502,7 @@ class ListTemplate {
 	 * @param string $classe le nouveau nom de la classe des messages d'erreur. Si null pas de classe affichée.
 	 */
 	public function setErrorMessageClass($classe){
-		$this->errorClass = $classe;
+		$this->_errorClass = $classe;
 	}
 
 	/**
@@ -512,7 +514,7 @@ class ListTemplate {
 		if(!is_bool($valeur))
 			return false;
 		
-		$this->enableJSMask = $valeur;
+		$this->_enableJSMask = $valeur;
 	}
 	
 	/**
@@ -521,8 +523,8 @@ class ListTemplate {
 	 * @param string $classe2 classe des linges paires. Si null rien ne sera applique
 	 */
 	public function setRowsClasses($classe1, $classe2){
-		$this->class1 = $classe1;
-		$this->class2 = $classe2;
+		$this->_class1 = $classe1;
+		$this->_class2 = $classe2;
 	}
 
 	/**
@@ -534,14 +536,14 @@ class ListTemplate {
 		if(!is_int($valeur) || $valeur <= 0)
 			return false;
 
-		$this->nbResultsPerPage = $valeur;
+		$this->_nbResultsPerPage = $valeur;
 	}
 
 	/**
 	 * @return int le nombre de lignes de resultat a afficher par page
 	 */
 	public function getNbResultsPerPage(){
-		return $this->nbResultsPerPage;
+		return $this->_nbResultsPerPage;
 	}
 
 	/**
@@ -553,7 +555,7 @@ class ListTemplate {
 		if(intval($numeroPage) != $numeroPage || $numeroPage <= 0)
 			return false;
 
-		$this->currentPage = $numeroPage;
+		$this->_currentPage = $numeroPage;
 	}
 
 	/**
@@ -575,8 +577,8 @@ class ListTemplate {
 		if(!is_bool($replaceTagTD)){
 			return false;
 		}
-		$this->replaceTagTD = $replaceTagTD;
-		$this->cellCallback = $fonction;
+		$this->_replaceTagTD = $replaceTagTD;
+		$this->_cellCallback = $fonction;
 	}
 
 	/**
@@ -589,11 +591,11 @@ class ListTemplate {
 	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
 	 */
 	public function setRowCallback(callable $fonction){
-		$this->rowCallback = $fonction;
+		$this->_rowCallback = $fonction;
 	}
 
 	/**
-	 * Définir un callback pour rajouter manuellement des colonnes dans votre liste
+	 * Définir un callback pour rajouter manuellement des colonnes dans votre liste.
 	 * Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque
 	 * ligne de la liste. La fonction doit correspondre au format suivant
 	 *  * 3 paramètres d'entrée :
@@ -604,7 +606,7 @@ class ListTemplate {
 	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
 	 */
 	public function setColumnCallback(callable $fonction){
-		$this->columnCallback = $fonction;
+		$this->_columnCallback = $fonction;
 	}
 
 	/* TODO
@@ -626,7 +628,7 @@ class ListTemplate {
 		if(intval($valeur) < 0)
 			return false;
 
-		$this->pagingLinksNb = $valeur;
+		$this->_pagingLinksNb = $valeur;
 	}
 
 	/**
@@ -635,9 +637,9 @@ class ListTemplate {
 	 */
 	public function setHelpLink($link) {
 		if(strlen($link) > 0)
-			$this->helpLink = $link;
+			$this->_helpLink = $link;
 		else
-			$this->helpLink = null;
+			$this->_helpLink = null;
 	}
 
 	/**
@@ -649,7 +651,7 @@ class ListTemplate {
 		if(!is_bool($valeur))
 			return false;
 
-		$this->displayResultsInfos = $valeur;
+		$this->_displayResultsInfos = $valeur;
 	}
 
 	/**
@@ -664,7 +666,7 @@ class ListTemplate {
 		if(!is_bool($valeur))
 			return false;
 
-		$this->applyDefaultCSS = $valeur;
+		$this->_applyDefaultCSS = $valeur;
 		if(!$valeur)
 			$this->fixTitles($valeur);
 	}
@@ -678,7 +680,7 @@ class ListTemplate {
 		if($valeur != intval($valeur) || $valeur <= 0)
 			return false;
 
-		$this->maxSizeInputs = $valeur;
+		$this->_maxSizeInputs = $valeur;
 	}
 
 	/**
@@ -689,14 +691,14 @@ class ListTemplate {
 	public function fixTitles($valeur) {
 		if(!is_bool($valeur))
 			return false;
-		$this->fixedTitles = $valeur;
+		$this->_fixedTitles = $valeur;
 	}
 
 	/**
 	 * @return bool true si le tableau de pagination sera affiché, false sinon
 	 */
 	public function issetPaging() {
-		return $this->pagingLinksNb != false;
+		return $this->_pagingLinksNb != false;
 	}
 
 			/*-****************

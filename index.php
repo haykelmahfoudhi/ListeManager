@@ -24,13 +24,15 @@ $sql = "SELECT DISTINCT Article, DonnOrdre.Nom, Ref.Client, clnt_nom, gf, Masque
         ON DonnOrdre.Id = (select ma.IdDonneurOrdre from Masque ma where ma.CodeDisposition = Masque.MasquePere)";
 
 
-$req = new SQLRequest($sql);
-var_dump($req->getSelectedColumns());
+$req = new SQLRequest("SELECT d.Id, d.Nom, COUNT(a.Id) as NB FROM Avion a, DonnOrdre d WHERE d.Id = a.IdDonneurOrdre GROUP BY d.Id, d.Nom;");
+$db = Database::instantiate('mysql:host=localhost;dbname=marklate', "marquage","marquage");
+$lm = new ListManager();
+echo $lm->construct($req, [], ['NB' => 'COUNT(a.Id)']);
+echo $req;
 
 // Connection aux BD
 // Database::instantiate('pgsql:host=periscope;port=5432;dbname=warehouse;','php_liste', 'php_liste', 'postgre');
 // Database::instantiate('oci:dbname=MECAPROTEC;', "DEMOV15","octal", 'oracle');
-// $db = Database::instantiate('mysql:host=localhost;dbname=marklate', "marquage","marquage");
 
 
 // //Base de la requete SQL

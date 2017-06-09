@@ -19,13 +19,19 @@
 /**
  * Database permet la connection aux bases de données.
  * 
- * L'interaction de l'application avec les bases de données se fait de façon générique pour tous les types de BD (Postgre, Oracle, MySql) grâce à l'objet *PDO* de PHP
- * Cette classe est basée sur le design pattern du multiton : il est possible d'avoir plusieurs instances de l'objet Database en les identifiant avec une étiquette unique, et d'y accéder partout dans l'application via la méthode statique *getInstance()*.
- * De ce fait, le constructeur de Database est private. Pour créer une nouvelle instance il faut utiliser la méthode de classe *instantiate()* en précisant une étiquette si vous utilisez plusieurs bases de données pour l'application.
- * Par la suite il vous sera possible d'exécuter vos requêtes SQL grâce à la méthode *execute()*, qui prend en paramètre une requete SQL (string ou objet SQLRequest) et si besoin un tableau de paramèttres variables.
+ * L'interaction de l'application avec les bases de données se fait de façon générique pour tous les types de BD (Postgre, Oracle, MySql) grâce à l'objet *PDO* de PHP.
+ * Cette classe est basée sur le design pattern du multiton : il est possible d'avoir plusieurs instances de l'objet Database en les identifiant avec une étiquette unique,
+ * et d'y accéder partout dans l'application via la méthode statique *getInstance()*.
+ * 
+ * De ce fait, le constructeur de Database est private. Pour créer une nouvelle instance il faut utiliser la méthode de classe *instantiate()* 
+ * en précisant une étiquette si vous utilisez plusieurs bases de données pour l'application.
+ * Par la suite il vous sera possible d'exécuter vos requêtes SQL grâce à la méthode *execute()*, qui prend en paramètre une requete SQL
+ * (string ou objet SQLRequest) et si besoin un tableau de paramèttres variables.
  * Si ce 2nd paramètre est précisé Databse fait appel aux méthodes *prepare()* puis *execute()* de PDO, sinon seul la méthode *query()* sera utilisée.
  * La méthode *execute()* retourne un objet RequestResponse. Consultez la documentation de la classe pour plus d'informations.
- * Database peut produire des messages d'erreur en cas de problème, mais ne les affiche pas dans le document. Pour les récuppérer utilisez la méthode statique *getErrorMessages()*
+ * 
+ * Database peut produire des messages d'erreur en cas de problème, mais ne les affiche pas dans le document.
+ * Pour les récuppérer utilisez la méthode statique *getErrorMessages()*
  * 
  * @link http://php.net/manual/fr/intro.pdo.php Manuel PDO sur php.net 
  * 
@@ -40,25 +46,25 @@ class Database {
 			********************/
 	
 	/**
-	 * @var PDO $pdo le pointeur vers l'objet PDO utilisé par Database pour se connecter et interargir avec la base de données
+	 * @var PDO $_pdo la référence vers l'objet PDO utilisé par Database pour se connecter et interargir avec la base de données
 	 */
-	private $pdo;
+	private $_pdo;
 	/**
-	 * @var string $label l'etiquette de la base de données
+	 * @var string $_label l'etiquette de la base de données
 	 */
-	private $label;
+	private $_label;
 	/**
-	 * @var string $dsn chaine de cararctère contenant les données de connexion à la base de données
+	 * @var string $_dsn chaine de cararctère contenant les données de connexion à la base de données
 	 */
-	private $dsn;
+	private $_dsn;
 	/**
-	 * @var string $login correspond au nom d'utilisateur pour se connecter à la base de données
+	 * @var string $_login correspond au nom d'utilisateur pour se connecter à la base de données
 	 */
-	private $login;
+	private $_login;
 	/**
-	 * @var string $passwd mot de passe de l'utilisateur
+	 * @var string $_passwd mot de passe de l'utilisateur
 	 */
-	private $passwd;
+	private $_passwd;
 	/**
 	 * @var array $errorMessages le tableau contenant l'ensemble des messages d'erreur enregistrés
 	 */
@@ -76,25 +82,25 @@ class Database {
 	/**
 	 * Instancie la connexion avec la base de donnees via un objet PDO contenu dans l'objet Database.
 	 * Si la connection n'est pas possible le message d'erreur sera produit, vous pourrez l'afficher avec la methode geterrorMessages.
-	 * @param string $dsn le DSN (voir le manuel PHP concernant **PDO**)
+	 * @param string $dsn le DSN (voir le manuel PHP concernant *PDO*)
 	 * @param string $login le nom d'utilisateur pour la connexion
 	 * @param string $passwd son mot de passe
 	 * @param string $etiquette l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont utilisees en meme temps dans l'application
 	 */
 	private function __construct($dsn, $login, $passwd, $label) {
-		$this->label = $label;
-		$this->dsn = $dsn;
-		$this->login = $login;
-		$this->passwd = $passwd;
+		$this->_label 	= $label;
+		$this->_dsn 	= $dsn;
+		$this->_login 	= $login;
+		$this->_passwd 	= $passwd;
 		try {
 			// Test si BD Oracle
-			if (strpos($this->dsn, 'oci:') !== false && !extension_loaded('pdo_oci'))
-				$this->pdo = new \PDOOCI\PDO($this->dsn, $this->login, $this->passwd);
+			if (strpos($this->_dsn, 'oci:') !== false && !extension_loaded('pdo_oci'))
+				$this->_pdo = new \PDOOCI\PDO($this->_dsn, $this->_login, $this->_passwd);
 			else 
-				$this->pdo = new \PDO($this->dsn, $this->login, $this->passwd);
+				$this->_pdo = new \PDO($this->_dsn, $this->_login, $this->_passwd);
 		}
 		catch (\Exception $e) {
-			$this->pdo = null;
+			$this->_pdo = null;
 			self::$errorMessages[] = "<br><b>[!]</b>Connection a la base de donnees impossible (etiquette = '$label') :\n".$e->getMessage()
 				.'<br>';
 		}
@@ -115,7 +121,7 @@ class Database {
 	 */
 	public static function instantiate($dsn, $login, $mdp, $etiquette='principale'){
 		$nouvelleInstance = new self($dsn, $login, $mdp, $etiquette);
-		if($nouvelleInstance->pdo == null)
+		if($nouvelleInstance->_pdo == null)
 			return null;
 
 		if(isset(self::$instances[$etiquette])){
@@ -130,44 +136,50 @@ class Database {
 	/**
 	 * Execute la requete SQL passee en parametres
 	 * @param mixed $request la requete SQL a executer, peut etre string ou objet SQLRequest
+	 * @param array $params (facultatif) tableau contenant les paramètres variables de la requete (cf manuel de prepare & execute de la classe PDO) 
 	 * @return RequestResponse l'objet repéresentant la reponse de la requete, ou false si la BD n'est pas connectee
 	 */
 	public function execute($request, array $params=array()){
-		if($this->pdo == null)
+		if($this->_pdo == null)
 			return false;
 
 		//On transforme l'objet SQLRequest en string
-		if($request instanceof SQLRequest)
+		if($request instanceof SQLRequest) {
+			$sqlReq = $request;
 			$request = $request->__toString();
+		}
+		else {
+			$sqlReq = new SQLRequest($request, $this->oracle());
+		}
 
 		//Execution de la requete
 		try {
 			// Pas de prepare
 			if($params === array()){
-				$statement = $this->pdo->query($request);
+				$statement = $this->_pdo->query($request);
 				if($statement == false)
-					return new RequestResponse(null, true, $this->pdo->errorInfo()[2]);
+					return new RequestResponse($sqlReq, null, true, $this->_pdo->errorInfo()[2]);
 				else 
-					return new RequestResponse($statement);
+					return new RequestResponse($sqlReq, $statement);
 			}
 
 			// Avec les params du prepare
 			else {
-				$statement = $this->pdo->prepare($request);
+				$statement = $this->_pdo->prepare($request);
 				if($statement == false) {
-					return new RequestResponse(null, true, $this->pdo->errorInfo()[2]);
+					return new RequestResponse($sqlReq, null, true, $this->_pdo->errorInfo()[2]);
 				}
 				else {
 					if($statement->execute($params))
-						return new RequestResponse($statement);
+						return new RequestResponse($sqlReq, $statement);
 					else 
-						return new RequestResponse($statement, true, $statement->errorInfo()[2]);
+						return new RequestResponse($sqlReq, $statement, true, $statement->errorInfo()[2]);
 				}
 			}
 		}
 		catch(\Exception $e) {
-			self::$errorMessages[] = "<br><b>Database::execute()</b>(etiquette = '$this->label') : ".$e->getMessage();
-			return new RequestResponse(null, true, $e->getMessage());
+			self::$errorMessages[] = "<br><b>Database::execute()</b>(etiquette = '$this->_label') : ".$e->getMessage();
+			return new RequestResponse($sqlReq, null, true, $e->getMessage());
 		}
 	}
 
@@ -183,7 +195,7 @@ class Database {
 	 * Fonction magique PHP : permet la désérialisation de Database
 	 */
 	public function __wakeup() {
-		self::instantiate($this->dsn, $this->login, $this->passwd, $this->label);
+		self::instantiate($this->_dsn, $this->_login, $this->_passwd, $this->_label);
 	}
 	
 	
@@ -204,11 +216,10 @@ class Database {
 	}
 
 	/**
-	* Fonction de debug
 	* @return PDO l'objet PDO de contenu dans cette instance de Database.
 	*/
 	public function getPDO(){
-		return $this->pdo;
+		return $this->_pdo;
 	}
 
 	/**
@@ -216,7 +227,7 @@ class Database {
 	 * @return string l'etiquette de la base de donnees
 	 */
 	public function getLabel(){
-		return $this->label;
+		return $this->_label;
 	}
 
 	/**
@@ -231,7 +242,7 @@ class Database {
 	 * @return bool true si l'objet est connecté sur une base de données Oracle, false sinon
 	 */
 	public function oracle() {
-		return $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME) == 'oci';
+		return $this->_pdo->getAttribute(\PDO::ATTR_DRIVER_NAME) == 'oci';
 	}
 
 	/**
@@ -245,8 +256,8 @@ class Database {
 			return false;
 
 		self::$instances[$nouvEtiquette] = $this;
-		unset(self::$instances[$this->label]);
-		$this->label = $nouvEtiquette;
+		unset(self::$instances[$this->_label]);
+		$this->_label = $nouvEtiquette;
 	}
 
 }

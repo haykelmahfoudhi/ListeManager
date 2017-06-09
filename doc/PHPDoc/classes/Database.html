@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">51</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">48</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-158654959"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-250062367"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-158654959" class="accordion-body collapse in">
+            <div id="namespace-250062367" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -171,13 +171,17 @@
 
                     <h1><small>\</small>Database</h1>
                     <p><em>Database permet la connection aux bases de données.</em></p>
-                    <p>L'interaction de l'application avec les bases de données se fait de façon générique pour tous les types de BD (Postgre, Oracle, MySql) grâce à l'objet <em>PDO</em> de PHP
-Cette classe est basée sur le design pattern du multiton : il est possible d'avoir plusieurs instances de l'objet Database en les identifiant avec une étiquette unique, et d'y accéder partout dans l'application via la méthode statique <em>getInstance()</em>.
-De ce fait, le constructeur de Database est private. Pour créer une nouvelle instance il faut utiliser la méthode de classe <em>instantiate()</em> en précisant une étiquette si vous utilisez plusieurs bases de données pour l'application.
-Par la suite il vous sera possible d'exécuter vos requêtes SQL grâce à la méthode <em>execute()</em>, qui prend en paramètre une requete SQL (string ou objet SQLRequest) et si besoin un tableau de paramèttres variables.
+                    <p>L'interaction de l'application avec les bases de données se fait de façon générique pour tous les types de BD (Postgre, Oracle, MySql) grâce à l'objet <em>PDO</em> de PHP.
+Cette classe est basée sur le design pattern du multiton : il est possible d'avoir plusieurs instances de l'objet Database en les identifiant avec une étiquette unique,
+et d'y accéder partout dans l'application via la méthode statique <em>getInstance()</em>.</p>
+<p>De ce fait, le constructeur de Database est private. Pour créer une nouvelle instance il faut utiliser la méthode de classe <em>instantiate()</em>
+en précisant une étiquette si vous utilisez plusieurs bases de données pour l'application.
+Par la suite il vous sera possible d'exécuter vos requêtes SQL grâce à la méthode <em>execute()</em>, qui prend en paramètre une requete SQL
+(string ou objet SQLRequest) et si besoin un tableau de paramèttres variables.
 Si ce 2nd paramètre est précisé Databse fait appel aux méthodes <em>prepare()</em> puis <em>execute()</em> de PDO, sinon seul la méthode <em>query()</em> sera utilisée.
-La méthode <em>execute()</em> retourne un objet RequestResponse. Consultez la documentation de la classe pour plus d'informations.
-Database peut produire des messages d'erreur en cas de problème, mais ne les affiche pas dans le document. Pour les récuppérer utilisez la méthode statique <em>getErrorMessages()</em></p>
+La méthode <em>execute()</em> retourne un objet RequestResponse. Consultez la documentation de la classe pour plus d'informations.</p>
+<p>Database peut produire des messages d'erreur en cas de problème, mais ne les affiche pas dans le document.
+Pour les récuppérer utilisez la méthode statique <em>getErrorMessages()</em></p>
                     
                                         
                     <section id="summary">
@@ -229,11 +233,11 @@ Database peut produire des messages d'erreur en cas de problème, mais ne les af
                                                                     <a href="../classes/Database.html#method___construct" class="">__construct()</a><br />
                                                             </section>
                             <section class="span4">
-                                                                    <a href="../classes/Database.html#property_pdo" class="">$pdo</a><br />
-                                                                    <a href="../classes/Database.html#property_label" class="">$label</a><br />
-                                                                    <a href="../classes/Database.html#property_dsn" class="">$dsn</a><br />
-                                                                    <a href="../classes/Database.html#property_login" class="">$login</a><br />
-                                                                    <a href="../classes/Database.html#property_passwd" class="">$passwd</a><br />
+                                                                    <a href="../classes/Database.html#property__pdo" class="">$_pdo</a><br />
+                                                                    <a href="../classes/Database.html#property__label" class="">$_label</a><br />
+                                                                    <a href="../classes/Database.html#property__dsn" class="">$_dsn</a><br />
+                                                                    <a href="../classes/Database.html#property__login" class="">$_login</a><br />
+                                                                    <a href="../classes/Database.html#property__passwd" class="">$_passwd</a><br />
                                                                     <a href="../classes/Database.html#property_errorMessages" class="">$errorMessages</a><br />
                                                                     <a href="../classes/Database.html#property_instances" class="">$instances</a><br />
                                                             </section>
@@ -288,16 +292,16 @@ Database peut produire des messages d'erreur en cas de problème, mais ne les af
 
                                                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_pdo" name="property_pdo" class="anchor"></a>
+            <a id="property__pdo" name="property__pdo" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$pdo</h3>
-                <pre class="signature">$pdo : \PDO</pre>
+                <h3 class="private ">$_pdo</h3>
+                <pre class="signature">$_pdo : \PDO</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
                 \PDO
-                &mdash; le pointeur vers l&#039;objet PDO utilisé par Database pour se connecter et interargir avec la base de données                            </article>
+                &mdash; la référence vers l&#039;objet PDO utilisé par Database pour se connecter et interargir avec la base de données                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -312,10 +316,10 @@ Database peut produire des messages d'erreur en cas de problème, mais ne les af
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_label" name="property_label" class="anchor"></a>
+            <a id="property__label" name="property__label" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$label</h3>
-                <pre class="signature">$label : string</pre>
+                <h3 class="private ">$_label</h3>
+                <pre class="signature">$_label : string</pre>
                 <p><em></em></p>
                 
 
@@ -336,10 +340,10 @@ Database peut produire des messages d'erreur en cas de problème, mais ne les af
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_dsn" name="property_dsn" class="anchor"></a>
+            <a id="property__dsn" name="property__dsn" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$dsn</h3>
-                <pre class="signature">$dsn : string</pre>
+                <h3 class="private ">$_dsn</h3>
+                <pre class="signature">$_dsn : string</pre>
                 <p><em></em></p>
                 
 
@@ -360,10 +364,10 @@ Database peut produire des messages d'erreur en cas de problème, mais ne les af
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_login" name="property_login" class="anchor"></a>
+            <a id="property__login" name="property__login" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$login</h3>
-                <pre class="signature">$login : string</pre>
+                <h3 class="private ">$_login</h3>
+                <pre class="signature">$_login : string</pre>
                 <p><em></em></p>
                 
 
@@ -384,10 +388,10 @@ Database peut produire des messages d'erreur en cas de problème, mais ne les af
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property_passwd" name="property_passwd" class="anchor"></a>
+            <a id="property__passwd" name="property__passwd" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$passwd</h3>
-                <pre class="signature">$passwd : string</pre>
+                <h3 class="private ">$_passwd</h3>
+                <pre class="signature">$_passwd : string</pre>
                 <p><em></em></p>
                 
 
@@ -534,7 +538,7 @@ Database peut produire des messages d'erreur en cas de problème, mais ne les af
                                                     <tr>
                                 <td>array</td>
                                 <td>$params </td>
-                                <td></td>
+                                <td><p>(facultatif) tableau contenant les paramètres variables de la requete (cf manuel de prepare &amp; execute de la classe PDO)</p></td>
                             </tr>
                                             </table>
                 
@@ -656,7 +660,7 @@ Database peut produire des messages d'erreur en cas de problème, mais ne les af
                 <h3 class="public ">getPDO()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">getPDO() : \PDO</pre>
-                <p><em>Fonction de debug</em></p>
+                <p><em></em></p>
                 
 
                 
@@ -818,7 +822,7 @@ Database peut produire des messages d'erreur en cas de problème, mais ne les af
                                                     <tr>
                                 <td>string</td>
                                 <td>$dsn </td>
-                                <td><p>le DSN (voir le manuel PHP concernant <strong>PDO</strong>)</p></td>
+                                <td><p>le DSN (voir le manuel PHP concernant <em>PDO</em>)</p></td>
                             </tr>
                                                     <tr>
                                 <td>string</td>
@@ -901,7 +905,7 @@ Database peut produire des messages d'erreur en cas de problème, mais ne les af
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 6th, 2017 at 15:41.
+                    on June 9th, 2017 at 11:41.
                 </section>
             </section>
         </section>

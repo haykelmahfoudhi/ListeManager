@@ -49,25 +49,25 @@ class RequestResponse {
 			********************/
 	
 	/**
-	 *
+	 * @var PDOStatement $_statement l'objet PDOStatement généré par l'execution d'une requete SQL
 	 */
-	private $sqlRequest;
+	private $_statement;
 	/**
-	 * @var PDOStatement l'objet PDOStatement généré par l'execution d'une requete SQL
+	 * @var boolean $_error indique l'existence ou non d'une erreur lors de l'exécution de la requete
 	 */
-	private $statement;
+	private $_error;
 	/**
-	 * @var boolean indique l'existence ou non d'une erreur lors de l'exécution de la requete
+	 * @var string $_errorMessage le contenu du message d'erreur si il y a une erreur
 	 */
-	private $error;
+	private $_errorMessage;
 	/**
-	 * @var string le contenu du message d'erreur si il y a une erreur
+	 * @var array $_data contient l'ensemble des lignes retournées par une requete de sélection
 	 */
-	private $errorMessage;
+	private $_data;
 	/**
-	 * @var array contient l'ensemble des lignes retournées par une requete de sélection
+	 * @var array $_columns contient le nom des table.colonne selctionnées à utiliser pour filtrer les donnees
 	 */
-	private $data;
+	private $_columns;
 
 	
 
@@ -81,16 +81,16 @@ class RequestResponse {
 	 * @param boolean $erreur (facultatif) indique la présence ou non d'une erreur lors de l'exécution de la requete
 	 * @param string $message (facultatif) le message d'erreur associé
 	 */
-	public function __construct(SQLRequest $request, $statement, $erreur=false, $message=''){
-		$this->sqlRequest = $request;
-		$this->statement = $statement;
-		$this->error = $erreur;
-		$this->errorMessage = $message;
-		$this->data = array();
+	public function __construct($statement, $erreur=false, $message=''){
+		$this->_columns = [];
+		$this->_statement = $statement;
+		$this->_error = $erreur;
+		$this->_errorMessage = $message;
+		$this->_data = array();
 	}
 	
 
-			/*******************
+			/*-*****************
 			***   METHODES   ***
 			*******************/
 
@@ -100,9 +100,9 @@ class RequestResponse {
 	 */
 	public function nextLine(){
 		if(!$this->error()){
-			$ret = $this->statement->fetch(\PDO::FETCH_ASSOC);
+			$ret = $this->_statement->fetch(\PDO::FETCH_ASSOC);
 			if($ret != null)
-				$this->data[] = $ret;
+				$this->_data[] = $ret;
 			return $ret;
 		}
 		return false;
@@ -114,9 +114,9 @@ class RequestResponse {
 	 */
 	public function dataList(){
 		if(!$this->error()){
-			if(count($this->data) != $this->getRowsCount())
-				$this->data = $this->statement->fetchAll(\PDO::FETCH_ASSOC);
-			return $this->data;
+			if(count($this->_data) != $this->getRowsCount())
+				$this->_data = $this->_statement->fetchAll(\PDO::FETCH_ASSOC);
+			return $this->_data;
 		}
 		return false;
 	}
@@ -127,7 +127,11 @@ class RequestResponse {
 	 * @return boolean true si erreur ou si l'attribut statement est null
 	 */
 	public function error(){
-		return $this->statement == null || $this->error;
+		return $this->_statement == null || $this->_error;
+	}
+
+	public function setColumnsName(array $columns) {
+		$this->_columns = $columns;
 	}
 	
 
@@ -140,7 +144,7 @@ class RequestResponse {
 	 * @return string le message d'erreur associe a l'erreur detectee.
 	 */
 	public function getErrorMessage(){
-		return $this->errorMessage;
+		return $this->_errorMessage;
 	}
 	
 	/**
@@ -151,34 +155,13 @@ class RequestResponse {
 		if($this->error())
 			return null;
 		
-		$colonnes = $this->sqlRequest->getSelectedColumns();
-		$infos = $this->getColumnsInfos();
-		
-		// S'il y a le meme nombre de colonnes dans la requete et dans la réponse
-		if(count($colonnes) == count($infos))
-			return $colonnes;
-		
-		// Sinon => présence d'une '*' ou d'une procédure
-		$ret = [];
-		$i = 0;
-		foreach ($colonnes as $col) {
-			$tabCol = explode('.', $col);
-			// table.*
-			if(isset($tabCol[1]) && $tabCol[1] == '*'){
-
+		if(count($this->_columns) != $this->getColumnsCount()) {
+			$this->_columns = [];
+			foreach ($this->getColumnsInfos() as $info) {
+				$this->_columns[] = $info->name;
 			}
-			// Procédure
-			else if(false){
-
-			}
-			// Ni * ni procédure
-			else {
-				$ret[] = $col;
-			}
-			$i++;
 		}
-
-		return $ret;
+		return $this->_columns;
 	}
 
 	/**
@@ -189,13 +172,13 @@ class RequestResponse {
 		if($this->error())
 			return -1;
 
-		return $this->statement->columnCount();
+		return $this->_statement->columnCount();
 	}
 
 	/**
 	 * Retourne les informations relatives au type de données des colonnes selectionnées
 	 * @return object[]|boolean un tableau d'objets contenant les infos relatives au type de donnees de chaque colonne. Cet objet possede les attribus suivants :
-	 * * -> name : le nom de la colonne tel que retourné
+	 * * -> name : le nom de la colonne tel que retourné par SQL
 	 * * -> type : le type de donnees SQL 
 	 * * -> len  : la taille de la donnee
 	 * retourne false si erreur
@@ -205,7 +188,7 @@ class RequestResponse {
 			return false;
 		
 		for ($i=0; $i < $len; $i++) {
-			$meta = $this->statement->getColumnMeta($i);
+			$meta = $this->_statement->getColumnMeta($i);
 			$obj = new \stdClass();
 			if(!isset($meta['native_type']))
 				$obj->type = $meta['driver:decl_type'];
@@ -226,7 +209,7 @@ class RequestResponse {
 		if($this->error())
 			return -1;
 
-		return $this->statement->rowCount();
+		return $this->_statement->rowCount();
 	}
 
 	/**
@@ -234,7 +217,7 @@ class RequestResponse {
 	 * @return PDOStatement : l'objet PDO Statement contenu dans cet objet RequestResponse
 	 */
 	public function getPDOStatement(){
-		return $this->statement;
+		return $this->_statement;
 	}
 	
 }

@@ -18,7 +18,10 @@
 
 /**
  * Classe représentant les requetes SQL.
- * Un objet SQLRequest est composé d'une requete de base à laquelle il est possible de rajouter des clauses WHERE, un ORDER By ou de supprimer des colonnes.
+ * Un objet SQLRequest se construit autour d'une requete SQL de base. Le constructeur parse la requete et récupère son type (cf RequestType).
+ * S'il s'agit d'un *SELECT* le constructeur tente de récupérer le nom de chaque colonne écrite dans la requete, ainsi que le nom des tables et leur alias
+ * Ensuite les blocs *LIMIT/OFFSET GROUP BY ORDER BY HAVING* et *WHERE* sont identifiés, ce qui permettra de les modifier par la suite.
+ * Les méthodes de la classe permettent donc de filtrer les données séléctionnées en completant les clauses *HAVING* ou *WHERE* de la requete, ainsi que de créer/modifier les clauses citées plus haut.  
  * 
  * @author RookieRed
  *
@@ -26,41 +29,50 @@
 class SQLRequest {
 
 	/**
-	 * @var string $requestBasis bloc de base SQL (sans WHERE, ORDER BY, HAVING...)
+	 * @var string $_requestBasis bloc de base SQL (sans WHERE, ORDER BY, HAVING...)
 	 */
-	private $requestBasis;
+	private $_requestBasis;
 	/**
-	 * @var string $whereBlock correspond à la partie Where de la requete SQL 
+	 * @var array $_tables contient le nom des tables et leurs alias récupérées dans la clause FROM de la requete
 	 */
-	private $whereBlock;
+	private $_tables;
 	/**
-	 * @var string $havingBlock correspond à la partie Having de la requete SQL 
+	 * @var array $_columns contient le nom des colonnes récupérées dans la clause SELECT de la requete
 	 */
-	private $groupByBlock;
+	private $_columns;
 	/**
-	 * @var string $havingBlock correspond à la partie Having de la requete SQL 
+	 * @var string $_whereBlock correspond à la clause Where de la requete SQL 
 	 */
-	private $havingBlock;
+	private $_whereBlock;
 	/**
-	 * @var array $orderByArray tableau contenant le numéro/nom de colonnes pour le tri des données 
+	 * @var string $_havingBlock correspond à la clause Having de la requete SQL 
 	 */
-	private $orderByArray;
+	private $_groupByBlock;
 	/**
-	 * @var int correpsond à la valeur de la clause 'LIMIT' d'une requete SELECT
+	 * @var string $_havingBlock correspond à la clause Having de la requete SQL 
 	 */
-	private $limit;
+	private $_havingBlock;
 	/**
-	 * @var string correpsond à la valeur de la clause 'OFFSET' d'une requete SELECT
+	 * @var array $_orderByArray tableau contenant le numéro/nom de colonnes pour le tri des données 
 	 */
-	private $offset;
+	private $_orderByArray;
 	/**
-	 * @var RequestType $requestType : énumération sur le type de la requete SQL
+	 * @var int $_limit correpsond à la valeur de la clause 'LIMIT' de la requete 
 	 */
-	private $requestType;
+	private $_limit;
 	/**
-	 * @var bool $forOracle : détemrine si cette requête SQL est destinée à etre exécutée par une base de données Oracle ou non
+	 * @var string $_offset correpsond à la valeur de la clause 'OFFSET' de la requete 
 	 */
-	private $forOracle;
+	private $_offset;
+	/**
+	 * @var RequestType $_requestType type de la requete SQL (SELECT, INSERT, DELETE, UPDATE, AUTRE)
+	 */
+	private $_requestType;
+	/**
+	 * @var bool $_forOracle détemrine si cette requête SQL est destinée à etre exécutée par une base de données Oracle ou non
+	 */
+	private $_forOracle;
+
 
 
 			/*-*********************
@@ -68,19 +80,22 @@ class SQLRequest {
 			***********************/
 	/**
 	* Construit une nouvelle requete SQL à partir d'une requete de base
-	* La requete SQL de base passée en paramètre ne doit pas contenir :
-	* * de clause ODER BY (pour le moment...) -> TODO
+	* Définit le type de la requete et la parse pour récupérer les différentes clauses qui la compose.
 	* @param string $requestBasis la base de la requete SQL
+	* @param bool $forOracle passez le paramètre à true si la requête sera exécutée par une BD Oracle
 	*/
-	public function __construct($baseRequete, $forOracle=false){
-		$this->requestBasis = ((substr($baseRequete, -1) == ';')? substr($baseRequete, 0, strlen($baseRequete)-1) : $baseRequete );
-		$this->whereBlock = '';
-		$this->groupByBlock = '';
-		$this->havingBlock = '';
-		$this->orderByArray = array();
-		$this->limit = null;
-		$this->offset = null;
-		$this->forOracle = $forOracle;
+	public function __construct($requestBasis, $forOracle=false){
+		$this->_requestBasis = ((substr($requestBasis, -1) == ';')? substr($requestBasis, 0, strlen($requestBasis)-1) : $requestBasis );
+		$this->_requestType = RequestType::AUTRE;
+		$this->_tables = [];
+		$this->_columns = [];
+		$this->_whereBlock = '';
+		$this->_groupByBlock = '';
+		$this->_havingBlock = '';
+		$this->_orderByArray = array();
+		$this->_limit = null;
+		$this->_offset = null;
+		$this->_forOracle = $forOracle;
 		$this->matchRequete();
 	}
 
@@ -92,21 +107,21 @@ class SQLRequest {
 	* Filtre les données sélectionnées par une requete.
 	* Cette méthode ajoute des clauses aux blocs WHERE et/ou HAVING de la requete SQL selon les tableaux qui lui sont passés en paramètre
 	* @param array $tabSelect le tableau contenant toutes les conditions à rajouter. Ce tableau aura la forme suivante :
-	*    -> 'nomColonne1' => 'condition1', 'nomColonne2' => 'cond2A,cond2B,cond3C' ... Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' => 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
+	* ['nomColonne1' => 'condition1', 'nomColonne2' => 'cond2A,cond2B,cond3C'] ... Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' => 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
 	* Une condition prend la forme suivante : [OPERATEUR][VALEUR]
 	* Les opérateurs possibles sont :
 	* * (pas d'opérateur) : égalité stricte avec la valeur entrée
-	* * < > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égale (pour les valeurs numériques)
-	* * ! : opérateur 'différent de'. La condition '!' est traduite par différent de '' et peut (devrait?) servir de 'NOT NULL'.
+	* * < > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal (pour les valeurs numériques)
+	* * ! : opérateur 'différent de'. La condition '!' est traduite par 'différent de' et peut (detruet?) servir de 'NOT NULL'.
 	* * << : opérateur 'BETWEEN' pour les dates
 	* * _ % : opérateurs joker SQL, remplacent respectivement un seul caractère ou un nombre indéfini de caractère dans une chaine.
 	* @param array $colonnesHaving tableau contenant le nom des colonnes selectionnées dont le filtre doit se trouver dans la clause HAVING.
-	*    Ce tableau doit avoir pour fomrat : [ 'alias_colonne' => 'COUNT(t.id)' ]. Ddans cet exemple 'alias_colonne' est l'alias du COUNT tel quel dans le bloc SELECT de la requete. SI vous n'utilisez pas d'alias
+	*    Ce tableau doit avoir pour fomrat : [ 'alias_colonne' => 'COUNT(t.id)' ]. Dans cet exemple 'alias_colonne' est l'alias du COUNT tel quel dans le bloc SELECT de la requete. SI vous n'utilisez pas d'alias
 	*    laissez juste le 'COUNT(t.id)' dans le tableau.
 	*/
 	public function filter(array $tabSelect, array $colonnesHaving=[]){
-		$retWhere = ((strlen($this->whereBlock) > 0)? ' AND ' : '');
-		$retHaving = ((strlen($this->havingBlock) > 0)? ' AND ' : '');
+		$retWhere = ((strlen($this->_whereBlock) > 0)? ' AND ' : '');
+		$retHaving = ((strlen($this->_havingBlock) > 0)? ' AND ' : '');
 
 		foreach ($tabSelect as $nomColonne => $conditions) {
 			// Gestion HAVING / WHERE
@@ -115,9 +130,8 @@ class SQLRequest {
 				$estHaving = true;
 				$nomColonne = $colonnesHaving[$nomColonne];
 			}
-			else if (in_array($nomColonne, $colonnesHaving)) {
+			else if (in_array($nomColonne, $colonnesHaving))
 				$estHaving = true;
-			}
 
 			// Gestion des conditions
 			$conditions = explode(',', $conditions);
@@ -180,32 +194,32 @@ class SQLRequest {
 
 		$retWhere = mb_substr($retWhere, 0, strlen($retWhere) - 5);
 		$retHaving = mb_substr($retHaving, 0, strlen($retHaving) - 5);
-		$this->whereBlock .= $retWhere;
-		$this->havingBlock .= $retHaving;
+		$this->_whereBlock .= $retWhere;
+		$this->_havingBlock .= $retHaving;
 	}
 
 	/**
 	* Ajoute une ou plusieurs colonnes au bloc order by de la requete
-	* @param mixed $nomColonne : correpsond au nom / numéro de la (ou des) colonne(s) à ajouter au group by :
+	* @param mixed $nomColonne correpsond au nom / numéro de la (ou des) colonne(s) à ajouter au group by :
 	*  * Pour ajouter plusieurs colonnes ce paramèttre doit etre un array, sinon c'est un int.
 	*  * Pour classer la colonnes par 'DESC' le nom ou numéro doit commencer par '-'.
-	* @return boolean faux si le type de requete n'est pas SELECT ou si le paramètre $nomColonne est vide.
+	* @return boolean false si le type de requete n'est pas SELECT ou si le paramètre $nomColonne est vide.
 	*/
 	public function orderBy($nomColonne){
 		//Vérification du type de requete
-		if($this->requestType == RequestType::SELECT){
+		if($this->_requestType == RequestType::SELECT){
 
 			//Si $numColonne est un tableau
 			if(is_array($nomColonne)){
 				// Suppression des colonnes déjà existantes
 				foreach ($nomColonne as $val)
 					$negColonne[] = "-$val";
-				$orderBy = array_diff($this->orderByArray, $nomColonne, $negColonne);
+				$orderBy = array_diff($this->_orderByArray, $nomColonne, $negColonne);
 				
 				foreach (array_reverse($nomColonne) as $col){
 					array_unshift($orderBy, $col);
 				}
-				$this->orderByArray = array_unique($orderBy);
+				$this->_orderByArray = array_unique($orderBy);
 			}
 
 			//Sinon si c'est un nom de colonne / int
@@ -214,12 +228,12 @@ class SQLRequest {
 					return false;
 
 				//Suppression de la valeur existante
-				if(($key = array_search($nomColonne, $this->orderByArray)) != false
-					|| ($key = array_search(-$nomColonne, $this->orderByArray)) != false){
-					unset($this->orderByArray[$key]);
+				if(($key = array_search($nomColonne, $this->_orderByArray)) != false
+					|| ($key = array_search(-$nomColonne, $this->_orderByArray)) != false){
+					unset($this->_orderByArray[$key]);
 				}
 				// Ajout de la colonne en début
-				array_unshift($this->orderByArray, $nomColonne);
+				array_unshift($this->_orderByArray, $nomColonne);
 			}
 			return true;
 		}
@@ -229,11 +243,11 @@ class SQLRequest {
 
 	/**
 	* Remet à zéro le contenu du bloc ORDER BY
-	* @return boolean vrai si opération ok, faux sinon (type de requete incompatible)
+	* @return boolean true si opération ok, false sinon (type de requete incompatible)
 	*/
 	public function removeOrderBy(){
-		if($this->requestType == RequestType::SELECT) {
-			$this->orderByArray = array();
+		if($this->_requestType == RequestType::SELECT) {
+			$this->_orderByArray = array();
 			return true;
 		}
 		return false;
@@ -243,34 +257,34 @@ class SQLRequest {
 	* @return string la requete SQL complete
 	*/
 	public function __toString(){
-		$ret = $this->requestBasis;
+		$ret = $this->_requestBasis;
 
-		if(in_array($this->requestType,
+		if(in_array($this->_requestType,
 			array(RequestType::SELECT, RequestType::UPDATE, RequestType::DELETE))) {
 			
 			//Ajout du bloc WHERE
-			if(strlen($this->whereBlock) > 0) {
-				$ret .= ' WHERE '.$this->whereBlock;
+			if(strlen($this->_whereBlock) > 0) {
+				$ret .= ' WHERE '.$this->_whereBlock;
 				// Ajout de la limit (ROWNUM oracle)
-				if($this->forOracle && $this->limit != null && intval($this->limit) == $this->limit){
-					$ret .= ' AND ROWNUM > '.intval($this->limit);
+				if($this->_forOracle && $this->_limit != null && intval($this->_limit) == $this->_limit){
+					$ret .= ' AND ROWNUM > '.intval($this->_limit);
 				}
 			}
 
-			if($this->requestType == RequestType::SELECT){
+			if($this->_requestType == RequestType::SELECT){
 
 				// Ajout du bloc GROUP BY
-				if(strlen($this->groupByBlock) > 0)
-					$ret .= ' GROUP BY '.$this->groupByBlock;
+				if(strlen($this->_groupByBlock) > 0)
+					$ret .= ' GROUP BY '.$this->_groupByBlock;
 
 				//Ajout du bloc HAVING
-				if(strlen($this->havingBlock) > 0)
-					$ret .= ' HAVING '.$this->havingBlock;
+				if(strlen($this->_havingBlock) > 0)
+					$ret .= ' HAVING '.$this->_havingBlock;
 				
 				//Ajout du order by
-				if(count($this->orderByArray) > 0){
+				if(count($this->_orderByArray) > 0){
 					$ret .= ' ORDER BY ';
-					foreach ($this->orderByArray as $colonne) {
+					foreach ($this->_orderByArray as $colonne) {
 						if(is_numeric($colonne))
 							$ret .= abs($colonne).(($colonne > 0)?'':' DESC ').',';
 						else 
@@ -281,14 +295,14 @@ class SQLRequest {
 
 
 				//Ajout de la limit
-				if($this->limit !== null && !$this->forOracle) {
-					$ret .= ' LIMIT '.$this->limit;
-					if($this->offset != null)
-						$ret .= " $this->offset";
+				if($this->_limit !== null && !$this->_forOracle) {
+					$ret .= ' LIMIT '.$this->_limit;
+					if($this->_offset != null)
+						$ret .= " $this->_offset";
 				}
 			}
 		}
-		return $ret.((!$this->forOracle && (strpos($ret, ';') === false))? ';' : '');
+		return $ret.((!$this->_forOracle && (strpos($ret, ';') === false))? ';' : '');
 	}
 
 
@@ -297,20 +311,40 @@ class SQLRequest {
 			*****************************/
 
 	/**
-	* @return RequestType : le type de la requete SQL
+	* @return RequestType le type de la requete SQL
 	*/
 	public function getType(){
-		return $this->requestType;
+		return $this->_requestType;
 	}
 
 	/**
-	* @return array les numéros des colonnes du order by, négatif si tri décroissant
-	* retourne faux s'il n'y a pas d'order by.
+	 * @return array tableau contenant le nom des colonnes telles qu'elles sont spécifiées dans la clause SELECT de la requete
+	 */
+	public function getSelectedColumns() {
+		if($this->_requestType !== RequestType::SELECT)
+			return false;
+		return $this->_columns;
+	}
+
+	/**
+	 * Retourne un tableau d'objets concernant le nom des tables dans la requete. Chaque objet est composé comme il suit :
+	 *   * -> name  : le nom de la table
+	 *   * -> alias : l'alias de la colonne, ou null si non précisé
+	 * @return array tableau contenant le nom des tables de la clause FROM et leur alias si précisé
+	 */
+	public function getSelectedTables() {
+		if($this->_requestType !== RequestType::SELECT)
+			return false;
+		return $this->_tables;
+	}
+
+	/**
+	* @return array le tableau contenant le nom / numéro des colonnes à inscrire dans le ORDER BY. Retourne false s'il n'y a pas d'order by.
 	*/
 	public function getOrderByArray(){
-		if($this->requestType === RequestType::SELECT
-			&& count($this->orderByArray) > 0){
-			return $this->orderByArray;
+		if($this->_requestType === RequestType::SELECT
+			&& count($this->_orderByArray) > 0){
+			return $this->_orderByArray;
 		}
 		return false;
 	}
@@ -319,28 +353,33 @@ class SQLRequest {
 	* @return int la valeur de la clause 'LIMIT' de la requete, ou null si non définie
 	*/
 	public function getLimit(){
-		return $this->limit;
+		return $this->_limit;
 	}
 
 	/**
-	* Définit la nouvelle valeur de la clause LIMIT pour les requêtes de type SELECT
-	* @param int $valeur : la nouvelle valeur limit. Si null cette clause sera desactivée. 
+	* Définit les nouvelles valeurs des clauses LIMIT et OFFSET pour les requêtes de type SELECT
+	* @param int $limit la nouvelle valeur limit. Si null cette clause sera desactivée.
+	* @param string $offset la clause OFFSET ENTIERE (et non la valeur seule de la clause). Pour MySQL ce paramètre doit prendre la forme 'OFFSET 2'. null pour désactiver
 	*/
-	public function setLimit($valeur){
-		if($this->requestType != RequestType::SELECT)
+	public function setLimit($limit, $offset=''){
+		if($this->_requestType != RequestType::SELECT)
 			return false;
 
-		$this->limit = $valeur;
+		$this->_limit = $valeur;
+		if($offset !== '')
+			$this->_offset = $offset;
 	}
 
 	/**
-	 *
+	 * Définit si la requete est destinée à être exécuté par une base de données Oracle
+	 * @param bool $valeur nouvelle valeur
+	 * @return bool false si le paramètre d'entrée n'est pas un booléen
 	 */
 	public function prepareForOracle($valeur) {
 		if(!is_bool($valeur))
 			return false;
 
-		$this->forOracle = $valeur;
+		$this->_forOracle = $valeur;
 	}
 
 
@@ -349,80 +388,125 @@ class SQLRequest {
 			******************/
 
 	/**
+	* Parse la requete SQL
 	* Définit le type de la base de requête en paramètre parmi 
 	* 	- SELECT - UPDATE - DELETE - INSERT - AUTRE -
-	* Actualise les blocs where et having si necessaire. A appler dans le constructeur
+	* Parse la requête et détermine les blocs HAVING LIMIT OFFSET GROUP BY ORDER BY et WHERE.
+	* Récupère le nom des colonnes selctionnées et le nom des tables et leur alias
 	*/
 	private function matchRequete(){
 
-		//Traitement bloc WHERE & HAVING & LIMIT
-		$reWhere = '/^([\s\S]+)(\s+WHERE\s+)([\s\S]+)$/i';
-		$reGroupBy = '/^([\s\S]+)(\s+GROUP BY\s+)([\s\S]+)$/i';
-		$reHaving = '/^([\s\S]+)(\s+HAVING\s+)([\s\S]+)$/i';
-		$reOrderBy = '/^([\s\S]+)(\s+ORDER\s+BY\s+)([\s\S]+)$/i';
-		$reLimit = '/^([\s\S]+)(\s+LIMIT\s+)([0-9]+)([\s\S]*)$/i';
-		if(preg_match($reLimit, $this->requestBasis, $tabMatch) === 1){
-			$this->requestBasis = $tabMatch[1];
-			$this->limit = $tabMatch[3];
-			$this->offset = (( strlen($offset = trim($tabMatch[4])) > 0 )? $offset : null );
+		// Récuppération & suppression des blocks parenthésés de la requete
+		$regParentheses = '/\(([^\(\)]|(?R))*\)/';
+		preg_match_all($regParentheses, $this->_requestBasis, $matchParentheses);
+		$replaceArray = [];
+		for ($i=0; $i < count($matchParentheses); $i++) { 
+			$replaceArray[] = "($i)";
 		}
-		if(preg_match($reGroupBy, $this->requestBasis, $tabMatch) === 1){
-			$this->requestBasis = $tabMatch[1];
-			$this->groupByBlock = $tabMatch[3];
-		}
-		if(preg_match($reHaving, $this->requestBasis, $tabMatch) === 1){
-			$this->requestBasis = $tabMatch[1];
-			$this->havingBlock = $tabMatch[3];
-		}
-		if(preg_match($reOrderBy, $this->requestBasis, $tabMatch) === 1){
-			$this->requestBasis = $tabMatch[1];
-			$this->orderByArray[0] = $tabMatch[3];
-		}
-		if(preg_match($reWhere, $this->requestBasis, $tabMatch) === 1){
-			$this->requestBasis = $tabMatch[1];
-			$this->whereBlock = $tabMatch[3];
+		$sqlReplaced = str_replace($matchParentheses[0], $replaceArray, $this->_requestBasis);
+
+		//Traitement bloc WHERE & HAVING & ORDER BY & LIMIT
+		$regArray = [
+			'limit' 		=> '/^([\s\S]+)(\s+LIMIT\s+)([0-9]+)([\s\S]*)$/i',
+			'orderByArray' 	=> '/^([\s\S]+)(\s+ORDER\s+BY\s+)([\s\S]+)$/i',
+			'havingBlock' 	=> '/^([\s\S]+)(\s+HAVING\s+)([\s\S]+)$/i',
+			'groupByBlock' 	=> '/^([\s\S]+)(\s+GROUP BY\s+)([\s\S]+)$/i',
+			'whereBlock' 	=> '/^([\s\S]+)(\s+WHERE\s+)([\s\S]+)$/i'
+		];
+		foreach ($regArray as $attribu => $regEx) {
+			$tabMatch = [];
+			// On teste si le pattern est présent dans la requete
+			if(preg_match($regEx, $sqlReplaced, $tabMatch) === 1){
+				$sqlReplaced = $tabMatch[1];
+
+				$valeur = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
+					return $matchParentheses[0][$match[1]];
+				} , $tabMatch[3]);
+
+				// Mise à jour des attribus
+				if($attribu == 'limit') {
+					$this->_limit = $valeur;
+					$this->_offset = ( (strlen($offset = trim($tabMatch[4])) > 0 )? $offset : null );
+				}
+				else if($attribu == 'orderByArray')
+					$this->_orderByArray[0] = $valeur;
+				else
+					$this->$attribu = $valeur;
+			}
 		}
 
-		//Expressions régulières
-		$reSelect = '/^[\s]*(SELECT([\s\S]+))$/i';
+		// Mise à jour de la base de la requete
+		$this->_requestBasis = $sqlReplaced;
+
+		// Définition du type de requete
+		$reSelect = '/^[\s]*(SELECT([\s]+DISTINCT)?([\s\S]+)FROM([\s\S]+))$/i';
 		$reInsert = '/^[\s]*(INSERT([\s\S]+))$/i';
 		$reUpdate = '/^[\s]*(UPDATE([\s\S]+))$/i';
 		$reDelete = '/^[\s]*(DELETE([\s\S]+))$/i';
 
-		$tabMatch = array();
 		// Teste si SELECT
-		preg_match($reSelect, $this->requestBasis, $tabMatch);
-		if($tabMatch != array()){
-			$this->requestType = RequestType::SELECT;
-			return;
+		if(preg_match($reSelect, $this->_requestBasis, $tabMatch) === 1){
+			
+			// Récupération des noms de table et leurs alias dans le FROM
+			$tabElements = explode(',', $tabMatch[4]);
+			foreach ($tabElements as $element) {
+
+				// Test si JOIN présent
+				if(preg_match_all('/([\S]+)([\S\s]+)(JOIN)[\s]+([\S]+)([\S\s]+)/', $element, $tabJoin) === 1) {
+					$this->_tables = [$tabJoin[1][0], $tabJoin[4][0]];
+					preg_match_all('/JOIN[\s]+([\S]+)/', $tabJoin[2][0], $tabTables);
+					foreach ($tabTables[1] as $table) {
+						$this->_tables[] = $table;
+					}
+				}
+				// Sinon on récupère alias + nom table
+				else {
+					$tabAlias = [];
+					preg_match('/^[\s]*([\S]+)[\s]+((AS[\s]+)?([\S]+))/i', $element, $tabAlias);
+					if($tabAlias == []) {
+						$this->_tables[] = trim($element);
+					}
+					else {
+						// [nom de la table => alias utilisé]
+						$this->_tables[$tabAlias[1]] = $tabAlias[4];
+					}
+				}
+			}
+
+			// Récupération des nom de colonnes selectionnées
+			$this->_columns = explode(',', $tabMatch[3]);
+			foreach($this->_columns as &$col) {
+				$tabAlias = [];
+				preg_match('/^[\s]*([\S]+)[\s]*(\.)?(?(2)([\s]*[\S]+)|([\s]*))/i', $col, $tabAlias);
+				$col = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
+					return $matchParentheses[0][$match[1]];
+				}, trim($tabAlias[1]));
+			}
+			$this->_requestType = RequestType::SELECT;
 		}
 		
 		// Teste si INSERT
-		preg_match($reInsert, $this->requestBasis, $tabMatch);
-		if($tabMatch != array()){
-			$this->requestBasis = $tabMatch[1];
-			$this->requestType = RequestType::INSERT;
-			return;
+		if(preg_match($reInsert, $this->_requestBasis, $tabMatch) === 1){
+			$this->_requestBasis = $tabMatch[1];
+			$this->_requestType = RequestType::INSERT;
 		}
 
 		// Teste si DELETE
-		preg_match($reDelete, $this->requestBasis, $tabMatch);
-		if($tabMatch != array()){
-			$this->requestType = RequestType::DELETE;
-			$this->requestBasis = $tabMatch[1];
-			return;
+		if(preg_match($reDelete, $this->_requestBasis, $tabMatch) === 1){
+			$this->_requestType = RequestType::DELETE;
+			$this->_requestBasis = $tabMatch[1];
 		}
 
 		//Teste si UPDATE
-		preg_match($reUpdate, $this->requestBasis, $tabMatch);
-		if($tabMatch != array()){
-			$this->requestType = RequestType::UPDATE;
-			$this->requestBasis = $tabMatch[1];
-			return;
+		if(preg_match($reUpdate, $this->_requestBasis, $tabMatch) === 1){
+			$this->_requestType = RequestType::UPDATE;
+			$this->_requestBasis = $tabMatch[1];
 		}
 
-		// Si rien de tout cela
-		$this->requestType = RequestType::AUTRE;
+		// Mise à jour de la base de la requete
+		$this->_requestBasis = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
+			return $matchParentheses[0][$match[1]];
+		}, $sqlReplaced);
 	}
 
 }
