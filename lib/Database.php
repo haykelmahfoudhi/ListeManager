@@ -183,37 +183,39 @@ class Database {
 				$rep = new RequestResponse($statement);
 
 				// Listing des nom de colonnes / table pour éviter les ambiguités
-				if($sqlReq->getType() === RequestType::SELECT &&
-					count($tables = $sqlReq->getSelectedTables())){
+				if($sqlReq->getType() === RequestType::SELECT){
 
 					$ret = [];
-					foreach($sqlReq->getSelectedColumns() as $col){
-						$tabCol = explode('.', $col);
-
+					$tabAliases = $sqlReq->getTablesAliases();
+					foreach($sqlReq->getColumnsMeta() as $obj){
+						
 						// Cas de l'étoile : table.*
-						if(isset($tabCol[1]) && $tabCol[1] == '*'){
-							if(isset($tables[$tabCol[0]]))
-								$table = $tables[$tabCol[0]];
+						if($obj->name == '*'){
+							if(isset($tabAliases[$obj->table]))
+								$table = $tabAliases[$obj->table];
 							else
-								$table = $tabCol[0];
+								$table = $obj->table;
 
 							foreach($this->describeTable($table) as $colonne){
-								$ret[] = "$table.$colonne";
+								$newCol = new stdClass();
+								$newCol->table = $table;
+								$newCol->name = $colonne;
+								$newCol->alias = null;
+								$ret[] = $newCol;
 							}
 						}
-
 						else
-							$ret[] = $col;
+							$ret[] = $obj;
 					}
 
-					$rep->setColumnsName($ret);
+					$rep->setColumnsMeta($ret);
 				}
 				return $rep;
 			}
 		}
 		catch(Exception $e) {
 			self::$errorMessages[] = "<br><b>Database::execute()</b>(etiquette = '$this->_label') : ".$e->getMessage();
-			return new RequestResponse($sqlReq, null, true, $e->getMessage());
+			return new RequestResponse(null, true, $e->getMessage());
 		}
 	}
 

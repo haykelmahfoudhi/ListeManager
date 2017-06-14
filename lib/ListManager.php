@@ -324,9 +324,9 @@ class ListManager {
 					// Récupération du masque dans les params GET
 					if(isset($_GET['lm_mask'.$this->_id])){
 						$tabMask = [];
-						$titres = $reponse->getColumnsName();
+						$metas = $reponse->getColumnsMeta();
 						foreach (explode(',', $_GET['lm_mask'.$this->_id]) as $numCol) {
-							$tabMask[] = $titres[intval($numCol)];
+							$tabMask[] = $metas[intval($numCol)]->name;
 						}
 						$this->setMask($tabMask);
 					}
@@ -613,10 +613,11 @@ class ListManager {
 	/**
 	 * Définit la taille maximale des champs de saisie pour la recherche.
 	 * @param int $valeur la nouvelle taille maximale des champs de saisie pour al recherche
+	 * @param bool $invariable passez ce paramètre a true si vous souhaitez que la même taille de champs soit appliquées à tous
 	 * @return bool false si l'argument est incorrect (pas un int, infèrieur à 0)
 	 */
-	public function setMaxSizeInputs($valeur) {
-		if($this->_template->setMaxSizeInputs($valeur) === false)
+	public function setMaxSizeInputs($valeur, $invariable=false) {
+		if($this->_template->setMaxSizeInputs($valeur, $invariable) === false)
 			return false;
 
 		return $this;
@@ -707,6 +708,11 @@ class ListManager {
 		if($this->_template->fixTitles($valeur) === false)
 			return false;
 
+		return $this;
+	}
+
+	public function addButtons(array $buttons) {
+		$this->_template->addButtons($buttons);
 		return $this;
 	}
 
@@ -803,25 +809,30 @@ class ListManager {
 			->setDescription("Feuille de données généré automatiqument à partir de l'url ".$_SERVER['REQUEST_URI']);
 		
 		// Création des titres
-		$titres = $reponse->getColumnsName();
-		$col = 'A';
 		$phpExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(20);
+		$i = 0;
+		$col = 'A';
 		$width = [];
 		$maxWidth = 30;
-		for ($i = 0; $i < count($titres); $i++) {
+		$metas = $reponse->getColumnsMeta();
+		foreach ($metas as $meta) {
+
 			// On vérifie que la colonne n'est pas masquée
-			if(!in_array($titres[$i], $this->_mask)) {
+			if(!in_array($meta->name, $this->_mask) || !in_array($meta->alias, $this->_mask)) {
 
 				// Préparation du titre à insérer
-				if(isset($this->_listTitles[$titres[$i]]))
-					$titre = $this->_listTitles[$titres[$i]];
+				if($meta->table != null && isset($this->_listTitles["$meta->table.$meta->name"]))
+					$titre = $this->_listTitles["$meta->table.$meta->name"];
+				else if(isset($this->_listTitles[$meta->name]))
+					$titre = $this->_listTitles[$meta->name];
+				else if(isset($this->_listTitles[$meta->alias]))
+					$titre = $this->_listTitles[$meta->alias];
 				else
-					$titre = $titres[$i];
+					$titre = (($meta->alias == null)? $meta->name : $meta->alias);
 
 				// Mise en forme & insertion des titres
 				$width[$col] = min(strlen($titre), $maxWidth);
 				$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($width[$col]);
-				$phpExcel->getActiveSheet()->setCellValue('G'.($i+1), $types[$i]->ty);
 				$phpExcel->getActiveSheet()->setCellValue($col.'1', $titre);
 	 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
 	 				'font' => array(
@@ -829,12 +840,13 @@ class ListManager {
 	 					'size' => 13,
 	 				),
 	 				'fill' => array(
-	 					'type' => \PHPExcel_Style_Fill::FILL_SOLID,
+	 					'type' => PHPExcel_Style_Fill::FILL_SOLID,
 	 					'color' => array('rgb' => 'CCCCCC'),
 	 				),
 	 			));
 				$col++;
 			}
+			$i++;
 		}
 
 		// Insertion des données
@@ -846,9 +858,10 @@ class ListManager {
 			$phpExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(25);
 			// Remplissage colonne par colonne
 			$col = 'A';
-			foreach ($ligne as $titre => $cellule){
+			$j=0;
+			foreach ($ligne as $cellule){
 				// On vérifie que la colonne n'est pas masquée
-				if(!in_array($titre, $this->_mask)) {
+				if(!in_array($metas[$j]->name, $this->_mask) || !in_array($metas[$j]->alias, $this->_mask)) {
 					// Insertion de la donnée
 					$phpExcel->getActiveSheet()->setCellValue($col.($i), $cellule);
 
@@ -860,6 +873,7 @@ class ListManager {
 					}
 					$col++;
 				}
+				$j++;
 			}
 			$i++;
 		}

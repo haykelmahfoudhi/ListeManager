@@ -65,9 +65,9 @@ class RequestResponse {
 	 */
 	private $_data;
 	/**
-	 * @var array $_columns contient le nom des table.colonne selctionnées à utiliser pour filtrer les donnees
+	 * @var array $_columnsMeta contient le nom des table.colonne selctionnées à utiliser pour filtrer les donnees
 	 */
-	private $_columns;
+	private $_columnsMeta;
 
 	
 
@@ -82,7 +82,7 @@ class RequestResponse {
 	 * @param string $message (facultatif) le message d'erreur associé
 	 */
 	public function __construct($statement, $erreur=false, $message=''){
-		$this->_columns = [];
+		$this->_columnsMeta = [];
 		$this->_statement = $statement;
 		$this->_error = $erreur;
 		$this->_errorMessage = $message;
@@ -130,8 +130,45 @@ class RequestResponse {
 		return $this->_statement == null || $this->_error;
 	}
 
-	public function setColumnsName(array $columns) {
-		$this->_columns = $columns;
+	/**
+	 * Met à jour les métas données des colonnes sélectionnées.
+	 * Cette méthode est appelée dans la classe Database pour récupérer les données de chaque colonnes parsées par l'objet SQLRequest à l'origine de la requete.
+	 * @param array $columns le tableau d'objets contenant les metas données récupérées par Database.
+	 * @return bool false si erruer de pararmètre.
+	 */
+	public function setColumnsMeta(array $columns) {
+		$len = $this->getColumnsCount();
+
+		if($len <= 0)
+			return false;
+
+		// Récup des metas PDO pour toutes les colonnes
+		for ($i=0; $i < $len; $i++) {
+			$metas[] = $this->_statement->getColumnMeta($i);
+		}
+		$this->_columnsMeta = [];
+
+		if(count($columns) == $len){
+			for ($i=0; $i < $len; $i++) {
+				if(!isset($metas[$i]['native_type']))
+					$columns[$i]->type = $metas[$i]['driver:decl_type'];
+				else
+					$columns[$i]->type = $metas[$i]['native_type'];
+				$columns[$i]->len = $metas[$i]['len'];
+				
+				// S'il y a un alias
+				if(strstr($columns[$i]->alias, $metas[$i]['name']) !== false)
+					$columns[$i]->alias = $metas[$i]['name'];
+				else
+					$columns[$i]->name = $metas[$i]['name'];
+				
+				$this->_columnsMeta[] = $columns[$i];
+			}
+		}
+
+		else {
+			$this->setPDOSColumnsMeta();
+		}
 	}
 	
 
@@ -148,20 +185,22 @@ class RequestResponse {
 	}
 	
 	/**
-	 * Retourne le nom des colonnes selectionnées
-	 * @return array contenant le nom des colonnes retournees par la requete SQL, ou null si erreur
+	 * Retourne les meta données relatives aux colonnes selectionnées
+	 * @return array un tableau d'objets contenant les infos relatives au type de donnees de chaque colonne. Cet objet possede les attribus suivants :
+	 * * -> table : le nom de la table de la colonne, null si non renseigné
+	 * * -> name  : le nom de la colonne tel que retourné par SQL
+	 * * -> alias : l'alias de la colonne, null si non renseigné
+	 * * -> type  : le type de donnees SQL 
+	 * * -> len   : la taille de l'attribut
+	 * retourne false si erreur
 	 */
-	public function getColumnsName(){
+	public function getColumnsMeta(){
 		if($this->error())
 			return null;
-		
-		if(count($this->_columns) != $this->getColumnsCount()) {
-			$this->_columns = [];
-			foreach ($this->getColumnsInfos() as $info) {
-				$this->_columns[] = $info->name;
-			}
-		}
-		return $this->_columns;
+
+		if(count($this->_columnsMeta) != $this->getColumnsCount())
+			$this->setPDOSColumnsMeta();
+		return $this->_columnsMeta;
 	}
 
 	/**
@@ -173,32 +212,6 @@ class RequestResponse {
 			return -1;
 
 		return $this->_statement->columnCount();
-	}
-
-	/**
-	 * Retourne les informations relatives au type de données des colonnes selectionnées
-	 * @return object[]|boolean un tableau d'objets contenant les infos relatives au type de donnees de chaque colonne. Cet objet possede les attribus suivants :
-	 * * -> name : le nom de la colonne tel que retourné par SQL
-	 * * -> type : le type de donnees SQL 
-	 * * -> len  : la taille de la donnee
-	 * retourne false si erreur
-	 */
-	public function getColumnsInfos(){
-		if(($len = $this->getColumnsCount()) == -1)
-			return false;
-		
-		for ($i=0; $i < $len; $i++) {
-			$meta = $this->_statement->getColumnMeta($i);
-			$obj = new \stdClass();
-			if(!isset($meta['native_type']))
-				$obj->type = $meta['driver:decl_type'];
-			else
-				$obj->type = $meta['native_type'];
-			$obj->len  = $meta['len'];
-			$obj->name  = $meta['name'];
-			$ret[] = $obj;
-		}
-		return $ret;
 	}
 
 	/**
@@ -218,6 +231,20 @@ class RequestResponse {
 	 */
 	public function getPDOStatement(){
 		return $this->_statement;
+	}
+
+	private function setPDOSColumnsMeta() {
+		$this->_columnsMeta = [];
+		for ($i=0; $i < $this->getColumnsCount(); $i++) {
+			$meta = $this->_statement->getColumnMeta($i);
+			$obj = new stdClass();
+			$obj->table = null;
+			$obj->alias = null;
+			$obj->type = ( (!isset($meta['native_type'])) ? $meta['driver:decl_type'] : $meta['native_type'] );
+			$obj->len = $meta['len'];
+			$obj->name = $meta['name'];
+			$this->_columnsMeta[] = $obj;
+		}
 	}
 	
 }

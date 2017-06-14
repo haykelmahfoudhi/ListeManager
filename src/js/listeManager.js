@@ -134,7 +134,8 @@ function actualiserLargeurCol() {
 				var padding = 1,
 					tdWidth = parseInt(window.getComputedStyle(td, null).width) - padding,
 					thWidth = parseInt(window.getComputedStyle(ths[index], null).width) - padding,
-					tdSelectWidth = ((tdSelect.length)? parseInt(window.getComputedStyle(tdSelect[index], null).width) :  0 );
+					tdSelectWidth = ((tdSelect.length && index < tdSelect.length)?
+						parseInt(window.getComputedStyle(tdSelect[index], null).width) :  0 );
 
 				if(tdSelectWidth > 0)
 					$(td).css('min-width', Math.max(tdWidth, thWidth, tdSelectWidth)+'px');
@@ -211,8 +212,9 @@ if(titresFixes) {
 	var ligneTitres = document.querySelector(".ligne-titres"),
 		divBoutons = document.querySelector(".boutons-options"),
 		offsetTop = $(ligneTitres).offset().top,
-		offsetLeft = $(ligneTitres).offset().left;
-	
+		offsetLeftLT = $(ligneTitres).offset().left,
+		offsetLeftDB = $(divBoutons).offset().left;
+
 	actualiserLargeurCol();
 
 	// Callback sur le scroll
@@ -220,8 +222,8 @@ if(titresFixes) {
 		if((document.body.scrollTop || document.documentElement.scrollTop) >= offsetTop) {
 			ligneTitres.classList.add("fixed");
 			divBoutons.classList.add('fixed');
-			$(divBoutons).css('left', $(divBoutons).offset().left - $(window).scrollLeft());
-			$(ligneTitres).css('left', offsetLeft - $(window).scrollLeft());
+			$(divBoutons).css('left', offsetLeftDB - $(window).scrollLeft());
+			$(ligneTitres).css('left', offsetLeftLT - $(window).scrollLeft());
 			$(divBoutons).next().css('margin-left', window.getComputedStyle(divBoutons, null).width);
 		}
 		else {
@@ -253,15 +255,16 @@ $('table.liste').each(function(i, e) {
 function maskExportExcel(listeParent) {
 	var dataId = listeParent.find('.liste').attr('data-id'),
 		dataId = ((typeof dataId == 'undefined')? 'defaut' : dataId),
-		tabMask = JSON.parse(sessionStorage.getItem('mask'));
+		tabMask = JSON.parse(sessionStorage.getItem('mask')),
+		tabUrl = document.URL.split('#'),
+		url = tabUrl[0] + ((tabUrl[0].indexOf('?') !== -1)? '' : '?')
+			+ "&lm_excel" + ((dataId == 'defaut')? '' : dataId) + "=1";
 
 	if(tabMask != null && typeof tabMask[dataId] == 'object'){
 		var maskUrl = encodeURIComponent(tabMask[dataId].join());
-		var tabUrl = document.URL.split('#');
-		document.location = tabUrl[0] + ((tabUrl[0].indexOf('?') !== -1)? '' : '?')
-			+ "&lm_excel" + ((dataId == 'defaut')? '' : dataId) + "=1"
-			+ '&lm_mask' + ((dataId == 'defaut')? '' : dataId) + "=" + maskUrl;
+		url += '&lm_mask' + ((dataId == 'defaut')? '' : dataId) + "=" + maskUrl;
 	}
+	document.location = url;
 }
 
 

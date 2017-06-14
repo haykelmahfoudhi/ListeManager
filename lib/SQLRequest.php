@@ -37,9 +37,13 @@ class SQLRequest {
 	 */
 	private $_tables;
 	/**
-	 * @var array $_columns contient le nom des colonnes récupérées dans la clause SELECT de la requete
+	 * @var array $_columnsMeta tableau d'objet conteantn les métas données des colonnes de la clause SELECT.
+	 * Chaque objet possède les 3 attributs suivants :
+	 *   * -> *name*   : le nom de la colonne
+	 *   * -> *table*  : le nom de la table de la colonne ou null si non spécifié
+	 *   * -> *alias*  : l'alias de la colonne ou null si non spécifié
 	 */
-	private $_columns;
+	private $_columnsMeta;
 	/**
 	 * @var string $_whereBlock correspond à la clause Where de la requete SQL 
 	 */
@@ -88,7 +92,7 @@ class SQLRequest {
 		$this->_requestBasis = ((substr($requestBasis, -1) == ';')? substr($requestBasis, 0, strlen($requestBasis)-1) : $requestBasis );
 		$this->_requestType = RequestType::AUTRE;
 		$this->_tables = [];
-		$this->_columns = [];
+		$this->_columnsMeta = [];
 		$this->_whereBlock = '';
 		$this->_groupByBlock = '';
 		$this->_havingBlock = '';
@@ -318,12 +322,17 @@ class SQLRequest {
 	}
 
 	/**
-	 * @return array tableau contenant le nom des colonnes telles qu'elles sont spécifiées dans la clause SELECT de la requete
+	 * Retourne un tableau d'objets contenant les données pour chaque colonne de la clause SELECT.
+	 * Chaque objet possède les 3 attributs suivants :
+	 *   * -> *name*   : le nom de la colonne
+	 *   * -> *table*  : le nom de la table de la colonne ou null si non spécifié
+	 *   * -> *alias*  : l'alias de la colonne ou null si non spécifié
+	 * @return array tableau des metas données des colonnes selectionnées
 	 */
-	public function getSelectedColumns() {
+	public function getColumnsMeta() {
 		if($this->_requestType !== RequestType::SELECT)
 			return false;
-		return $this->_columns;
+		return $this->_columnsMeta;
 	}
 
 	/**
@@ -333,7 +342,7 @@ class SQLRequest {
 	 *   * -> alias : l'alias de la colonne, ou null si non précisé
 	 * @return array tableau contenant le nom des tables de la clause FROM et leur alias si précisé
 	 */
-	public function getSelectedTables() {
+	public function getTablesAliases() {
 		if($this->_requestType !== RequestType::SELECT)
 			return false;
 		return $this->_tables;
@@ -366,7 +375,7 @@ class SQLRequest {
 		if($this->_requestType != RequestType::SELECT)
 			return false;
 
-		$this->_limit = $valeur;
+		$this->_limit = $limit;
 		if($offset !== '')
 			$this->_offset = $offset;
 	}
@@ -401,7 +410,7 @@ class SQLRequest {
 		$regParentheses = '/\(([^\(\)]|(?R))*\)/';
 		preg_match_all($regParentheses, $this->_requestBasis, $matchParentheses);
 		$replaceArray = [];
-		for ($i=0; $i < count($matchParentheses); $i++) { 
+		for ($i=0; $i < count($matchParentheses[0]); $i++) { 
 			$replaceArray[] = "($i)";
 		}
 		$sqlReplaced = str_replace($matchParentheses[0], $replaceArray, $this->_requestBasis);
@@ -409,9 +418,9 @@ class SQLRequest {
 		//Traitement bloc WHERE & HAVING & ORDER BY & LIMIT
 		$regArray = [
 			'_limit' 		=> '/^([\s\S]+)(\s+LIMIT\s+)([0-9]+)([\s\S]*)$/i',
-			'_orderByArray' 	=> '/^([\s\S]+)(\s+ORDER\s+BY\s+)([\s\S]+)$/i',
+			'_orderByArray' => '/^([\s\S]+)(\s+ORDER\s+BY\s+)([\s\S]+)$/i',
 			'_havingBlock' 	=> '/^([\s\S]+)(\s+HAVING\s+)([\s\S]+)$/i',
-			'_groupByBlock' 	=> '/^([\s\S]+)(\s+GROUP BY\s+)([\s\S]+)$/i',
+			'_groupByBlock' => '/^([\s\S]+)(\s+GROUP\s+BY\s+)([\s\S]+)$/i',
 			'_whereBlock' 	=> '/^([\s\S]+)(\s+WHERE\s+)([\s\S]+)$/i'
 		];
 		foreach ($regArray as $attribu => $regEx) {
@@ -423,6 +432,7 @@ class SQLRequest {
 				$valeur = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
 					return $matchParentheses[0][$match[1]];
 				} , $tabMatch[3]);
+
 
 				// Mise à jour des attribus
 				if($attribu == '_limit') {
@@ -445,42 +455,49 @@ class SQLRequest {
 		$reUpdate = '/^[\s]*(UPDATE([\s\S]+))$/i';
 		$reDelete = '/^[\s]*(DELETE([\s\S]+))$/i';
 
+		$regAlias = '/(?:([\S]+)(?:[\s]*\.[\s]*))?([\S]+)(?:[\s]+(?:AS[\s]+)?([\S\s]+))?/i';
+
 		// Teste si SELECT
 		if(preg_match($reSelect, $this->_requestBasis, $tabMatch) === 1){
 
 			// Récupération des nom de colonnes selectionnées
-			$this->_columns = explode(',', $tabMatch[3]);
-			foreach($this->_columns as &$col) {
+			$this->_columnsMeta = explode(',', $tabMatch[3]);
+			foreach($this->_columnsMeta as &$col) {
 				$tabAlias = [];
-				preg_match('/^[\s]*([\S]+)[\s]*(\.)?(?(2)([\s]*[\S]+)|([\s]*))/i', $col, $tabAlias);
-				$col = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
+				preg_match_all($regAlias, $col, $tabAlias, PREG_SET_ORDER, 0);
+				
+				// Création de l'objet contenant toutes les metas de la colonne 
+				$obj = new stdClass();
+
+				$table = str_replace('"', '',
+						str_replace("'", '',
+							str_replace('`', '', trim($tabAlias[0][1]))));
+				$obj->table = (strlen($table)? $table : null);
+				
+				$obj->name = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
 					return $matchParentheses[0][$match[1]];
-				}, trim($tabAlias[1]));
+				}, trim($tabAlias[0][2]));
+				
+				$as = ((isset($tabAlias[0][3])) ? str_replace('"', '',
+						str_replace("'", '',
+							str_replace('`', '', trim($tabAlias[0][3])))) : null);
+				$obj->alias = ( strlen($as) ? preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
+						return $matchParentheses[0][$match[1]];
+					},$as) : null );
+
+				$col = $obj;
 			}
 			
 			// Récupération des noms de table et leurs alias dans le FROM
-			$tabElements = explode(',', $tabMatch[4]);
+			$tabElements = explode(',',
+				preg_replace('/(?:[\s]*(?:INNER|LEFT|RIGHT|FULL|CROSS|SELF|NATURAL)?[\s]+JOIN[\s]+)/i', ',', 
+				preg_replace('/(ON[\s]*[\S]+[\s]*=[\s]*[\S]+)/i', '', $tabMatch[4])));
 			foreach ($tabElements as $element) {
 
-				// Test si JOIN présent
-				if(preg_match_all('/([\S]+)([\S\s]+)(JOIN)[\s]+([\S]+)([\S\s]+)$/', $element, $tabJoin) === 1) {
-					$this->_tables[] = $tabJoin[1][0];
-					$this->_tables[] = $tabJoin[4][0];
-					preg_match_all('/JOIN[\s]+([\S]+)/', $tabJoin[2][0], $tabTables);
-					foreach ($tabTables[1] as $table) {
-						$this->_tables[] = $table;
-					}
-				}
-				// Sinon on récupère alias + nom table
-				else {
-					$tabAlias = [];
-					preg_match('/^[\s]*([\S]+)[\s]+((AS[\s]+)?([\S]+))/i', $element, $tabAlias);
-					if($tabAlias == []) {
-						$this->_tables[] = trim($element);
-					}
-					else {
-						$this->_tables[$tabAlias[4]] = $tabAlias[1];
-					}
+				// si alias présent pour cette table -> enregistre dans le tableau
+				preg_match_all($regAlias, $element, $tabAlias, PREG_SET_ORDER, 0);
+				if(isset($tabAlias[0][3]) && strlen(trim($tabAlias[0][3]))){
+					$this->_tables[trim($tabAlias[0][3])] = trim($tabAlias[0][2]);
 				}
 			}
 			$this->_requestType = RequestType::SELECT;
