@@ -112,6 +112,10 @@ class ListTemplate {
 	 */
 	private $_helpLink;
 	/**
+	 * @var array $_userButtons contient les boutons rajouté par le développeur qui seront affiché dans la div des boutons utilisateur
+	 */
+	private $_userButtons;
+	/**
 	 * @var bool $_displayResultsInfos définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete
 	 */
 	private $_displayResultsInfos;
@@ -123,6 +127,10 @@ class ListTemplate {
 	 * @var integer $_maxSizeInputs longueur maximale des champs de saisie pour la recherche par colonne
 	 */
 	private $_maxSizeInputs;
+	/**
+	 * @var bool $_constInputsSize definit si les champs de saisie ont tous la meme taille
+	 */
+	private $_constInputsSize;
 	/**
 	 * @var bool $_fixedTitles définti si les titres de la listes sont fixés lorsque l'utilisateur scroll
 	 */
@@ -163,9 +171,11 @@ class ListTemplate {
 		$this->_columnCallback = null;
 		// $this->useCache = false;
 		$this->_helpLink = null;
+		$this->_userButtons = [];
 		$this->_displayResultsInfos = true;
 		$this->_applyDefaultCSS = true;
 		$this->_maxSizeInputs = 30;
+		$this->_constInputsSize = false;
 		$this->_fixedTitles = true;
 	}
 	
@@ -203,7 +213,7 @@ class ListTemplate {
 		$debut = ($this->_currentPage - 1) * $this->_nbResultsPerPage;
 		$fin = min(($this->_currentPage) * $this->_nbResultsPerPage, $nbLignes);
 
-		// Si la page actuelle n'existe aps -> redirection sur 1re page
+		// Si la page actuelle n'existe pas -> redirection sur 1re page
 		if($debut > $fin) {
 			$debut = 0;
 			$fin = $this->_nbResultsPerPage;
@@ -271,6 +281,11 @@ class ListTemplate {
 			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'"><img height="40" width="40" src="'.LM_IMG.'eraser-ico.png"></a>';
 		}
 
+		// Boutons utilisateurs ajouté par le développeurs
+		foreach ($this->_userButtons as $bouton) {
+			$ret .= "$bouton\n";
+		}
+
 		$ret .= "</div>\n";
 
 		// Initialisation de la liste
@@ -285,13 +300,15 @@ class ListTemplate {
 			.(($lmId == null)?'' : " data-id='".$lmId."' ").'>'."\n<tr class='ligne-titres'>";
 
 		//Creation des titres
-		$types = $reponse->getColumnsInfos();
-		$colonnes = $reponse->getColumnsName();
+		$colonnes = $reponse->getColumnsMeta();
 		$i = 0;
-		foreach ($types as $obj) {
+		$lmMask = $this->_lm->getMask();
+		foreach ($colonnes as $col) {
 
-			// On vérifie que la colonne en cours n'est aps masquée
-			if(!in_array($obj->name, $this->_lm->getMask())) {
+			$nomColonne = (($col->table != null)? $col->table.'.'.$col->name : $col->name );
+
+			// On vérifie que la colonne en cours n'est pas masquée
+			if(!in_array($nomColonne, $lmMask) || !in_array($col->alias, $lmMask)) {
 
 				//Gestion du order by
 				$signeOrder = '';
@@ -299,31 +316,33 @@ class ListTemplate {
 					$orderArray = explode(',', $_GET['lm_orderBy'.$lmId]);
 
 					// Construction de la chaine orderBy
-					if(($key = array_search($obj->name, $orderArray)) !== false ) {
+					if(($key = array_search($nomColonne, $orderArray)) !== false ) {
 						unset($orderArray[$key]);
-						array_unshift($orderArray, "-$obj->name");
+						array_unshift($orderArray, "-$nomColonne");
 						$signeOrder = '&Delta;';
 					}
-					else if (($key = array_search("-$obj->name", $orderArray)) !== false ){
+					else if (($key = array_search("-$nomColonne", $orderArray)) !== false ){
 						unset($orderArray[$key]);
-						array_unshift($orderArray, $obj->name);
+						array_unshift($orderArray, $nomColonne);
 						$signeOrder = '&nabla;';
 					}
 					else {
-						array_unshift($orderArray, $obj->name);
+						array_unshift($orderArray, $nomColonne);
 					}
 					$orderString = implode(',', $orderArray);
 				}
 				else {
-					$orderString = $obj->name;
+					$orderString = $nomColonne;
 				}
 
 				// Préparation du titre à afficher
 				$listTitles = $this->_lm->getListTitles();
-				if(isset($listTitles[$obj->name]))
-					$titreAffiche = $listTitles[$obj->name];
+				if(isset($listTitles[$col->alias]))
+					$titreAffiche = $listTitles[$col->alias];
+				else if(isset($listTitles[$nomColonne]))
+					$titreAffiche = $listTitles[$nomColonne];
 				else 
-					$titreAffiche = $obj->name;
+					$titreAffiche = (($col->alias == null)? $col->name : $col->alias);
 
 				// Création du lien pour order by
 				if($this->_lm->isOrderByEnabled())
@@ -346,7 +365,7 @@ class ListTemplate {
 		// Utilisation du callback pour ajouter une colonne
 		if($this->_columnCallback != null) {
 			$fct = $this->_columnCallback;
-			$ret .= call_user_func_array($fct, array(0, $titres, true));
+			$ret .= call_user_func_array($fct, array(0, $colonnes, true));
 		}
 
 		$ret .= "</tr>\n";
@@ -354,19 +373,27 @@ class ListTemplate {
 		//Affichage des champs de saisie pour la  recherche
 		if($this->_lm->isSearchEnabled()){
 			$ret .= "<tr class='tabSelect'>";
-			for ($i=0; $i < count($titres); $i++) {
+			$i = 0;
+			foreach ($colonnes as $col){
 
-				// On vérifie que la colonne en cours n'est aps masquée
-				if(!in_array($titres[$i], $this->_lm->getMask())) {
+				$nomColonne = (($col->table != null)? $col->table.'.'.$col->name : $col->name );
+
+				// On vérifie que la colonne en cours n'est pas masquée
+				if(!in_array($nomColonne, $lmMask) || !in_array($col->alias, $lmMask)) {
 
 					//Determine le contenu du champs
-					$valeur = (isset($_GET['lm_tabSelect'.$lmId][$titres[$i]])? 
-						$_GET['lm_tabSelect'.$lmId][$titres[$i]] : null);
+					$valeur = (isset($_GET['lm_tabSelect'.$lmId][$nomColonne])? 
+						$_GET['lm_tabSelect'.$lmId][$nomColonne] : '');
 					//Determine la taille du champs
-					$taille = min($types[$i]->len, $this->_maxSizeInputs);
-					$ret .= '<td><input type="text" name="lm_tabSelect'.$lmId.'['.$titres[$i].']"'
+					if($this->_constInputsSize)
+						$taille = $this->_maxSizeInputs;
+					else 
+						$taille = min($col->len, $this->_maxSizeInputs);
+
+					$ret .= '<td><input type="text" name="lm_tabSelect'.$lmId.'['.$nomColonne.']"'
 						." form='recherche".$lmId."' size='$taille' value='$valeur'/></td>";
 				}
+				$i++;
 			}
 			$ret .= "</tr>\n";
 		}
@@ -397,13 +424,17 @@ class ListTemplate {
 				$j = 0;
 				foreach ($ligne as $cellule){
 
+					$nomColonne = (($colonnes[$j]->alias != null)? $colonnes[$j]->alias : 
+						(($colonnes[$j]->table != null)? $colonnes[$j]->table.'.'.$colonnes[$j]->name : $colonnes[$j]->name ) );
+					
 					// On vérifie que la colonne en cours n'est pas masquée
-					if(!in_array($titres[$j], $this->_lm->getMask())) {
+					if(!in_array($nomColonne, $lmMask)) {
 
 						// Application du callback (si non null)
 						if($this->_cellCallback != null) {
 							$fct = $this->_cellCallback;
-							$cellule = ( (($retFCT = call_user_func_array($fct, array($cellule, $titres[$j], $i, $ligne))) === null)? $cellule : $retFCT ) ;
+							$cellule = ( (($retFCT = call_user_func_array($fct,
+								array($cellule, $nomColonne, $i, $ligne, $j))) === null)? $cellule : $retFCT ) ;
 						}
 						// Si la cellule ne contient rien -> '-'
 						if(strlen($cellule) == 0)
@@ -517,12 +548,12 @@ class ListTemplate {
 	
 	/**
 	 * Attribue les nouvelles classes HTML a appliquer une ligne sur deux dans la liste HTML
-	 * @param string $classe1 classe des lignes impaires. Si null rien ne sera applique
-	 * @param string $classe2 classe des linges paires. Si null rien ne sera applique
+	 * @param string $class1 classe des lignes impaires. Si null rien ne sera applique
+	 * @param string $class2 classe des linges paires. Si null rien ne sera applique
 	 */
-	public function setRowsClasses($classe1, $classe2){
-		$this->_class1 = $classe1;
-		$this->_class2 = $classe2;
+	public function setRowsClasses($class1, $class2){
+		$this->_class1 = $class1;
+		$this->_class2 = $class2;
 	}
 
 	/**
@@ -565,6 +596,7 @@ class ListTemplate {
 	 *    2. colonne : le nom de la colonne en cours
 	 *    3. numLigne   : le numero de la ligne en cours
 	 *    4. ligne    : un array associatif contenant toutes les données de la ligne en cours
+	 *    5. numCol   : le numero de la colonne en cours
 	 * * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
 	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
 	 * @param bool $replaceTagTD définit si le callback définit réécrit les balises td ou non. Par défaut ce paramètre vaut false, ce qui signifit que ListTemplate écrit automatiquement des balises td de la liste.
@@ -593,7 +625,7 @@ class ListTemplate {
 	}
 
 	/**
-	 * Définir un callback pour rajouter manuellement des colonnes dans votre liste
+	 * Définir un callback pour rajouter manuellement des colonnes dans votre liste.
 	 * Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque
 	 * ligne de la liste. La fonction doit correspondre au format suivant
 	 *  * 3 paramètres d'entrée :
@@ -670,20 +702,23 @@ class ListTemplate {
 	}
 
 	/**
-	 * Définit la taille maximale des champs de saisie pour la recherche
-	 * @param int $valeur la nouvelle taille maximale des champs de saisie pour al recherche
-	 * @return bool false si l'argument est incorrect (pas un int, infèrieur à 0)
+	 * Définit la taille maximale des champs de saisie pour la recherche.
+	 * Cette valeur correspond à un nombre de caractère, et affecte l'attribut size des balises input.
+	 * @param int $valeur la nouvelle taille maximale des champs de saisie pour la recherche
+	 * @param bool $invariable passez ce paramètre a true si vous souhaitez que la même taille de champs soit appliquées à tous
+	 * @return bool false si les paramètres sont incorrects
 	 */
-	public function setMaxSizeInputs($valeur) {
+	public function setMaxSizeInputs($valeur, $invariable=false) {
 		if($valeur != intval($valeur) || $valeur <= 0)
 			return false;
 
 		$this->_maxSizeInputs = $valeur;
+		$this->_constInputsSize = $invariable;
 	}
 
 	/**
 	 * Définit sui les titres de votre liste restent fixés en haut de l'écran lorsque l'utilisateur scroll sur la page.
-	 * @var bool valeur true pour activer false pour désactiver cette option
+	 * @param bool valeur true pour activer false pour désactiver cette option
 	 * @return bool false si l'arguemnt n'est pas un booléen.
 	 */
 	public function fixTitles($valeur) {
@@ -697,6 +732,17 @@ class ListTemplate {
 	 */
 	public function issetPaging() {
 		return $this->_pagingLinksNb != false;
+	}
+
+
+	/**
+	 * Ajoute des boutons dans la division boutons à gauche des listes
+	 * @param array $buttons contient le code HTML des boutons à ajouter
+	 */
+	public function addButtons(array $buttons) {
+		foreach ($buttons as $bouton) {
+			$this->_userButtons[] = $bouton;
+		}
 	}
 
 			/*-****************

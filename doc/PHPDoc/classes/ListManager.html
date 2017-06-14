@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">48</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">41</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-366138507"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1604228292"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-366138507" class="accordion-body collapse in">
+            <div id="namespace-1604228292" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -231,6 +231,7 @@ Il est également à noter que les setters de la classe retourne la référence 
                                                                     <a href="../classes/ListManager.html#method_verbose" class="">verbose()</a><br />
                                                                     <a href="../classes/ListManager.html#method_setHelpLink" class="">setHelpLink()</a><br />
                                                                     <a href="../classes/ListManager.html#method_fixTitles" class="">fixTitles()</a><br />
+                                                                    <a href="../classes/ListManager.html#method_addButtons" class="">addButtons()</a><br />
                                                                     <a href="../classes/ListManager.html#method_getId" class="">getId()</a><br />
                                                                     <a href="../classes/ListManager.html#method_getListTitles" class="">getListTitles()</a><br />
                                                                     <a href="../classes/ListManager.html#method_getMask" class="">getMask()</a><br />
@@ -952,7 +953,7 @@ Le format des resultats obtenus par la requete dépend du ResponseType spécifi�
             <article class="method">
                 <h3 class="public ">execute()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">execute(string|\SQLRequest  <span class="argument">$request</span>, array  <span class="argument">$params = array()</span>) : string|boolean</pre>
+                <pre class="signature" style="margin-right: 54px;">execute(string|\SQLRequest  <span class="argument">$request</span>, array  <span class="argument">$params = array()</span>) : mixed</pre>
                 <p><em>Execute une requete SQL *sans prendre en compte les données GET concernant tabSelect et orderBy*.</em></p>
                 <p>De ce fait si cette méthode est directement appelée sans passer par <em>construct()</em> les fonctionnalités recherche et tri seront désactivées. La méthode retourne le resultat dans le format specifie par ResponseType</p>
 
@@ -972,7 +973,7 @@ Le format des resultats obtenus par la requete dépend du ResponseType spécifi�
                 
                 
                                     <h4>Returns</h4>
-                    string|boolean
+                    mixed
                                             &mdash; <ul>
 <li>l'objet de reponse dependant de $this-&gt;responseType, parametrable via la methode <em>setResponseType()</em></li>
 <li>false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données</li>
@@ -1173,16 +1174,16 @@ En cas d'erreur de connection le message correspondant est enregistré et affich
             <article class="method">
                 <h3 class="public ">setMask()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">setMask(  <span class="argument">$mask</span>) : mixed</pre>
+                <pre class="signature" style="margin-right: 54px;">setMask(array  <span class="argument">$mask</span>) : mixed</pre>
                 <p><em>Définit le nouveau masque à appliquer.</em></p>
                 <p>Le masque est un tableau contenant le nom des colonnes que vous ne souhaitez pas afficher dans la liste HTML</p>
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td></td>
+                                <td>array</td>
                                 <td>$mask </td>
-                                <td></td>
+                                <td><p>le nouveau masque à appliquer. Si null : aucun masque ne sera applqiué</p></td>
                             </tr>
                                             </table>
                 
@@ -1199,14 +1200,7 @@ En cas d'erreur de connection le message correspondant est enregistré et affich
                                                                             </dl>
             <h2>Tags</h2>
             <table class="table table-condensed">
-                                    <tr>
-                        <th>
-                            var
-                        </th>
-                        <td>
-                                                                                            <p>le nouveau masque à appliquer. Si null : aucun masque ne sera applqiué</p>
-                                                    </td>
-                    </tr>
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
                             </table>
         </aside>
     </div>
@@ -1377,10 +1371,11 @@ Le tableau à passer en paramètre est un tableau associatif où la clé corresp
 <ul>
 <li>4 parametres d'entree :
 <ol>
-<li>cellule : la valeur de l'element en cours</li>
-<li>colonne : le nom de la colonne en cours</li>
-<li>numLigne   : le numero de la ligne en cours</li>
+<li>cellule  : la valeur de l'element en cours</li>
+<li>colonne  : le nom de la colonne en cours</li>
+<li>numLigne : le numero de la ligne en cours</li>
 <li>ligne    : un array associatif contenant toutes les données de la ligne en cours</li>
+<li>numCol   : le numero de la colonne en cours</li>
 </ol></li>
 <li>valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false</li>
 </ul>
@@ -1474,14 +1469,29 @@ Le tableau à passer en paramètre est un tableau associatif où la clé corresp
                 <h3 class="public ">setColumnCallback()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">setColumnCallback(callable  <span class="argument">$fonction</span>) : \ListManager</pre>
-                <p><em>Définir un callback pour rajouter manuellement des colonnes dans votre liste
-Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque ligne de la liste. La fonction doit correspondre au format suivant
- * 3 paramètres d&#039;entrée :
-   * 1. numLigne  : int correspond au numéro de la ligne en cours
-   * 2. donnees   : array contenant l&#039;ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
-   * 3. estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon
- * valeur de retour de type string (ou du moins un type qui peut être transformé en string).</em></p>
-                
+                <p><em>Définir un callback pour rajouter manuellement des colonnes dans votre liste.</em></p>
+                <p>Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque ligne de la liste. La fonction doit correspondre au format suivant</p>
+<ul>
+<li>3 paramètres d'entrée :
+<ul>
+<li>
+<ol>
+<li>numLigne  : int correspond au numéro de la ligne en cours</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>donnees   : array contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon</li>
+</ol>
+</li>
+</ul></li>
+<li>valeur de retour de type string (ou du moins un type qui peut être transformé en string).</li>
+</ul>
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
@@ -1590,8 +1600,8 @@ Ce callback sera appelé par le template à la fin de la création des titres ET
             <article class="method">
                 <h3 class="public ">setMaxSizeInputs()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">setMaxSizeInputs(integer  <span class="argument">$valeur</span>) : boolean</pre>
-                <p><em>Définit la taille maximale des champs de saisie pour la recherche</em></p>
+                <pre class="signature" style="margin-right: 54px;">setMaxSizeInputs(integer  <span class="argument">$valeur</span>, boolean  <span class="argument">$invariable = false</span>) : boolean</pre>
+                <p><em>Définit la taille maximale des champs de saisie pour la recherche.</em></p>
                 
 
                                     <h4>Parameters</h4>
@@ -1600,6 +1610,11 @@ Ce callback sera appelé par le template à la fin de la création des titres ET
                                 <td>integer</td>
                                 <td>$valeur </td>
                                 <td><p>la nouvelle taille maximale des champs de saisie pour al recherche</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$invariable </td>
+                                <td><p>passez ce paramètre a true si vous souhaitez que la même taille de champs soit appliquées à tous</p></td>
                             </tr>
                                             </table>
                 
@@ -1673,7 +1688,7 @@ Ce callback sera appelé par le template à la fin de la création des titres ET
                                                     <tr>
                                 <td>boolean</td>
                                 <td>$valeur </td>
-                                <td><p>: la nouvelle valeur à appliquer</p></td>
+                                <td><p>la nouvelle valeur à appliquer</p></td>
                             </tr>
                                             </table>
                 
@@ -1813,16 +1828,16 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
             <article class="method">
                 <h3 class="public ">setHelpLink()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">setHelpLink(string|null  <span class="argument">$link</span>) : mixed</pre>
+                <pre class="signature" style="margin-right: 54px;">setHelpLink(string  <span class="argument">$link</span>) : mixed</pre>
                 <p><em>Permet d&#039;ajouter une rubrique d&#039;aide ou une legende à la liste actuelle</em></p>
                 
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td>string|null</td>
+                                <td>string</td>
                                 <td>$link </td>
-                                <td><p>: le lien url vers la page d'aide. Si null alors le lien sera desactivé</p></td>
+                                <td><p>le lien url vers la page d'aide. Si null alors le lien sera desactivé</p></td>
                             </tr>
                                             </table>
                 
@@ -1850,16 +1865,16 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
             <article class="method">
                 <h3 class="public ">fixTitles()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">fixTitles(  <span class="argument">$valeur</span>) : mixed</pre>
-                <p><em>Définit sui les titres de votre liste restent fixés en haut de l&#039;écran lorsque l&#039;utilisateur scroll sur la page.</em></p>
+                <pre class="signature" style="margin-right: 54px;">fixTitles(boolean  <span class="argument">$valeur</span>) : mixed</pre>
+                <p><em>Définit si les titres de votre liste restent fixés en haut de l&#039;écran lorsque l&#039;utilisateur scroll sur la page.</em></p>
                 
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td></td>
+                                <td>boolean</td>
                                 <td>$valeur </td>
-                                <td></td>
+                                <td><p>true pour activer false pour désactiver cette option</p></td>
                             </tr>
                                             </table>
                 
@@ -1876,14 +1891,44 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
                                                                             </dl>
             <h2>Tags</h2>
             <table class="table table-condensed">
-                                    <tr>
-                        <th>
-                            var
-                        </th>
-                        <td>
-                                                                                            <p>valeur true pour activer false pour désactiver cette option</p>
-                                                    </td>
-                    </tr>
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_addButtons" name="method_addButtons" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">addButtons()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">addButtons(array  <span class="argument">$buttons</span>) : \ListManager</pre>
+                <p><em>Ajoute des boutons dans la division boutons à gauche des listes</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$buttons </td>
+                                <td><p>contient le code HTML des boutons à ajouter</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/ListManager.html">\ListManager</a>
+                                            &mdash; <p>la référence de cet objet</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
                             </table>
         </aside>
     </div>
@@ -2216,7 +2261,7 @@ Si vous souhaitez personnaliser le style de votre liste vous devriez desactiver 
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 9th, 2017 at 11:41.
+                    on June 14th, 2017 at 13:51.
                 </section>
             </section>
         </section>

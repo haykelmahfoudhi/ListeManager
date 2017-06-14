@@ -262,7 +262,7 @@ class ListManager {
 	 * De ce fait si cette méthode est directement appelée sans passer par *construct()* les fonctionnalités recherche et tri seront désactivées. La méthode retourne le resultat dans le format specifie par ResponseType
 	 * @param string|SQLRequest $request : la requete a executer. Peut etre de type string ou SQLRequest.
 	 * @param array $params (facultatif) à utiliser si vous saouhaitez passer par les méthodes prepare puis exécute pour exécuter votre requete SQL
- 	 * @return string|bool
+ 	 * @return mixed
 	 * * l'objet de reponse dependant de $this->responseType, parametrable via la methode *setResponseType()*
 	 * * false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données
 	 */
@@ -324,9 +324,9 @@ class ListManager {
 					// Récupération du masque dans les params GET
 					if(isset($_GET['lm_mask'.$this->_id])){
 						$tabMask = [];
-						$titres = $reponse->getColumnsName();
+						$metas = $reponse->getColumnsMeta();
 						foreach (explode(',', $_GET['lm_mask'.$this->_id]) as $numCol) {
-							$tabMask[] = $titres[intval($numCol)];
+							$tabMask[] = $metas[intval($numCol)]->name;
 						}
 						$this->setMask($tabMask);
 					}
@@ -462,7 +462,7 @@ class ListManager {
 	/**
 	 * Définit le nouveau masque à appliquer.
 	 * Le masque est un tableau contenant le nom des colonnes que vous ne souhaitez pas afficher dans la liste HTML
-	 * @var array $mask le nouveau masque à appliquer. Si null : aucun masque ne sera applqiué
+	 * @param array $mask le nouveau masque à appliquer. Si null : aucun masque ne sera applqiué
 	 * @return mixed false si le paramètre en entré n'est ni null, ni un array, sinon retourne la référence de l'objet ($this)
 	 */
 	public function setMask($mask) {
@@ -528,10 +528,11 @@ class ListManager {
 	 * Définir un callback à appeler dans chaque cellule de la liste.
 	 * Definit le callback (la fonction) qui sera executee pour chaque valeur lors de l'affichage des donnees dans les cellules du tableau. Cette fonction doit etre definie comme il suit :
 	 * * 4 parametres d'entree :
-	 *    1. cellule : la valeur de l'element en cours
-	 *    2. colonne : le nom de la colonne en cours
-	 *    3. numLigne   : le numero de la ligne en cours
+	 *    1. cellule  : la valeur de l'element en cours
+	 *    2. colonne  : le nom de la colonne en cours
+	 *    3. numLigne : le numero de la ligne en cours
 	 *    4. ligne    : un array associatif contenant toutes les données de la ligne en cours
+	 *    5. numCol   : le numero de la colonne en cours
 	 * * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
 	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
 	 * @param bool $replaceTagTD définit si le callback définit réécrit les balises td ou non. Par défaut ce paramètre vaut false, ce qui signifit que ListTemplate écrit automatiquement des balises td de la liste.
@@ -558,7 +559,7 @@ class ListManager {
 	}
 
 	/**
-	 * Définir un callback pour rajouter manuellement des colonnes dans votre liste
+	 * Définir un callback pour rajouter manuellement des colonnes dans votre liste.
 	 * Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque ligne de la liste. La fonction doit correspondre au format suivant
 	 *  * 3 paramètres d'entrée :
 	 *    * 1. numLigne  : int correspond au numéro de la ligne en cours
@@ -611,12 +612,13 @@ class ListManager {
 	}
 
 	/**
-	 * Définit la taille maximale des champs de saisie pour la recherche
+	 * Définit la taille maximale des champs de saisie pour la recherche.
 	 * @param int $valeur la nouvelle taille maximale des champs de saisie pour al recherche
+	 * @param bool $invariable passez ce paramètre a true si vous souhaitez que la même taille de champs soit appliquées à tous
 	 * @return bool false si l'argument est incorrect (pas un int, infèrieur à 0)
 	 */
-	public function setMaxSizeInputs($valeur) {
-		if($this->_template->setMaxSizeInputs($valeur) === false)
+	public function setMaxSizeInputs($valeur, $invariable=false) {
+		if($this->_template->setMaxSizeInputs($valeur, $invariable) === false)
 			return false;
 
 		return $this;
@@ -637,7 +639,7 @@ class ListManager {
 
 	/**
 	 * Définit si le template propose la fonctionnalité de masquage des colonnes coté client en JS
-	 * @param bool $valeur : la nouvelle valeur à appliquer
+	 * @param bool $valeur la nouvelle valeur à appliquer
 	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)
 	 */
 	public function enableJSMask($valeur){
@@ -688,7 +690,7 @@ class ListManager {
 
 	/**
 	 * Permet d'ajouter une rubrique d'aide ou une legende à la liste actuelle
-	 * @param string|null $link : le lien url vers la page d'aide. Si null alors le lien sera desactivé
+	 * @param string $link le lien url vers la page d'aide. Si null alors le lien sera desactivé
 	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)
 	 */
 	public function setHelpLink($link) {
@@ -699,14 +701,24 @@ class ListManager {
 	}
 
 	/**
-	 * Définit sui les titres de votre liste restent fixés en haut de l'écran lorsque l'utilisateur scroll sur la page.
-	 * @var bool valeur true pour activer false pour désactiver cette option
+	 * Définit si les titres de votre liste restent fixés en haut de l'écran lorsque l'utilisateur scroll sur la page.
+	 * @param bool $valeur true pour activer false pour désactiver cette option
 	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)
 	 */
 	public function fixTitles($valeur) {
 		if($this->_template->fixTitles($valeur) === false)
 			return false;
 
+		return $this;
+	}
+
+	/**
+	 * Ajoute des boutons dans la division boutons à gauche des listes
+	 * @param array $buttons contient le code HTML des boutons à ajouter
+	 * @return ListManager la référence de cet objet
+	 */
+	public function addButtons(array $buttons) {
+		$this->_template->addButtons($buttons);
 		return $this;
 	}
 
@@ -803,25 +815,30 @@ class ListManager {
 			->setDescription("Feuille de données généré automatiqument à partir de l'url ".$_SERVER['REQUEST_URI']);
 		
 		// Création des titres
-		$titres = $reponse->getColumnsName();
-		$col = 'A';
 		$phpExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(20);
+		$i = 0;
+		$col = 'A';
 		$width = [];
 		$maxWidth = 30;
-		for ($i = 0; $i < count($titres); $i++) {
+		$metas = $reponse->getColumnsMeta();
+		foreach ($metas as $meta) {
+
 			// On vérifie que la colonne n'est pas masquée
-			if(!in_array($titres[$i], $this->_mask)) {
+			if(!in_array($meta->name, $this->_mask) || !in_array($meta->alias, $this->_mask)) {
 
 				// Préparation du titre à insérer
-				if(isset($this->_listTitles[$titres[$i]]))
-					$titre = $this->_listTitles[$titres[$i]];
+				if($meta->table != null && isset($this->_listTitles["$meta->table.$meta->name"]))
+					$titre = $this->_listTitles["$meta->table.$meta->name"];
+				else if(isset($this->_listTitles[$meta->name]))
+					$titre = $this->_listTitles[$meta->name];
+				else if(isset($this->_listTitles[$meta->alias]))
+					$titre = $this->_listTitles[$meta->alias];
 				else
-					$titre = $titres[$i];
+					$titre = (($meta->alias == null)? $meta->name : $meta->alias);
 
 				// Mise en forme & insertion des titres
 				$width[$col] = min(strlen($titre), $maxWidth);
 				$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($width[$col]);
-				$phpExcel->getActiveSheet()->setCellValue('G'.($i+1), $types[$i]->ty);
 				$phpExcel->getActiveSheet()->setCellValue($col.'1', $titre);
 	 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
 	 				'font' => array(
@@ -829,12 +846,13 @@ class ListManager {
 	 					'size' => 13,
 	 				),
 	 				'fill' => array(
-	 					'type' => \PHPExcel_Style_Fill::FILL_SOLID,
+	 					'type' => PHPExcel_Style_Fill::FILL_SOLID,
 	 					'color' => array('rgb' => 'CCCCCC'),
 	 				),
 	 			));
 				$col++;
 			}
+			$i++;
 		}
 
 		// Insertion des données
@@ -846,9 +864,10 @@ class ListManager {
 			$phpExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(25);
 			// Remplissage colonne par colonne
 			$col = 'A';
-			foreach ($ligne as $titre => $cellule){
+			$j=0;
+			foreach ($ligne as $cellule){
 				// On vérifie que la colonne n'est pas masquée
-				if(!in_array($titre, $this->_mask)) {
+				if(!in_array($metas[$j]->name, $this->_mask) || !in_array($metas[$j]->alias, $this->_mask)) {
 					// Insertion de la donnée
 					$phpExcel->getActiveSheet()->setCellValue($col.($i), $cellule);
 
@@ -860,6 +879,7 @@ class ListManager {
 					}
 					$col++;
 				}
+				$j++;
 			}
 			$i++;
 		}

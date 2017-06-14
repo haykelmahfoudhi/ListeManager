@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">48</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">41</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1773223474"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-203368198"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1773223474" class="accordion-body collapse in">
+            <div id="namespace-203368198" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -221,6 +221,7 @@
                                                                     <a href="../classes/ListTemplate.html#method_setMaxSizeInputs" class="">setMaxSizeInputs()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_fixTitles" class="">fixTitles()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_issetPaging" class="">issetPaging()</a><br />
+                                                                    <a href="../classes/ListTemplate.html#method_addButtons" class="">addButtons()</a><br />
                                                             </section>
                             <section class="span4">
                                                                     <a href="../classes/ListTemplate.html#property_CLASS1" class="">$CLASS1</a><br />
@@ -261,9 +262,11 @@
                                                                     <a href="../classes/ListTemplate.html#property__enableJSMask" class="">$_enableJSMask</a><br />
                                                                     <a href="../classes/ListTemplate.html#property__pagingLinksNb" class="">$_pagingLinksNb</a><br />
                                                                     <a href="../classes/ListTemplate.html#property__helpLink" class="">$_helpLink</a><br />
+                                                                    <a href="../classes/ListTemplate.html#property__userButtons" class="">$_userButtons</a><br />
                                                                     <a href="../classes/ListTemplate.html#property__displayResultsInfos" class="">$_displayResultsInfos</a><br />
                                                                     <a href="../classes/ListTemplate.html#property__applyDefaultCSS" class="">$_applyDefaultCSS</a><br />
                                                                     <a href="../classes/ListTemplate.html#property__maxSizeInputs" class="">$_maxSizeInputs</a><br />
+                                                                    <a href="../classes/ListTemplate.html#property__constInputsSize" class="">$_constInputsSize</a><br />
                                                                     <a href="../classes/ListTemplate.html#property__fixedTitles" class="">$_fixedTitles</a><br />
                                                             </section>
                             <section class="span4">
@@ -702,6 +705,30 @@ Permet de modifer les attributs HTML de la balise                            </a
 
                                     <div class="row-fluid">
         <div class="span8 content class">
+            <a id="property__userButtons" name="property__userButtons" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$_userButtons</h3>
+                <pre class="signature">$_userButtons : array</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                array
+                &mdash; contient les boutons rajouté par le développeur qui seront affiché dans la div des boutons utilisateur                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
             <a id="property__displayResultsInfos" name="property__displayResultsInfos" class="anchor"></a>
             <article class="property">
                 <h3 class="private ">$_displayResultsInfos</h3>
@@ -760,6 +787,30 @@ Permet de modifer les attributs HTML de la balise                            </a
                                 <h4>Type</h4>
                 integer
                 &mdash; longueur maximale des champs de saisie pour la recherche par colonne                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property__constInputsSize" name="property__constInputsSize" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$_constInputsSize</h3>
+                <pre class="signature">$_constInputsSize : boolean</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                boolean
+                &mdash; definit si les champs de saisie ont tous la meme taille                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -993,7 +1044,7 @@ Le template se découpe en 4 parties :</p>
             <article class="method">
                 <h3 class="public ">setRowsClasses()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">setRowsClasses(string  <span class="argument">$classe1</span>, string  <span class="argument">$classe2</span>) </pre>
+                <pre class="signature" style="margin-right: 54px;">setRowsClasses(string  <span class="argument">$class1</span>, string  <span class="argument">$class2</span>) </pre>
                 <p><em>Attribue les nouvelles classes HTML a appliquer une ligne sur deux dans la liste HTML</em></p>
                 
 
@@ -1001,12 +1052,12 @@ Le template se découpe en 4 parties :</p>
                     <table class="table table-condensed table-hover">
                                                     <tr>
                                 <td>string</td>
-                                <td>$classe1 </td>
+                                <td>$class1 </td>
                                 <td><p>classe des lignes impaires. Si null rien ne sera applique</p></td>
                             </tr>
                                                     <tr>
                                 <td>string</td>
-                                <td>$classe2 </td>
+                                <td>$class2 </td>
                                 <td><p>classe des linges paires. Si null rien ne sera applique</p></td>
                             </tr>
                                             </table>
@@ -1146,6 +1197,7 @@ dans les cellules du tableau. Cette fonction doit etre definie comme il suit :</
 <li>colonne : le nom de la colonne en cours</li>
 <li>numLigne   : le numero de la ligne en cours</li>
 <li>ligne    : un array associatif contenant toutes les données de la ligne en cours</li>
+<li>numCol   : le numero de la colonne en cours</li>
 </ol></li>
 <li>valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false</li>
 </ul>
@@ -1240,15 +1292,30 @@ Cette option est utile si vous souhaitez ajouter des attributs particuliers aux 
                 <h3 class="public ">setColumnCallback()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">setColumnCallback(callable  <span class="argument">$fonction</span>) </pre>
-                <p><em>Définir un callback pour rajouter manuellement des colonnes dans votre liste
-Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque
-ligne de la liste. La fonction doit correspondre au format suivant
- * 3 paramètres d&#039;entrée :
-   * 1. numLigne  : int correspond au numéro de la ligne en cours
-   * 2. donnees   : array contenant l&#039;ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
-   * 3. estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon
- * valeur de retour de type string (ou du moins un type qui peut être transformé en string).</em></p>
-                
+                <p><em>Définir un callback pour rajouter manuellement des colonnes dans votre liste.</em></p>
+                <p>Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque
+ligne de la liste. La fonction doit correspondre au format suivant</p>
+<ul>
+<li>3 paramètres d'entrée :
+<ul>
+<li>
+<ol>
+<li>numLigne  : int correspond au numéro de la ligne en cours</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>donnees   : array contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres</li>
+</ol>
+</li>
+<li>
+<ol>
+<li>estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon</li>
+</ol>
+</li>
+</ul></li>
+<li>valeur de retour de type string (ou du moins un type qui peut être transformé en string).</li>
+</ul>
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
@@ -1424,23 +1491,28 @@ Cette méthode désactive aussi l&#039;option des titres fixés lorsque l&#039;t
             <article class="method">
                 <h3 class="public ">setMaxSizeInputs()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">setMaxSizeInputs(integer  <span class="argument">$valeur</span>) : boolean</pre>
-                <p><em>Définit la taille maximale des champs de saisie pour la recherche</em></p>
-                
+                <pre class="signature" style="margin-right: 54px;">setMaxSizeInputs(integer  <span class="argument">$valeur</span>, boolean  <span class="argument">$invariable = false</span>) : boolean</pre>
+                <p><em>Définit la taille maximale des champs de saisie pour la recherche.</em></p>
+                <p>Cette valeur correspond à un nombre de caractère, et affecte l'attribut size des balises input.</p>
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
                                 <td>integer</td>
                                 <td>$valeur </td>
-                                <td><p>la nouvelle taille maximale des champs de saisie pour al recherche</p></td>
+                                <td><p>la nouvelle taille maximale des champs de saisie pour la recherche</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$invariable </td>
+                                <td><p>passez ce paramètre a true si vous souhaitez que la même taille de champs soit appliquées à tous</p></td>
                             </tr>
                                             </table>
                 
                 
                                     <h4>Returns</h4>
                     boolean
-                                            &mdash; <p>false si l'argument est incorrect (pas un int, infèrieur à 0)</p>
+                                            &mdash; <p>false si les paramètres sont incorrects</p>
                                     				
                             </article>
         </div>
@@ -1487,14 +1559,7 @@ Cette méthode désactive aussi l&#039;option des titres fixés lorsque l&#039;t
                                                                             </dl>
             <h2>Tags</h2>
             <table class="table table-condensed">
-                                    <tr>
-                        <th>
-                            var
-                        </th>
-                        <td>
-                                                                                            <p>valeur true pour activer false pour désactiver cette option</p>
-                                                    </td>
-                    </tr>
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
                             </table>
         </aside>
     </div>
@@ -1515,6 +1580,40 @@ Cette méthode désactive aussi l&#039;option des titres fixés lorsque l&#039;t
                     boolean
                                             &mdash; <p>true si le tableau de pagination sera affiché, false sinon</p>
                                     				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_addButtons" name="method_addButtons" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">addButtons()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">addButtons(array  <span class="argument">$buttons</span>) </pre>
+                <p><em>Ajoute des boutons dans la division boutons à gauche des listes</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$buttons </td>
+                                <td><p>contient le code HTML des boutons à ajouter</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
                             </article>
         </div>
         <aside class="span4 detailsbar">
@@ -1667,7 +1766,7 @@ Cette méthode désactive aussi l&#039;option des titres fixés lorsque l&#039;t
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 9th, 2017 at 11:41.
+                    on June 14th, 2017 at 13:51.
                 </section>
             </section>
         </section>

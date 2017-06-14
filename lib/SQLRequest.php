@@ -33,7 +33,8 @@ class SQLRequest {
 	 */
 	private $_requestBasis;
 	/**
-	 * @var array $_tables contient le nom des tables et leurs alias récupérées dans la clause FROM de la requete
+	 * @var array $_tables contient le nom des tables extraites de FRIOM uniquement si elles ont un alias
+	 * ['alias'] => 'nom_table'
 	 */
 	private $_tables;
 	/**
@@ -336,11 +337,9 @@ class SQLRequest {
 	}
 
 	/**
-	 * Retourne un tableau d'objets concernant le nom des tables dans la requete.
-	 * Chaque objet est composé comme il suit :
-	 *   * -> name  : le nom de la table
-	 *   * -> alias : l'alias de la colonne, ou null si non précisé
-	 * @return array tableau contenant le nom des tables de la clause FROM et leur alias si précisé
+	 * Retourne un tableau associatifs des tables ayant un alias dans la clause FROM de la requete.
+	 * La clé de chaque entrée est l'alias de la table et sa valeur el nom complet de celle ci
+	 * @return array tableau contenant le nom des tables de la clause FROM et leur alias si précisé.
 	 */
 	public function getTablesAliases() {
 		if($this->_requestType !== RequestType::SELECT)

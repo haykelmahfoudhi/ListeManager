@@ -17,7 +17,7 @@
 
 
 /**
- * Database permet la connection aux bases de données.
+ * Database permet la connection et l'interaction avec les bases de données.
  * 
  * L'interaction de l'application avec les bases de données se fait de façon générique pour tous les types de BD (Postgre, Oracle, MySql) grâce à l'objet *PDO* de PHP.
  * Cette classe est basée sur le design pattern du multiton : il est possible d'avoir plusieurs instances de l'objet Database en les identifiant avec une étiquette unique,
@@ -65,6 +65,7 @@ class Database {
 	 * @var string $_passwd mot de passe de l'utilisateur
 	 */
 	private $_passwd;
+	
 	/**
 	 * @var array $errorMessages le tableau contenant l'ensemble des messages d'erreur enregistrés
 	 */
@@ -73,6 +74,15 @@ class Database {
 	 * @var array $instances tableau contenant l'ensemble des objet Database instanciés dans l'application. La clé d'une entrée correspond à l'étiquette de la base de données.
 	 */
 	private static $instances = array();
+	/**
+	 * @var array $tabDescribe tableau associatif : pour chaque driver PDO est associé le commande pour recupérer les noms des
+	 * colonnes de la table à décrire, ainsi que le nom de la colonne qui contient cette information
+	 */
+	private static $tabDescribe = [
+			'oci' => ['req' => 'DESCRIBE ', 'col' => 'name'],
+			'mysql' => ['req' => 'DESCRIBE ', 'col' => 'Field'] ,
+			'pgsql' => ['req' => '\d ', 'col' => 'Column']
+		];
 	
 	
 		/*-*********************
@@ -155,31 +165,58 @@ class Database {
 		//Execution de la requete
 		try {
 			// Pas de prepare
-			if($params === array()){
+			if($params === array())
 				$statement = $this->_pdo->query($request);
-				if($statement == false)
-					return new RequestResponse($sqlReq, null, true, $this->_pdo->errorInfo()[2]);
-				else 
-					return new RequestResponse($sqlReq, $statement);
-			}
-
-			// Avec les params du prepare
-			else {
+			else 
 				$statement = $this->_pdo->prepare($request);
-				if($statement == false) {
-					return new RequestResponse($sqlReq, null, true, $this->_pdo->errorInfo()[2]);
+
+			// Erreur prepare / query
+			if($statement == false)
+				return new RequestResponse(null, true, $this->_pdo->errorInfo()[2]);
+			
+			// Tout ok
+			else {
+				// Execute si params
+				if(count($params)){
+					if(! $statement->execute($params))
+						return new RequestResponse($statement, true, $statement->errorInfo()[2]);
 				}
-				else {
-					if($statement->execute($params))
-						return new RequestResponse($sqlReq, $statement);
-					else 
-						return new RequestResponse($sqlReq, $statement, true, $statement->errorInfo()[2]);
+				$rep = new RequestResponse($statement);
+
+				// Listing des nom de colonnes / table pour éviter les ambiguités
+				if($sqlReq->getType() === RequestType::SELECT){
+
+					$ret = [];
+					$tabAliases = $sqlReq->getTablesAliases();
+					foreach($sqlReq->getColumnsMeta() as $obj){
+						
+						// Cas de l'étoile : table.*
+						if($obj->name == '*'){
+							if(isset($tabAliases[$obj->table]))
+								$table = $tabAliases[$obj->table];
+							else
+								$table = $obj->table;
+
+							foreach($this->describeTable($table) as $colonne){
+								$newCol = new stdClass();
+								$newCol->table = $table;
+								$newCol->name = $colonne;
+								$newCol->alias = null;
+								$ret[] = $newCol;
+							}
+						}
+						else
+							$ret[] = $obj;
+					}
+
+					$rep->setColumnsMeta($ret);
 				}
+				return $rep;
 			}
 		}
-		catch(\Exception $e) {
+		catch(Exception $e) {
 			self::$errorMessages[] = "<br><b>Database::execute()</b>(etiquette = '$this->_label') : ".$e->getMessage();
-			return new RequestResponse($sqlReq, null, true, $e->getMessage());
+			return new RequestResponse(null, true, $e->getMessage());
 		}
 	}
 
@@ -197,14 +234,61 @@ class Database {
 	public function __wakeup() {
 		self::instantiate($this->_dsn, $this->_login, $this->_passwd, $this->_label);
 	}
-	
+
+	/**
+	 * Retourne le nom des colonnes d'une table.
+	 * @param string $table le nom de la table à décrire
+	 * @return array contenant le noms des colonnes de la table décrite
+	 */
+	public function describeTable($table) {
+		if(!is_string($table))
+			return false;
+
+		$driver = $this->_pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+		if(!isset(self::$tabDescribe[$driver]))
+			return false;
+		
+		$ret = [];
+		$tabDriver = self::$tabDescribe[$driver];
+		try {
+			$statement = $this->_pdo->query($tabDriver['req'].$table.';');
+			if($statement != false){
+				while(($col = $statement->fetch()) != null) {
+					$ret[] = $col[$tabDriver['col']];
+				}
+			}
+			else {
+				self::$errorMessages[] = "<br><b>Database::describeTable()</b>(etiquette = '$this->_label') : ".$this->_pdo->errorInfo()[2];
+			}
+		}
+		catch(Exception $e){
+			self::$errorMessages[] = "<br><b>Database::describeTable()</b>(etiquette = '$this->_label') : ".$e->getMessage();
+		}
+		return $ret;
+	}
+
+	/**
+	 * Definit une nouvelle etiquette pour la base de donnees.
+	 * Cette nouvelle etiquette ne doit pas etre deja utilisee par une autre base de donnees.
+	 * @param string $nouvEtiquette la nouvelle etiquette de la base de donnees
+	 * @return boolean true si la BD a ete re-étiquettée, false sinon
+	 */
+	public function setLabel($nouvEtiquette){
+		if($nouvEtiquette == null || isset(self::$instances[$nouvEtiquette]))
+			return false;
+
+		self::$instances[$nouvEtiquette] = $this;
+		unset(self::$instances[$this->_label]);
+		$this->_label = $nouvEtiquette;
+	}
 	
 			/*-****************
 			***   GETTERS   ***
 			******************/
 	
 	/**
-	 * Retourne l'instance de la base de donnees dont l'étiquette est passée en paramètre. Si vous n'utilisez qu'une seule base de données vous n'avez pas besoin de spécifier ce paramètre.
+	 * Retourne l'instance de la base de donnees dont l'étiquette est passée en paramètre.
+	 * Si vous n'utilisez qu'une seule base de données vous n'avez pas besoin de spécifier d'étiquette.
 	 * @param string $etiquette : l'etiquette de la base de donnees. Par defaut retourne la base de données étiquettée 'principale'
 	 * @return Database : l'instance de Database ou null si l'étiquette ne correspond pas
 	 */
@@ -243,21 +327,6 @@ class Database {
 	 */
 	public function oracle() {
 		return $this->_pdo->getAttribute(\PDO::ATTR_DRIVER_NAME) == 'oci';
-	}
-
-	/**
-	 * Definit une nouvelle etiquette pour la base de donnees.
-	 * Cette nouvelle etiquette ne doit pas etre deja utilisee par une autre base de donnees.
-	 * @param string $nouvEtiquette la nouvelle etiquette de la base de donnees
-	 * @return boolean true si la BD a ete re-étiquettée, false sinon
-	 */
-	public function setLabel($nouvEtiquette){
-		if($nouvEtiquette == null || isset(self::$instances[$nouvEtiquette]))
-			return false;
-
-		self::$instances[$nouvEtiquette] = $this;
-		unset(self::$instances[$this->_label]);
-		$this->_label = $nouvEtiquette;
 	}
 
 }

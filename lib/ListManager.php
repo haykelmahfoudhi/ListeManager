@@ -262,7 +262,7 @@ class ListManager {
 	 * De ce fait si cette méthode est directement appelée sans passer par *construct()* les fonctionnalités recherche et tri seront désactivées. La méthode retourne le resultat dans le format specifie par ResponseType
 	 * @param string|SQLRequest $request : la requete a executer. Peut etre de type string ou SQLRequest.
 	 * @param array $params (facultatif) à utiliser si vous saouhaitez passer par les méthodes prepare puis exécute pour exécuter votre requete SQL
- 	 * @return string|bool
+ 	 * @return mixed
 	 * * l'objet de reponse dependant de $this->responseType, parametrable via la methode *setResponseType()*
 	 * * false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données
 	 */
@@ -462,7 +462,7 @@ class ListManager {
 	/**
 	 * Définit le nouveau masque à appliquer.
 	 * Le masque est un tableau contenant le nom des colonnes que vous ne souhaitez pas afficher dans la liste HTML
-	 * @var array $mask le nouveau masque à appliquer. Si null : aucun masque ne sera applqiué
+	 * @param array $mask le nouveau masque à appliquer. Si null : aucun masque ne sera applqiué
 	 * @return mixed false si le paramètre en entré n'est ni null, ni un array, sinon retourne la référence de l'objet ($this)
 	 */
 	public function setMask($mask) {
@@ -528,10 +528,11 @@ class ListManager {
 	 * Définir un callback à appeler dans chaque cellule de la liste.
 	 * Definit le callback (la fonction) qui sera executee pour chaque valeur lors de l'affichage des donnees dans les cellules du tableau. Cette fonction doit etre definie comme il suit :
 	 * * 4 parametres d'entree :
-	 *    1. cellule : la valeur de l'element en cours
-	 *    2. colonne : le nom de la colonne en cours
-	 *    3. numLigne   : le numero de la ligne en cours
+	 *    1. cellule  : la valeur de l'element en cours
+	 *    2. colonne  : le nom de la colonne en cours
+	 *    3. numLigne : le numero de la ligne en cours
 	 *    4. ligne    : un array associatif contenant toutes les données de la ligne en cours
+	 *    5. numCol   : le numero de la colonne en cours
 	 * * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
 	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
 	 * @param bool $replaceTagTD définit si le callback définit réécrit les balises td ou non. Par défaut ce paramètre vaut false, ce qui signifit que ListTemplate écrit automatiquement des balises td de la liste.
@@ -638,7 +639,7 @@ class ListManager {
 
 	/**
 	 * Définit si le template propose la fonctionnalité de masquage des colonnes coté client en JS
-	 * @param bool $valeur : la nouvelle valeur à appliquer
+	 * @param bool $valeur la nouvelle valeur à appliquer
 	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)
 	 */
 	public function enableJSMask($valeur){
@@ -689,7 +690,7 @@ class ListManager {
 
 	/**
 	 * Permet d'ajouter une rubrique d'aide ou une legende à la liste actuelle
-	 * @param string|null $link : le lien url vers la page d'aide. Si null alors le lien sera desactivé
+	 * @param string $link le lien url vers la page d'aide. Si null alors le lien sera desactivé
 	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)
 	 */
 	public function setHelpLink($link) {
@@ -700,8 +701,8 @@ class ListManager {
 	}
 
 	/**
-	 * Définit sui les titres de votre liste restent fixés en haut de l'écran lorsque l'utilisateur scroll sur la page.
-	 * @var bool valeur true pour activer false pour désactiver cette option
+	 * Définit si les titres de votre liste restent fixés en haut de l'écran lorsque l'utilisateur scroll sur la page.
+	 * @param bool $valeur true pour activer false pour désactiver cette option
 	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)
 	 */
 	public function fixTitles($valeur) {
@@ -711,6 +712,11 @@ class ListManager {
 		return $this;
 	}
 
+	/**
+	 * Ajoute des boutons dans la division boutons à gauche des listes
+	 * @param array $buttons contient le code HTML des boutons à ajouter
+	 * @return ListManager la référence de cet objet
+	 */
 	public function addButtons(array $buttons) {
 		$this->_template->addButtons($buttons);
 		return $this;

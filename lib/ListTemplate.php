@@ -112,7 +112,7 @@ class ListTemplate {
 	 */
 	private $_helpLink;
 	/**
-	 *
+	 * @var array $_userButtons contient les boutons rajouté par le développeur qui seront affiché dans la div des boutons utilisateur
 	 */
 	private $_userButtons;
 	/**
@@ -548,12 +548,12 @@ class ListTemplate {
 	
 	/**
 	 * Attribue les nouvelles classes HTML a appliquer une ligne sur deux dans la liste HTML
-	 * @param string $classe1 classe des lignes impaires. Si null rien ne sera applique
-	 * @param string $classe2 classe des linges paires. Si null rien ne sera applique
+	 * @param string $class1 classe des lignes impaires. Si null rien ne sera applique
+	 * @param string $class2 classe des linges paires. Si null rien ne sera applique
 	 */
-	public function setRowsClasses($classe1, $classe2){
-		$this->_class1 = $classe1;
-		$this->_class2 = $classe2;
+	public function setRowsClasses($class1, $class2){
+		$this->_class1 = $class1;
+		$this->_class2 = $class2;
 	}
 
 	/**
@@ -596,6 +596,7 @@ class ListTemplate {
 	 *    2. colonne : le nom de la colonne en cours
 	 *    3. numLigne   : le numero de la ligne en cours
 	 *    4. ligne    : un array associatif contenant toutes les données de la ligne en cours
+	 *    5. numCol   : le numero de la colonne en cours
 	 * * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
 	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
 	 * @param bool $replaceTagTD définit si le callback définit réécrit les balises td ou non. Par défaut ce paramètre vaut false, ce qui signifit que ListTemplate écrit automatiquement des balises td de la liste.
@@ -717,7 +718,7 @@ class ListTemplate {
 
 	/**
 	 * Définit sui les titres de votre liste restent fixés en haut de l'écran lorsque l'utilisateur scroll sur la page.
-	 * @var bool valeur true pour activer false pour désactiver cette option
+	 * @param bool valeur true pour activer false pour désactiver cette option
 	 * @return bool false si l'arguemnt n'est pas un booléen.
 	 */
 	public function fixTitles($valeur) {
@@ -733,6 +734,11 @@ class ListTemplate {
 		return $this->_pagingLinksNb != false;
 	}
 
+
+	/**
+	 * Ajoute des boutons dans la division boutons à gauche des listes
+	 * @param array $buttons contient le code HTML des boutons à ajouter
+	 */
 	public function addButtons(array $buttons) {
 		foreach ($buttons as $bouton) {
 			$this->_userButtons[] = $bouton;

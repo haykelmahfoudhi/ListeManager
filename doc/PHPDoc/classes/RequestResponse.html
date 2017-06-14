@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">48</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">41</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1300699078"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1484440085"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1300699078" class="accordion-body collapse in">
+            <div id="namespace-1484440085" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -201,10 +201,10 @@ Vous pouvez tester le status de la réponse avec la méthode <em>error()</em> qu
                                                                     <a href="../classes/RequestResponse.html#method_nextLine" class="">nextLine()</a><br />
                                                                     <a href="../classes/RequestResponse.html#method_dataList" class="">dataList()</a><br />
                                                                     <a href="../classes/RequestResponse.html#method_error" class="">error()</a><br />
+                                                                    <a href="../classes/RequestResponse.html#method_setColumnsMeta" class="">setColumnsMeta()</a><br />
                                                                     <a href="../classes/RequestResponse.html#method_getErrorMessage" class="">getErrorMessage()</a><br />
-                                                                    <a href="../classes/RequestResponse.html#method_getColumnsName" class="">getColumnsName()</a><br />
+                                                                    <a href="../classes/RequestResponse.html#method_getColumnsMeta" class="">getColumnsMeta()</a><br />
                                                                     <a href="../classes/RequestResponse.html#method_getColumnsCount" class="">getColumnsCount()</a><br />
-                                                                    <a href="../classes/RequestResponse.html#method_getColumnsInfos" class="">getColumnsInfos()</a><br />
                                                                     <a href="../classes/RequestResponse.html#method_getRowsCount" class="">getRowsCount()</a><br />
                                                                     <a href="../classes/RequestResponse.html#method_getPDOStatement" class="">getPDOStatement()</a><br />
                                                             </section>
@@ -228,14 +228,14 @@ Vous pouvez tester le status de la réponse avec la méthode <em>error()</em> qu
                         </section>
                         <section class="row-fluid private">
                             <section class="span4">
-                                                                    <em>No private methods found</em>
+                                                                    <a href="../classes/RequestResponse.html#method_setPDOSColumnsMeta" class="">setPDOSColumnsMeta()</a><br />
                                                             </section>
                             <section class="span4">
-                                                                    <a href="../classes/RequestResponse.html#property__sqlRequest" class="">$_sqlRequest</a><br />
                                                                     <a href="../classes/RequestResponse.html#property__statement" class="">$_statement</a><br />
                                                                     <a href="../classes/RequestResponse.html#property__error" class="">$_error</a><br />
                                                                     <a href="../classes/RequestResponse.html#property__errorMessage" class="">$_errorMessage</a><br />
                                                                     <a href="../classes/RequestResponse.html#property__data" class="">$_data</a><br />
+                                                                    <a href="../classes/RequestResponse.html#property__columnsMeta" class="">$_columnsMeta</a><br />
                                                             </section>
                             <section class="span4">
                                 <em>N/A</em>
@@ -287,30 +287,6 @@ Vous pouvez tester le status de la réponse avec la méthode <em>error()</em> qu
             </div>
 
                                                                     <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="property__sqlRequest" name="property__sqlRequest" class="anchor"></a>
-            <article class="property">
-                <h3 class="private ">$_sqlRequest</h3>
-                <pre class="signature">$_sqlRequest : \SQLRequest</pre>
-                <p><em></em></p>
-                
-
-                                <h4>Type</h4>
-                <a href="../classes/SQLRequest.html">\SQLRequest</a>
-                &mdash; l&#039;objet requête à l&#039;origine de cette réponse                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                        <dl>
-                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
         <div class="span8 content class">
             <a id="property__statement" name="property__statement" class="anchor"></a>
             <article class="property">
@@ -406,6 +382,30 @@ Vous pouvez tester le status de la réponse avec la méthode <em>error()</em> qu
         </aside>
     </div>
 
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property__columnsMeta" name="property__columnsMeta" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$_columnsMeta</h3>
+                <pre class="signature">$_columnsMeta : array</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                array
+                &mdash; contient le nom des table.colonne selctionnées à utiliser pour filtrer les donnees                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
                             
                                     <a id="methods" name="methods"></a>
             <div class="row-fluid">
@@ -419,17 +419,12 @@ Vous pouvez tester le status de la réponse avec la méthode <em>error()</em> qu
             <article class="method">
                 <h3 class="public ">__construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__construct(\SQLRequest  <span class="argument">$request</span>, \PDOStatement  <span class="argument">$statement</span>, boolean  <span class="argument">$erreur = false</span>, string  <span class="argument">$message = &#039;&#039;</span>) </pre>
+                <pre class="signature" style="margin-right: 54px;">__construct(\PDOStatement  <span class="argument">$statement</span>, boolean  <span class="argument">$erreur = false</span>, string  <span class="argument">$message = &#039;&#039;</span>) </pre>
                 <p><em>Construit un nouvel objet de réponse</em></p>
                 
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
-                                                    <tr>
-                                <td><a href="../classes/SQLRequest.html">\SQLRequest</a></td>
-                                <td>$request </td>
-                                <td></td>
-                            </tr>
                                                     <tr>
                                 <td>\PDOStatement</td>
                                 <td>$statement </td>
@@ -551,6 +546,43 @@ Vous pouvez tester le status de la réponse avec la méthode <em>error()</em> qu
 
                                     <div class="row-fluid">
         <div class="span8 content class">
+            <a id="method_setColumnsMeta" name="method_setColumnsMeta" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setColumnsMeta()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setColumnsMeta(array  <span class="argument">$columns</span>) : boolean</pre>
+                <p><em>Met à jour les métas données des colonnes sélectionnées.</em></p>
+                <p>Cette méthode est appelée dans la classe Database pour récupérer les données de chaque colonnes parsées par l'objet SQLRequest à l'origine de la requete.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$columns </td>
+                                <td><p>le tableau d'objets contenant les metas données récupérées par Database.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>false si erruer de pararmètre.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
             <a id="method_getErrorMessage" name="method_getErrorMessage" class="anchor"></a>
             <article class="method">
                 <h3 class="public ">getErrorMessage()</h3>
@@ -580,19 +612,27 @@ Vous pouvez tester le status de la réponse avec la méthode <em>error()</em> qu
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_getColumnsName" name="method_getColumnsName" class="anchor"></a>
+            <a id="method_getColumnsMeta" name="method_getColumnsMeta" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">getColumnsName()</h3>
+                <h3 class="public ">getColumnsMeta()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">getColumnsName() : array</pre>
-                <p><em>Retourne le nom des colonnes selectionnées</em></p>
+                <pre class="signature" style="margin-right: 54px;">getColumnsMeta() : array</pre>
+                <p><em>Retourne les meta données relatives aux colonnes selectionnées</em></p>
                 
 
                 
                 
                                     <h4>Returns</h4>
                     array
-                                            &mdash; <p>contenant le nom des colonnes retournees par la requete SQL, ou null si erreur</p>
+                                            &mdash; <p>un tableau d'objets contenant les infos relatives au type de donnees de chaque colonne. Cet objet possede les attribus suivants :</p>
+<ul>
+<li>-&gt; table : le nom de la table de la colonne, null si non renseigné</li>
+<li>-&gt; name  : le nom de la colonne tel que retourné par SQL</li>
+<li>-&gt; alias : l'alias de la colonne, null si non renseigné</li>
+<li>-&gt; type  : le type de donnees SQL</li>
+<li>-&gt; len   : la taille de l'attribut
+retourne false si erreur</li>
+</ul>
                                     				
                             </article>
         </div>
@@ -622,41 +662,6 @@ Vous pouvez tester le status de la réponse avec la méthode <em>error()</em> qu
                                     <h4>Returns</h4>
                     integer
                                             &mdash; <p>le nombre de colonnes du resultat de la requete, -1 en cas d'erreur</p>
-                                    				
-                            </article>
-        </div>
-        <aside class="span4 detailsbar">
-            <h1><i class="icon-arrow-down"></i></h1>
-                                                            <dl>
-                                                                            </dl>
-            <h2>Tags</h2>
-            <table class="table table-condensed">
-                                    <tr><td colspan="2"><em>None found</em></td></tr>
-                            </table>
-        </aside>
-    </div>
-
-                                    <div class="row-fluid">
-        <div class="span8 content class">
-            <a id="method_getColumnsInfos" name="method_getColumnsInfos" class="anchor"></a>
-            <article class="method">
-                <h3 class="public ">getColumnsInfos()</h3>
-                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">getColumnsInfos() : array&lt;mixed,object&gt;|boolean</pre>
-                <p><em>Retourne les informations relatives au type de données des colonnes selectionnées</em></p>
-                
-
-                
-                
-                                    <h4>Returns</h4>
-                    array&lt;mixed,object&gt;|boolean
-                                            &mdash; <p>un tableau d'objets contenant les infos relatives au type de donnees de chaque colonne. Cet objet possede les attribus suivants :</p>
-<ul>
-<li>-&gt; name : le nom de la colonne tel que retourné</li>
-<li>-&gt; type : le type de donnees SQL</li>
-<li>-&gt; len  : la taille de la donnee
-retourne false si erreur</li>
-</ul>
                                     				
                             </article>
         </div>
@@ -729,7 +734,33 @@ retourne false si erreur</li>
         </aside>
     </div>
 
-                                                                    </div>
+                                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setPDOSColumnsMeta" name="method_setPDOSColumnsMeta" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">setPDOSColumnsMeta()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setPDOSColumnsMeta() </pre>
+                <p><em></em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    </div>
     </section>
 
     <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
@@ -778,7 +809,7 @@ retourne false si erreur</li>
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 9th, 2017 at 11:41.
+                    on June 14th, 2017 at 13:51.
                 </section>
             </section>
         </section>

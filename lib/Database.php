@@ -17,7 +17,7 @@
 
 
 /**
- * Database permet la connection aux bases de données.
+ * Database permet la connection et l'interaction avec les bases de données.
  * 
  * L'interaction de l'application avec les bases de données se fait de façon générique pour tous les types de BD (Postgre, Oracle, MySql) grâce à l'objet *PDO* de PHP.
  * Cette classe est basée sur le design pattern du multiton : il est possible d'avoir plusieurs instances de l'objet Database en les identifiant avec une étiquette unique,
@@ -75,7 +75,8 @@ class Database {
 	 */
 	private static $instances = array();
 	/**
-	 *
+	 * @var array $tabDescribe tableau associatif : pour chaque driver PDO est associé le commande pour recupérer les noms des
+	 * colonnes de la table à décrire, ainsi que le nom de la colonne qui contient cette information
 	 */
 	private static $tabDescribe = [
 			'oci' => ['req' => 'DESCRIBE ', 'col' => 'name'],
@@ -234,6 +235,11 @@ class Database {
 		self::instantiate($this->_dsn, $this->_login, $this->_passwd, $this->_label);
 	}
 
+	/**
+	 * Retourne le nom des colonnes d'une table.
+	 * @param string $table le nom de la table à décrire
+	 * @return array contenant le noms des colonnes de la table décrite
+	 */
 	public function describeTable($table) {
 		if(!is_string($table))
 			return false;
