@@ -131,12 +131,11 @@ function actualiserLargeurCol() {
 		// On fixe la largeur des td
 		tds.each(function(index, td) {
 			if(index < ths.length) {
-				var padding = 1,
+				var padding = 2,
 					tdWidth = parseInt(window.getComputedStyle(td, null).width) - padding,
 					thWidth = parseInt(window.getComputedStyle(ths[index], null).width) - padding,
 					tdSelectWidth = ((tdSelect.length && index < tdSelect.length)?
-						parseInt(window.getComputedStyle(tdSelect[index], null).width) :  0 );
-
+						parseInt(window.getComputedStyle(tdSelect[index], null).width) - padding :  0 );
 				if(tdSelectWidth > 0)
 					$(td).css('min-width', Math.max(tdWidth, thWidth, tdSelectWidth)+'px');
 				else

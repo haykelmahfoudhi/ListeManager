@@ -40,6 +40,8 @@
  */
 class Database {
 	
+	// Cette classe peut générer et afficher des messages d'erreur
+	use T_ErrorGenerator;
 
 			/*-******************
 			***   ATTRIBUTS   ***
@@ -67,10 +69,6 @@ class Database {
 	private $_passwd;
 	
 	/**
-	 * @var array $errorMessages le tableau contenant l'ensemble des messages d'erreur enregistrés
-	 */
-	private static $errorMessages = array();
-	/**
 	 * @var array $instances tableau contenant l'ensemble des objet Database instanciés dans l'application. La clé d'une entrée correspond à l'étiquette de la base de données.
 	 */
 	private static $instances = array();
@@ -79,9 +77,9 @@ class Database {
 	 * colonnes de la table à décrire, ainsi que le nom de la colonne qui contient cette information
 	 */
 	private static $tabDescribe = [
-			'oci' => ['req' => 'DESCRIBE ', 'col' => 'name'],
+			'oci'   => ['req' => 'DESCRIBE ', 'col' => 'name'],
 			'mysql' => ['req' => 'DESCRIBE ', 'col' => 'Field'] ,
-			'pgsql' => ['req' => '\d ', 'col' => 'Column']
+			'pgsql' => ['req' => '\d ',       'col' => 'Column']
 		];
 	
 	
@@ -102,6 +100,7 @@ class Database {
 		$this->_dsn 	= $dsn;
 		$this->_login 	= $login;
 		$this->_passwd 	= $passwd;
+		$this->verbose(true);
 		try {
 			// Test si BD Oracle
 			if (strpos($this->_dsn, 'oci:') !== false && !extension_loaded('pdo_oci'))
@@ -111,8 +110,7 @@ class Database {
 		}
 		catch (\Exception $e) {
 			$this->_pdo = null;
-			self::$errorMessages[] = "<br><b>[!]</b>Connection a la base de donnees impossible (etiquette = '$label') :\n".$e->getMessage()
-				.'<br>';
+			$this->addError("Connection a la base de donnees impossible (etiquette = '$label') :\n".$e->getMessage(), '__construct');
 		}
 	}
 	
@@ -135,8 +133,8 @@ class Database {
 			return null;
 
 		if(isset(self::$instances[$etiquette])){
-			self::$errorMessages[] = '<br><b>[!]</b>Database::instantiate() : Il existe deje une BD portant l\'etiquette "'
-				.$etiquette.'", veuillez en specifier une nouvelle<br>';
+			$this->addError('Il existe deje une BD portant l\'etiquette "'.$etiquette.'", veuillez en specifier une nouvelle',
+				'instantiate');
 			return null;
 		}
 		self::$instances[$etiquette] = $nouvelleInstance;
@@ -215,7 +213,7 @@ class Database {
 			}
 		}
 		catch(Exception $e) {
-			self::$errorMessages[] = "<br><b>Database::execute()</b>(etiquette = '$this->_label') : ".$e->getMessage();
+			$this->addError("(etiquette = '$this->_label') : ".$e->getMessage(), 'execute');
 			return new RequestResponse(null, true, $e->getMessage());
 		}
 	}
@@ -258,11 +256,11 @@ class Database {
 				}
 			}
 			else {
-				self::$errorMessages[] = "<br><b>Database::describeTable()</b>(etiquette = '$this->_label') : ".$this->_pdo->errorInfo()[2];
+				$this->addError("(etiquette = '$this->_label') : ".$this->_pdo->errorInfo()[2], 'describeTable');
 			}
 		}
 		catch(Exception $e){
-			self::$errorMessages[] = "<br><b>Database::describeTable()</b>(etiquette = '$this->_label') : ".$e->getMessage();
+			$this->addError("(etiquette = '$this->_label') : ".$e->getMessage(), 'describeTable');
 		}
 		return $ret;
 	}
@@ -319,7 +317,11 @@ class Database {
 	 * @return array le tableau des messages d'erreur enregistrés par la classe
 	 */
 	public static function getErrorMessages(){
-		return self::$errorMessages;
+		$errors = [];
+		foreach (self::$instances as $label => $db) {
+			$errors[$label] = $db->getErrorMessages();
+		}
+		return $errors;
 	}
 
 	/**

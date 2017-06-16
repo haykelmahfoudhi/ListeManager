@@ -47,7 +47,10 @@
  *
  */
 class ListManager {
-	
+
+	// Cette classe peut générer et afficher des messages d'erreur
+	use T_ErrorGenerator;
+
 			/*-******************
 			***   ATTRIBUTS   ***
 			********************/
@@ -81,13 +84,9 @@ class ListManager {
 	 */
 	private $_enableExcel;
 	/**
-	 * @var array $_meesages le tableau contenant l'ensemble des messages d'erreur générés par l'objet ListManager. S'affichent automatiquement si verbose = true
+	 * @var callable $_excelCallback le callback qui sera appelé lors de la génération d'un doncument excel
 	 */
-	private $_messages;
-	/**
-	 * @var bool $_verbose determine si ListManagert doit echo les messages d'erreur et d'avertissement ou non 
-	 */
-	private $_verbose;
+	private $_excelCallback;
 	/**
 	 * @var array $_mask correspond aux titre des colonnes à ne pas retourner lors de la selection de données
 	 */
@@ -101,6 +100,8 @@ class ListManager {
 	 * Initialisé à true, si cet attribut ne passe pas à false lors de l'appel à construct alors la recherche et le orderby sont désactivés.
 	 */
 	private $_executeOnly;
+
+	private static $idList = [];
 
 			/*-*******************************************
 			***  CONSTANTES : OPTIONS DU CONSTRUCTEUR  ***
@@ -139,9 +140,17 @@ class ListManager {
 	 */
 	const UNFIXED_TITLES = 128;
 	/**
+	 * @var const UNFIXED_TITLES à utiliser dans le constructeur pour empecher la fixation de la pagination en bas de l'écran. 
+	 */
+	const UNFIXED_PAGING = 256;
+	/**
 	 * @var const NO_RESULTS à utiliser dans le constructeur pour masquer la ligne contenant le nombre de résultats affichés et sélectionnés. 
 	 */
-	const NO_RESULTS = 256;
+	const NO_RESULTS = 512;
+	/**
+	 * @var const NO_HELP_LINK à utiliser dans le constructeur pour masquer le bouton-lien vers la page d'aide. 
+	 */
+	const NO_HELP_LINK = 1024;
 
 	/**
 	 * @var array $optionsArray tableau associatif entre chaque option du constructeur et la méthode permettant de desactiver la fonctionnalité correspondate
@@ -155,7 +164,9 @@ class ListManager {
 		self::NO_PAGING => 'setPagingLinksNb',
 		self::NO_VERBOSE => 'verbose',
 		self::UNFIXED_TITLES => 'fixTitles',
-		self::NO_RESULTS => 'displayResultsInfos'
+		self::UNFIXED_PAGING => 'fixPaging',
+		self::NO_RESULTS => 'displayResultsInfos',
+		self::NO_HELP_LINK => 'setHelpLink'
 	];
 	
 	
@@ -173,15 +184,15 @@ class ListManager {
 	 */
 	public function __construct($id='', $db=null, array $options=array()){
 		$this->setId($id);
+		$this->verbose(!in_array(self::NO_VERBOSE, $options));
 		$this->setDatabase($db);
 		$this->_template = new ListTemplate($this);
 		$this->_responseType = ResponseType::TEMPLATE;
 		$this->_enableSearch = true;
 		$this->_enableOrderBy = true;
 		$this->_enableExcel = true;
+		$this->_excelCallback = null;
 		$this->_mask = array();
-		$this->_messages = array();
-		$this->_verbose = true;
 		$this->_listTitles = array();
 		$this->_executeOnly = true;
 
@@ -336,12 +347,16 @@ class ListManager {
 						header('Location:'.$chemin);
 					}
 					else {
-						$this->addError('le fichier excel n\'a pas pu être généré', 'execute');
+						$this->addError('le fichier excel n\'a pas pu être généré', 
+							(($this->_executeOnly)? 'execute' : 'construct'));
 					}
 				}
 				else{
-					$this->addError('la foncitonnalité d\'export excel est désactivée pour cette liste', 'execute');
+					$this->addError('la foncitonnalité d\'export excel est désactivée pour cette liste', 
+						(($this->_executeOnly)? 'execute' : 'construct'));
 				}
+				// Si erreur on affiche le template
+				return $this->_template->construct($reponse);
 
 			case ResponseType::JSON:
 				$ret = new \stdClass();
@@ -440,22 +455,35 @@ class ListManager {
 			else 
 				$this->_db = Database::getInstance($dataBase);
 		}
-
-		if($this->_db == null)
+		if($this->_db == null) {
 			$this->addError('aucune base de donnees trouvée, avez-vous instancié une connexion ?', 'setDatabase');
+			return false;
+		}
 		return $this;
 	}
 
 	/**
 	 * Définit l'id HTML de la balise table correspondant à la liste
 	 * @param string $id le nouvel id du tableau. Si null aucun ID ne sera affiché.
-	 * @return ListManager la référence de l'objet ($this)
+	 * @return mixed false en cas d'erreur (id déja utilisé) ou sinon la référence de l'objet ($this)
 	 */
 	public function setId($id) {
+		if(in_array($id, self::$idList)){
+			$this->addError("il existe déjà une liste avec liste avec l'id '$id', veuillez en choisir un nouveau", 'setId');
+			return false;
+		}
+
+		// suppression de l'ancien id du tableau static
+		if(($key = array_search($this->_id, self::$idList)) !== false)
+			unset(self::$idList[$key]);
+
+		// Modif de l'id
 		if(strlen($id) > 0)
-			$this->_id = '_'.$id;
+			$id = "_$id";
 		else 
-			$this->_id = '';
+			$id = '';
+		$this->_id = $id;
+		self::$idList[] = $id;
 		return $this;
 	}
 
@@ -548,8 +576,8 @@ class ListManager {
 	 * Définir un callback à appeler à la création de chaque ligne de la liste.
 	 * Ce callback sera appelé par le template à la création d'une nouvelle balise tr (balise ouvrante) et doit avoir pour caractéristiques :
 	 *  * 2 paramètres d'entrée :
-	 *    * 1. numero  : correspond au numéro de la ligne en cours
-	 *    * 2. donnees : array php contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau
+	 *    1. numero  : correspond au numéro de la ligne en cours
+	 *    2. donnees : array php contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau
 	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string). Si vous voulez laissez la case vide, retournez false
 	 * @param callable $fonction le nom du callback a utiliser, null si aucun.
 	 */
@@ -562,14 +590,33 @@ class ListManager {
 	 * Définir un callback pour rajouter manuellement des colonnes dans votre liste.
 	 * Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque ligne de la liste. La fonction doit correspondre au format suivant
 	 *  * 3 paramètres d'entrée :
-	 *    * 1. numLigne  : int correspond au numéro de la ligne en cours
-	 *    * 2. donnees   : array contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
-	 *    * 3. estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon 
+	 *    1. numLigne  : int correspond au numéro de la ligne en cours
+	 *    2. donnees   : array contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
+	 *    3. estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon 
 	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string).
 	 * @param callable $fonction le nom du callback a utiliser, null si aucun.
 	 * @return ListManager la référence de l'objet ($this)
 	 */
 	public function setColumnCallback(callable $fonction){
+		$this->_template->setColumnCallback($fonction);
+		return $this;
+	}
+
+	/**
+	 * Définir un callback pour modifier les cellules et leur données lors de la génération du fichier excel.
+	 * Ce callback sera appelé par ListManager lors de la génération d'un fichier excel, et vous permettra via l'objet PHPExcel de modifier
+	 * la cellule et le document en cours. Le format du callback est :
+	 *  *  paramètres d'entrée :
+	 *    1. phpExcel : l'objet PHPExcel utilisé pour générer le document
+	 *    2. contenu  : le contenu de la cellule en cours
+	 *    3. metas    : objet des métas données de la colonnes en cours ( @see RequestResponse::getColumnsMeta() )
+	 *    4. colonne  : la lettre correspondante à la colonne en cours
+	 *    5. numLigne : le numéro de la ligne en cours
+	 *  * pas de valeur de retour, tout se fait via l'objet PHPExcel
+	 * @param callable $fonction le nom du callback a utiliser, null si aucun.
+	 * @return ListManager la référence de l'objet ($this)
+	 */
+	public function setExcelCallback(callable $fonction){
 		$this->_template->setColumnCallback($fonction);
 		return $this;
 	}
@@ -585,18 +632,6 @@ class ListManager {
 		
 		return $this;
 	}
-
-	/* TODO
-	 * Definit si ListManager doit utiliser ou non le systeme de cache pour accelerer
-	 * la navigation entre les pages de la liste
-	 * @param boolean $valeur : true pour activer le fonctionnement par cache, false sinon
-	 */
-	// public function useCache($valeur){
-	// 	if(!is_bool($valeur))
-	// 		return false;
-
-	// 	$this->template->useCache($valeur);
-	// }
 
 	/**
 	 * Définit le nombre max de liens vers les pages de la liste proposés par la pagination du template.
@@ -675,20 +710,6 @@ class ListManager {
 	}
 
 	/**
-	 * Définit si ListManager doit afficher ou non les messages d'erreur générés.
-	 * Dans les deux cas vous pourrez récupérer tous les messages d'erreur produits grâce a la méthode getErrorMessages
-	 * @param bool $valeur la nouvelle valeur à appliquer pour la verbosité
-	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)
-	 */
-	public function verbose($valeur) {
-		if(!is_bool($valeur))
-			return false;
-
-		$this->_verbose = $valeur;
-		return $this;
-	}
-
-	/**
 	 * Permet d'ajouter une rubrique d'aide ou une legende à la liste actuelle
 	 * @param string $link le lien url vers la page d'aide. Si null alors le lien sera desactivé
 	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)
@@ -702,11 +723,27 @@ class ListManager {
 
 	/**
 	 * Définit si les titres de votre liste restent fixés en haut de l'écran lorsque l'utilisateur scroll sur la page.
+	 * Il ne vous ai pas possible de fixer ni les titres ni la pagination si vous utilisez plusieurs instances de ListManager, par conséquent
+	 * cette méthode vous retournera false si vous tentez quand même d'activer cette option.
 	 * @param bool $valeur true pour activer false pour désactiver cette option
 	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)
 	 */
 	public function fixTitles($valeur) {
 		if($this->_template->fixTitles($valeur) === false)
+			return false;
+
+		return $this;
+	}
+
+	/**
+	 * Définit si les liens de page de votre liste restent fixés en bas de l'écran.
+	 * Il ne vous ai pas possible de fixer ni les titres ni la pagination si vous utilisez plusieurs instances de ListManager, par conséquent
+	 * cette méthode vous retournera false si vous tentez quand même d'activer cette option.
+	 * @param bool $valeur true pour activer false pour désactiver cette option
+	 * @return mixed false si la valeur spécifié n'est pas un boolean, sinon retourne la référence de l'objet ($this)
+	 */
+	public function fixPaging($valeur) {
+		if($this->_template->fixPaging($valeur) === false)
 			return false;
 
 		return $this;
@@ -775,23 +812,15 @@ class ListManager {
 	public function getErrorMessages() {
 		return $this->_messages;
 	}
+
+	public static function isUnique() {
+		return count(self::$idList) <= 1;
+	}
 	
 
 			/*-****************
 			***   PRIVATE   ***
 			******************/
-	
-	/**
-	 * Ajoute une erreur au tableau des erreurs de l'objet, et l'affiche dans la page si verbose est activée
-	 * @param unknown $message le messgae d'erreur
-	 * @param unknown $method le nom de la méthode où il a été généré
-	 */
-	private function addError($message, $method) {
-		$this->_messages[] = $message;
-		if($this->_verbose) {
-			echo '<br><b>[!]</b>ListManager::'.$method.'() : '.$message.'<br>';
-		}
-	}
 
 	/**
 	 * Génère un fichier excel à partir d'une réponse de requete en utilisant la bibliothèque PHPExcel.
@@ -821,6 +850,7 @@ class ListManager {
 		$width = [];
 		$maxWidth = 30;
 		$metas = $reponse->getColumnsMeta();
+		$titres = [];
 		foreach ($metas as $meta) {
 
 			// On vérifie que la colonne n'est pas masquée
@@ -828,18 +858,18 @@ class ListManager {
 
 				// Préparation du titre à insérer
 				if($meta->table != null && isset($this->_listTitles["$meta->table.$meta->name"]))
-					$titre = $this->_listTitles["$meta->table.$meta->name"];
+					$titres[] = $this->_listTitles["$meta->table.$meta->name"];
 				else if(isset($this->_listTitles[$meta->name]))
-					$titre = $this->_listTitles[$meta->name];
+					$titres[] = $this->_listTitles[$meta->name];
 				else if(isset($this->_listTitles[$meta->alias]))
-					$titre = $this->_listTitles[$meta->alias];
+					$titres[] = $this->_listTitles[$meta->alias];
 				else
-					$titre = (($meta->alias == null)? $meta->name : $meta->alias);
+					$titres[] = (($meta->alias == null)? $meta->name : $meta->alias);
 
 				// Mise en forme & insertion des titres
-				$width[$col] = min(strlen($titre), $maxWidth);
+				$width[$col] = min(strlen($titres[$i]), $maxWidth);
 				$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($width[$col]);
-				$phpExcel->getActiveSheet()->setCellValue($col.'1', $titre);
+				$phpExcel->getActiveSheet()->setCellValue($col.'1', $titres[$i]);
 	 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
 	 				'font' => array(
 	 					'bold' => true,
@@ -850,9 +880,14 @@ class ListManager {
 	 					'color' => array('rgb' => 'CCCCCC'),
 	 				),
 	 			));
+
+	 			// Appel au callback
+	 			if($this->_excelCallback !== null)
+	 				call_user_func_array($this->_excelCallback, [$phpExcel, $meta, $titres[$i], $col, 1]);
+
 				$col++;
+				$i++;
 			}
-			$i++;
 		}
 
 		// Insertion des données
@@ -867,7 +902,7 @@ class ListManager {
 			$j=0;
 			foreach ($ligne as $cellule){
 				// On vérifie que la colonne n'est pas masquée
-				if(!in_array($metas[$j]->name, $this->_mask) || !in_array($metas[$j]->alias, $this->_mask)) {
+				if(!in_array($titres[$j], $this->_mask) || !in_array($metas[$j]->alias, $this->_mask)) {
 					// Insertion de la donnée
 					$phpExcel->getActiveSheet()->setCellValue($col.($i), $cellule);
 
@@ -877,9 +912,13 @@ class ListManager {
 						$width[$col] = $cellWidth;
 						$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($cellWidth);
 					}
+		 			// Appel au callback
+		 			if($this->_excelCallback !== null)
+		 				call_user_func_array($this->_excelCallback, [$phpExcel, $cellule, $metas[$j], $col, $i]);
+
 					$col++;
+					$j++;
 				}
-				$j++;
 			}
 			$i++;
 		}

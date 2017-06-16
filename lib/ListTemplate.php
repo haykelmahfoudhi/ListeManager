@@ -94,10 +94,6 @@ class ListTemplate {
 	 * @var string $_columnCallback nom du callback qui servira à ajouter des colonnes à la liste 
 	 */
 	private $_columnCallback;
-	/* TODO
-	 * @var boolean definit l'utilisation du système de cache pour les requêtes lourdes
-	 */
-	// private $useCache;
 	/**
 	 * @var bool $_enableJSMask définit si le template permet à l'utilisateur de masquer les colonnes grâce
 	 * à JavaScript avecla petite croix rouge
@@ -135,6 +131,10 @@ class ListTemplate {
 	 * @var bool $_fixedTitles définti si les titres de la listes sont fixés lorsque l'utilisateur scroll
 	 */
 	private $_fixedTitles;
+	/**
+	 * @var bool $_fixedTitles définti si les titres de la listes sont fixés lorsque l'utilisateur scroll
+	 */
+	private $_fixedPaging;
 	
 	/**
 	 * @var string $CLASS1 classe par défaut des lignes impaires du tableau
@@ -169,14 +169,14 @@ class ListTemplate {
 		$this->_replaceTagTD = false;
 		$this->_rowCallback = null;
 		$this->_columnCallback = null;
-		// $this->useCache = false;
-		$this->_helpLink = null;
+		$this->_helpLink = "http://list-manager.torchpad.com/Presentation+liste";
 		$this->_userButtons = [];
 		$this->_displayResultsInfos = true;
 		$this->_applyDefaultCSS = true;
 		$this->_maxSizeInputs = 30;
 		$this->_constInputsSize = false;
-		$this->_fixedTitles = true;
+		$this->_fixedTitles = ListManager::isUnique();
+		$this->_fixedPaging = ListManager::isUnique();
 	}
 	
 	
@@ -219,13 +219,6 @@ class ListTemplate {
 			$fin = $this->_nbResultsPerPage;
 			$this->_currentPage = 1;
 		}
-
-		// Enregistrement des donnees dans le cache
-		// if($this->useCache && $nbLignes > Cache::NB_LIGNES_MIN){
-		// 	$cacheID = md5(uniqid());
-		// 	$cache = new Cache($cacheID);
-		// 	$cache->write($reponse, $this->nbResultsPerPage);
-		// }
 
 		// $donnees ne contient plus que les valeurs a afficher
 		$donnees = array_slice($donnees, $debut, $this->_nbResultsPerPage);
@@ -296,7 +289,7 @@ class ListTemplate {
 		if($this->_displayResultsInfos)
 			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", 'info-resultats', 'p')."\n";
 
-		$ret .= '<table class="liste'.((strlen($lmId))? '"' : ' fix-margin"').' '.(($this->_fixedTitles)? ' fixed-titles="true"' : '')
+		$ret .= '<table class="liste'.(($this->_fixedPaging)? '"' : ' fix-margin"').' '.(($this->_fixedTitles)? ' fixed-titles="true"' : '')
 			.(($lmId == null)?'' : " data-id='".$lmId."' ").'>'."\n<tr class='ligne-titres'>";
 
 		//Creation des titres
@@ -411,7 +404,7 @@ class ListTemplate {
 			foreach ($donnees as $ligne) {
 				//Gestion des classes
 				$classe = (($i % 2)? $this->_class1 : $this->_class2);
-				$ret .= '<tr'.(($classe == null)? '' : " class='$classe' ");
+				$ret .= '<tr'.(($classe == null)? ' ' : " class='$classe' ");
 
 				// Utilisation du callback
 				if($this->_rowCallback != null) {
@@ -458,7 +451,7 @@ class ListTemplate {
 
 		// Affichage du tableau des numeros de page
 		if($nbLignes > $this->_nbResultsPerPage && $this->_pagingLinksNb != false){
-			$ret .= '<div class="pagination'.((strlen($lmId)? '' : ' fixed')).'"><table align="center"><tr>';
+			$ret .= '<div class="pagination'.(($this->_fixedPaging)? '' : ' fixed').'"><table align="center"><tr>';
 			$nbPages = (is_int($nbPages = ($nbLignes / $this->_nbResultsPerPage))? $nbPages : round($nbPages + 0.5) );
 
 			// S'il y a plus de pages que la limite affichable
@@ -639,17 +632,6 @@ class ListTemplate {
 		$this->_columnCallback = $fonction;
 	}
 
-	/* TODO
-	 * Active ou désactive l'utilisation du cache pour les requêtes retournant un grand nombre de données
-	 * @param boolean $valeur : true pour activer le système de cache, faux sinon
-	 */
-	// public function enableCache($valeur){
-	// 	if(!is_bool($valeur))
-	// 		return false;
-
-	// 	$this->useCache = $valeur;
-	// }
-
 	/**
 	 * Définit le nombre de liens max à afficher dans la pagination.
 	 * @param int $valeur le nombre de liens max à afficher.
@@ -717,14 +699,25 @@ class ListTemplate {
 	}
 
 	/**
-	 * Définit sui les titres de votre liste restent fixés en haut de l'écran lorsque l'utilisateur scroll sur la page.
+	 * Définit si les titres de votre liste restent fixés en haut de l'écran lorsque l'utilisateur scroll sur la page.
 	 * @param bool valeur true pour activer false pour désactiver cette option
 	 * @return bool false si l'arguemnt n'est pas un booléen.
 	 */
 	public function fixTitles($valeur) {
-		if(!is_bool($valeur))
+		if(!is_bool($valeur) || !ListManager::isUnique())
 			return false;
 		$this->_fixedTitles = $valeur;
+	}
+
+	/**
+	 * Définit sui les liens de navigation entre pages sont fixés en bas de l'écran ou non.
+	 * @param bool valeur true pour activer false pour désactiver cette option
+	 * @return bool false si l'arguemnt n'est pas un booléen.
+	 */
+	public function fixPaging($valeur) {
+		if(!is_bool($valeur) || !ListManager::isUnique())
+			return false;
+		$this->_fixedPaging = $valeur;
 	}
 
 	/**

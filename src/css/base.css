@@ -58,7 +58,7 @@ table.fix-margin {
 }
 .ligne-titres.fixed {
 	top: 0;
-	box-shadow: 0 2px 5px .222;
+	box-shadow: 0 2px 5px #222;
 }
 .boutons-options.fixed {
 	top: 0;
@@ -80,7 +80,7 @@ th {
 	padding: 5px;
 }
 tr.fixed > th {
-	border-left: 1px solid #eee;
+	border-left: 2px solid #eee;
 }
 
 th > a {
