@@ -289,7 +289,8 @@ class ListTemplate {
 		if($this->_displayResultsInfos)
 			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", 'info-resultats', 'p')."\n";
 
-		$ret .= '<table class="liste'.(($this->_fixedPaging)? '"' : ' fix-margin"').' '.(($this->_fixedTitles)? ' fixed-titles="true"' : '')
+		$ret .= '<table class="liste'.(($this->_fixedPaging)? '"' : ' fix-margin"').' '
+			.(($this->_fixedTitles)? ' fixed-titles="true"' : '')
 			.(($lmId == null)?'' : " data-id='".$lmId."' ").'>'."\n<tr class='ligne-titres'>";
 
 		//Creation des titres

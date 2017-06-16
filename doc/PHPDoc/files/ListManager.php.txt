@@ -308,7 +308,7 @@ class ListManager {
 
 			case ResponseType::TABLEAU:
 				if($reponse->error()) {
-					$this->_messages[] = $reponse->getErrorMessage();
+					$this->addError($reponse->getErrorMessage(), (($this->_executeOnly)? 'execute' : 'construct'));
 					return null;
 				}
 				else {
@@ -364,7 +364,7 @@ class ListManager {
 				if($ret->error){
 					$ret->data = null;
 					$ret->errorMessage = $reponse->getErrorMessage();
-					$this->_messages[] = $ret->errorMessage;
+					$this->addError($ret->errorMessage,(($this->_executeOnly)? 'execute' : 'construct'));
 				}
 				else{
 					// Applicaiton du mask
@@ -805,14 +805,10 @@ class ListManager {
 	public function isOrderByEnabled() {
 		return $this->_enableOrderBy;
 	}
-	
-	/**
-	 * @return array l'ensemble des messages d'erreur générés par cet objet
-	 */
-	public function getErrorMessages() {
-		return $this->_messages;
-	}
 
+	/**
+	 * @return bool true s'il n'y a pas plusieurs ListManager instanciés sur la meme page
+	 */
 	public static function isUnique() {
 		return count(self::$idList) <= 1;
 	}
