@@ -9,7 +9,6 @@ define('LM_XLS', LM_SRC.'excel/');
 define('LM_JS', LM_SRC.'js/');
 define('LM_IMG', LM_SRC.'img/');
 define('LM_CSS', LM_SRC.'css/');
-define('LM_CACHE', LM_ROOT.'cache/');
 
 require_once LM_PHPXL.'PHPExcel.php';
 

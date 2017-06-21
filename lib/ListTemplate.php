@@ -422,7 +422,7 @@ class ListTemplate {
 						(($colonnes[$j]->table != null)? $colonnes[$j]->table.'.'.$colonnes[$j]->name : $colonnes[$j]->name ) );
 					
 					// On vérifie que la colonne en cours n'est pas masquée
-					if(!in_array($nomColonne, $lmMask)) {
+					if(!in_array($nomColonne, $lmMask) || !in_array($col->alias, $lmMask)) {
 
 						// Application du callback (si non null)
 						if($this->_cellCallback != null) {

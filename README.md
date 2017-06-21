@@ -64,7 +64,12 @@ Le projet compte actuellement 5 **classes** et 2 *énumérations* :
 
 ## Prise en main
 
-Pour inclure ListManager à votre projet il vous faut définir la constante 'LM_ROOT' comme le chemin relatif vers la racine du dossier ListManager puis inclure le fichier 'includes.php' à vos pages.
+Pour inclure ListManager à votre projet, clonnez ce repo à la racine de votre projet avec la commande 
+`git clone <url>`
+**/!\\** il faudra aussi cloner les sous modules PHPExcel et PDOOCI pour que tout fonctionne, utilisez la commande
+`git submodule update --init`
+
+Une fois clonné il vous faut définir la constante 'LM_ROOT' comme le chemin relatif vers la racine du dossier ListManager puis inclure le fichier 'includes.php' à vos pages.
 Vous pourrez ensuite utiliser toutes les classes du projet. L'exemple suivant vous montre comment inclure ListManager, se connecter à une base de données et construire votre première liste avant de l'afficher.
 
 ```php
