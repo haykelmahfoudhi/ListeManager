@@ -100,7 +100,7 @@ class RequestResponse {
 	 */
 	public function nextLine(){
 		if(!$this->error()){
-			$ret = $this->_statement->fetch(\PDO::FETCH_ASSOC);
+			$ret = $this->_statement->fetch();
 			if($ret != null)
 				$this->_data[] = $ret;
 			return $ret;
@@ -115,7 +115,7 @@ class RequestResponse {
 	public function dataList(){
 		if(!$this->error()){
 			if(count($this->_data) != $this->getRowsCount())
-				$this->_data = $this->_statement->fetchAll(\PDO::FETCH_ASSOC);
+				$this->_data = $this->_statement->fetchAll();
 			return $this->_data;
 		}
 		return false;

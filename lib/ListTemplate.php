@@ -222,9 +222,9 @@ class ListTemplate {
 
 		// $donnees ne contient plus que les valeurs a afficher
 		$donnees = array_slice($donnees, $debut, $this->_nbResultsPerPage);
-		$lmId = $this->_lm->getId();
-
+		
 		// Creation de la div HTML parente
+		$lmId = $this->_lm->getId();
 		$ret = "\n".'<div class="liste-parent">';
 		
 		//Ajout des boutons options sur le cete
@@ -416,26 +416,22 @@ class ListTemplate {
 				$ret .= '>';
 
 				//Construction des cellules colonne par colonne
-				$j = 0;
-				foreach ($ligne as $cellule){
+				for ($j=0; $j < $reponse->getColumnsCount(); $j++){
 
+					$cellule = $ligne[$j];
 					$nomColonne = (($colonnes[$j]->alias != null)? $colonnes[$j]->alias : 
 						(($colonnes[$j]->table != null)? $colonnes[$j]->table.'.'.$colonnes[$j]->name : $colonnes[$j]->name ) );
-					
+
 					// On vérifie que la colonne en cours n'est pas masquée
 					if(!$this->_lm->isMasked($nomColonne, $col->alias)) {
 
 						// Application du callback (si non null)
 						if($this->_cellCallback != null) {
-							// Préparation du param 'ligne' => on duplique les données pour y acceder par num de colonne
-							unset($ligneNum);
-							foreach($ligne as $key => $val)
-								$ligneNum[] = $val;
 							
 							// Appel au callback
 							$fct = $this->_cellCallback;
 							$cellule = ( (($retFCT = call_user_func_array($fct,
-								array($cellule, $nomColonne, $i, array_merge($ligneNum, $ligne), $j))) === null)?
+								array($cellule, $nomColonne, $i, $ligne, $j))) === null)?
 								(($this->_replaceTagTD)? "<td>$cellule</td>" : $cellule ) : $retFCT ) ;
 						}
 						// Si la cellule ne contient rien -> '-'
@@ -443,7 +439,6 @@ class ListTemplate {
 							$cellule = '-';
 						$ret .= (($this->_replaceTagTD)? '' : '<td>') .$cellule. (($this->_replaceTagTD)? '' : '</td>');
 					}
-					$j++;
 				}
 
 				// Ajout des colonnes par callback

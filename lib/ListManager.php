@@ -908,8 +908,8 @@ class ListManager {
 			$phpExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(25);
 			// Remplissage colonne par colonne
 			$col = 'A';
-			$j=0;
-			foreach ($ligne as $cellule){
+			for ($j=0; $j < $reponse->getColumnsCount(); $j++){
+				$cellule = $ligne[$j];
 				// On vérifie que la colonne n'est pas masquée
 				if(!$this->isMasked($titres[$j], $metas[$j]->alias)) {
 					// Insertion de la donnée
@@ -926,7 +926,6 @@ class ListManager {
 		 				call_user_func_array($this->_excelCallback, [$phpExcel, $cellule, $metas[$j], $col, $i]);
 
 					$col++;
-					$j++;
 				}
 			}
 			$i++;

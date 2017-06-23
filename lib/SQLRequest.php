@@ -442,8 +442,8 @@ class SQLRequest {
 				}
 				else if($attribu == '_orderByArray')
 					$this->_orderByArray = array_map(function($col){
-						if(($fin = strpos(strtolower($col), ' desc')) !== false)
-							return '-'.trim(substr($col, 0, $fin));
+						if(preg_match('/(.*)[\s]+DESC[\s]*$/i', $col, $matchCol))
+							return '-'.$matchCol[1];
 						return trim($col);
 					}, explode(',', $valeur));
 				else
