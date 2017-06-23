@@ -195,12 +195,15 @@ class Database {
 							else
 								$table = $obj->table;
 
-							foreach($this->describeTable($table) as $colonne){
-								$newCol = new stdClass();
-								$newCol->table = $table;
-								$newCol->name = $colonne;
-								$newCol->alias = null;
-								$ret[] = $newCol;
+							$colonnes = $this->describeTable($table);
+							if($colonnes) {
+								foreach($colonnes as $colonne){
+									$newCol = new stdClass();
+									$newCol->table = $table;
+									$newCol->name = $colonne;
+									$newCol->alias = null;
+									$ret[] = $newCol;
+								}
 							}
 						}
 						else

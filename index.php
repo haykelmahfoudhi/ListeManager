@@ -23,12 +23,13 @@ $db = Database::instantiate('mysql:host=localhost;dbname=marklate', "marquage", 
 // $req = new SQLRequest('SELECT * FROM ordre_fabrication WHERE ROWNUM < 2000', true);
 // $req = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000 ");
 $req = new SQLRequest("SELECT d.Id as ok, d.Nom, COUNT(a.IdDonneurOrdre) as nbId FROM Avion a, DonnOrdre d
-						WHERE a.IdDonneurOrdre = d.Id GROUP BY d.Id, d.Nom;");
+						WHERE a.IdDonneurOrdre = d.Id GROUP BY d.Id, d.Nom
+						ORDER BY 1;");
 
 $lm = new ListManager();
 
-echo $lm->construct($req);
-
+echo $lm->construct($req, [], ['COUNT(a.IdDonneurOrdre)']);
+echo $req;
 
 ?>
 </body>

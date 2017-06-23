@@ -129,13 +129,15 @@ class SQLRequest {
 		$retHaving = ((strlen($this->_havingBlock) > 0)? ' AND ' : '');
 
 		foreach ($tabSelect as $nomColonne => $conditions) {
+			$nomColonne = strtolower($nomColonne);
+
 			// Gestion HAVING / WHERE
 			$estHaving = false;
 			if(isset($colonnesHaving[$nomColonne])) {
 				$estHaving = true;
 				$nomColonne = $colonnesHaving[$nomColonne];
 			}
-			else if (in_array($nomColonne, $colonnesHaving))
+			else if (in_array($nomColonne, array_map('strtolower', $colonnesHaving)))
 				$estHaving = true;
 
 			// Gestion des conditions
@@ -270,10 +272,6 @@ class SQLRequest {
 			//Ajout du bloc WHERE
 			if(strlen($this->_whereBlock) > 0) {
 				$ret .= ' WHERE '.$this->_whereBlock;
-				// Ajout de la limit (ROWNUM oracle)
-				if($this->_forOracle && $this->_limit != null && intval($this->_limit) == $this->_limit){
-					$ret .= ' AND ROWNUM > '.intval($this->_limit);
-				}
 			}
 
 			if($this->_requestType == RequestType::SELECT){
@@ -348,14 +346,14 @@ class SQLRequest {
 	}
 
 	/**
-	* @return array le tableau contenant le nom / numéro des colonnes à inscrire dans le ORDER BY. Retourne false s'il n'y a pas d'order by.
+	* @return array le tableau contenant le nom / numéro des colonnes à inscrire dans le ORDER BY.
 	*/
 	public function getOrderByArray(){
 		if($this->_requestType === RequestType::SELECT
 			&& count($this->_orderByArray) > 0){
 			return $this->_orderByArray;
 		}
-		return false;
+		return [];
 	}
 
 	/**
@@ -374,9 +372,14 @@ class SQLRequest {
 		if($this->_requestType != RequestType::SELECT)
 			return false;
 
-		$this->_limit = $limit;
-		if($offset !== '')
-			$this->_offset = $offset;
+		if(!$this->_forOracle) {
+			$this->_limit = $limit;
+			if($offset !== '')
+				$this->_offset = $offset;
+		}
+		else {
+			$this->filter(['ROWNUM' => "<=$limit"]);
+		}
 	}
 
 	/**
@@ -432,14 +435,17 @@ class SQLRequest {
 					return $matchParentheses[0][$match[1]];
 				} , $tabMatch[3]);
 
-
 				// Mise à jour des attribus
 				if($attribu == '_limit') {
 					$this->_limit = $valeur;
 					$this->_offset = ( (strlen($offset = trim($tabMatch[4])) > 0 )? $offset : null );
 				}
 				else if($attribu == '_orderByArray')
-					$this->_orderByArray[0] = $valeur;
+					$this->_orderByArray = array_map(function($col){
+						if(($fin = strpos(strtolower($col), ' desc')) !== false)
+							return '-'.trim(substr($col, 0, $fin));
+						return trim($col);
+					}, explode(',', $valeur));
 				else
 					$this->$attribu = $valeur;
 			}

@@ -96,11 +96,21 @@ class ListManager {
 	 */
 	private $_listTitles;
 	/**
-	 * @var bool $_executeOnly détermine si la méthode execute est appelée depuis la méthode construct.
-	 * Initialisé à true, si cet attribut ne passe pas à false lors de l'appel à construct alors la recherche et le orderby sont désactivés.
+	 * @var array $_filterArray 
 	 */
-	private $_executeOnly;
+	private $_filterArray;
+	/**
+	 * @var array $_havingColumns 
+	 */
+	private $_havingColumns;
+	/**
+	 * @var array $_orderBy
+	 */
+	private $_orderBy;
 
+	/**
+	 * @var array $idList contient la liste de tous les ID des objets ListManager instanciés
+	 */
 	private static $idList = [];
 
 			/*-*******************************************
@@ -194,7 +204,9 @@ class ListManager {
 		$this->_excelCallback = null;
 		$this->_mask = array();
 		$this->_listTitles = array();
-		$this->_executeOnly = true;
+		$this->_filterArray = [];
+		$this->_havingColumns = [];
+		$this->_orderBy = [];
 
 		// Gestion des options : désactivation de fonctionnalités
 		$i = 0;
@@ -230,76 +242,47 @@ class ListManager {
 
 		// Gestion du parametre
 		if(!$baseSQL instanceof SQLRequest)
-			$requete = new SQLRequest($baseSQL, $this->_db->oracle());
+			$sqlRequest = new SQLRequest($baseSQL, $this->_db->oracle());
 		else {
-			$requete = $baseSQL;
-			$requete->prepareForOracle($this->_db->oracle());
+			$sqlRequest = $baseSQL;
+			$sqlRequest->prepareForOracle($this->_db->oracle());
 		}
 
 		// Construction de la requete a partir de variables GET disponibles :
 		// Conditions (where & having)
-		if($this->_enableSearch && isset($_GET['lm_tabSelect'.$this->_id])){
-			$tabSelect = array();
-			foreach ($_GET['lm_tabSelect'.$this->_id] as $titre => $valeur) {
-				if(strlen($valeur) > 0)
-					$tabSelect[$titre] = $valeur;
+		if($this->_enableSearch){
+			// Ajout du filtre developpeur
+			foreach ($this->_filterArray as $titre => $valeur)
+				if(!isset($_GET['lm_tabSelect'.$this->_id][strtolower($titre)]))
+					$_GET['lm_tabSelect'.$this->_id][strtolower($titre)] = $valeur;
+			
+			if(isset($_GET['lm_tabSelect'.$this->_id])) {
+				foreach ($_GET['lm_tabSelect'.$this->_id] as $titre => $valeur) {
+					if(strlen($valeur) > 0)
+						$tabSelect[$titre] = $valeur;
+				}
+				if(count($tabSelect) > 0)
+					$sqlRequest->filter($tabSelect, array_merge($having, $this->_havingColumns));
 			}
-			if(count($tabSelect) > 0)
-				$requete->filter($tabSelect, $having);
 		}
 		
 		// Tri (Order By)
 		if($this->_enableOrderBy && isset($_GET['lm_orderBy'.$this->_id])){
-			$requete->orderBy(explode(',', $_GET['lm_orderBy'.$this->_id]));
+			$sqlRequest->orderBy(explode(',', $_GET['lm_orderBy'.$this->_id]));
 		}
 
 		// Excel
 		if(isset($_GET['lm_excel'.$this->_id])){
 			$this->setResponseType(ResponseType::EXCEL);
 		}
-		
-		// Selection de la page
-		if($this->_template->issetPaging() && isset($_GET['lm_page'.$this->_id]) && $_GET['lm_page'.$this->_id] > 0)
-			$this->_template->setCurrentPage($_GET['lm_page'.$this->_id]);
-
-		//Execution de la requete
-		$this->_executeOnly = false;
-		return $this->execute($requete, $params);
-
-	}
-
-	/**
-	 * Execute une requete SQL *sans prendre en compte les données GET concernant tabSelect et orderBy*.
-	 * De ce fait si cette méthode est directement appelée sans passer par *construct()* les fonctionnalités recherche et tri seront désactivées. La méthode retourne le resultat dans le format specifie par ResponseType
-	 * @param string|SQLRequest $request : la requete a executer. Peut etre de type string ou SQLRequest.
-	 * @param array $params (facultatif) à utiliser si vous saouhaitez passer par les méthodes prepare puis exécute pour exécuter votre requete SQL
- 	 * @return mixed
-	 * * l'objet de reponse dependant de $this->responseType, parametrable via la methode *setResponseType()*
-	 * * false en cas d'erreur, par exemple si ListManager ne parvient aps à utiliser la base de données
-	 */
-	public function execute($request, array $params=[]){
-		
-		// Gestion du parametre
-		if($request instanceof SQLRequest) {
-			$request->prepareForOracle($this->_db->oracle());
-			$requete = $request->__toString();
-		}
-		else 
-			$requete = $request;
 
 		// Si la db est null alors on affiche une erreur
 		if($this->_db == null) {
-			$this->addError('aucune base de donnees n\'est disponible ou instanciee', 'execute');
+			$this->addError('aucune base de donnees n\'est disponible ou instanciee', 'construct');
 		}
 
 		//Execution de la requete
-		$reponse = $this->_db->execute($requete, $params);
-		
-		//Si construct n'est pas appelé avant => désactive la recherche + order by
-		if($this->_executeOnly) {
-			$this->enableOrderBy(false);
-			$this->enableSearch(false);
-		}
+		$reponse = $this->_db->execute($sqlRequest, $params);
 
 		//Creation de l'objet de reponse
 		switch ($this->_responseType){
@@ -308,7 +291,7 @@ class ListManager {
 
 			case ResponseType::TABLEAU:
 				if($reponse->error()) {
-					$this->addError($reponse->getErrorMessage(), (($this->_executeOnly)? 'execute' : 'construct'));
+					$this->addError($reponse->getErrorMessage(), 'construct');
 					return null;
 				}
 				else {
@@ -317,7 +300,7 @@ class ListManager {
 						while(($ligne = $reponse->nextLine()) != null) {
 							$aInserer = array();
 							foreach ($ligne as $colonne => $valeur) {
-								if(!in_array($colonne, $this->_mask))
+								if(!$this->isMasked($colonne))
 									$aInserer[$colonne] = $valeur;
 							}
 							$donnees[] = $aInserer;
@@ -347,13 +330,11 @@ class ListManager {
 						header('Location:'.$chemin);
 					}
 					else {
-						$this->addError('le fichier excel n\'a pas pu être généré', 
-							(($this->_executeOnly)? 'execute' : 'construct'));
+						$this->addError('le fichier excel n\'a pas pu être généré', 'construct');
 					}
 				}
 				else{
-					$this->addError('la foncitonnalité d\'export excel est désactivée pour cette liste', 
-						(($this->_executeOnly)? 'execute' : 'construct'));
+					$this->addError('la foncitonnalité d\'export excel est désactivée pour cette liste', 'construct');
 				}
 				// Si erreur on affiche le template
 				return $this->_template->construct($reponse);
@@ -364,7 +345,7 @@ class ListManager {
 				if($ret->error){
 					$ret->data = null;
 					$ret->errorMessage = $reponse->getErrorMessage();
-					$this->addError($ret->errorMessage,(($this->_executeOnly)? 'execute' : 'construct'));
+					$this->addError($ret->errorMessage, 'construct');
 				}
 				else{
 					// Applicaiton du mask
@@ -372,7 +353,7 @@ class ListManager {
 						while (($ligne = $reponse->nextLine()) != null) {
 							$aInserer = array();
 							foreach ($ligne as $colonne => $valeur) {
-								if(!in_array($colonne, $this->_mask))
+								if(!$this->isMasked($colonne))
 									$aInserer[$colonne] = $valeur;
 							}
 							$ret->data[] = $aInserer;
@@ -385,6 +366,14 @@ class ListManager {
 
 
 			case ResponseType::TEMPLATE:
+				// Selection de la page
+				if($this->_template->issetPaging() && isset($_GET['lm_page'.$this->_id]) && $_GET['lm_page'.$this->_id] > 0)
+					$this->_template->setCurrentPage($_GET['lm_page'.$this->_id]);
+				
+				// Modification de l'order by
+				if(count($orderBy = $sqlRequest->getOrderByArray()))
+					$_GET['lm_orderBy'.$this->_id] = implode(',', $orderBy);
+
 				return $this->_template->construct($reponse);
 		}
 
@@ -396,7 +385,7 @@ class ListManager {
 			******************/
 
 	/**
-	 * Definit le format de la reponse des methodes *construct()* et *execute()*.
+	 * Definit le format de la reponse de la methode *construct()*
 	 * A la suite de l'execution d'une requete SQL ListManager peut retourner une liste de données sous 5 formes différentes :
 	 * * TEMPLATE (par defaut) pour obtenir un string representant la liste HTML contenant toutes les donnees 
 	 * * ARRAY pour obtenir les resultats dans un array PHP (equivalent a PDOStaement::fetchAll())
@@ -646,6 +635,23 @@ class ListManager {
 		return $this;
 	}
 
+	/** 
+	 *
+	 */
+	public function setFilter(array $filter, array $having=[]){
+		$this->_filterArray = $filter;
+		$this->_havingColumns = $having;
+		return $this;
+	}
+
+	/** 
+	 *
+	 */
+	public function setOrderBy(array $columns){
+		$this->_orderBy = $columns;
+		return $this;
+	}
+
 	/**
 	 * Définit la taille maximale des champs de saisie pour la recherche.
 	 * @param int $valeur la nouvelle taille maximale des champs de saisie pour al recherche
@@ -779,10 +785,17 @@ class ListManager {
 	}
 
 	/**
-	 * @return array le tableau contenant le nom des colonnes à ne pas afficher
+	 * Détermine si au moins un des noms de colonne se trouve dans le tableau du masque.
+	 * @var string $column,... le nom ou les alias de la colonne 
+	 * @return bool true si la colonne est à masquer, false sinon 
 	 */
-	public function getMask() {
-		return $this->_mask;
+	public function isMasked($column) {
+		$tabMask = array_map('strtolower', $this->_mask);
+		for ($i=0; $i < func_num_args(); $i++) { 
+			if(in_array(strtolower(func_get_arg($i)), $tabMask))
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -850,7 +863,7 @@ class ListManager {
 		foreach ($metas as $meta) {
 
 			// On vérifie que la colonne n'est pas masquée
-			if(!in_array($meta->name, $this->_mask) || !in_array($meta->alias, $this->_mask)) {
+			if(!$this->isMasked($meta->name, $meta->alias)) {
 
 				// Préparation du titre à insérer
 				if($meta->table != null && isset($this->_listTitles["$meta->table.$meta->name"]))
@@ -898,7 +911,7 @@ class ListManager {
 			$j=0;
 			foreach ($ligne as $cellule){
 				// On vérifie que la colonne n'est pas masquée
-				if(!in_array($titres[$j], $this->_mask) || !in_array($metas[$j]->alias, $this->_mask)) {
+				if(!$this->isMasked($titres[$j], $metas[$j]->alias)) {
 					// Insertion de la donnée
 					$phpExcel->getActiveSheet()->setCellValue($col.($i), $cellule);
 

@@ -3,6 +3,9 @@
 		**  FEUILLE DE STYLE PAR DEFAUT DE LISTMANAGER  **
 		*************************************************/
 
+.liste-parent {
+	font-family: 'Cousine';
+}
 
 .liste-parent > div {
 	display: flex;
@@ -70,16 +73,17 @@ tr:not(:first-child):hover {
 }
 
 th, .tabSelect td {
-	padding: 10px 5px;
+	padding: 8px 3px;
 }
+
 th {
 	border-bottom: 3px solid #888;
 }
 
 .fixed th {
-	padding: 5px;
+	padding: 3px;
 }
-tr.fixed > th {
+tr.fixed > th:not(:first-child) {
 	border-left: 2px solid #eee;
 }
 
@@ -113,7 +117,8 @@ th > a.masque:visited {
 
 td {
 	border: 2px solid white;
-	padding: 5px;
+	padding: 3px;
+	font-size: 12px;
 }
 
 tr.noir {
@@ -139,7 +144,7 @@ tr.bleu-clair {
 	background-color: #ADF;
 }
 tr.rouge {
-	background-color: #b55;
+	background-color: #d44;
 }
 tr.vert {
 	background-color: #5d6;

@@ -156,10 +156,9 @@ class RequestResponse {
 					$columns[$i]->type = $metas[$i]['native_type'];
 				$columns[$i]->len = $metas[$i]['len'];
 				
-				// S'il y a un alias
-				if(strstr($columns[$i]->alias, $metas[$i]['name']) !== false)
-					$columns[$i]->alias = $metas[$i]['name'];
-				else
+				$aliasNoQuotes = str_replace('`', '', str_replace('"', '',  str_replace("'", '', $columns[$i]->alias)));
+				// S'il y a un alias -> ajout du name dans la partie alias
+				if(strtolower($aliasNoQuotes) !== strtolower($metas[$i]['name']))
 					$columns[$i]->name = $metas[$i]['name'];
 				
 				$this->_columnsMeta[] = $columns[$i];

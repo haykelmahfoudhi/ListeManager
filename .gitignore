@@ -6,3 +6,4 @@ phar/
 tests/
 src/excel/
 vendor/
+lib/Toutcode.php

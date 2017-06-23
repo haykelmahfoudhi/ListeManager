@@ -40,18 +40,31 @@ function updateURL() {
 		document.location = tabUrl[0] + '#{}';
 }
 
-// Récupère les données de session et les applique
-var tabUrl = document.URL.split('#');
-if(tabUrl.length == 2 && tabUrl[1].length){
-	try {
-		$.each(JSON.parse(decodeURIComponent(tabUrl[1])), function(i, e){
-			sessionStorage.setItem(i, e);
-		});
+// Test si changement de page
+if(	sessionStorage.getItem('location_script') === null
+	|| sessionStorage.getItem('location_script') === window.location.pathname){
+	
+	// Récupère les données de session et les applique
+	var tabUrl = document.URL.split('#');
+	if(tabUrl.length == 2 && tabUrl[1].length){
+		try {
+			$.each(JSON.parse(decodeURIComponent(tabUrl[1])), function(i, e){
+				sessionStorage.setItem(i, e);
+			});
+		}
+		catch(e) {
+			updateURL();
+		}
 	}
-	catch(e) {
-		updateURL();
-	}
+	if(sessionStorage.getItem('location_script') === null)
+		sessionStorage.setItem('location_script', window.location.pathname);
 }
+// Si on a changé de page on clear le sessionStorage et on enregistre la location
+else {
+	sessionStorage.setItem('location_script', window.location.pathname);
+	sessionStorage.clear();
+}
+
 
 // Masquage de colonnes
 function masquerColonne(index, dataId) {
@@ -131,11 +144,12 @@ function actualiserLargeurCol() {
 		// On fixe la largeur des td
 		tds.each(function(index, td) {
 			if(index < ths.length) {
-				var padding = 2,
-					tdWidth = parseInt(window.getComputedStyle(td, null).width) - padding,
-					thWidth = parseInt(window.getComputedStyle(ths[index], null).width) - padding,
+				var padding = parseInt(window.getComputedStyle(ths[index], null).paddingLeft) 
+					+ parseInt(window.getComputedStyle(ths[index], null).paddingRight) + 2,
+					tdWidth = td.offsetWidth - padding,
+					thWidth = ths[index].offsetWidth - padding,
 					tdSelectWidth = ((tdSelect.length && index < tdSelect.length)?
-						parseInt(window.getComputedStyle(tdSelect[index], null).width) - padding :  0 );
+						tdSelect[index].offsetWidth - padding : 0 );
 				if(tdSelectWidth > 0)
 					$(td).css('min-width', Math.max(tdWidth, thWidth, tdSelectWidth)+'px');
 				else
@@ -212,13 +226,18 @@ if(titresFixes) {
 		divBoutons = document.querySelector(".boutons-options"),
 		offsetTop = $(ligneTitres).offset().top,
 		offsetLeftLT = $(ligneTitres).offset().left,
-		offsetLeftDB = $(divBoutons).offset().left;
+		offsetLeftDB = $(divBoutons).offset().left,
+		toRefresh = true;
 
 	actualiserLargeurCol();
 
 	// Callback sur le scroll
 	function scrollTitre(){
 		if((document.body.scrollTop || document.documentElement.scrollTop) >= offsetTop) {
+			if(toRefresh){
+				actualiserLargeurCol();
+				toRefresh = false;
+			}
 			ligneTitres.classList.add("fixed");
 			divBoutons.classList.add('fixed');
 			$(divBoutons).css('left', offsetLeftDB - $(window).scrollLeft());
