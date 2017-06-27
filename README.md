@@ -86,7 +86,7 @@ $db = Database::instantiate('dsn:dbname=db;host=localhost', 'login', 'mot de pas
 $req = new SQLRequest("SELECT * FROM table;");
 
 // Instantiation de ListManger
-$lm = new ListManager($db); // avec une seule instance de Database le paramètre du constructeur est facultatif
+$lm = new ListManager();    // avec une seule instance de Database le paramètre du constructeur est facultatif
 
 // Construction de la liste & affichage
 echo $lm->construct($req);

@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">34</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">35</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-2071376925"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-385511184"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-2071376925" class="accordion-body collapse in">
+            <div id="namespace-385511184" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -198,6 +198,7 @@ Les méthodes de la classe permettent donc de filtrer les données séléctionn�
                                                                     <a href="../classes/SQLRequest.html#method_removeOrderBy" class="">removeOrderBy()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method___toString" class="">__toString()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_getType" class="">getType()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_getUserParameters" class="">getUserParameters()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_getColumnsMeta" class="">getColumnsMeta()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_getTablesAliases" class="">getTablesAliases()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_getOrderByArray" class="">getOrderByArray()</a><br />
@@ -237,6 +238,7 @@ Les méthodes de la classe permettent donc de filtrer les données séléctionn�
                                                                     <a href="../classes/SQLRequest.html#property__orderByArray" class="">$_orderByArray</a><br />
                                                                     <a href="../classes/SQLRequest.html#property__limit" class="">$_limit</a><br />
                                                                     <a href="../classes/SQLRequest.html#property__offset" class="">$_offset</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__userParameters" class="">$_userParameters</a><br />
                                                                     <a href="../classes/SQLRequest.html#property__requestType" class="">$_requestType</a><br />
                                                                     <a href="../classes/SQLRequest.html#property__forOracle" class="">$_forOracle</a><br />
                                                             </section>
@@ -510,6 +512,30 @@ Chaque objet possède les 3 attributs suivants :
 
                                     <div class="row-fluid">
         <div class="span8 content class">
+            <a id="property__userParameters" name="property__userParameters" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$_userParameters</h3>
+                <pre class="signature">$_userParameters : array</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                array
+                &mdash; tableau contenant les valeurs entrées par l&#039;utilisateur lors de la recherche. A utiliser lors de l&#039;exécution avec PDO::prepare()                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
             <a id="property__requestType" name="property__requestType" class="anchor"></a>
             <article class="property">
                 <h3 class="private ">$_requestType</h3>
@@ -626,7 +652,8 @@ Les opérateurs possibles sont :</p>
 <li>
 < > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal (pour les valeurs numériques)
 </li>
-<li>! : opérateur 'différent de'. La condition '!' est traduite par 'différent de' et peut (detruet?) servir de 'NOT NULL'.</li>
+<li>! : opérateur 'différent de'. La condition '!' est traduite par différent de ''</li>
+<li>\n : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL</li>
 <li>&lt;&lt; : opérateur 'BETWEEN' pour les dates</li>
 <li>_ % : opérateurs joker SQL, remplacent respectivement un seul caractère ou un nombre indéfini de caractère dans une chaine.</li>
 </ul></td>
@@ -785,6 +812,35 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
+            <a id="method_getUserParameters" name="method_getUserParameters" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getUserParameters()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getUserParameters() : array</pre>
+                <p><em></em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; <p>le tableau contenant les valeurs entrées par l'utilisateur lors de la recherche. A utiliser lors de l'exécution avec PDO::prepare()</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
             <a id="method_getColumnsMeta" name="method_getColumnsMeta" class="anchor"></a>
             <article class="method">
                 <h3 class="public ">getColumnsMeta()</h3>
@@ -860,7 +916,7 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
                 
                                     <h4>Returns</h4>
                     array
-                                            &mdash; <p>le tableau contenant le nom / numéro des colonnes à inscrire dans le ORDER BY. Retourne false s'il n'y a pas d'order by.</p>
+                                            &mdash; <p>le tableau contenant le nom / numéro des colonnes à inscrire dans le ORDER BY.</p>
                                     				
                             </article>
         </div>
@@ -1060,7 +1116,7 @@ Récupère le nom des colonnes selctionnées et le nom des tables et leur alias<
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 16th, 2017 at 14:42.
+                    on June 23rd, 2017 at 17:32.
                 </section>
             </section>
         </section>

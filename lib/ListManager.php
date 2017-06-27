@@ -96,13 +96,9 @@ class ListManager {
 	 */
 	private $_listTitles;
 	/**
-	 * @var array $_filterArray 
+	 * @var array $_filterArray filtre posé par le développeur qui sera applqiué par défaut à la construction de la liste.
 	 */
 	private $_filterArray;
-	/**
-	 * @var array $_havingColumns 
-	 */
-	private $_havingColumns;
 	/**
 	 * @var array $_orderBy
 	 */
@@ -205,7 +201,6 @@ class ListManager {
 		$this->_mask = array();
 		$this->_listTitles = array();
 		$this->_filterArray = [];
-		$this->_havingColumns = [];
 		$this->_orderBy = [];
 
 		// Gestion des options : désactivation de fonctionnalités
@@ -262,13 +257,15 @@ class ListManager {
 						$tabSelect[$titre] = $valeur;
 				}
 				if(count($tabSelect) > 0)
-					$sqlRequest->filter($tabSelect, array_merge($having, $this->_havingColumns));
+					$sqlRequest->filter($tabSelect, $having);
 			}
 		}
 		
 		// Tri (Order By)
-		if($this->_enableOrderBy && isset($_GET['lm_orderBy'.$this->_id])){
-			$sqlRequest->orderBy(explode(',', $_GET['lm_orderBy'.$this->_id]));
+		if($this->_enableOrderBy){
+			if(isset($_GET['lm_orderBy'.$this->_id]))
+				$sqlRequest->orderBy(explode(',', $_GET['lm_orderBy'.$this->_id]));
+			$this->_orderBy = $sqlRequest->getOrderBy();
 		}
 
 		// Excel
@@ -282,7 +279,8 @@ class ListManager {
 		}
 
 		//Execution de la requete
-		$reponse = $this->_db->execute($sqlRequest, $params);
+		$userParams = $sqlRequest->getUserParameters();
+		$reponse = $this->_db->execute($sqlRequest, array_merge($userParams, $params));
 
 		//Creation de l'objet de reponse
 		switch ($this->_responseType){
@@ -369,10 +367,6 @@ class ListManager {
 				// Selection de la page
 				if($this->_template->issetPaging() && isset($_GET['lm_page'.$this->_id]) && $_GET['lm_page'.$this->_id] > 0)
 					$this->_template->setCurrentPage($_GET['lm_page'.$this->_id]);
-				
-				// Modification de l'order by
-				if(count($orderBy = $sqlRequest->getOrderByArray()))
-					$_GET['lm_orderBy'.$this->_id] = implode(',', $orderBy);
 
 				return $this->_template->construct($reponse);
 		}
@@ -636,16 +630,29 @@ class ListManager {
 	}
 
 	/** 
-	 *
+	 * Applique un filtre par défaut sur les données de la liste.
+	 * Via cette méthode vous pourrez appliquer un filtre par défaut dans les colonnes de votre choix, que l'utilisateur pourra modifier 
+	 * ou supprimer lors de la navigation
+	 * @param array $filter le tableau contenant toutes les conditions à rajouter. Ce tableau aura la forme suivante :
+	 * ['nomColonne1' => 'condition1', 'nomColonne2' => 'cond2A,cond2B,cond3C'] ... Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' => 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
+	 * Une condition prend la forme suivante : [OPERATEUR][VALEUR]
+	 * Les opérateurs possibles sont :
+	 * * (pas d'opérateur) : égalité stricte avec la valeur entrée
+	 * * < > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal (pour les valeurs numériques)
+	 * * ! : opérateur 'différent de'. La condition '!' est traduite par différent de ''
+	 * * \n : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL
+	 * * << : opérateur 'BETWEEN' pour les dates
+	 * @return ListManager $this method chaining
 	 */
-	public function setFilter(array $filter, array $having=[]){
+	public function setFilter(array $filter){
 		$this->_filterArray = $filter;
-		$this->_havingColumns = $having;
 		return $this;
 	}
 
 	/** 
-	 *
+	 * Ne foncitonne pas.
+	 * @param array $columns
+	 * @return ListManager $this method chaining
 	 */
 	public function setOrderBy(array $columns){
 		$this->_orderBy = $columns;
@@ -782,6 +789,20 @@ class ListManager {
 	 */
 	public function getListTitles() {
 		return $this->_listTitles;
+	}
+
+	/**
+	 * @return array le tableau associatif du filtre posé par le développeur.
+	 */
+	public function getFilter() {
+		return $this->_filterArray;
+	}
+
+	/**
+	 * @return array le tableau contenant les colonnes de la clause order by.
+	 */
+	public function getOrderBy() {
+		return $this->_orderBy;
 	}
 
 	/**

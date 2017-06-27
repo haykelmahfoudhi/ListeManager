@@ -70,6 +70,10 @@ class SQLRequest {
 	 */
 	private $_offset;
 	/**
+	 * @var array $_userParameters tableau contenant les valeurs entrées par l'utilisateur lors de la recherche. A utiliser lors de l'exécution avec PDO::prepare()
+	 */
+	private $_userParameters;
+	/**
 	 * @var RequestType $_requestType type de la requete SQL (SELECT, INSERT, DELETE, UPDATE, AUTRE)
 	 */
 	private $_requestType;
@@ -100,6 +104,7 @@ class SQLRequest {
 		$this->_orderByArray = array();
 		$this->_limit = null;
 		$this->_offset = null;
+		$this->_userParameters = [];
 		$this->_forOracle = $forOracle;
 		$this->matchRequete();
 	}
@@ -117,7 +122,8 @@ class SQLRequest {
 	* Les opérateurs possibles sont :
 	* * (pas d'opérateur) : égalité stricte avec la valeur entrée
 	* * < > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal (pour les valeurs numériques)
-	* * ! : opérateur 'différent de'. La condition '!' est traduite par 'différent de' et peut (detruet?) servir de 'NOT NULL'.
+	* * ! : opérateur 'différent de'. La condition '!' est traduite par différent de ''
+	* * \n : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL
 	* * << : opérateur 'BETWEEN' pour les dates
 	* * _ % : opérateurs joker SQL, remplacent respectivement un seul caractère ou un nombre indéfini de caractère dans une chaine.
 	* @param array $colonnesHaving tableau contenant le nom des colonnes selectionnées dont le filtre doit se trouver dans la clause HAVING.
@@ -129,13 +135,15 @@ class SQLRequest {
 		$retHaving = ((strlen($this->_havingBlock) > 0)? ' AND ' : '');
 
 		foreach ($tabSelect as $nomColonne => $conditions) {
+			$nomColonne = strtolower($nomColonne);
+
 			// Gestion HAVING / WHERE
 			$estHaving = false;
 			if(isset($colonnesHaving[$nomColonne])) {
 				$estHaving = true;
 				$nomColonne = $colonnesHaving[$nomColonne];
 			}
-			else if (in_array($nomColonne, $colonnesHaving))
+			else if (in_array($nomColonne, array_map('strtolower', $colonnesHaving)))
 				$estHaving = true;
 
 			// Gestion des conditions
@@ -171,20 +179,36 @@ class SQLRequest {
 					// Pour ne pas reformater les valeurs lors de la reconnaissance du type
 					$btw = true;
 				}
+				// \n => IS NULL
+				else if($condition === '\\n'){
+					$valeur = 'NULL';
+					$operateur = 'IS';
+					if($not) {
+						$not = false;
+						$operateur .= ' NOT';
+					}
+				}
 				else {
 					// Opérateur LIKE
 					if(mb_strpos($condition, '_') !== false 
 						|| mb_strpos($condition, '%') !== false){
 						$operateur = 'LIKE';
 					}
+					// Valeur seule
 					$valeur = $condition;
 				}
 
-				// Reconnaissance type de valeur
-				if(! is_numeric($valeur) && ! $btw)
-					$valeur = '\''.htmlentities($valeur, ENT_QUOTES, 'UTF-8').'\'';
+				// Créaton du parametre à enregistrer
+				// MARCHE PAS AVEC PDOOCI :'(
+				if($valeur !== 'NULL' && !$this->_forOracle){
+					$nomParam = uniqid(':');
+					$this->_userParameters[$nomParam] = $valeur;
+				}
+				else 
+					$nomParam = $valeur;
+
 				// Mise en forme de la condition
-				$ret .= (($not)? 'NOT ' : '')."$nomColonne $operateur $valeur OR ";
+				$ret .= (($not)? 'NOT ' : '')."$nomColonne $operateur $nomParam OR ";
 			}
 			$ret = mb_substr($ret, 0, strlen($ret) - 4).') AND ';
 
@@ -270,10 +294,6 @@ class SQLRequest {
 			//Ajout du bloc WHERE
 			if(strlen($this->_whereBlock) > 0) {
 				$ret .= ' WHERE '.$this->_whereBlock;
-				// Ajout de la limit (ROWNUM oracle)
-				if($this->_forOracle && $this->_limit != null && intval($this->_limit) == $this->_limit){
-					$ret .= ' AND ROWNUM > '.intval($this->_limit);
-				}
 			}
 
 			if($this->_requestType == RequestType::SELECT){
@@ -323,6 +343,13 @@ class SQLRequest {
 	}
 
 	/**
+	 * @return array le tableau contenant les valeurs entrées par l'utilisateur lors de la recherche. A utiliser lors de l'exécution avec PDO::prepare()
+	 */
+	public function getUserParameters(){
+		return $this->_userParameters;
+	}
+
+	/**
 	 * Retourne un tableau d'objets contenant les données pour chaque colonne de la clause SELECT.
 	 * Chaque objet possède les 3 attributs suivants :
 	 *   * -> *name*   : le nom de la colonne
@@ -348,14 +375,14 @@ class SQLRequest {
 	}
 
 	/**
-	* @return array le tableau contenant le nom / numéro des colonnes à inscrire dans le ORDER BY. Retourne false s'il n'y a pas d'order by.
+	* @return array le tableau contenant le nom / numéro des colonnes à inscrire dans le ORDER BY.
 	*/
 	public function getOrderByArray(){
 		if($this->_requestType === RequestType::SELECT
 			&& count($this->_orderByArray) > 0){
 			return $this->_orderByArray;
 		}
-		return false;
+		return [];
 	}
 
 	/**
@@ -374,9 +401,14 @@ class SQLRequest {
 		if($this->_requestType != RequestType::SELECT)
 			return false;
 
-		$this->_limit = $limit;
-		if($offset !== '')
-			$this->_offset = $offset;
+		if(!$this->_forOracle) {
+			$this->_limit = $limit;
+			if($offset !== '')
+				$this->_offset = $offset;
+		}
+		else {
+			$this->filter(['ROWNUM' => "<=$limit"]);
+		}
 	}
 
 	/**
@@ -432,14 +464,17 @@ class SQLRequest {
 					return $matchParentheses[0][$match[1]];
 				} , $tabMatch[3]);
 
-
 				// Mise à jour des attribus
 				if($attribu == '_limit') {
 					$this->_limit = $valeur;
 					$this->_offset = ( (strlen($offset = trim($tabMatch[4])) > 0 )? $offset : null );
 				}
 				else if($attribu == '_orderByArray')
-					$this->_orderByArray[0] = $valeur;
+					$this->_orderByArray = array_map(function($col){
+						if(preg_match('/(.*)[\s]+DESC[\s]*$/i', $col, $matchCol))
+							return '-'.$matchCol[1];
+						return trim($col);
+					}, explode(',', $valeur));
 				else
 					$this->$attribu = $valeur;
 			}

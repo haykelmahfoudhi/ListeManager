@@ -58,9 +58,9 @@ class SQLRequest {
 	 */
 	private $_havingBlock;
 	/**
-	 * @var array $_orderByArray tableau contenant le numéro/nom de colonnes pour le tri des données 
+	 * @var array $_orderBy tableau contenant le numéro/nom de colonnes pour le tri des données 
 	 */
-	private $_orderByArray;
+	private $_orderBy;
 	/**
 	 * @var int $_limit correpsond à la valeur de la clause 'LIMIT' de la requete 
 	 */
@@ -69,6 +69,10 @@ class SQLRequest {
 	 * @var string $_offset correpsond à la valeur de la clause 'OFFSET' de la requete 
 	 */
 	private $_offset;
+	/**
+	 * @var array $_userParameters tableau contenant les valeurs entrées par l'utilisateur lors de la recherche. A utiliser lors de l'exécution avec PDO::prepare()
+	 */
+	private $_userParameters;
 	/**
 	 * @var RequestType $_requestType type de la requete SQL (SELECT, INSERT, DELETE, UPDATE, AUTRE)
 	 */
@@ -97,9 +101,10 @@ class SQLRequest {
 		$this->_whereBlock = '';
 		$this->_groupByBlock = '';
 		$this->_havingBlock = '';
-		$this->_orderByArray = array();
+		$this->_orderBy = array();
 		$this->_limit = null;
 		$this->_offset = null;
+		$this->_userParameters = [];
 		$this->_forOracle = $forOracle;
 		$this->matchRequete();
 	}
@@ -117,7 +122,8 @@ class SQLRequest {
 	* Les opérateurs possibles sont :
 	* * (pas d'opérateur) : égalité stricte avec la valeur entrée
 	* * < > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal (pour les valeurs numériques)
-	* * ! : opérateur 'différent de'. La condition '!' est traduite par 'différent de' et peut (detruet?) servir de 'NOT NULL'.
+	* * ! : opérateur 'différent de'. La condition '!' est traduite par différent de ''
+	* * \n : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL
 	* * << : opérateur 'BETWEEN' pour les dates
 	* * _ % : opérateurs joker SQL, remplacent respectivement un seul caractère ou un nombre indéfini de caractère dans une chaine.
 	* @param array $colonnesHaving tableau contenant le nom des colonnes selectionnées dont le filtre doit se trouver dans la clause HAVING.
@@ -173,20 +179,41 @@ class SQLRequest {
 					// Pour ne pas reformater les valeurs lors de la reconnaissance du type
 					$btw = true;
 				}
+				// \n => IS NULL
+				else if($condition === '\\n'){
+					$valeur = 'NULL';
+					$operateur = 'IS';
+					if($not) {
+						$not = false;
+						$operateur .= ' NOT';
+					}
+				}
 				else {
 					// Opérateur LIKE
 					if(mb_strpos($condition, '_') !== false 
 						|| mb_strpos($condition, '%') !== false){
 						$operateur = 'LIKE';
 					}
+					// Valeur seule
 					$valeur = $condition;
 				}
 
-				// Reconnaissance type de valeur
-				if(! is_numeric($valeur) && ! $btw)
-					$valeur = '\''.htmlentities($valeur, ENT_QUOTES, 'UTF-8').'\'';
+				// Créaton du parametre à enregistrer
+				// MARCHE PAS AVEC PDOOCI :'(
+				if($valeur !== 'NULL' && !$this->_forOracle){
+					$nomParam = uniqid(':');
+					$this->_userParameters[$nomParam] = $valeur;
+				}
+				// On met la valeur directement dans la requete
+				else {
+					if(is_numeric($valeur) || $valeur === 'NULL')
+						$nomParam = $valeur;
+					else 
+						$nomParam = "'".htmlentities($valeur, ENT_QUOTES)."'";
+				}
+
 				// Mise en forme de la condition
-				$ret .= (($not)? 'NOT ' : '')."$nomColonne $operateur $valeur OR ";
+				$ret .= (($not)? 'NOT ' : '')."$nomColonne $operateur $nomParam OR ";
 			}
 			$ret = mb_substr($ret, 0, strlen($ret) - 4).') AND ';
 
@@ -207,44 +234,35 @@ class SQLRequest {
 
 	/**
 	* Ajoute une ou plusieurs colonnes au bloc order by de la requete.
-	* @param mixed $nomColonne correpsond au nom / numéro de la (ou des) colonne(s) à ajouter au group by :
-	*  * Pour ajouter plusieurs colonnes ce paramèttre doit etre un array, sinon c'est un int.
+	* @param array $colonnes correpsond au nom / numéro de la (ou des) colonne(s) à ajouter au group by :
 	*  * Pour classer la colonnes par 'DESC' le nom ou numéro doit commencer par '-'.
-	* @return boolean false si le type de requete n'est pas SELECT ou si le paramètre $nomColonne est vide.
+	* @return boolean false si le type de requete n'est pas SELECT ou si le paramètre $colonnes est vide.
 	*/
-	public function orderBy($nomColonne){
+	public function orderBy(array $colonnes){
 		//Vérification du type de requete
-		if($this->_requestType == RequestType::SELECT){
+		if($this->_requestType == RequestType::SELECT && count($colonnes)){
 
-			//Si $numColonne est un tableau
-			if(is_array($nomColonne)){
-				// Suppression des colonnes déjà existantes
-				foreach ($nomColonne as $val)
+			$negColonne = [];
+			$toRemove = [];
+			// Suppression des colonnes déjà existantes
+			foreach ($colonnes as $val){
+				$val = strtolower($val);
+				if($val[0] == '-')
+					$negColonne[] = substr($val, 1);
+				else if($val[0] == '*'){
+					$toRemove[] = substr($val, 1);
+					$toRemove[] = (($val[1] == '-')? substr($val, 2) : '-'.substr($val, 1));
+					unset($colonnes[array_search($val, $colonnes)]);
+				}
+				else
 					$negColonne[] = "-$val";
-				$orderBy = array_diff($this->_orderByArray, $nomColonne, $negColonne);
-				
-				foreach (array_reverse($nomColonne) as $col){
-					array_unshift($orderBy, $col);
-				}
-				$this->_orderByArray = array_unique($orderBy);
 			}
-
-			//Sinon si c'est un nom de colonne / int
-			else {
-				if(strlen($nomColonne) == 0)
-					return false;
-
-				//Suppression de la valeur existante
-				if(($key = array_search($nomColonne, $this->_orderByArray)) != false
-					|| ($key = array_search(-$nomColonne, $this->_orderByArray)) != false){
-					unset($this->_orderByArray[$key]);
-				}
-				// Ajout de la colonne en début
-				array_unshift($this->_orderByArray, $nomColonne);
+			$orderBy = array_diff(array_map('strtolower', $this->_orderBy), $colonnes, $negColonne, $toRemove);
+			foreach (array_reverse($colonnes) as $col){
+				array_unshift($orderBy, $col);
 			}
-			return true;
+			$this->_orderBy = array_unique($orderBy);
 		}
-		//param incompatbile / type incompatible
 		return false;
 	}
 
@@ -254,7 +272,7 @@ class SQLRequest {
 	*/
 	public function removeOrderBy(){
 		if($this->_requestType == RequestType::SELECT) {
-			$this->_orderByArray = array();
+			$this->_orderBy = array();
 			return true;
 		}
 		return false;
@@ -285,9 +303,9 @@ class SQLRequest {
 					$ret .= ' HAVING '.$this->_havingBlock;
 				
 				//Ajout du order by
-				if(count($this->_orderByArray) > 0){
+				if(count($this->_orderBy) > 0){
 					$ret .= ' ORDER BY ';
-					foreach ($this->_orderByArray as $colonne) {
+					foreach ($this->_orderBy as $colonne) {
 						if(is_numeric($colonne))
 							$ret .= abs($colonne).(($colonne > 0)?'':' DESC ').',';
 						else 
@@ -321,6 +339,13 @@ class SQLRequest {
 	}
 
 	/**
+	 * @return array le tableau contenant les valeurs entrées par l'utilisateur lors de la recherche. A utiliser lors de l'exécution avec PDO::prepare()
+	 */
+	public function getUserParameters(){
+		return $this->_userParameters;
+	}
+
+	/**
 	 * Retourne un tableau d'objets contenant les données pour chaque colonne de la clause SELECT.
 	 * Chaque objet possède les 3 attributs suivants :
 	 *   * -> *name*   : le nom de la colonne
@@ -348,10 +373,10 @@ class SQLRequest {
 	/**
 	* @return array le tableau contenant le nom / numéro des colonnes à inscrire dans le ORDER BY.
 	*/
-	public function getOrderByArray(){
+	public function getOrderBy(){
 		if($this->_requestType === RequestType::SELECT
-			&& count($this->_orderByArray) > 0){
-			return $this->_orderByArray;
+			&& count($this->_orderBy) > 0){
+			return $this->_orderBy;
 		}
 		return [];
 	}
@@ -411,16 +436,17 @@ class SQLRequest {
 		// Récuppération & suppression des blocks parenthésés de la requete
 		$regParentheses = '/\(([^\(\)]|(?R))*\)/';
 		preg_match_all($regParentheses, $this->_requestBasis, $matchParentheses);
+		$matchParentheses = array_values(array_unique($matchParentheses[0]));
 		$replaceArray = [];
-		for ($i=0; $i < count($matchParentheses[0]); $i++) { 
+		for ($i=0; $i < count($matchParentheses); $i++) { 
 			$replaceArray[] = "($i)";
 		}
-		$sqlReplaced = str_replace($matchParentheses[0], $replaceArray, $this->_requestBasis);
+		$sqlReplaced = str_replace($matchParentheses, $replaceArray, $this->_requestBasis);
 
 		//Traitement bloc WHERE & HAVING & ORDER BY & LIMIT
 		$regArray = [
 			'_limit' 		=> '/^([\s\S]+)(\s+LIMIT\s+)([0-9]+)([\s\S]*)$/i',
-			'_orderByArray' => '/^([\s\S]+)(\s+ORDER\s+BY\s+)([\s\S]+)$/i',
+			'_orderBy' => '/^([\s\S]+)(\s+ORDER\s+BY\s+)([\s\S]+)$/i',
 			'_havingBlock' 	=> '/^([\s\S]+)(\s+HAVING\s+)([\s\S]+)$/i',
 			'_groupByBlock' => '/^([\s\S]+)(\s+GROUP\s+BY\s+)([\s\S]+)$/i',
 			'_whereBlock' 	=> '/^([\s\S]+)(\s+WHERE\s+)([\s\S]+)$/i'
@@ -432,7 +458,8 @@ class SQLRequest {
 				$sqlReplaced = $tabMatch[1];
 
 				$valeur = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
-					return $matchParentheses[0][$match[1]];
+					$num = substr($match[0], 1, strlen($match[0]) - 2);
+					return $matchParentheses[$num];
 				} , $tabMatch[3]);
 
 				// Mise à jour des attribus
@@ -440,8 +467,8 @@ class SQLRequest {
 					$this->_limit = $valeur;
 					$this->_offset = ( (strlen($offset = trim($tabMatch[4])) > 0 )? $offset : null );
 				}
-				else if($attribu == '_orderByArray')
-					$this->_orderByArray = array_map(function($col){
+				else if($attribu == '_orderBy')
+					$this->_orderBy = array_map(function($col){
 						if(preg_match('/(.*)[\s]+DESC[\s]*$/i', $col, $matchCol))
 							return '-'.$matchCol[1];
 						return trim($col);
@@ -480,14 +507,16 @@ class SQLRequest {
 				$obj->table = (strlen($table)? $table : null);
 				
 				$obj->name = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
-					return $matchParentheses[0][$match[1]];
+					$num = substr($match[0], 1, strlen($match[0]) - 2);
+					return $matchParentheses[$num];
 				}, trim($tabAlias[0][2]));
 				
 				$as = ((isset($tabAlias[0][3])) ? str_replace('"', '',
 						str_replace("'", '',
 							str_replace('`', '', trim($tabAlias[0][3])))) : null);
 				$obj->alias = ( strlen($as) ? preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
-						return $matchParentheses[0][$match[1]];
+					$num = substr($match[0], 1, strlen($match[0]) - 2);
+					return $matchParentheses[$num];
 					},$as) : null );
 
 				$col = $obj;
@@ -528,7 +557,8 @@ class SQLRequest {
 
 		// Mise à jour de la base de la requete
 		$this->_requestBasis = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
-			return $matchParentheses[0][$match[1]];
+					$num = substr($match[0], 1, strlen($match[0]) - 2);
+					return $matchParentheses[$num];
 		}, $sqlReplaced);
 	}
 

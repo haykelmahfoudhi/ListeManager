@@ -24,7 +24,7 @@ $db = Database::instantiate('mysql:host=localhost;dbname=marklate', "marquage", 
 // $req = new SQLRequest("SELECT * FROM Trace where of > 2000 LIMIT 2000 ");
 $req = new SQLRequest("SELECT d.Id as ok, d.Nom, COUNT(a.IdDonneurOrdre) as nbId FROM Avion a, DonnOrdre d
 						WHERE a.IdDonneurOrdre = d.Id GROUP BY d.Id, d.Nom
-						ORDER BY 1;");
+						ORDER BY d.id;");
 
 $lm = new ListManager();
 
