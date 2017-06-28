@@ -169,7 +169,7 @@ class ListTemplate {
 		$this->_replaceTagTD = false;
 		$this->_rowCallback = null;
 		$this->_columnCallback = null;
-		$this->_helpLink = "http://list-manager.torchpad.com/Presentation+liste";
+		$this->_helpLink = LM_ROOT.'doc/presentation.html';
 		$this->_userButtons = [];
 		$this->_displayResultsInfos = true;
 		$this->_applyDefaultCSS = true;
@@ -245,7 +245,7 @@ class ListTemplate {
 			
 			// Ajout du form si recherche activee
 			$ret .= "\n<form class='recherche' id='recherche".$lmId."' action='' method='GET'"
-				.'><input type="submit" value="Go!"/>';
+				.'><input type="submit" value="Go!" style="display:none;"/>';
 
 			// Ajout des paramètres GET déjà présents
 			foreach ($_GET as $nom => $valeur) {
@@ -309,7 +309,7 @@ class ListTemplate {
 				$orderArray = [];
 				if(isset($_GET['lm_orderBy'.$lmId]) || count($baseOrderBy)){
 					if(isset($_GET['lm_orderBy'.$lmId]))
-						$orderArray = explode(',', $_GET['lm_orderBy'.$lmId]);
+						$orderArray = explode(';', $_GET['lm_orderBy'.$lmId]);
 					$orderArray = array_unique(array_merge($baseOrderBy, $orderArray));
 
 					// Construction de la chaine orderBy
@@ -331,7 +331,7 @@ class ListTemplate {
 							unset($orderArray[$key]);
 						array_unshift($orderArray, $nomColonne);
 					}
-					$orderString = ((count($orderArray))? implode(',', $orderArray) : null);
+					$orderString = ((count($orderArray))? implode(';', $orderArray) : null);
 				}
 				else {
 					$orderString = $nomColonne;

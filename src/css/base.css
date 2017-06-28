@@ -80,16 +80,15 @@ th {
 	border-bottom: 3px solid #888;
 }
 
+th a {
+	text-decoration: none;
+}
+
 .fixed th {
 	padding: 3px;
 }
 tr.fixed > th:not(:first-child) {
 	border-left: 2px solid #eee;
-}
-
-th > a {
-	text-decoration: none;
-	font-bold: bold;
 }
 
 tr.tabSelect input {
@@ -119,6 +118,11 @@ td {
 	border: 2px solid white;
 	padding: 3px;
 	font-size: 12px;
+}
+
+.liste td a {
+	color: #1B2CED;
+	text-decoration: none;
 }
 
 tr.noir {

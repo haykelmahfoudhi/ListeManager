@@ -206,7 +206,7 @@ class SQLRequest {
 				}
 				// On met la valeur directement dans la requete
 				else {
-					if(is_numeric($valeur) || $valeur === 'NULL')
+					if($valeur === 'NULL')
 						$nomParam = $valeur;
 					else 
 						$nomParam = "'".htmlentities($valeur, ENT_QUOTES)."'";

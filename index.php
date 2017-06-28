@@ -31,6 +31,8 @@ $lm = new ListManager();
 echo $lm->construct($req, [], ['COUNT(a.IdDonneurOrdre)']);
 echo $req;
 
+var_dump((Object) ['ok' => 'test']);
+
 ?>
 </body>
 </html>
