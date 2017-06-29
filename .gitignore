@@ -1,9 +1,6 @@
 .settings/
+index.php
 .project
 .buildpath
-cache/
 phar/
-tests/
-src/excel/
-vendor/
-lib/Toutcode.php
+xls/*

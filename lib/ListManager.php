@@ -157,6 +157,10 @@ class ListManager {
 	 * @var const NO_HELP_LINK à utiliser dans le constructeur pour masquer le bouton-lien vers la page d'aide. 
 	 */
 	const NO_HELP_LINK = 1024;
+	/**
+	 * @var const DISPLAY_SEARCH à utiliser dans le constructeur pour masquer le bouton-lien vers la page d'aide. 
+	 */
+	const DISPLAY_SEARCH = 2048;
 
 	/**
 	 * @var array $optionsArray tableau associatif entre chaque option du constructeur et la méthode permettant de desactiver la fonctionnalité correspondate
@@ -172,7 +176,8 @@ class ListManager {
 		self::UNFIXED_TITLES => 'fixTitles',
 		self::UNFIXED_PAGING => 'fixPaging',
 		self::NO_RESULTS => 'displayResultsInfos',
-		self::NO_HELP_LINK => 'setHelpLink'
+		self::NO_HELP_LINK => 'setHelpLink',
+		self::DISPLAY_SEARCH => 'displaySearch'
 	];
 	
 	
@@ -208,7 +213,7 @@ class ListManager {
 		foreach ($options as $option) {
 			$i++;
 			if(isset(self::$optionsArray[$option]))
-				call_user_func_array([$this, self::$optionsArray[$option]], array(false));
+				call_user_func_array([$this, self::$optionsArray[$option]], [$option==self::DISPLAY_SEARCH]);
 
 			// Option non reconnue
 			else {
@@ -642,10 +647,25 @@ class ListManager {
 	 * * ! : opérateur 'différent de'. La condition '!' est traduite par différent de ''
 	 * * \n : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL
 	 * * << : opérateur 'BETWEEN' pour les dates
+	 * @param bool $displaySearch passez ce paramètre à false si vous souhaitez ne pas afficher les champs de recherche, sinon laissez le à true
 	 * @return ListManager $this method chaining
 	 */
-	public function setFilter(array $filter){
+	public function setFilter(array $filter, $displaySearch=true){
+		if($this->_template->displaySearchInputs($displaySearch) === false)
+			return false;
+
 		$this->_filterArray = $filter;
+		return $this;
+	}
+
+	/**
+	 * Définit si ListTemplate affiche ou non les champs de recherche au chargmeent de la page.
+	 * @param bool $valeur true pour activer, false pour desactiver
+	 * @return bool false si l'argument n'est pas un booleen
+	 */
+	public function displaySearchInputs($valeur) {
+		if($this->_template->displaySearchInputs($valeur) === false)
+			return false;
 		return $this;
 	}
 

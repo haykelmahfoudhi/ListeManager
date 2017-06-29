@@ -169,7 +169,14 @@ function afficherChampsRecherche(listeParent, premierChargement){
 	if(inputTr.length) {
 		var dataId = listeParent.find('.liste').attr('data-id'),
 			dataId = ((typeof dataId == 'undefined')? 'defaut' : dataId),
-			formQuest = listeParent.find('form.recherche');
+			formQuest = listeParent.find('form.recherche'),
+			dispTSData = listeParent.find('table.liste').attr('disp-tabSelect') == 'true',
+			displayTS = function(afficher){
+				if(afficher){ inputTr.show(); formQuest.show(); }
+				else{ inputTr.hide(); formQuest.hide(); }
+				if(!premierChargement || typeof tabQuest[dataId] == 'undefined')
+					tabQuest[dataId] = afficher;
+			};
 
 		try {
 			tabQuest = JSON.parse(sessionStorage.getItem('tabQuest'));
@@ -180,22 +187,11 @@ function afficherChampsRecherche(listeParent, premierChargement){
 		if(tabQuest == null)
 			tabQuest = {};
 
-		if(typeof tabQuest[dataId] != 'undefined' && tabQuest[dataId]) {
-			if(!premierChargement) {
-				inputTr.hide();
-				formQuest.hide();
-				tabQuest[dataId] = false;
-			}
-		}
-		else if(premierChargement) {
-			inputTr.hide();
-			formQuest.hide();
-		}
-		else {
-			inputTr.show();
-			formQuest.show();
-			tabQuest[dataId] = true;
-		}
+		if(typeof tabQuest[dataId] == 'undefined')
+			displayTS(dispTSData);
+		else
+			displayTS(!(premierChargement ^ tabQuest[dataId])); // ^ => XOR
+		
 		sessionStorage.setItem('tabQuest', JSON.stringify(tabQuest));
 	}
 	actualiserLargeurCol();

@@ -1,7 +1,7 @@
 <?php
 
 define('LM_ROOT', '');
-require_once 'includes.php';
+require_once LM_ROOT.'includes.php';
 
 ?>
 <!DOCTYPE html>
@@ -28,10 +28,10 @@ $req = new SQLRequest("SELECT d.Id as ok, d.Nom, COUNT(a.IdDonneurOrdre) as nbId
 
 $lm = new ListManager();
 
-echo $lm->construct($req, [], ['COUNT(a.IdDonneurOrdre)']);
-echo $req;
+$lm->setFilter(['d.Id' => '>0']);
 
-var_dump((Object) ['ok' => 'test']);
+echo $lm->construct($req, [], ['COUNT(a.IdDonneurOrdre)']);
+
 
 ?>
 </body>

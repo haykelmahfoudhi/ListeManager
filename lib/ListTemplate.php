@@ -112,6 +112,10 @@ class ListTemplate {
 	 */
 	private $_userButtons;
 	/**
+	 * @var bool $_quest définit si ListTemplate affiche ou non les champs de recherche automatiquement au chargement de la page
+	 */
+	private $_quest;
+	/**
 	 * @var bool $_displayResultsInfos définit si ListTemplate affiche ou non le nombre de résultats total retournée par la requete
 	 */
 	private $_displayResultsInfos;
@@ -171,6 +175,7 @@ class ListTemplate {
 		$this->_columnCallback = null;
 		$this->_helpLink = LM_ROOT.'doc/presentation.html';
 		$this->_userButtons = [];
+		$this->_quest = false;
 		$this->_displayResultsInfos = true;
 		$this->_applyDefaultCSS = true;
 		$this->_maxSizeInputs = 15;
@@ -291,6 +296,7 @@ class ListTemplate {
 
 		$ret .= '<table class="liste'.(($this->_fixedPaging)? ' fix-margin"' : '"').' '
 			.(($this->_fixedTitles)? ' fixed-titles="true"' : '')
+			.' disp-tabSelect="'.(($this->_quest)? 'true' : 'false').'"'
 			.(($lmId == null)?'' : " data-id='".$lmId."' ").'>'."\n<tr class='ligne-titres'>";
 
 		//Creation des titres
@@ -665,6 +671,18 @@ class ListTemplate {
 			$this->_helpLink = $link;
 		else
 			$this->_helpLink = null;
+	}
+
+	/**
+	 * Définit si ListTemplate affiche ou non les champs de recherche.
+	 * @param bool $valeur true pour activer, false pour desactiver
+	 * @return bool false si l'argument n'est pas un booleen
+	 */
+	public function displaySearchInputs($valeur) {
+		if(!is_bool($valeur))
+			return false;
+
+		$this->_quest = $valeur;
 	}
 
 	/**
