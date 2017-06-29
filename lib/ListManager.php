@@ -807,7 +807,7 @@ class ListManager {
 
 	/**
 	 * Détermine si au moins un des noms de colonne se trouve dans le tableau du masque.
-	 * @var string $column,... le nom ou les alias de la colonne 
+	 * @var string $column ... le nom ou les alias de la colonne 
 	 * @return bool true si la colonne est à masquer, false sinon 
 	 */
 	public function isMasked($column) {

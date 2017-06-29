@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">35</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">37</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-385511184"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-207231770"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-385511184" class="accordion-body collapse in">
+            <div id="namespace-207231770" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -201,7 +201,7 @@ Les méthodes de la classe permettent donc de filtrer les données séléctionn�
                                                                     <a href="../classes/SQLRequest.html#method_getUserParameters" class="">getUserParameters()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_getColumnsMeta" class="">getColumnsMeta()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_getTablesAliases" class="">getTablesAliases()</a><br />
-                                                                    <a href="../classes/SQLRequest.html#method_getOrderByArray" class="">getOrderByArray()</a><br />
+                                                                    <a href="../classes/SQLRequest.html#method_getOrderBy" class="">getOrderBy()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_getLimit" class="">getLimit()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_setLimit" class="">setLimit()</a><br />
                                                                     <a href="../classes/SQLRequest.html#method_prepareForOracle" class="">prepareForOracle()</a><br />
@@ -235,7 +235,7 @@ Les méthodes de la classe permettent donc de filtrer les données séléctionn�
                                                                     <a href="../classes/SQLRequest.html#property__whereBlock" class="">$_whereBlock</a><br />
                                                                     <a href="../classes/SQLRequest.html#property__groupByBlock" class="">$_groupByBlock</a><br />
                                                                     <a href="../classes/SQLRequest.html#property__havingBlock" class="">$_havingBlock</a><br />
-                                                                    <a href="../classes/SQLRequest.html#property__orderByArray" class="">$_orderByArray</a><br />
+                                                                    <a href="../classes/SQLRequest.html#property__orderBy" class="">$_orderBy</a><br />
                                                                     <a href="../classes/SQLRequest.html#property__limit" class="">$_limit</a><br />
                                                                     <a href="../classes/SQLRequest.html#property__offset" class="">$_offset</a><br />
                                                                     <a href="../classes/SQLRequest.html#property__userParameters" class="">$_userParameters</a><br />
@@ -440,10 +440,10 @@ Chaque objet possède les 3 attributs suivants :
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="property__orderByArray" name="property__orderByArray" class="anchor"></a>
+            <a id="property__orderBy" name="property__orderBy" class="anchor"></a>
             <article class="property">
-                <h3 class="private ">$_orderByArray</h3>
-                <pre class="signature">$_orderByArray : array</pre>
+                <h3 class="private ">$_orderBy</h3>
+                <pre class="signature">$_orderBy : array</pre>
                 <p><em></em></p>
                 
 
@@ -650,7 +650,7 @@ Les opérateurs possibles sont :</p>
 <ul>
 <li>(pas d'opérateur) : égalité stricte avec la valeur entrée</li>
 <li>
-< > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal (pour les valeurs numériques)
+< > <= >= = : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal, égal
 </li>
 <li>! : opérateur 'différent de'. La condition '!' est traduite par différent de ''</li>
 <li>\n : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL</li>
@@ -688,18 +688,17 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
             <article class="method">
                 <h3 class="public ">orderBy()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">orderBy(mixed  <span class="argument">$nomColonne</span>) : boolean</pre>
+                <pre class="signature" style="margin-right: 54px;">orderBy(array  <span class="argument">$colonnes</span>) : boolean</pre>
                 <p><em>Ajoute une ou plusieurs colonnes au bloc order by de la requete.</em></p>
                 
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td>mixed</td>
-                                <td>$nomColonne </td>
+                                <td>array</td>
+                                <td>$colonnes </td>
                                 <td><p>correpsond au nom / numéro de la (ou des) colonne(s) à ajouter au group by :</p>
 <ul>
-<li>Pour ajouter plusieurs colonnes ce paramèttre doit etre un array, sinon c'est un int.</li>
 <li>Pour classer la colonnes par 'DESC' le nom ou numéro doit commencer par '-'.</li>
 </ul></td>
                             </tr>
@@ -708,7 +707,7 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
                 
                                     <h4>Returns</h4>
                     boolean
-                                            &mdash; <p>false si le type de requete n'est pas SELECT ou si le paramètre $nomColonne est vide.</p>
+                                            &mdash; <p>false si le type de requete n'est pas SELECT ou si le paramètre $colonnes est vide.</p>
                                     				
                             </article>
         </div>
@@ -904,11 +903,11 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
-            <a id="method_getOrderByArray" name="method_getOrderByArray" class="anchor"></a>
+            <a id="method_getOrderBy" name="method_getOrderBy" class="anchor"></a>
             <article class="method">
-                <h3 class="public ">getOrderByArray()</h3>
+                <h3 class="public ">getOrderBy()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">getOrderByArray() : array</pre>
+                <pre class="signature" style="margin-right: 54px;">getOrderBy() : array</pre>
                 <p><em></em></p>
                 
 
@@ -1116,7 +1115,7 @@ Récupère le nom des colonnes selctionnées et le nom des tables et leur alias<
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 23rd, 2017 at 17:32.
+                    on June 29th, 2017 at 10:33.
                 </section>
             </section>
         </section>
