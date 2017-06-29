@@ -267,8 +267,19 @@ class ListTemplate {
 			$ret .= "<a href='$this->_helpLink' target='_blank' class='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
 		}
 
+		// On détermine si les parametres de tabSelect sont différents du filtre dev
+		$diffOfFilter = false;
+		if(isset($_GET['lm_tabSelect'.$lmId])){
+			$devFilter = $this->_lm->getFilter();
+			foreach ($_GET['lm_tabSelect'.$lmId] as $col => $filtre) {
+				if(isset($devFilter[$col]) && $devFilter[$col] != $filtre){
+					$diffOfFilter = true;
+					break;
+				}
+			}
+		}
 		//Bouton RaZ
-		if(isset($_GET['lm_tabSelect'.$lmId]) || isset($_GET['lm_orderBy'.$lmId])) {
+		if($diffOfFilter || isset($_GET['lm_orderBy'.$lmId])) {
 			$tabGet = $_GET;
 			
 			if(isset($_GET['lm_tabSelect'.$lmId]))

@@ -596,16 +596,15 @@ class ListManager {
 	 * la cellule et le document en cours. Le format du callback est :
 	 *  *  paramètres d'entrée :
 	 *    1. phpExcel : l'objet PHPExcel utilisé pour générer le document
-	 *    2. contenu  : le contenu de la cellule en cours
-	 *    3. metas    : objet des métas données de la colonnes en cours ( @see RequestResponse::getColumnsMeta() )
-	 *    4. colonne  : la lettre correspondante à la colonne en cours
-	 *    5. numLigne : le numéro de la ligne en cours
+	 *    2. donnees  : le tableau contenant les données insérées dans le doc
+	 *    3. metas    : array d'objets des métas données des colonnes ( @see RequestResponse::getColumnsMeta() )
+	 *    4. titres   : array des titres des colonnes telles qu'écrites dans le fichier
 	 *  * pas de valeur de retour, tout se fait via l'objet PHPExcel
 	 * @param callable $fonction le nom du callback a utiliser, null si aucun.
 	 * @return ListManager la référence de l'objet ($this)
 	 */
 	public function setExcelCallback(callable $fonction){
-		$this->_template->setColumnCallback($fonction);
+		$this->_excelCallback = $fonction;
 		return $this;
 	}
 
@@ -653,8 +652,10 @@ class ListManager {
 	public function setFilter(array $filter, $displaySearch=true){
 		if($this->_template->displaySearchInputs($displaySearch) === false)
 			return false;
-
-		$this->_filterArray = $filter;
+		
+		foreach ($filter as $col => $valeur) {
+			$this->_filterArray[strtolower($col)] = $valeur;		
+		}
 		return $this;
 	}
 
@@ -899,25 +900,27 @@ class ListManager {
 		$col = 'A';
 		$width = [];
 		$maxWidth = 30;
+		$minWidth = 8;
 		$metas = $reponse->getColumnsMeta();
 		$titres = [];
 		foreach ($metas as $meta) {
 
+			// Préparation du titre à insérer
+			if($meta->table != null && isset($this->_listTitles["$meta->table.$meta->name"]))
+				$titres[] = $this->_listTitles["$meta->table.$meta->name"];
+			else if(isset($this->_listTitles[$meta->name]))
+				$titres[] = $this->_listTitles[$meta->name];
+			else if(isset($this->_listTitles[$meta->alias]))
+				$titres[] = $this->_listTitles[$meta->alias];
+			else
+				$titres[] = (($meta->alias == null)? $meta->name : $meta->alias);
+
 			// On vérifie que la colonne n'est pas masquée
 			if(!$this->isMasked($meta->name, $meta->alias)) {
 
-				// Préparation du titre à insérer
-				if($meta->table != null && isset($this->_listTitles["$meta->table.$meta->name"]))
-					$titres[] = $this->_listTitles["$meta->table.$meta->name"];
-				else if(isset($this->_listTitles[$meta->name]))
-					$titres[] = $this->_listTitles[$meta->name];
-				else if(isset($this->_listTitles[$meta->alias]))
-					$titres[] = $this->_listTitles[$meta->alias];
-				else
-					$titres[] = (($meta->alias == null)? $meta->name : $meta->alias);
-
 				// Mise en forme & insertion des titres
 				$width[$col] = min(strlen($titres[$i]), $maxWidth);
+				$width[$col] = max($width[$col], $minWidth);
 				$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($width[$col]);
 				$phpExcel->getActiveSheet()->setCellValue($col.'1', $titres[$i]);
 	 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
@@ -935,9 +938,16 @@ class ListManager {
 	 			if($this->_excelCallback !== null)
 	 				call_user_func_array($this->_excelCallback, [$phpExcel, $meta, $titres[$i], $col, 1]);
 
-				$col++;
-				$i++;
+	 			// Incrément nom colonne
+				if(($lastCol = $col[strlen($col) - 1]) == 'Z')
+					$col = substr($col, 0, strlen($col) - 1).'AA';
+				else
+					$col = substr($col, 0, strlen($col) - 1).(++$lastCol);
 			}
+			else {
+				$this->_mask[] = $titres[$i];
+			}
+			$i++;
 		}
 
 		// Insertion des données
@@ -952,25 +962,101 @@ class ListManager {
 			for ($j=0; $j < $reponse->getColumnsCount(); $j++){
 				$cellule = $ligne[$j];
 				// On vérifie que la colonne n'est pas masquée
-				if(!$this->isMasked($titres[$j], $metas[$j]->alias)) {
+				if(!$this->isMasked($titres[$j], $metas[$j]->alias, $metas[$j]->name)) {
 					// Insertion de la donnée
 					$phpExcel->getActiveSheet()->setCellValue($col.($i), $cellule);
 
 					//Modification largeur colonne
 					$cellWidth = min(strlen($cellule), $maxWidth);
+					$cellWidth = max($cellWidth, $minWidth);
 					if($cellWidth > $width[$col]){
 						$width[$col] = $cellWidth;
 						$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($cellWidth);
 					}
-		 			// Appel au callback
-		 			if($this->_excelCallback !== null)
-		 				call_user_func_array($this->_excelCallback, [$phpExcel, $cellule, $metas[$j], $col, $i]);
 
-					$col++;
+		 			// Incrément nom colonne
+					if(($lastCol = $col[strlen($col) - 1]) == 'Z')
+						$col = substr($col, 0, strlen($col) - 1).'AA';
+					else
+						$col = substr($col, 0, strlen($col) - 1).(++$lastCol);
 				}
 			}
 			$i++;
 		}
+
+		// Appel au callback
+		if($this->_excelCallback !== null)
+			call_user_func_array($this->_excelCallback, [$phpExcel, $donnees, $metas, $titres]);
+
+
+
+		// // Création des titres
+		// $phpExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(20);
+		// $col = 'A';
+		// $i = 0;
+		// $titres = [];
+		// $metas = $reponse->getColumnsMeta();
+		// foreach ($metas as $meta) {
+		// 	// Préparation du titre à insérer
+		// 	if($meta->table != null && isset($this->_listTitles["$meta->table.$meta->name"]))
+		// 		$titres[] = $this->_listTitles["$meta->table.$meta->name"];
+		// 	else if(isset($this->_listTitles[$meta->name]))
+		// 		$titres[] = $this->_listTitles[$meta->name];
+		// 	else if(isset($this->_listTitles[$meta->alias]))
+		// 		$titres[] = $this->_listTitles[$meta->alias];
+		// 	else
+		// 		$titres[] = (($meta->alias == null)? $meta->name : $meta->alias);
+			
+		// 	// On vérifie que la colonne n'est pas masquée
+		// 	if(!$this->isMasked($titres[$i], $meta->alias)) {
+
+		// 		// Mise en forme & insertion des titres
+		// 		$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth(15);
+		// 		$phpExcel->getActiveSheet()->setCellValue($col.'1', $titres[$i]);
+	 // 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
+	 // 				'font' => array(
+	 // 					'bold' => true,
+	 // 					'size' => 13,
+	 // 				),
+	 // 				'fill' => array(
+	 // 					'type' => PHPExcel_Style_Fill::FILL_SOLID,
+	 // 					'color' => array('rgb' => 'CCCCCC'),
+	 // 				),
+	 // 			));
+
+	 // 			// Incrément nom colonne
+		// 		if(($lastCol = $col[strlen($col) - 1]) == 'Z')
+		// 			$col = substr($col, 0, strlen($col) - 1).'AA';
+		// 		else
+		// 			$col = substr($col, 0, strlen($col) - 1).(++$lastCol);
+		// 	}
+		// 	$i++;
+		// }
+
+		// // Insertion des données
+		// while(($ligne = $reponse->nextLine()) != null){
+		// 	$i = 0;
+		// 	foreach($ligne as $key => &$cell){
+		// 		if(is_int($key)) // Suppression des doublons
+		// 			unset($ligne[$key]);
+
+		// 		// Application du mask
+		// 		else if($this->isMasked($titres[$i], $metas[$i]->alias, $key)){
+		// 			unset($ligne[$key]);
+		// 			$i++;
+		// 		}
+		// 		else $i++;
+		// 	}
+		// 	$donnees[] = $ligne;
+		// }
+		
+		// // Ecriture des données dans la feuille
+		// $phpExcel->getActiveSheet()->fromArray($donnees, null, 'A2');
+
+		// // Modification des hauteurs de ligne
+		// for($i=1; $i<=$reponse->getRowsCount(); $i++)
+		// 	$phpExcel->getActiveSheet()->getRowDimension($i+1)->setRowHeight(20);
+
 		
 		// Ecriture du fichier
 		try {
@@ -984,6 +1070,13 @@ class ListManager {
 		}
 		return $chemin;
 	}
+
+	private static function intToColumn($val){
+		if(!is_int($val))
+			return false;
+
+		return strrev(chr(66 + ($val % 26)).self::intToColumn($val / 26));
+	} 
 }
 
 ?>

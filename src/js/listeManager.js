@@ -270,7 +270,7 @@ function maskExportExcel(listeParent) {
 	var dataId = listeParent.find('.liste').attr('data-id'),
 		dataId = ((typeof dataId == 'undefined')? 'defaut' : dataId),
 		tabMask = JSON.parse(sessionStorage.getItem('mask')),
-		tabUrl = document.URL.split('#'),
+		tabUrl = document.URL.toString().split('#'),
 		url = tabUrl[0] + ((tabUrl[0].indexOf('?') !== -1)? '' : '?')
 			+ "&lm_excel" + ((dataId == 'defaut')? '' : dataId) + "=1";
 
