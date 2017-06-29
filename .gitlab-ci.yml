@@ -1,0 +1,27 @@
+stages:
+  - test
+  - deploy
+
+test-php5.6:
+  stage: test
+  script: echo "Running tests with php5.6"
+
+test-php7:
+  stage: test
+  script: echo "Running tests with php7"
+
+other-test-campaign:
+  stage: test
+  script: echo "Dther test campaign"
+
+deploy-staging:
+  stage: deploy
+  script: echo "Deploy on staging"
+  environment: staging
+  only: develop
+
+deploy-production:
+  stage: deploy
+  script: echo "Deploy on production"
+  environment: production
+  only: master
