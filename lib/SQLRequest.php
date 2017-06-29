@@ -121,7 +121,7 @@ class SQLRequest {
 	* Une condition prend la forme suivante : [OPERATEUR][VALEUR]
 	* Les opérateurs possibles sont :
 	* * (pas d'opérateur) : égalité stricte avec la valeur entrée
-	* * < > <= >= : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal (pour les valeurs numériques)
+	* * < > <= >= = : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal, égal
 	* * ! : opérateur 'différent de'. La condition '!' est traduite par différent de ''
 	* * \n : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL
 	* * << : opérateur 'BETWEEN' pour les dates
@@ -161,10 +161,9 @@ class SQLRequest {
 					$condition = mb_substr($condition, 1);
 				}
 				// Comparateurs > < >= <=
-				if( (in_array($op = mb_substr($condition, 0, 2), array('>=', '<='))
-					|| in_array($op = mb_substr($condition, 0, 1), array('>', '<')) ) 
-					&& is_numeric($val = mb_substr($condition, strlen($op))) ) {
-					$valeur = $val;
+				if( in_array($op = mb_substr($condition, 0, 2), array('>=', '<='))
+					|| in_array($op = mb_substr($condition, 0, 1), array('>', '<', '=')) ){
+					$valeur = mb_substr($condition, strlen($op));
 					$operateur = $op;
 				}
 				// Opérateur BETWEEN
