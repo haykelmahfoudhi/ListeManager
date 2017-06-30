@@ -107,6 +107,7 @@ function masquerColonnesOnClick(event) {
 	}
 	sessionStorage.setItem('mask', JSON.stringify(tabMask));
 	updateURL();
+	actualiserLargeurCol();
 }
 
 

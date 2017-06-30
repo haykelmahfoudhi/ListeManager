@@ -510,7 +510,9 @@ class ListManager {
 	 * @return ListManager la référence de l'objet ($this)
 	 */
 	public function setListTitles(array $liste) {
-		$this->_listTitles = $liste;
+		foreach ($liste as $col => $val)
+			$this->_listTitles[strtolower($col)] = $val;
+
 		return $this;
 	}
 

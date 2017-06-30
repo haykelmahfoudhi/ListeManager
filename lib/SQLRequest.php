@@ -437,7 +437,7 @@ class SQLRequest {
 		preg_match_all($regParentheses, $this->_requestBasis, $matchParentheses);
 		$matchParentheses = array_values(array_unique($matchParentheses[0]));
 		$replaceArray = [];
-		for ($i=0; $i < count($matchParentheses); $i++) { 
+		for ($i=0; $i < count($matchParentheses); $i++) {
 			$replaceArray[] = "($i)";
 		}
 		$sqlReplaced = str_replace($matchParentheses, $replaceArray, $this->_requestBasis);
