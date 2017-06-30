@@ -395,7 +395,8 @@ class ListTemplate {
 
 		//Affichage des champs de saisie pour la  recherche
 		if($this->_lm->isSearchEnabled()){
-			$ret .= "<tr class='tabSelect'>";
+			$ret .= "<tr class='tabSelect'"
+				.(($this->_quest)? '' : ' style="display:none;" ').'>';
 			$i = 0;
 			foreach ($colonnes as $col){
 
@@ -533,7 +534,7 @@ class ListTemplate {
 		// Ajout du css si appliqué
 		if($this->_applyDefaultCSS){
 			$ret .= '<link rel="stylesheet" type="text/css" href="'.LM_CSS.'base.css"/>'."\n";
-			$ret .= "<link href='https://fonts.googleapis.com/css?family=Cousine' rel='stylesheet'/>\n";
+			$ret .= "<link href='https://fonts.googleapis.com/css?family=Amiko' rel='stylesheet'/>\n";
 		}
 
 		// Fin

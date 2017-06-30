@@ -4,7 +4,7 @@
 		*************************************************/
 
 .liste-parent {
-	font-family: 'Cousine';
+	font-family: 'Amiko';
 }
 
 .liste-parent > div {
@@ -73,11 +73,12 @@ tr:not(:first-child):hover {
 }
 
 th, .tabSelect td {
-	padding: 8px 3px;
+	padding: 8px 2px;
 }
 
 th {
 	border-bottom: 3px solid #888;
+	line-height: 15px;
 }
 
 th a {
@@ -85,7 +86,7 @@ th a {
 }
 
 .fixed th {
-	padding: 3px;
+	padding: 2px;
 }
 tr.fixed > th:not(:first-child) {
 	border-left: 2px solid #eee;
@@ -94,7 +95,7 @@ tr.fixed > th:not(:first-child) {
 tr.tabSelect input {
 	border-radius: 0;
 	border: 1px solid #888;
-	padding: 3px;
+	padding: 2px;
 }
 
 tr.tabSelect {
@@ -103,6 +104,7 @@ tr.tabSelect {
 
 th > a.titre-colonne {
 	color: black;
+	font-size: 14px;
 }
 
 th > a.masque {
@@ -116,8 +118,12 @@ th > a.masque:visited {
 
 td {
 	border: 2px solid white;
-	padding: 3px;
-	font-size: 12px;
+	padding: 4px 2px;
+}
+
+.liste td {
+	font-size: 11px;
+	line-height: 12px;
 }
 
 .liste td a {
@@ -179,7 +185,7 @@ tr.vert {
 .pagination td {
 	border: none;
 	padding: 0 10px;
-	font-size: 22px;
+	font-size: 20px;
 }
 
 .pagination td {
@@ -187,5 +193,6 @@ tr.vert {
 }
 
 .pagination td > a {
+	text-decoration: none;
 	color: black;
 }
