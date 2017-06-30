@@ -253,10 +253,13 @@ class ListManager {
 		if($this->_enableSearch){
 			// Ajout du filtre developpeur
 			foreach ($this->_filterArray as $titre => $valeur)
-				if(!isset($_GET['lm_tabSelect'.$this->_id][strtolower($titre)]))
+				if(!isset($_GET['lm_tabSelect'.$this->_id][strtolower($titre)])
+					|| strlen($_GET['lm_tabSelect'.$this->_id][strtolower($titre)]) === 0)
 					$_GET['lm_tabSelect'.$this->_id][strtolower($titre)] = $valeur;
 			
+			// Récupération du tabSelect et ajout du filtre dans la requete SQL
 			if(isset($_GET['lm_tabSelect'.$this->_id])) {
+				$tabSelect = [];
 				foreach ($_GET['lm_tabSelect'.$this->_id] as $titre => $valeur) {
 					if(strlen($valeur) > 0)
 						$tabSelect[$titre] = $valeur;
@@ -874,6 +877,13 @@ class ListManager {
 			/*-****************
 			***   PRIVATE   ***
 			******************/
+
+	/**
+	 *
+	 */
+	private function getIdealColWidth($data, $min, $max){
+		$ret = [];
+	}
 
 	/**
 	 * Génère un fichier excel à partir d'une réponse de requete en utilisant la bibliothèque PHPExcel.

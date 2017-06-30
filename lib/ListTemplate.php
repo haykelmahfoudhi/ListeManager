@@ -393,6 +393,8 @@ class ListTemplate {
 
 		$ret .= "</tr>\n";
 
+		// 
+
 		//Affichage des champs de saisie pour la  recherche
 		if($this->_lm->isSearchEnabled()){
 			$ret .= "<tr class='tabSelect'"
@@ -408,11 +410,19 @@ class ListTemplate {
 					//Determine le contenu du champs
 					$valeur = (isset($_GET['lm_tabSelect'.$lmId][$nomColonne])? 
 						$_GET['lm_tabSelect'.$lmId][$nomColonne] : '');
+					
 					//Determine la taille du champs
 					if($this->_constInputsSize)
 						$taille = $this->_maxSizeInputs;
-					else 
-						$taille = min($col->len, $this->_maxSizeInputs);
+					else {
+						$type = strtolower($col->type);
+						// Définit la taille popur tous les numériques et date / heures
+						if(strstr('int', $type) || strstr('date', $type)
+							|| in_array($type, ['numeric', 'number', 'float', 'real', 'decimal', 'time']))
+							$taille = 6;
+						else
+							$taille = min($col->len, $this->_maxSizeInputs);
+					}
 
 					$ret .= '<td><input type="text" name="lm_tabSelect'.$lmId.'['.$nomColonne.']"'
 						." form='recherche".$lmId."' size='$taille' value='$valeur'/></td>";

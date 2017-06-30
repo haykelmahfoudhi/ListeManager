@@ -30,8 +30,10 @@ $lm = new ListManager();
 
 $lm->setFilter(['d.Id' => '>0']);
 
+
 echo $lm->construct($req, [], ['COUNT(a.IdDonneurOrdre)']);
 
+echo $req;
 
 ?>
 </body>

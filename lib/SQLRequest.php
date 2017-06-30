@@ -153,7 +153,6 @@ class SQLRequest {
 				//Initilasation des variables
 				$operateur = '=';
 				$not = false;
-				$btw = false;
 
 				// Construction de l'operateur et sa valeur : NOT
 				if(mb_substr($condition, 0, 1) === '!'){
@@ -168,15 +167,11 @@ class SQLRequest {
 				}
 				// Opérateur BETWEEN
 				else if(($pos = mb_strpos($condition, '<<')) !== false ){
-					$operateur = 'BETWEEN';
 					// Récupération des deux bornes
 					$val1 = htmlentities(mb_substr($condition, 0, $pos), ENT_QUOTES, 'UTF-8');
 					$val2 = htmlentities(mb_substr($condition, $pos + 2), ENT_QUOTES, 'UTF-8');
 					// Constructiond de $valeur
-					$valeur = (is_numeric($val1)? $val1 : "'$val1'" )
-						.' AND '.(is_numeric($val2)? $val2 : "'$val2'"  );
-					// Pour ne pas reformater les valeurs lors de la reconnaissance du type
-					$btw = true;
+					$valeur = [$val1, $val2];
 				}
 				// \n => IS NULL
 				else if($condition === '\\n'){
@@ -198,21 +193,38 @@ class SQLRequest {
 				}
 
 				// Créaton du parametre à enregistrer
-				// MARCHE PAS AVEC PDOOCI :'(
-				if($valeur !== 'NULL' && !$this->_forOracle){
-					$nomParam = uniqid(':');
-					$this->_userParameters[$nomParam] = $valeur;
-				}
-				// On met la valeur directement dans la requete
-				else {
-					if($valeur === 'NULL')
-						$nomParam = $valeur;
-					else 
-						$nomParam = "'".htmlentities($valeur, ENT_QUOTES)."'";
-				}
+				if(!is_array($valeur)){
+					// MARCHE PAS AVEC PDOOCI :'(
+					if($valeur !== 'NULL' && !$this->_forOracle){
+						$nomParam = uniqid(':');
+						$this->_userParameters[$nomParam] = $valeur;
+					}
+					// On met la valeur directement dans la requete
+					else{
+						if($valeur === 'NULL')
+							$nomParam = $valeur;
+						else 
+							$nomParam = "'".htmlentities($valeur, ENT_QUOTES)."'";
+					}
 
-				// Mise en forme de la condition
-				$ret .= (($not)? 'NOT ' : '')."$nomColonne $operateur $nomParam OR ";
+					// Mise en forme de la condition
+					$ret .= (($not)? 'NOT ' : '')."$nomColonne $operateur $nomParam OR ";
+				}
+				// Gestion du BETWEEN
+				else {
+					$nomParam = [];
+					if(!$this->_forOracle){
+						$nomParam[0] = uniqid(':');
+						$this->_userParameters[$nomParam[0]] = $valeur[0];
+						$nomParam[1] = uniqid(':');
+						$this->_userParameters[$nomParam[1]] = $valeur[1];
+					}
+					else {
+						$nomParam[0] = ((is_numeric($valeur[0]))? "'".htmlentities($valeur[0])."'" : $valeur[0] );
+						$nomParam[1] = ((is_numeric($valeur[1]))? "'".htmlentities($valeur[1])."'" : $valeur[1] );
+					}
+					$ret .= (($not)? 'NOT ' : '')."$nomColonne BETWEEN $nomParam[0] AND $nomParam[1] OR ";
+				}
 			}
 			$ret = mb_substr($ret, 0, strlen($ret) - 4).') AND ';
 
