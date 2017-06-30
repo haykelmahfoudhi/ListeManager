@@ -393,7 +393,8 @@ class ListTemplate {
 
 		$ret .= "</tr>\n";
 
-		// 
+		// Récupération de la largeur des colonnes
+		$width = $this->_lm->getIdealColumnsWidth($donnees, 5, $this->_maxSizeInputs);
 
 		//Affichage des champs de saisie pour la  recherche
 		if($this->_lm->isSearchEnabled()){
@@ -415,13 +416,7 @@ class ListTemplate {
 					if($this->_constInputsSize)
 						$taille = $this->_maxSizeInputs;
 					else {
-						$type = strtolower($col->type);
-						// Définit la taille popur tous les numériques et date / heures
-						if(strstr('int', $type) || strstr('date', $type)
-							|| in_array($type, ['numeric', 'number', 'float', 'real', 'decimal', 'time']))
-							$taille = 6;
-						else
-							$taille = min($col->len, $this->_maxSizeInputs);
+						$taille = $width[$i];
 					}
 
 					$ret .= '<td><input type="text" name="lm_tabSelect'.$lmId.'['.$nomColonne.']"'
