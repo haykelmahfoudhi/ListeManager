@@ -3,4 +3,4 @@ index.php
 .project
 .buildpath
 phar/
-xls/*
+xls/*.xlsx

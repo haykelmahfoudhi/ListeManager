@@ -237,7 +237,7 @@ class ListTemplate {
 		
 		// Bouton pour reset le mask en JS
 		if($this->_enableJSMask)
-			$ret .= '<a class="annuler-masque" href="#"><img height="40" width="40" src="'.LM_IMG.'mask-cross.png"></a>';
+			$ret .= '<a class="annuler-masque" style="display:none;" href="#"><img height="40" width="40" src="'.LM_IMG.'mask-cross.png"></a>';
 
 		// Bouton excel
 		if($this->_lm->isExcelEnabled()){
@@ -267,19 +267,23 @@ class ListTemplate {
 			$ret .= "<a href='$this->_helpLink' target='_blank' class='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
 		}
 
-		// On détermine si les parametres de tabSelect sont différents du filtre dev
-		$diffOfFilter = false;
+		// GOMME : On détermine si les parametres de tabSelect sont différents du filtre dev
+		$devFilter = $this->_lm->getFilter();
+		$devFilterDiff = false;
+		$tousVide = true;
 		if(isset($_GET['lm_tabSelect'.$lmId])){
-			$devFilter = $this->_lm->getFilter();
 			foreach ($_GET['lm_tabSelect'.$lmId] as $col => $filtre) {
-				if(isset($devFilter[$col]) && $devFilter[$col] != $filtre){
-					$diffOfFilter = true;
-					break;
-				}
+				// Vérification que le filtre dev correspond au tabSelect utilisateur
+				if(isset($devFilter[$col]) && $devFilter[$col] != $filtre
+					|| ! isset($devFilter[$col]) && strlen($filtre))
+					$devFilterDiff = true;
+				// Vérifit que tous les champs tabSelect utilisateur sont vides
+				if(strlen($filtre))
+					$tousVide = false;
 			}
 		}
 		//Bouton RaZ
-		if($diffOfFilter || isset($_GET['lm_orderBy'.$lmId])) {
+		if($devFilterDiff || ($devFilter === [] && !$tousVide) || isset($_GET['lm_orderBy'.$lmId])) {
 			$tabGet = $_GET;
 			
 			if(isset($_GET['lm_tabSelect'.$lmId]))
