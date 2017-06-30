@@ -1,7 +1,7 @@
 [submodule "PHPExcel"]
 	path = PHPExcel
-	url = https://github.com/PHPOffice/PHPExcel.git
+	url = http://lamiral.mecaprotec.fr/serviceInfo/PHPExcel_local.git
 
 [submodule "pdooci"]
 	path = pdooci
-	url = https://github.com/taq/pdooci.git
+	url = http://lamiral.mecaprotec.fr/serviceInfo/pdooci_local.git
