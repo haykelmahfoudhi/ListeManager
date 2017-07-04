@@ -220,8 +220,8 @@ class SQLRequest {
 						$this->_userParameters[$nomParam[1]] = $valeur[1];
 					}
 					else {
-						$nomParam[0] = ((is_numeric($valeur[0]))? "'".htmlentities($valeur[0])."'" : $valeur[0] );
-						$nomParam[1] = ((is_numeric($valeur[1]))? "'".htmlentities($valeur[1])."'" : $valeur[1] );
+						$nomParam[0] = ((!is_numeric($valeur[0]))? "'".htmlentities($valeur[0])."'" : $valeur[0] );
+						$nomParam[1] = ((!is_numeric($valeur[1]))? "'".htmlentities($valeur[1])."'" : $valeur[1] );
 					}
 					$ret .= (($not)? 'NOT ' : '')."$nomColonne BETWEEN $nomParam[0] AND $nomParam[1] OR ";
 				}
@@ -481,8 +481,8 @@ class SQLRequest {
 				else if($attribu == '_orderBy')
 					$this->_orderBy = array_map(function($col){
 						if(preg_match('/(.*)[\s]+DESC[\s]*$/i', $col, $matchCol))
-							return '-'.$matchCol[1];
-						return trim($col);
+							return '-'.strtolower($matchCol[1]);
+						return strtolower(trim($col));
 					}, explode(',', $valeur));
 				else
 					$this->$attribu = $valeur;

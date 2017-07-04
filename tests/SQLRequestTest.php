@@ -12,7 +12,7 @@ class SQRequestTest extends PHPUnit_Framework_TestCase {
 						FROM table WHERE id = col;",
 			'updt' => "UPDATE table SET col1 = 'ojk' WHERE id = 5;",
 			'del'  => "DELETE FROM table WHERE id = 6;",
-			'othr' => "DESCRIBE database MECAPROTEC;"
+			'othr' => "DESCRIBE database MECAPROTEC"
 	];
 	
 	public function testGetRequestType(){
@@ -38,7 +38,7 @@ class SQRequestTest extends PHPUnit_Framework_TestCase {
 				(Object)['name' => '*', 'table' => 't2', 'alias' => null]
 		];
 		$this->assertEquals($expected, (array) $req->getColumnsMeta());
-		$this->assertEquals([], (new SQLRequest($this->tabReq['othr']))->getColumnsMeta());
+		$this->assertEquals(false, (new SQLRequest($this->tabReq['othr']))->getColumnsMeta());
 	}
 
 	public function testTableAliases(){
@@ -53,5 +53,50 @@ class SQRequestTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(100, $req->getLimit());
 		$req = new SQLRequest($this->tabReq['othr']);
 		$this->assertNull($req->getLimit());
+	}
+	
+	public function testUserParameters(){
+		$req = new SQLRequest("SELECT * FROM table WHERE id < 100 ORDER BY 2");
+		$this->assertEquals([], $req->getUserParameters());
+		$req->prepareForOracle(true); // Le filtre utilisateur n'est aps appliqué pour une requete ORACLE
+		$req->filter(['col' => 'recherche', 'col2' => '>5', 'col3' => '2014-01-01<<2015-31-12']);
+		$this->assertEquals([], $req->getUserParameters());
+		$req->prepareForOracle(false);
+		$req->filter(['col' => 'recherche', 'col2' => '>5', 'col3' => '2014-01-01<<2015-31-12']);
+		$this->assertEquals(['recherche', 5, '2014-01-01', '2015-31-12'], array_values($req->getUserParameters()));
+	}
+	
+	public function testFilter(){
+		$req = new SQLRequest("SELECT * FROM table", true);
+		$this->assertEquals("SELECT * FROM table", $req->__toString());
+		$req->filter(['col1' => '1']);
+		$this->assertEquals("SELECT * FROM table WHERE (col1 = '1')", $req->__toString());
+		$req->filter(['col2' => '>=10', 'col3' => 'a%,b_']);
+		$this->assertEquals("SELECT * FROM table WHERE (col1 = '1') AND (col2 >= '10') AND (col3 LIKE 'a%' OR col3 LIKE 'b_')", $req->__toString());
+		$req = new SQLRequest("SELECT * FROM table", true);
+		$req->filter(['col1' => '\n', 'date' => '2014-02-02<<2015-06-08']);
+		$this->assertEquals("SELECT * FROM table WHERE (col1 IS NULL) AND (date BETWEEN '2014-02-02' AND '2015-06-08')", $req->__toString());
+	}
+	
+	public function testOrderByBasis(){
+		$req = new SQLRequest("SELECT * FROM table;");
+		$this->assertEquals([], $req->getOrderBy());
+		$req = new SQLRequest("SELECT * FROM table ORDER BY col1;");
+		$this->assertEquals(['col1'], $req->getOrderBy());
+		$req = new SQLRequest("SELECT * FROM table ORDER BY col2 dEsc, COLonne3 ;");
+		$this->assertEquals(['-col2', 'colonne3'], $req->getOrderBy());
+	}
+
+	public function testOrderByAdded(){
+		$req = new SQLRequest("SELECT * FROM table ORDER BY col;");
+		$this->assertEquals(['col'], $req->getOrderBy());
+		$req->orderBy(['-col']);
+		$this->assertEquals(['-col'], $req->getOrderBy());
+		$this->assertEquals("SELECT * FROM table ORDER BY col DESC;", $req->__toString());
+		$req->orderBy(['col']);
+		$this->assertEquals(['col'], $req->getOrderBy());
+		$req->orderBy(['*col']);
+		$this->assertEquals("SELECT * FROM table;", $req->__toString());
+		$this->assertEquals([], $req->getOrderBy());
 	}
 }

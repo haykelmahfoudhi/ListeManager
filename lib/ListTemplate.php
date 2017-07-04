@@ -394,7 +394,7 @@ class ListTemplate {
 		$ret .= "</tr>\n";
 
 		// Récupération de la largeur des colonnes
-		$width = $this->_lm->getIdealColumnsWidth($donnees, 5, $this->_maxSizeInputs);
+		$width = $this->_lm->getIdealColumnsWidth($donnees, 3, $this->_maxSizeInputs);
 
 		//Affichage des champs de saisie pour la  recherche
 		if($this->_lm->isSearchEnabled()){

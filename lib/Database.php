@@ -79,7 +79,7 @@ class Database {
 	private static $tabDescribe = [
 			'oci'   => ['req' => 'DESCRIBE ', 'col' => 'name'],
 			'mysql' => ['req' => 'DESCRIBE ', 'col' => 'Field'] ,
-			'pgsql' => ['req' => '\d ',       'col' => 'Column']
+			'pgsql' => ['req' => 'SELECT * FROM information_schema.COLUMNS WHERE TABLE_NAME = ',       'col' => 'Column']
 		];
 	
 	

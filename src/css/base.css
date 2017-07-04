@@ -121,7 +121,7 @@ td {
 	padding: 4px 2px;
 }
 
-.liste td {
+.liste td, .tabSelect input {
 	font-size: 11px;
 	line-height: 12px;
 }
