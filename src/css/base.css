@@ -73,12 +73,12 @@ tr:not(:first-child):hover {
 }
 
 th, .tabSelect td {
-	padding: 8px 2px;
+	padding: 5px 2px;
 }
 
 th {
 	border-bottom: 3px solid #888;
-	line-height: 15px;
+	line-height: 16px;
 }
 
 th a {
@@ -104,12 +104,13 @@ tr.tabSelect {
 
 th > a.titre-colonne {
 	color: black;
-	font-size: 14px;
+	font-size: 12px;
 }
 
 th > a.masque {
 	margin: 0 3px;
 	color: red;
+	font-size: 13px;
 }
 
 th > a.masque:visited {
@@ -123,7 +124,7 @@ td {
 
 .liste td, .tabSelect input {
 	font-size: 11px;
-	line-height: 12px;
+	line-height: 15px;
 }
 
 .liste td a {

@@ -364,8 +364,13 @@ class ListTemplate {
 					$titreAffiche = $listTitles[$col->alias];
 				else if(isset($listTitles[$nomColonne]))
 					$titreAffiche = $listTitles[$nomColonne];
-				else 
+				else {
 					$titreAffiche = (($col->alias == null)? $col->name : $col->alias);
+					// Si titre en caps => ucfirst
+					if($titreAffiche == strtoupper($titreAffiche))
+						$titreAffiche = ucfirst(strtolower($titreAffiche));
+				}
+
 
 				// Création du lien pour order by
 				if($this->_lm->isOrderByEnabled())
