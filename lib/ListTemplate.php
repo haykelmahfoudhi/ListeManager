@@ -237,7 +237,7 @@ class ListTemplate {
 		
 		// Bouton pour reset le mask en JS
 		if($this->_enableJSMask)
-			$ret .= '<a class="annuler-masque" href="#"><img height="40" width="40" src="'.LM_IMG.'mask-cross.png"></a>';
+			$ret .= '<a class="annuler-masque" style="display:none;" href="#"><img height="40" width="40" src="'.LM_IMG.'mask-cross.png"></a>';
 
 		// Bouton excel
 		if($this->_lm->isExcelEnabled()){
@@ -267,19 +267,23 @@ class ListTemplate {
 			$ret .= "<a href='$this->_helpLink' target='_blank' class='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
 		}
 
-		// On détermine si les parametres de tabSelect sont différents du filtre dev
-		$diffOfFilter = false;
+		// GOMME : On détermine si les parametres de tabSelect sont différents du filtre dev
+		$devFilter = $this->_lm->getFilter();
+		$devFilterDiff = false;
+		$tousVide = true;
 		if(isset($_GET['lm_tabSelect'.$lmId])){
-			$devFilter = $this->_lm->getFilter();
 			foreach ($_GET['lm_tabSelect'.$lmId] as $col => $filtre) {
-				if(isset($devFilter[$col]) && $devFilter[$col] != $filtre){
-					$diffOfFilter = true;
-					break;
-				}
+				// Vérification que le filtre dev correspond au tabSelect utilisateur
+				if(isset($devFilter[$col]) && $devFilter[$col] != $filtre
+					|| ! isset($devFilter[$col]) && strlen($filtre))
+					$devFilterDiff = true;
+				// Vérifit que tous les champs tabSelect utilisateur sont vides
+				if(strlen($filtre))
+					$tousVide = false;
 			}
 		}
 		//Bouton RaZ
-		if($diffOfFilter || isset($_GET['lm_orderBy'.$lmId])) {
+		if($devFilterDiff || ($devFilter === [] && !$tousVide) || isset($_GET['lm_orderBy'.$lmId])) {
 			$tabGet = $_GET;
 			
 			if(isset($_GET['lm_tabSelect'.$lmId]))
@@ -360,8 +364,13 @@ class ListTemplate {
 					$titreAffiche = $listTitles[$col->alias];
 				else if(isset($listTitles[$nomColonne]))
 					$titreAffiche = $listTitles[$nomColonne];
-				else 
+				else {
 					$titreAffiche = (($col->alias == null)? $col->name : $col->alias);
+					// Si titre en caps => ucfirst
+					if($titreAffiche == strtoupper($titreAffiche))
+						$titreAffiche = ucfirst(strtolower($titreAffiche));
+				}
+
 
 				// Création du lien pour order by
 				if($this->_lm->isOrderByEnabled())
@@ -389,9 +398,13 @@ class ListTemplate {
 
 		$ret .= "</tr>\n";
 
+		// Récupération de la largeur des colonnes
+		$width = $this->_lm->getIdealColumnsWidth($donnees, 3, $this->_maxSizeInputs);
+
 		//Affichage des champs de saisie pour la  recherche
 		if($this->_lm->isSearchEnabled()){
-			$ret .= "<tr class='tabSelect'>";
+			$ret .= "<tr class='tabSelect'"
+				.(($this->_quest)? '' : ' style="display:none;" ').'>';
 			$i = 0;
 			foreach ($colonnes as $col){
 
@@ -403,11 +416,13 @@ class ListTemplate {
 					//Determine le contenu du champs
 					$valeur = (isset($_GET['lm_tabSelect'.$lmId][$nomColonne])? 
 						$_GET['lm_tabSelect'.$lmId][$nomColonne] : '');
+					
 					//Determine la taille du champs
 					if($this->_constInputsSize)
 						$taille = $this->_maxSizeInputs;
-					else 
-						$taille = min($col->len, $this->_maxSizeInputs);
+					else {
+						$taille = $width[$i];
+					}
 
 					$ret .= '<td><input type="text" name="lm_tabSelect'.$lmId.'['.$nomColonne.']"'
 						." form='recherche".$lmId."' size='$taille' value='$valeur'/></td>";
@@ -529,7 +544,7 @@ class ListTemplate {
 		// Ajout du css si appliqué
 		if($this->_applyDefaultCSS){
 			$ret .= '<link rel="stylesheet" type="text/css" href="'.LM_CSS.'base.css"/>'."\n";
-			$ret .= "<link href='https://fonts.googleapis.com/css?family=Cousine' rel='stylesheet'/>\n";
+			$ret .= "<link href='https://fonts.googleapis.com/css?family=Amiko' rel='stylesheet'/>\n";
 		}
 
 		// Fin

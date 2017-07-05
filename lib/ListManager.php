@@ -253,10 +253,13 @@ class ListManager {
 		if($this->_enableSearch){
 			// Ajout du filtre developpeur
 			foreach ($this->_filterArray as $titre => $valeur)
-				if(!isset($_GET['lm_tabSelect'.$this->_id][strtolower($titre)]))
+				if(!isset($_GET['lm_tabSelect'.$this->_id][strtolower($titre)])
+					|| strlen($_GET['lm_tabSelect'.$this->_id][strtolower($titre)]) === 0)
 					$_GET['lm_tabSelect'.$this->_id][strtolower($titre)] = $valeur;
 			
+			// Récupération du tabSelect et ajout du filtre dans la requete SQL
 			if(isset($_GET['lm_tabSelect'.$this->_id])) {
+				$tabSelect = [];
 				foreach ($_GET['lm_tabSelect'.$this->_id] as $titre => $valeur) {
 					if(strlen($valeur) > 0)
 						$tabSelect[$titre] = $valeur;
@@ -510,7 +513,9 @@ class ListManager {
 	 * @return ListManager la référence de l'objet ($this)
 	 */
 	public function setListTitles(array $liste) {
-		$this->_listTitles = $liste;
+		foreach ($liste as $col => $val)
+			$this->_listTitles[strtolower($col)] = $val;
+
 		return $this;
 	}
 
@@ -867,6 +872,32 @@ class ListManager {
 	public static function isUnique() {
 		return count(self::$idList) <= 1;
 	}
+
+	/**
+	 * Retourne un tableau contenant la largeur idéeale en nombre de caractere pour chaque colonne du tableau en entrée.
+	 * @param array $data le tableau des données (2 dimensions, sinon ça marche pas)
+	 * @param int $min la valeur minimale de la largeur des colonnes
+	 * @param int $max la valeur maximale de la largeur
+	 * @return array contenant pour chaque colonne la largeur à appliquer.
+	 */
+	public function getIdealColumnsWidth(array $data, $min, $max){
+		//Vérification des paramètres
+		if(!is_array($data[0]) || intval($min) != $min || intval($max) != $max || $min > $max)
+			return false;
+
+		$ret = [];
+		$keys = array_keys($data[0]);
+		foreach ($data as $row) {
+			$i = 0;
+			foreach ($row as $key => $value) {
+				$width = max($min, min(strlen($value), $max));
+				if(!isset($ret[$keys[$i]]) || $ret[$keys[$i]] < $width)
+					$ret[$keys[$i]] = $width;
+				$i++;
+			}
+		}
+		return $ret;
+	}
 	
 
 			/*-****************
@@ -894,13 +925,15 @@ class ListManager {
 			->setSubject("Liste de données")
 			->setDescription("Feuille de données généré automatiqument à partir de l'url ".$_SERVER['REQUEST_URI']);
 		
+		$donnees = [];
+		while(($ligne = $reponse->nextLine()) != null)
+			$donnees[] = $ligne;
+
 		// Création des titres
 		$phpExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(20);
 		$i = 0;
 		$col = 'A';
-		$width = [];
-		$maxWidth = 30;
-		$minWidth = 8;
+		$width = $this->getIdealColumnsWidth($donnees, 8, 30);
 		$metas = $reponse->getColumnsMeta();
 		$titres = [];
 		foreach ($metas as $meta) {
@@ -919,9 +952,7 @@ class ListManager {
 			if(!$this->isMasked($meta->name, $meta->alias)) {
 
 				// Mise en forme & insertion des titres
-				$width[$col] = min(strlen($titres[$i]), $maxWidth);
-				$width[$col] = max($width[$col], $minWidth);
-				$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($width[$col]);
+				$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($width[$i]);
 				$phpExcel->getActiveSheet()->setCellValue($col.'1', $titres[$i]);
 	 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
 	 				'font' => array(
@@ -951,8 +982,6 @@ class ListManager {
 		}
 
 		// Insertion des données
-		while(($ligne = $reponse->nextLine()) != null)
-			$donnees[] = $ligne;
 		$i = 2;
 		foreach ($donnees as $ligne) {
 			// Hauteur de ligne
@@ -965,14 +994,6 @@ class ListManager {
 				if(!$this->isMasked($titres[$j], $metas[$j]->alias, $metas[$j]->name)) {
 					// Insertion de la donnée
 					$phpExcel->getActiveSheet()->setCellValue($col.($i), $cellule);
-
-					//Modification largeur colonne
-					$cellWidth = min(strlen($cellule), $maxWidth);
-					$cellWidth = max($cellWidth, $minWidth);
-					if($cellWidth > $width[$col]){
-						$width[$col] = $cellWidth;
-						$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($cellWidth);
-					}
 
 		 			// Incrément nom colonne
 					if(($lastCol = $col[strlen($col) - 1]) == 'Z')
@@ -987,76 +1008,6 @@ class ListManager {
 		// Appel au callback
 		if($this->_excelCallback !== null)
 			call_user_func_array($this->_excelCallback, [$phpExcel, $donnees, $metas, $titres]);
-
-
-
-		// // Création des titres
-		// $phpExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(20);
-		// $col = 'A';
-		// $i = 0;
-		// $titres = [];
-		// $metas = $reponse->getColumnsMeta();
-		// foreach ($metas as $meta) {
-		// 	// Préparation du titre à insérer
-		// 	if($meta->table != null && isset($this->_listTitles["$meta->table.$meta->name"]))
-		// 		$titres[] = $this->_listTitles["$meta->table.$meta->name"];
-		// 	else if(isset($this->_listTitles[$meta->name]))
-		// 		$titres[] = $this->_listTitles[$meta->name];
-		// 	else if(isset($this->_listTitles[$meta->alias]))
-		// 		$titres[] = $this->_listTitles[$meta->alias];
-		// 	else
-		// 		$titres[] = (($meta->alias == null)? $meta->name : $meta->alias);
-			
-		// 	// On vérifie que la colonne n'est pas masquée
-		// 	if(!$this->isMasked($titres[$i], $meta->alias)) {
-
-		// 		// Mise en forme & insertion des titres
-		// 		$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth(15);
-		// 		$phpExcel->getActiveSheet()->setCellValue($col.'1', $titres[$i]);
-	 // 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
-	 // 				'font' => array(
-	 // 					'bold' => true,
-	 // 					'size' => 13,
-	 // 				),
-	 // 				'fill' => array(
-	 // 					'type' => PHPExcel_Style_Fill::FILL_SOLID,
-	 // 					'color' => array('rgb' => 'CCCCCC'),
-	 // 				),
-	 // 			));
-
-	 // 			// Incrément nom colonne
-		// 		if(($lastCol = $col[strlen($col) - 1]) == 'Z')
-		// 			$col = substr($col, 0, strlen($col) - 1).'AA';
-		// 		else
-		// 			$col = substr($col, 0, strlen($col) - 1).(++$lastCol);
-		// 	}
-		// 	$i++;
-		// }
-
-		// // Insertion des données
-		// while(($ligne = $reponse->nextLine()) != null){
-		// 	$i = 0;
-		// 	foreach($ligne as $key => &$cell){
-		// 		if(is_int($key)) // Suppression des doublons
-		// 			unset($ligne[$key]);
-
-		// 		// Application du mask
-		// 		else if($this->isMasked($titres[$i], $metas[$i]->alias, $key)){
-		// 			unset($ligne[$key]);
-		// 			$i++;
-		// 		}
-		// 		else $i++;
-		// 	}
-		// 	$donnees[] = $ligne;
-		// }
-		
-		// // Ecriture des données dans la feuille
-		// $phpExcel->getActiveSheet()->fromArray($donnees, null, 'A2');
-
-		// // Modification des hauteurs de ligne
-		// for($i=1; $i<=$reponse->getRowsCount(); $i++)
-		// 	$phpExcel->getActiveSheet()->getRowDimension($i+1)->setRowHeight(20);
-
 		
 		// Ecriture du fichier
 		try {
