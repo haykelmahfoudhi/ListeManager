@@ -2,6 +2,10 @@ stages:
   - test
   - deploy
 
+before_script:
+  - uname -a
+  - whoami 
+
 test-php5.6:
   stage: test
   script: echo "Running tests with php5.6"
@@ -23,7 +27,9 @@ deploy-staging:
 
 deploy-production:
   stage: deploy
-  script: echo "Deploy on production"
+  script:
+    - ssh -t root@diego "cd /var/www/wwwsite && rm -r ListManager/ && git clone --recursive git@lamiral.mecaprotec.fr:serviceInfo/ListManager.git && chown www-data:www-data ListManager/ -R"
   environment: production
+  when : manual
   only:
     - master
