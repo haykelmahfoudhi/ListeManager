@@ -283,7 +283,7 @@ class ListTemplate {
 			}
 		}
 		//Bouton RaZ
-		if($devFilterDiff || ($devFilter === [] && !$tousVide) || isset($_GET['lm_orderBy'.$lmId])) {
+		if($this->_lm->issetUserFilter() || isset($_GET['lm_orderBy'.$lmId])) {
 			$tabGet = $_GET;
 			
 			if(isset($_GET['lm_tabSelect'.$lmId]))
@@ -406,6 +406,7 @@ class ListTemplate {
 			$ret .= "<tr class='tabSelect'"
 				.(($this->_quest)? '' : ' style="display:none;" ').'>';
 			$i = 0;
+			$filter = $this->_lm->getFilter();
 			foreach ($colonnes as $col){
 
 				$nomColonne = strtolower(($col->table != null)? $col->table.'.'.$col->name : $col->name );
@@ -414,8 +415,7 @@ class ListTemplate {
 				if(!$this->_lm->isMasked($nomColonne, $col->alias)) {
 
 					//Determine le contenu du champs
-					$valeur = (isset($_GET['lm_tabSelect'.$lmId][$nomColonne])? 
-						$_GET['lm_tabSelect'.$lmId][$nomColonne] : '');
+					$valeur = (isset($filter[$nomColonne])? $filter[$nomColonne] : '');
 					
 					//Determine la taille du champs
 					if($this->_constInputsSize)

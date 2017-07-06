@@ -12,7 +12,10 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
 //  			->getMock();
 // 		echo 'ok';
 // 	}
-	
+
+	public function testSilent(){
+		$this->assertTrue(true);
+	}
 // 	public function testSingleton(){
 // // 		$this->_pdoStub->expects($this->any())->method('__construct')->will($this->return(true));
 // 		$db = Database::instantiate('test:dbname=test;', 'root', 'toor');

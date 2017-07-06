@@ -74,8 +74,10 @@ class SQRequestTest extends PHPUnit_Framework_TestCase {
 		$req->filter(['col2' => '>=10', 'col3' => 'a%,b_']);
 		$this->assertEquals("SELECT * FROM table WHERE (col1 = '1') AND (col2 >= '10') AND (col3 LIKE 'a%' OR col3 LIKE 'b_')", $req->__toString());
 		$req = new SQLRequest("SELECT * FROM table", true);
-		$req->filter(['col1' => '\n', 'date' => '2014-02-02<<2015-06-08']);
+		$req->filter(['col1' => '-', 'date' => '2014-02-02<<2015-06-08']);
 		$this->assertEquals("SELECT * FROM table WHERE (col1 IS NULL) AND (date BETWEEN '2014-02-02' AND '2015-06-08')", $req->__toString());
+		$req->prepareForOracle(false);
+		$this->assertNotEquals("SELECT * FROM table WHERE (col1 IS NULL) AND (date BETWEEN '2014-02-02' AND '2015-06-08')", $req->__toString());
 	}
 	
 	public function testOrderByBasis(){

@@ -76,6 +76,10 @@ class ListManager {
 	 */
 	private $_enableSearch;
 	/**
+	 * @var boolean $_issetUserFilter indique au template si l'utilisateur à modifier les champs de recherche ou non.
+	 */
+	private $_issetUserFilter;
+	/**
 	 * @var boolean $_enableOrderBy spécifie si ListManger autorise le trie par colonne en modifiant la clause ORDER BY des requetes. N'a d'effet que si vous utilisez la méthode construct
 	 */
 	private $_enableOrderBy;
@@ -204,6 +208,7 @@ class ListManager {
 		$this->_template = new ListTemplate($this);
 		$this->_responseType = ResponseType::TEMPLATE;
 		$this->_enableSearch = true;
+		$this->_issetUserFilter = false;
 		$this->_enableOrderBy = true;
 		$this->_enableExcel = true;
 		$this->_excelCallback = null;
@@ -253,25 +258,8 @@ class ListManager {
 			$sqlRequest->prepareForOracle($this->_db->oracle());
 		}
 
-		// Construction de la requete a partir de variables GET disponibles :
 		// Conditions (where & having)
-		if($this->_enableSearch){
-			// Ajout du filtre developpeur
-			foreach ($this->_filterArray as $titre => $valeur)
-				if(!isset($_GET['lm_tabSelect'.$this->_id][$titre]))
-					$_GET['lm_tabSelect'.$this->_id][$titre] = $valeur;
-			
-			// Récupération du tabSelect et ajout du filtre dans la requete SQL
-			if(isset($_GET['lm_tabSelect'.$this->_id])) {
-				$tabSelect = [];
-				foreach ($_GET['lm_tabSelect'.$this->_id] as $titre => $valeur) {
-					if(strlen($valeur) > 0)
-						$tabSelect[$titre] = $valeur;
-				}
-				if(count($tabSelect) > 0)
-					$sqlRequest->filter($tabSelect, $having);
-			}
-		}
+		$this->manageFilter($sqlRequest, $having);
 		
 		// Tri (Order By)
 		if($this->_enableOrderBy){
@@ -652,18 +640,21 @@ class ListManager {
 	 * Les opérateurs possibles sont :
 	 * * (pas d'opérateur) : égalité stricte avec la valeur entrée
 	* * < > <= >= = : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal, égal
-	 * * ! : opérateur 'différent de'. La condition '!' est traduite par différent de ''
-	 * * \n : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL
+	 * * / : opérateur 'différent de'. La condition '!' est traduite par différent de ''
+	 * * - : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL
 	 * * << : opérateur 'BETWEEN' pour les dates
 	 * @param bool $displaySearch passez ce paramètre à false si vous souhaitez ne pas afficher les champs de recherche, sinon laissez le à true
 	 * @return ListManager $this method chaining
 	 */
 	public function setFilter(array $filter, $displaySearch=true){
-		if($this->_template->displaySearchInputs($displaySearch) === false)
+		if($displaySearch !== null && $this->_template->displaySearchInputs($displaySearch) === false)
 			return false;
 		
 		foreach ($filter as $col => $valeur) {
-			$this->_filterArray[strtolower($col)] = $valeur;		
+			if(strlen($valeur))
+				$this->_filterArray[strtolower($col)] = $valeur;
+			else
+				unset($this->_filterArray[strtolower($col)]);
 		}
 		return $this;
 	}
@@ -830,6 +821,13 @@ class ListManager {
 	public function getFilter() {
 		return $this->_filterArray;
 	}
+	
+	/**
+	 * @return boolean true si l'utilisateur a modifié ou effectué une recherche.
+	 */
+	public function issetUserFilter(){
+		return $this->_enableSearch && $this->_issetUserFilter;
+	}
 
 	/**
 	 * @return array le tableau contenant les colonnes de la clause order by.
@@ -913,7 +911,42 @@ class ListManager {
 			/*-****************
 			***   PRIVATE   ***
 			******************/
-
+	
+	/**
+	 * Gère les filtres.
+	 * Cette méthode interne récupère le filtre développeur, le lie au filtre utilisateur et détècte les différences entre les deux.
+	 * Actualise les attributs _filterArray & _issetUserFilter.
+	 * @param SQLRequest $sqlRequest la requete SQL à modifier
+	 */
+	private function manageFilter(SQLRequest $sqlRequest, array $having){
+		if($this->_enableSearch){
+			if(isset($_GET['lm_tabSelect'.$this->_id]) && is_array($_GET['lm_tabSelect'.$this->_id])){
+				// Détection des différences
+				$devFilterDiff = false;
+				$tousVide = true;
+				if(isset($_GET['lm_tabSelect'.$this->_id])){
+					foreach ($_GET['lm_tabSelect'.$this->_id] as $col => $filtre) {
+						// Vérification que le filtre dev correspond au tabSelect utilisateur
+						if(isset($this->_filterArray[$col]) && $this->_filterArray[$col] != $filtre
+								|| ! isset($this->_filterArray[$col]) && strlen($filtre))
+							$devFilterDiff = true;
+							// Vérifit que tous les champs tabSelect utilisateur sont vides
+							if(strlen($filtre))
+								$tousVide = false;
+					}
+				}
+				$this->_issetUserFilter = $devFilterDiff || ($devFilter === [] && !$tousVide);
+				
+				// Application du filtre utilisateur
+				$this->setFilter($_GET['lm_tabSelect'.$this->_id], null);
+			}
+					
+			// Application du filtre sur la requete SQL
+			if(count($this->_filterArray) > 0)
+				$sqlRequest->filter($this->_filterArray, $having);
+		}
+	}
+	
 	/**
 	 * Génère un fichier excel à partir d'une réponse de requete en utilisant la bibliothèque PHPExcel.
 	 * Le fichier généré sera sauvegardé dans le dossier excel/, et le chemin complet de ce fichier sera retournée par la méthode
@@ -1031,13 +1064,6 @@ class ListManager {
 		}
 		return $chemin;
 	}
-
-	private static function intToColumn($val){
-		if(!is_int($val))
-			return false;
-
-		return strrev(chr(66 + ($val % 26)).self::intToColumn($val / 26));
-	} 
 }
 
 ?>
