@@ -4,15 +4,16 @@ stages:
 
 test-php5.6:
   stage: test
-  script: echo "Running tests with php5.6"
+  script:
+    - phpunit -c phpunit.xml tests/
 
-test-php7:
-  stage: test
-  script: echo "Running tests with php7"
-
-other-test-campaign:
-  stage: test
-  script: echo "Dther test campaign"
+#test-php7:
+#  stage: test
+#  script: echo "Running tests with php7"
+#
+#other-test-campaign:
+#  stage: test
+#  script: echo "Dther test campaign"
 
 deploy-staging:
   stage: deploy
