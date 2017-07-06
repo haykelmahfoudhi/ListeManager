@@ -106,7 +106,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">37</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">105</span>
                                 </a>
                             </li>
                             <li>
@@ -136,10 +136,10 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-868253362"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-799976152"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-868253362" class="accordion-body collapse in">
+            <div id="namespace-799976152" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
@@ -216,6 +216,7 @@
                                                                     <a href="../classes/ListTemplate.html#method_setColumnCallback" class="">setColumnCallback()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_setPagingLinksNb" class="">setPagingLinksNb()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_setHelpLink" class="">setHelpLink()</a><br />
+                                                                    <a href="../classes/ListTemplate.html#method_displaySearchInputs" class="">displaySearchInputs()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_displayResultsInfos" class="">displayResultsInfos()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_applyDefaultCSS" class="">applyDefaultCSS()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_setMaxSizeInputs" class="">setMaxSizeInputs()</a><br />
@@ -264,6 +265,7 @@
                                                                     <a href="../classes/ListTemplate.html#property__pagingLinksNb" class="">$_pagingLinksNb</a><br />
                                                                     <a href="../classes/ListTemplate.html#property__helpLink" class="">$_helpLink</a><br />
                                                                     <a href="../classes/ListTemplate.html#property__userButtons" class="">$_userButtons</a><br />
+                                                                    <a href="../classes/ListTemplate.html#property__quest" class="">$_quest</a><br />
                                                                     <a href="../classes/ListTemplate.html#property__displayResultsInfos" class="">$_displayResultsInfos</a><br />
                                                                     <a href="../classes/ListTemplate.html#property__applyDefaultCSS" class="">$_applyDefaultCSS</a><br />
                                                                     <a href="../classes/ListTemplate.html#property__maxSizeInputs" class="">$_maxSizeInputs</a><br />
@@ -717,6 +719,30 @@ Permet de modifer les attributs HTML de la balise                            </a
                                 <h4>Type</h4>
                 array
                 &mdash; contient les boutons rajouté par le développeur qui seront affiché dans la div des boutons utilisateur                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property__quest" name="property__quest" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$_quest</h3>
+                <pre class="signature">$_quest : boolean</pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                boolean
+                &mdash; définit si ListTemplate affiche ou non les champs de recherche automatiquement au chargement de la page                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -1437,6 +1463,43 @@ ligne de la liste. La fonction doit correspondre au format suivant</p>
 
                                     <div class="row-fluid">
         <div class="span8 content class">
+            <a id="method_displaySearchInputs" name="method_displaySearchInputs" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">displaySearchInputs()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">displaySearchInputs(boolean  <span class="argument">$valeur</span>) : boolean</pre>
+                <p><em>Définit si ListTemplate affiche ou non les champs de recherche.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$valeur </td>
+                                <td><p>true pour activer, false pour desactiver</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>false si l'argument n'est pas un booleen</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
             <a id="method_displayResultsInfos" name="method_displayResultsInfos" class="anchor"></a>
             <article class="method">
                 <h3 class="public ">displayResultsInfos()</h3>
@@ -1829,7 +1892,7 @@ Cette méthode désactive aussi l&#039;option des titres fixés lorsque l&#039;t
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 29th, 2017 at 10:33.
+                    on July 6th, 2017 at 10:39.
                 </section>
             </section>
         </section>

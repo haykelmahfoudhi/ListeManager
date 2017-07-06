@@ -123,7 +123,7 @@ class SQLRequest {
 	* * (pas d'opérateur) : égalité stricte avec la valeur entrée
 	* * < > <= >= = : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal, égal
 	* * ! : opérateur 'différent de'. La condition '!' est traduite par différent de ''
-	* * \n : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL
+	* * /- : correspond à NULL. Doit être utilisé seul, !/- est traduit par NOT NULL
 	* * << : opérateur 'BETWEEN' pour les dates
 	* * _ % : opérateurs joker SQL, remplacent respectivement un seul caractère ou un nombre indéfini de caractère dans une chaine.
 	* @param array $colonnesHaving tableau contenant le nom des colonnes selectionnées dont le filtre doit se trouver dans la clause HAVING.
@@ -155,7 +155,7 @@ class SQLRequest {
 				$not = false;
 
 				// Construction de l'operateur et sa valeur : NOT
-				if(mb_substr($condition, 0, 1) === '!'){
+				if(mb_substr($condition, 0, 1) === '/'){
 					$not = true;
 					$condition = mb_substr($condition, 1);
 				}
@@ -173,8 +173,8 @@ class SQLRequest {
 					// Constructiond de $valeur
 					$valeur = [$val1, $val2];
 				}
-				// \n => IS NULL
-				else if($condition === '\\n'){
+				// /- => IS NULL
+				else if($condition === '-'){
 					$valeur = 'NULL';
 					$operateur = 'IS';
 					if($not) {

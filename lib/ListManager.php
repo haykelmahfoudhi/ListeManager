@@ -103,6 +103,10 @@ class ListManager {
 	 * @var array $_orderBy
 	 */
 	private $_orderBy;
+	/**
+	 * @var int $_longColWidth largeur des colonnes excédant 100 caractères.
+	 */
+	private $_longColWidth;
 
 	/**
 	 * @var array $idList contient la liste de tous les ID des objets ListManager instanciés
@@ -207,6 +211,7 @@ class ListManager {
 		$this->_listTitles = array();
 		$this->_filterArray = [];
 		$this->_orderBy = [];
+		$this->_longColWidth = 50;
 
 		// Gestion des options : désactivation de fonctionnalités
 		$i = 0;
@@ -253,9 +258,8 @@ class ListManager {
 		if($this->_enableSearch){
 			// Ajout du filtre developpeur
 			foreach ($this->_filterArray as $titre => $valeur)
-				if(!isset($_GET['lm_tabSelect'.$this->_id][strtolower($titre)])
-					|| strlen($_GET['lm_tabSelect'.$this->_id][strtolower($titre)]) === 0)
-					$_GET['lm_tabSelect'.$this->_id][strtolower($titre)] = $valeur;
+				if(!isset($_GET['lm_tabSelect'.$this->_id][$titre]))
+					$_GET['lm_tabSelect'.$this->_id][$titre] = $valeur;
 			
 			// Récupération du tabSelect et ajout du filtre dans la requete SQL
 			if(isset($_GET['lm_tabSelect'.$this->_id])) {
@@ -675,16 +679,6 @@ class ListManager {
 		return $this;
 	}
 
-	/** 
-	 * Ne foncitonne pas.
-	 * @param array $columns
-	 * @return ListManager $this method chaining
-	 */
-	public function setOrderBy(array $columns){
-		$this->_orderBy = $columns;
-		return $this;
-	}
-
 	/**
 	 * Définit la taille maximale des champs de saisie pour la recherche.
 	 * @param int $valeur la nouvelle taille maximale des champs de saisie pour al recherche
@@ -798,6 +792,19 @@ class ListManager {
 		return $this;
 	}
 
+	/**
+	 * Définit la largeur pour les colonnes excédant 100 caractères.
+	 * @param int $value nouvelle valeur
+	 * @return bool|ListManageer false si parametre invalide (<= 0 ou non entier), $this si opération ok (method chaining)
+	 */
+	public function setLongColWidth($value){
+		if(intval($value) != $value || $value <= 0)
+			return false;
+
+		$this->_longColWidth = $value;
+		return $this;
+	}
+
 
 			/*-****************
 			***   GETTERS   ***
@@ -890,7 +897,10 @@ class ListManager {
 		foreach ($data as $row) {
 			$i = 0;
 			foreach ($row as $key => $value) {
-				$width = max($min, min(strlen($value), $max));
+				if(strlen($value) < 100)
+					$width = max($min, min(strlen($value), $max));
+				else 
+					$width = $this->_longColWidth;
 				if(!isset($ret[$keys[$i]]) || $ret[$keys[$i]] < $width)
 					$ret[$keys[$i]] = $width;
 				$i++;

@@ -103,6 +103,10 @@ class ListManager {
 	 * @var array $_orderBy
 	 */
 	private $_orderBy;
+	/**
+	 * @var int $_longColWidth largeur des colonnes excédant 100 caractères.
+	 */
+	private $_longColWidth;
 
 	/**
 	 * @var array $idList contient la liste de tous les ID des objets ListManager instanciés
@@ -157,6 +161,10 @@ class ListManager {
 	 * @var const NO_HELP_LINK à utiliser dans le constructeur pour masquer le bouton-lien vers la page d'aide. 
 	 */
 	const NO_HELP_LINK = 1024;
+	/**
+	 * @var const DISPLAY_SEARCH à utiliser dans le constructeur pour masquer le bouton-lien vers la page d'aide. 
+	 */
+	const DISPLAY_SEARCH = 2048;
 
 	/**
 	 * @var array $optionsArray tableau associatif entre chaque option du constructeur et la méthode permettant de desactiver la fonctionnalité correspondate
@@ -172,7 +180,8 @@ class ListManager {
 		self::UNFIXED_TITLES => 'fixTitles',
 		self::UNFIXED_PAGING => 'fixPaging',
 		self::NO_RESULTS => 'displayResultsInfos',
-		self::NO_HELP_LINK => 'setHelpLink'
+		self::NO_HELP_LINK => 'setHelpLink',
+		self::DISPLAY_SEARCH => 'displaySearch'
 	];
 	
 	
@@ -202,13 +211,14 @@ class ListManager {
 		$this->_listTitles = array();
 		$this->_filterArray = [];
 		$this->_orderBy = [];
+		$this->_longColWidth = 50;
 
 		// Gestion des options : désactivation de fonctionnalités
 		$i = 0;
 		foreach ($options as $option) {
 			$i++;
 			if(isset(self::$optionsArray[$option]))
-				call_user_func_array([$this, self::$optionsArray[$option]], array(false));
+				call_user_func_array([$this, self::$optionsArray[$option]], [$option==self::DISPLAY_SEARCH]);
 
 			// Option non reconnue
 			else {
@@ -248,10 +258,13 @@ class ListManager {
 		if($this->_enableSearch){
 			// Ajout du filtre developpeur
 			foreach ($this->_filterArray as $titre => $valeur)
-				if(!isset($_GET['lm_tabSelect'.$this->_id][strtolower($titre)]))
+				if(!isset($_GET['lm_tabSelect'.$this->_id][strtolower($titre)])
+					|| strlen($_GET['lm_tabSelect'.$this->_id][strtolower($titre)]) === 0)
 					$_GET['lm_tabSelect'.$this->_id][strtolower($titre)] = $valeur;
 			
+			// Récupération du tabSelect et ajout du filtre dans la requete SQL
 			if(isset($_GET['lm_tabSelect'.$this->_id])) {
+				$tabSelect = [];
 				foreach ($_GET['lm_tabSelect'.$this->_id] as $titre => $valeur) {
 					if(strlen($valeur) > 0)
 						$tabSelect[$titre] = $valeur;
@@ -505,7 +518,9 @@ class ListManager {
 	 * @return ListManager la référence de l'objet ($this)
 	 */
 	public function setListTitles(array $liste) {
-		$this->_listTitles = $liste;
+		foreach ($liste as $col => $val)
+			$this->_listTitles[strtolower($col)] = $val;
+
 		return $this;
 	}
 
@@ -591,16 +606,15 @@ class ListManager {
 	 * la cellule et le document en cours. Le format du callback est :
 	 *  *  paramètres d'entrée :
 	 *    1. phpExcel : l'objet PHPExcel utilisé pour générer le document
-	 *    2. contenu  : le contenu de la cellule en cours
-	 *    3. metas    : objet des métas données de la colonnes en cours ( @see RequestResponse::getColumnsMeta() )
-	 *    4. colonne  : la lettre correspondante à la colonne en cours
-	 *    5. numLigne : le numéro de la ligne en cours
+	 *    2. donnees  : le tableau contenant les données insérées dans le doc
+	 *    3. metas    : array d'objets des métas données des colonnes ( @see RequestResponse::getColumnsMeta() )
+	 *    4. titres   : array des titres des colonnes telles qu'écrites dans le fichier
 	 *  * pas de valeur de retour, tout se fait via l'objet PHPExcel
 	 * @param callable $fonction le nom du callback a utiliser, null si aucun.
 	 * @return ListManager la référence de l'objet ($this)
 	 */
 	public function setExcelCallback(callable $fonction){
-		$this->_template->setColumnCallback($fonction);
+		$this->_excelCallback = $fonction;
 		return $this;
 	}
 
@@ -642,20 +656,27 @@ class ListManager {
 	 * * ! : opérateur 'différent de'. La condition '!' est traduite par différent de ''
 	 * * \n : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL
 	 * * << : opérateur 'BETWEEN' pour les dates
+	 * @param bool $displaySearch passez ce paramètre à false si vous souhaitez ne pas afficher les champs de recherche, sinon laissez le à true
 	 * @return ListManager $this method chaining
 	 */
-	public function setFilter(array $filter){
-		$this->_filterArray = $filter;
+	public function setFilter(array $filter, $displaySearch=true){
+		if($this->_template->displaySearchInputs($displaySearch) === false)
+			return false;
+		
+		foreach ($filter as $col => $valeur) {
+			$this->_filterArray[strtolower($col)] = $valeur;		
+		}
 		return $this;
 	}
 
-	/** 
-	 * Ne foncitonne pas.
-	 * @param array $columns
-	 * @return ListManager $this method chaining
+	/**
+	 * Définit si ListTemplate affiche ou non les champs de recherche au chargmeent de la page.
+	 * @param bool $valeur true pour activer, false pour desactiver
+	 * @return bool false si l'argument n'est pas un booleen
 	 */
-	public function setOrderBy(array $columns){
-		$this->_orderBy = $columns;
+	public function displaySearchInputs($valeur) {
+		if($this->_template->displaySearchInputs($valeur) === false)
+			return false;
 		return $this;
 	}
 
@@ -772,6 +793,19 @@ class ListManager {
 		return $this;
 	}
 
+	/**
+	 * Définit la largeur pour les colonnes excédant 100 caractères.
+	 * @param int $value nouvelle valeur
+	 * @return bool|ListManageer false si parametre invalide (<= 0 ou non entier), $this si opération ok (method chaining)
+	 */
+	public function setLongColWidth($value){
+		if(intval($value) != $value || $value <= 0)
+			return false;
+
+		$this->_longColWidth = $value;
+		return $this;
+	}
+
 
 			/*-****************
 			***   GETTERS   ***
@@ -846,6 +880,35 @@ class ListManager {
 	public static function isUnique() {
 		return count(self::$idList) <= 1;
 	}
+
+	/**
+	 * Retourne un tableau contenant la largeur idéeale en nombre de caractere pour chaque colonne du tableau en entrée.
+	 * @param array $data le tableau des données (2 dimensions, sinon ça marche pas)
+	 * @param int $min la valeur minimale de la largeur des colonnes
+	 * @param int $max la valeur maximale de la largeur
+	 * @return array contenant pour chaque colonne la largeur à appliquer.
+	 */
+	public function getIdealColumnsWidth(array $data, $min, $max){
+		//Vérification des paramètres
+		if(!is_array($data[0]) || intval($min) != $min || intval($max) != $max || $min > $max)
+			return false;
+
+		$ret = [];
+		$keys = array_keys($data[0]);
+		foreach ($data as $row) {
+			$i = 0;
+			foreach ($row as $key => $value) {
+				if(strlen($value) < 100)
+					$width = max($min, min(strlen($value), $max));
+				else 
+					$width = $this->_longColWidth;
+				if(!isset($ret[$keys[$i]]) || $ret[$keys[$i]] < $width)
+					$ret[$keys[$i]] = $width;
+				$i++;
+			}
+		}
+		return $ret;
+	}
 	
 
 			/*-****************
@@ -873,32 +936,34 @@ class ListManager {
 			->setSubject("Liste de données")
 			->setDescription("Feuille de données généré automatiqument à partir de l'url ".$_SERVER['REQUEST_URI']);
 		
+		$donnees = [];
+		while(($ligne = $reponse->nextLine()) != null)
+			$donnees[] = $ligne;
+
 		// Création des titres
 		$phpExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(20);
 		$i = 0;
 		$col = 'A';
-		$width = [];
-		$maxWidth = 30;
+		$width = $this->getIdealColumnsWidth($donnees, 8, 30);
 		$metas = $reponse->getColumnsMeta();
 		$titres = [];
 		foreach ($metas as $meta) {
 
+			// Préparation du titre à insérer
+			if($meta->table != null && isset($this->_listTitles["$meta->table.$meta->name"]))
+				$titres[] = $this->_listTitles["$meta->table.$meta->name"];
+			else if(isset($this->_listTitles[$meta->name]))
+				$titres[] = $this->_listTitles[$meta->name];
+			else if(isset($this->_listTitles[$meta->alias]))
+				$titres[] = $this->_listTitles[$meta->alias];
+			else
+				$titres[] = (($meta->alias == null)? $meta->name : $meta->alias);
+
 			// On vérifie que la colonne n'est pas masquée
 			if(!$this->isMasked($meta->name, $meta->alias)) {
 
-				// Préparation du titre à insérer
-				if($meta->table != null && isset($this->_listTitles["$meta->table.$meta->name"]))
-					$titres[] = $this->_listTitles["$meta->table.$meta->name"];
-				else if(isset($this->_listTitles[$meta->name]))
-					$titres[] = $this->_listTitles[$meta->name];
-				else if(isset($this->_listTitles[$meta->alias]))
-					$titres[] = $this->_listTitles[$meta->alias];
-				else
-					$titres[] = (($meta->alias == null)? $meta->name : $meta->alias);
-
 				// Mise en forme & insertion des titres
-				$width[$col] = min(strlen($titres[$i]), $maxWidth);
-				$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($width[$col]);
+				$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($width[$i]);
 				$phpExcel->getActiveSheet()->setCellValue($col.'1', $titres[$i]);
 	 			$phpExcel->getActiveSheet()->getStyle($col.'1')->applyFromArray(array(
 	 				'font' => array(
@@ -915,14 +980,19 @@ class ListManager {
 	 			if($this->_excelCallback !== null)
 	 				call_user_func_array($this->_excelCallback, [$phpExcel, $meta, $titres[$i], $col, 1]);
 
-				$col++;
-				$i++;
+	 			// Incrément nom colonne
+				if(($lastCol = $col[strlen($col) - 1]) == 'Z')
+					$col = substr($col, 0, strlen($col) - 1).'AA';
+				else
+					$col = substr($col, 0, strlen($col) - 1).(++$lastCol);
 			}
+			else {
+				$this->_mask[] = $titres[$i];
+			}
+			$i++;
 		}
 
 		// Insertion des données
-		while(($ligne = $reponse->nextLine()) != null)
-			$donnees[] = $ligne;
 		$i = 2;
 		foreach ($donnees as $ligne) {
 			// Hauteur de ligne
@@ -932,25 +1002,23 @@ class ListManager {
 			for ($j=0; $j < $reponse->getColumnsCount(); $j++){
 				$cellule = $ligne[$j];
 				// On vérifie que la colonne n'est pas masquée
-				if(!$this->isMasked($titres[$j], $metas[$j]->alias)) {
+				if(!$this->isMasked($titres[$j], $metas[$j]->alias, $metas[$j]->name)) {
 					// Insertion de la donnée
 					$phpExcel->getActiveSheet()->setCellValue($col.($i), $cellule);
 
-					//Modification largeur colonne
-					$cellWidth = min(strlen($cellule), $maxWidth);
-					if($cellWidth > $width[$col]){
-						$width[$col] = $cellWidth;
-						$phpExcel->getActiveSheet()->getColumnDimension($col)->setWidth($cellWidth);
-					}
-		 			// Appel au callback
-		 			if($this->_excelCallback !== null)
-		 				call_user_func_array($this->_excelCallback, [$phpExcel, $cellule, $metas[$j], $col, $i]);
-
-					$col++;
+		 			// Incrément nom colonne
+					if(($lastCol = $col[strlen($col) - 1]) == 'Z')
+						$col = substr($col, 0, strlen($col) - 1).'AA';
+					else
+						$col = substr($col, 0, strlen($col) - 1).(++$lastCol);
 				}
 			}
 			$i++;
 		}
+
+		// Appel au callback
+		if($this->_excelCallback !== null)
+			call_user_func_array($this->_excelCallback, [$phpExcel, $donnees, $metas, $titres]);
 		
 		// Ecriture du fichier
 		try {
@@ -964,6 +1032,13 @@ class ListManager {
 		}
 		return $chemin;
 	}
+
+	private static function intToColumn($val){
+		if(!is_int($val))
+			return false;
+
+		return strrev(chr(66 + ($val % 26)).self::intToColumn($val / 26));
+	} 
 }
 
 ?>
