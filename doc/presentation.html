@@ -139,10 +139,10 @@ Il existe un certain nombre de caractères spéciaux qui permettent d&#39;effect
 <li>plus petit que &#39;x&#39;, ne fonctionne qu&#39;avec des valeurs numériques</li>
 </ul></li>
 <li>x1 <strong>&lt;&lt;</strong> x2 retourne l&#39;ensemble des valeurs comprises entre x1 et x2 (inclus). Fonctionne avec les valeurs numériques, les dates et les chaines de caractères.</li>
-<li><strong>!</strong>x :
+<li><strong>/</strong>x :
 
 <ul>
-<li>retourne toutes les valeurs diférentes de x. Si x est vide (c&#39;est-à-dire que vous ne mettez que &#39;!&#39;) alors on vous retournera l&#39;ensemble des valeurs non nulles</li>
+<li>retourne toutes les valeurs diférentes de x. Si x est vide (c&#39;est-à-dire que vous ne mettez que &#39;/&#39;) alors on vous retournera l&#39;ensemble des valeurs non nulles</li>
 </ul></li>
 <li>blabla <strong>%</strong> :
 
@@ -155,10 +155,10 @@ Il existe un certain nombre de caractères spéciaux qui permettent d&#39;effect
 <li>de même que pour &#39;%&#39;, le caractère &#39;_&#39; est un joker, à la différence près qu&#39;il remplace un seul caractère. Ainsi dans cet exemple, nous cherchons toutes les valeurs commençant par &#39;blabla&#39; et ayant un caractère supplémentaire. Par exemple les chaines &#39;blablaC&#39; et &#39;blabla$&#39; seront sélectionnées tandis que &#39;blabla&#39; ou &#39;blablaXY&#39; ne le seront pas.<br/></li>
 </ul></li>
 
-<li><strong>\n</strong> :
+<li><strong>-</strong> :
 
 <ul>
-<li>Ce marqueur permet d'indiquer que l'on recherceh des données dont la valeur de la colonne est <b>NULL</b>, ce qui est traduit par le '-' dans la liste. Pour rechercehr l'ensemble des valeurs non nulles mettez simplement un point d'exclamation devant le \n<br/></li>
+<li>Ce marqueur permet d'indiquer que l'on recherche des données dont la valeur de la colonne est <b>NULL</b>, ce qui est traduit par le '-' dans la liste. Pour rechercehr l'ensemble des valeurs non nulles mettez simplement un slash devant : <b>/-</b><br/></li>
 </ul></li>
 </ul>
 
