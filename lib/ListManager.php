@@ -258,9 +258,8 @@ class ListManager {
 		if($this->_enableSearch){
 			// Ajout du filtre developpeur
 			foreach ($this->_filterArray as $titre => $valeur)
-				if(!isset($_GET['lm_tabSelect'.$this->_id][strtolower($titre)])
-					|| strlen($_GET['lm_tabSelect'.$this->_id][strtolower($titre)]) === 0)
-					$_GET['lm_tabSelect'.$this->_id][strtolower($titre)] = $valeur;
+				if(!isset($_GET['lm_tabSelect'.$this->_id][$titre]))
+					$_GET['lm_tabSelect'.$this->_id][$titre] = $valeur;
 			
 			// Récupération du tabSelect et ajout du filtre dans la requete SQL
 			if(isset($_GET['lm_tabSelect'.$this->_id])) {
