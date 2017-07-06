@@ -40,6 +40,11 @@
 	-webkit-user-select: none;
 } 
 
+.boutons-options form {
+	padding: 0;
+	margin: 0;
+}
+
 table {
 	border-collapse: collapse;
 	text-align: center;
