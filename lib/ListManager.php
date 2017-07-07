@@ -279,8 +279,8 @@ class ListManager {
 		}
 
 		//Execution de la requete
-		$userParams = $sqlRequest->getUserParameters();
-		$reponse = $this->_db->execute($sqlRequest, array_merge($userParams, $params));
+		$reponse = $this->_db->execute($sqlRequest,
+				array_merge($sqlRequest->getUserParameters(), $params));
 
 		//Creation de l'objet de reponse
 		switch ($this->_responseType){
@@ -288,27 +288,7 @@ class ListManager {
 			return $reponse;
 
 			case ResponseType::TABLEAU:
-				if($reponse->error()) {
-					$this->addError($reponse->getErrorMessage(), 'construct');
-					return null;
-				}
-				else {
-					//Application du mask
-					if(count($this->_mask) > 0 || $this->_db->oracle()) {
-						while(($ligne = $reponse->nextLine()) != null) {
-							$aInserer = array();
-							foreach ($ligne as $colonne => $valeur) {
-								if(!$this->isMasked($colonne))
-									$aInserer[$colonne] = $valeur;
-							}
-							$donnees[] = $aInserer;
-						}
-					}
-					else {
-						$donnees = $reponse->dataList();
-					}
-					return $donnees;
-				}
+			return $this->generateArray($reponse);
 
 			case ResponseType::EXCEL:
 				if($this->_enableExcel){
@@ -338,29 +318,7 @@ class ListManager {
 				return $this->_template->construct($reponse);
 
 			case ResponseType::JSON:
-				$ret = new \stdClass();
-				$ret->error = $reponse->error();
-				if($ret->error){
-					$ret->data = null;
-					$ret->errorMessage = $reponse->getErrorMessage();
-					$this->addError($ret->errorMessage, 'construct');
-				}
-				else{
-					// Applicaiton du mask
-					if(count($this->_mask) > 0 || $this->_db->oracle()) {
-						while (($ligne = $reponse->nextLine()) != null) {
-							$aInserer = array();
-							foreach ($ligne as $colonne => $valeur) {
-								if(!$this->isMasked($colonne))
-									$aInserer[$colonne] = $valeur;
-							}
-							$ret->data[] = $aInserer;
-						}
-					}
-					else
-						$ret->data = $reponse->dataList();
-				}
-			return json_encode($ret);
+			return $this->generateJSON($reponse);
 
 
 			case ResponseType::TEMPLATE:
@@ -945,6 +903,67 @@ class ListManager {
 			if(count($this->_filterArray) > 0)
 				$sqlRequest->filter($this->_filterArray, $having);
 		}
+	}
+	
+	/**
+	 * Génère un array PHP contenant les données selectionnées.
+	 * @param RequestResponse $reponse l'objet de réponse retourné par Database
+	 * @return NULL|array null si erreur, tableau des résultats sinon
+	 */
+	private function generateArray(RequestResponse $reponse){
+		$donnees = [];
+		if($reponse->error()) {
+			$this->addError($reponse->getErrorMessage(), 'generateArray');
+			return null;
+		}
+		else {
+			//Application du mask
+			if(count($this->_mask) > 0 || $this->_db->oracle()) {
+				while(($ligne = $reponse->nextLine()) != null) {
+					$aInserer = array();
+					foreach ($ligne as $colonne => $valeur) {
+						if(!$this->isMasked($colonne))
+							$aInserer[$colonne] = $valeur;
+					}
+					$donnees[] = $aInserer;
+				}
+			}
+			else {
+				$donnees = $reponse->dataList();
+			}
+			return $donnees;
+		}
+	}
+	
+	/**
+	 * Génère un objet encodé en JSON à partri d'un objet RequestResponse
+	 * @param RequestResponse $reponse la réponse renvoyé par Database::execute()
+	 * @return string reponse en JSON
+	 */
+	private function generateJSON(RequestResponse $reponse){
+		$ret = new \stdClass();
+		$ret->error = $reponse->error();
+		if($ret->error){
+			$ret->data = null;
+			$ret->errorMessage = $reponse->getErrorMessage();
+			$this->addError($ret->errorMessage, 'construct');
+		}
+		else{
+			// Applicaiton du mask
+			if(count($this->_mask) > 0 || $this->_db->oracle()) {
+				while (($ligne = $reponse->nextLine()) != null) {
+					$aInserer = array();
+					foreach ($ligne as $colonne => $valeur) {
+						if(!$this->isMasked($colonne))
+							$aInserer[$colonne] = $valeur;
+					}
+					$ret->data[] = $aInserer;
+				}
+			}
+			else
+				$ret->data = $reponse->dataList();
+		}
+		return json_encode($ret);
 	}
 	
 	/**
