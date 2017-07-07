@@ -254,7 +254,7 @@ class ListTemplate {
 
 			// Ajout des paramètres GET déjà présents
 			foreach ($_GET as $nom => $valeur) {
-				if($nom != 'lm_tabSelect'.$lmId && !is_array($valeur)) {
+				if(!in_array($nom, ['lm_tabSelect'.$lmId, 'lm_excel'.$lmId, 'lm_page'.$lmId])) {
 					$ret .= "<input type='hidden' name='$nom' value='$valeur'/>";
 				}
 			}
@@ -266,30 +266,16 @@ class ListTemplate {
 		if($this->_helpLink != null){
 			$ret .= "<a href='$this->_helpLink' target='_blank' class='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
 		}
-
-		// GOMME : On détermine si les parametres de tabSelect sont différents du filtre dev
-		$devFilter = $this->_lm->getFilter();
-		$devFilterDiff = false;
-		$tousVide = true;
-		if(isset($_GET['lm_tabSelect'.$lmId])){
-			foreach ($_GET['lm_tabSelect'.$lmId] as $col => $filtre) {
-				// Vérification que le filtre dev correspond au tabSelect utilisateur
-				if(isset($devFilter[$col]) && $devFilter[$col] != $filtre
-					|| ! isset($devFilter[$col]) && strlen($filtre))
-					$devFilterDiff = true;
-				// Vérifit que tous les champs tabSelect utilisateur sont vides
-				if(strlen($filtre))
-					$tousVide = false;
-			}
-		}
+		
 		//Bouton RaZ
 		if($this->_lm->issetUserFilter() || isset($_GET['lm_orderBy'.$lmId])) {
 			$tabGet = $_GET;
-			
 			if(isset($_GET['lm_tabSelect'.$lmId]))
 				unset($tabGet['lm_tabSelect'.$lmId]);
 			if(isset($_GET['lm_orderBy'.$lmId]))
 				unset($tabGet['lm_orderBy'.$lmId]);
+			if(isset($_GET['lm_excel'.$lmId]))
+				unset($tabGet['lm_excle'.$lmId]);
 			
 			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'"><img height="40" width="40" src="'.LM_IMG.'eraser-ico.png"></a>';
 		}

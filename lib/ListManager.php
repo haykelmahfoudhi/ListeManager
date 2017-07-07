@@ -291,11 +291,13 @@ class ListManager {
 				return $this->generateArray($reponse);
 
 			case ResponseType::EXCEL:
-				// Si erreur on affiche le template
-				if(($chemin = $this->generateExcel($reponse)) === false)
-					return $this->_template->construct($reponse);
-				else
+				$chemin = $this->generateExcel($reponse);
+				if($chemin !== false){
 					header('Location:'.$chemin);
+					// Si erreur de redirection : on propose le lien de téléchargement
+					$this->_template->setEmptyListMessage('Pour télécharger le fichier <a href="'.$chemin.'">cliquez ici</a>');
+				}
+				return $this->_template->construct($reponse);
 
 			case ResponseType::JSON:
 				return $this->generateJSON($reponse);
