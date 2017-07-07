@@ -285,50 +285,30 @@ class ListManager {
 		//Creation de l'objet de reponse
 		switch ($this->_responseType){
 			case ResponseType::OBJET:
-			return $reponse;
+				return $reponse;
 
 			case ResponseType::TABLEAU:
-			return $this->generateArray($reponse);
+				return $this->generateArray($reponse);
 
 			case ResponseType::EXCEL:
-				if($this->_enableExcel){
-
-					// Récupération du masque dans les params GET
-					if(isset($_GET['lm_mask'.$this->_id])){
-						$tabMask = [];
-						$metas = $reponse->getColumnsMeta();
-						foreach (explode(',', $_GET['lm_mask'.$this->_id]) as $numCol) {
-							$tabMask[] = $metas[intval($numCol)]->name;
-						}
-						$this->setMask($tabMask);
-					}
-
-					$chemin = $this->generateExcel($reponse);
-					if($chemin != false) {
-						header('Location:'.$chemin);
-					}
-					else {
-						$this->addError('le fichier excel n\'a pas pu être généré', 'construct');
-					}
-				}
-				else{
-					$this->addError('la foncitonnalité d\'export excel est désactivée pour cette liste', 'construct');
-				}
 				// Si erreur on affiche le template
-				return $this->_template->construct($reponse);
+				if(($chemin = $this->generateExcel($reponse)) === false)
+					return $this->_template->construct($reponse);
+				else
+					header('Location:'.$chemin);
 
 			case ResponseType::JSON:
-			return $this->generateJSON($reponse);
+				return $this->generateJSON($reponse);
 
 
 			case ResponseType::TEMPLATE:
 				// Selection de la page
 				if($this->_template->issetPaging() && isset($_GET['lm_page'.$this->_id]) && $_GET['lm_page'.$this->_id] > 0)
 					$this->_template->setCurrentPage($_GET['lm_page'.$this->_id]);
-
 				return $this->_template->construct($reponse);
 		}
-
+	
+		$this->addError('type de réponse non reconnu : '.$this->_responseType, 'construct');
 		return false;
 	}
 
@@ -970,11 +950,28 @@ class ListManager {
 	 * Génère un fichier excel à partir d'une réponse de requete en utilisant la bibliothèque PHPExcel.
 	 * Le fichier généré sera sauvegardé dans le dossier excel/, et le chemin complet de ce fichier sera retournée par la méthode
 	 * @param RequestResponse $reponse l'objet réponse produit par l'exécution de la requete SQL
-	 * @return bool|string le chemin du fichier généré, ou false en cas d'erreur 
+	 * @return bool false si erreur 
 	 */
 	private function generateExcel(RequestResponse $reponse) {
-		if($reponse->error())
+		// Vérification des erreurs
+		if($reponse->error()){
+			$this->addError('le fichier excel n\'a pas pu être généré', 'generateExcel');
 			return false;
+		}
+		if(!$this->_enableExcel){
+			$this->addError('la foncitonnalité d\'export excel est désactivée pour cette liste', 'generateExcel');
+			return false;
+		}
+		
+		// Récupération du masque dans les params GET
+		$metas = $reponse->getColumnsMeta();
+		if(isset($_GET['lm_mask'.$this->_id])){
+			$tabMask = [];
+			foreach (explode(',', $_GET['lm_mask'.$this->_id]) as $numCol) {
+				$tabMask[] = $metas[intval($numCol)]->name;
+			}
+			$this->setMask($tabMask);
+		}
 
 		// Création de l'objet PHPExcel
 		$phpExcel = new \PHPExcel();
@@ -996,7 +993,6 @@ class ListManager {
 		$i = 0;
 		$col = 'A';
 		$width = $this->getIdealColumnsWidth($donnees, 8, 30);
-		$metas = $reponse->getColumnsMeta();
 		$titres = [];
 		foreach ($metas as $meta) {
 
@@ -1079,8 +1075,9 @@ class ListManager {
 		}
 		catch (\Exception $e) {
 			$this->addError('erreur création excel : '.$e->getMessage(), 'generateExcel');
-			return null;
+			return false;
 		}
+		// Redirection vers le fichier
 		return $chemin;
 	}
 }

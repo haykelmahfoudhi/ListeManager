@@ -17,10 +17,17 @@ class ListManagerTest extends PHPUnit_Framework_TestCase {
 	public function provideRepData(){
 		$repStub = $this->getMockBuilder('RequestResponse')
 			->disableOriginalConstructor()
-			->setMethods(['error', 'dataList', 'nextLine', 'getErrorMessage'])
+			->setMethods(['error', 'dataList', 'nextLine', 'getErrorMessage', 'getColumnsMeta', 'getColumnsCount'])
 			->getMock();
 		$repStub->expects($this->any())->method('error')->willReturnOnConsecutiveCalls(true, false, false);
 		$repStub->expects($this->any())->method('getErrorMessage')->willReturn('Unit Test');
+		$repStub->expects($this->any())->method('getColumnsCount')->willReturn(2);
+		$repStub->expects($this->any())->method('getColumnsMeta')
+			->willReturn([
+					(Object)['name'=>'col1', 'table'=>null, 'alias'=>null],
+					(Object)['name'=>'col2', 'table'=>null, 'alias'=>null]
+			]);
+		
 		$data  = [['val1', 'val2'],['val3', 'val3']];
 		$repStub->expects($this->any())->method('dataList')->willReturn($data);
 		$repStub->expects($this->any())->method('nextLine')->willReturnOnConsecutiveCalls($data[0],$data[1], null);
@@ -86,6 +93,19 @@ class ListManagerTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($excepeted, json_decode($methode->invoke($this->_lm, $repStub)));
 		$excepeted = (Object) ['error' => false, 'data' => $data];
 		$this->assertEquals($excepeted, json_decode($methode->invoke($this->_lm, $repStub)));
+		$excepeted = (Object) ['error' => false, 'data' => $data];
+		$this->assertEquals($excepeted, json_decode($methode->invoke($this->_lm, $repStub)));
+	}
+
+	/**
+	 * @dataProvider provideRepData
+	 */
+	public function testGenerateExcel($repStub, $data){
+		$_SERVER['REQUEST_URI'] = 'Unit Test';
+		$methode = $this->_ref->getMethod('generateExcel');
+		$methode->setAccessible(true);
+		$this->assertFalse($methode->invoke($this->_lm, $repStub));
+		$this->assertTrue(file_exists($methode->invoke($this->_lm, $repStub)));
 	}
 	
 }
