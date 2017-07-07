@@ -479,49 +479,7 @@ class ListTemplate {
 		}
 
 		// Affichage du tableau des numeros de page
-		if($nbLignes > $this->_nbResultsPerPage && $this->_pagingLinksNb != false){
-			$ret .= '<div class="pagination'.(($this->_fixedPaging)? ' fixed' : '' ).'"><table align="center"><tr>';
-			$nbPages = (is_int($nbPages = ($nbLignes / $this->_nbResultsPerPage))? $nbPages : round($nbPages + 0.5) );
-
-			// S'il y a plus de pages que la limite affichable
-			if($nbPages > $this->_pagingLinksNb){
-				$debut = $this->_currentPage - intval($this->_pagingLinksNb / 2);
-				if($debut <= 1){
-					$debut = 1;
-					$fin = $this->_pagingLinksNb + 1;
-				}
-				// Ajout de la 1re page si besoin
-				else {
-					$ret .= '<td><a href="'.self::creerUrlGET('lm_page'.$lmId, 1).'">&lt;&lt;</td>';
-					$fin = min($debut + $this->_pagingLinksNb, $nbPages);
-				}
-			}
-			else {
-				$debut = 1;
-				$fin = $nbPages;
-			}
-			
-			// Creation des liens
-			for ($i=$debut; $i <= $fin; $i++) {
-				$ret .= '<td>';
-
-				// Pas de lien si on est deje sur la pageActuelle
-				if($i == $this->_currentPage)
-					$ret .= "$i";
-				else {	
-					// Construction du lien de la page
-					$ret .= '<a href="'.self::creerUrlGET('lm_page'.$lmId, $i).'">'.$i.'</a>';
-				}
-				$ret .= '</td>';
-			}
-			// Ajout du lien vers la derniere page si besoin
-			if($fin != $nbPages){
-				$ret .= '<td><a href="'.self::creerUrlGET('lm_page'.$lmId, $nbPages).'">&gt;&gt;</td>';
-			}
-
-			$ret .= "</tr></table></div>\n";
-		}
-
+		$ret .= $this->generatePaging($nbLignes);
 		$ret .= "</div></div>\n</div>\n";
 
 		// Ajout des scripts
@@ -532,7 +490,6 @@ class ListTemplate {
 			$ret .= '<link rel="stylesheet" type="text/css" href="'.LM_CSS.'base.css"/>'."\n";
 			$ret .= "<link href='https://fonts.googleapis.com/css?family=Amiko' rel='stylesheet'/>\n";
 		}
-
 		// Fin
 		return $ret;
 	}
@@ -785,6 +742,57 @@ class ListTemplate {
 			***   PRIVATE   ***
 			******************/
 
+	/**
+	 * Génère le tableau HTML contenant la pagination.
+	 * @param int $nbLignes nombre de lignes retournée par l'exécution de la requete
+	 * @return string code html des liens pagination
+	 */
+	private function generatePaging($nbLignes){
+		if($nbLignes <= $this->_nbResultsPerPage || $this->_pagingLinksNb == false)
+			return '';
+		
+		$lmId = $this->_lm->getId(); 
+		$ret = '<div class="pagination'.(($this->_fixedPaging)? ' fixed' : '' ).'"><table align="center"><tr>';
+		$nbPages = (is_int($nbPages = ($nbLignes / $this->_nbResultsPerPage))? $nbPages : round($nbPages + 0.5) );
+		
+		// S'il y a plus de pages que la limite affichable
+		if($nbPages > $this->_pagingLinksNb){
+			$debut = $this->_currentPage - intval($this->_pagingLinksNb / 2);
+			if($debut <= 1){
+				$debut = 1;
+				$fin = $this->_pagingLinksNb + 1;
+			}
+			// Ajout de la 1re page si besoin
+			else {
+				$ret .= '<td><a href="'.self::creerUrlGET('lm_page'.$lmId, 1).'">&lt;&lt;</td>';
+				$fin = min($debut + $this->_pagingLinksNb, $nbPages);
+			}
+		}
+		else {
+			$debut = 1;
+			$fin = $nbPages;
+		}
+			
+		// Creation des liens
+		for ($i=$debut; $i <= $fin; $i++) {
+			$ret .= '<td>';
+			// Pas de lien si on est deje sur la pageActuelle
+			if($i == $this->_currentPage)
+				$ret .= "$i";
+				else {
+					// Construction du lien de la page
+					$ret .= '<a href="'.self::creerUrlGET('lm_page'.$lmId, $i).'">'.$i.'</a>';
+				}
+				$ret .= '</td>';
+		}
+		// Ajout du lien vers la derniere page si besoin
+		if($fin != $nbPages){
+			$ret .= '<td><a href="'.self::creerUrlGET('lm_page'.$lmId, $nbPages).'">&gt;&gt;</td>';
+		}
+		$ret .= "</tr></table></div>\n";
+		return $ret;
+	}
+	
 	private static function messageHTML($message, $nom, $balise='p'){
 		return '<'.$balise.(($nom == null)? '' : ' class="'.$nom.'"' )
 			.'>'.$message.'</'.$balise.'>';
