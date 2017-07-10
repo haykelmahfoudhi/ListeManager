@@ -76,6 +76,10 @@ class ListManager {
 	 */
 	private $_enableSearch;
 	/**
+	 * @var boolean $_issetUserFilter indique au template si l'utilisateur à modifier les champs de recherche ou non.
+	 */
+	private $_issetUserFilter;
+	/**
 	 * @var boolean $_enableOrderBy spécifie si ListManger autorise le trie par colonne en modifiant la clause ORDER BY des requetes. N'a d'effet que si vous utilisez la méthode construct
 	 */
 	private $_enableOrderBy;
@@ -204,6 +208,7 @@ class ListManager {
 		$this->_template = new ListTemplate($this);
 		$this->_responseType = ResponseType::TEMPLATE;
 		$this->_enableSearch = true;
+		$this->_issetUserFilter = false;
 		$this->_enableOrderBy = true;
 		$this->_enableExcel = true;
 		$this->_excelCallback = null;
@@ -253,25 +258,8 @@ class ListManager {
 			$sqlRequest->prepareForOracle($this->_db->oracle());
 		}
 
-		// Construction de la requete a partir de variables GET disponibles :
 		// Conditions (where & having)
-		if($this->_enableSearch){
-			// Ajout du filtre developpeur
-			foreach ($this->_filterArray as $titre => $valeur)
-				if(!isset($_GET['lm_tabSelect'.$this->_id][$titre]))
-					$_GET['lm_tabSelect'.$this->_id][$titre] = $valeur;
-			
-			// Récupération du tabSelect et ajout du filtre dans la requete SQL
-			if(isset($_GET['lm_tabSelect'.$this->_id])) {
-				$tabSelect = [];
-				foreach ($_GET['lm_tabSelect'.$this->_id] as $titre => $valeur) {
-					if(strlen($valeur) > 0)
-						$tabSelect[$titre] = $valeur;
-				}
-				if(count($tabSelect) > 0)
-					$sqlRequest->filter($tabSelect, $having);
-			}
-		}
+		$this->manageFilter($sqlRequest, $having);
 		
 		// Tri (Order By)
 		if($this->_enableOrderBy){
@@ -291,98 +279,38 @@ class ListManager {
 		}
 
 		//Execution de la requete
-		$userParams = $sqlRequest->getUserParameters();
-		$reponse = $this->_db->execute($sqlRequest, array_merge($userParams, $params));
+		$reponse = $this->_db->execute($sqlRequest,
+				array_merge($sqlRequest->getUserParameters(), $params));
 
 		//Creation de l'objet de reponse
 		switch ($this->_responseType){
 			case ResponseType::OBJET:
-			return $reponse;
+				return $reponse;
 
 			case ResponseType::TABLEAU:
-				if($reponse->error()) {
-					$this->addError($reponse->getErrorMessage(), 'construct');
-					return null;
-				}
-				else {
-					//Application du mask
-					if(count($this->_mask) > 0 || $this->_db->oracle()) {
-						while(($ligne = $reponse->nextLine()) != null) {
-							$aInserer = array();
-							foreach ($ligne as $colonne => $valeur) {
-								if(!$this->isMasked($colonne))
-									$aInserer[$colonne] = $valeur;
-							}
-							$donnees[] = $aInserer;
-						}
-					}
-					else {
-						$donnees = $reponse->dataList();
-					}
-					return $donnees;
-				}
+				return $this->generateArray($reponse);
 
 			case ResponseType::EXCEL:
-				if($this->_enableExcel){
-
-					// Récupération du masque dans les params GET
-					if(isset($_GET['lm_mask'.$this->_id])){
-						$tabMask = [];
-						$metas = $reponse->getColumnsMeta();
-						foreach (explode(',', $_GET['lm_mask'.$this->_id]) as $numCol) {
-							$tabMask[] = $metas[intval($numCol)]->name;
-						}
-						$this->setMask($tabMask);
-					}
-
-					$chemin = $this->generateExcel($reponse);
-					if($chemin != false) {
-						header('Location:'.$chemin);
-					}
-					else {
-						$this->addError('le fichier excel n\'a pas pu être généré', 'construct');
-					}
+				$chemin = $this->generateExcel($reponse);
+				if($chemin !== false){
+					header('Location:'.$chemin);
+					// Si erreur de redirection : on propose le lien de téléchargement
+					$this->_template->setEmptyListMessage('Pour télécharger le fichier <a href="'.$chemin.'">cliquez ici</a>');
 				}
-				else{
-					$this->addError('la foncitonnalité d\'export excel est désactivée pour cette liste', 'construct');
-				}
-				// Si erreur on affiche le template
 				return $this->_template->construct($reponse);
 
 			case ResponseType::JSON:
-				$ret = new \stdClass();
-				$ret->error = $reponse->error();
-				if($ret->error){
-					$ret->data = null;
-					$ret->errorMessage = $reponse->getErrorMessage();
-					$this->addError($ret->errorMessage, 'construct');
-				}
-				else{
-					// Applicaiton du mask
-					if(count($this->_mask) > 0 || $this->_db->oracle()) {
-						while (($ligne = $reponse->nextLine()) != null) {
-							$aInserer = array();
-							foreach ($ligne as $colonne => $valeur) {
-								if(!$this->isMasked($colonne))
-									$aInserer[$colonne] = $valeur;
-							}
-							$ret->data[] = $aInserer;
-						}
-					}
-					else
-						$ret->data = $reponse->dataList();
-				}
-			return json_encode($ret);
+				return $this->generateJSON($reponse);
 
 
 			case ResponseType::TEMPLATE:
 				// Selection de la page
 				if($this->_template->issetPaging() && isset($_GET['lm_page'.$this->_id]) && $_GET['lm_page'.$this->_id] > 0)
 					$this->_template->setCurrentPage($_GET['lm_page'.$this->_id]);
-
 				return $this->_template->construct($reponse);
 		}
-
+	
+		$this->addError('type de réponse non reconnu : '.$this->_responseType, 'construct');
 		return false;
 	}
 
@@ -652,18 +580,21 @@ class ListManager {
 	 * Les opérateurs possibles sont :
 	 * * (pas d'opérateur) : égalité stricte avec la valeur entrée
 	* * < > <= >= = : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal, égal
-	 * * ! : opérateur 'différent de'. La condition '!' est traduite par différent de ''
-	 * * \n : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL
+	 * * / : opérateur 'différent de'. La condition '!' est traduite par différent de ''
+	 * * - : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL
 	 * * << : opérateur 'BETWEEN' pour les dates
 	 * @param bool $displaySearch passez ce paramètre à false si vous souhaitez ne pas afficher les champs de recherche, sinon laissez le à true
 	 * @return ListManager $this method chaining
 	 */
 	public function setFilter(array $filter, $displaySearch=true){
-		if($this->_template->displaySearchInputs($displaySearch) === false)
+		if($displaySearch !== null && $this->_template->displaySearchInputs($displaySearch) === false)
 			return false;
 		
 		foreach ($filter as $col => $valeur) {
-			$this->_filterArray[strtolower($col)] = $valeur;		
+			if(strlen($valeur))
+				$this->_filterArray[strtolower($col)] = $valeur;
+			else
+				unset($this->_filterArray[strtolower($col)]);
 		}
 		return $this;
 	}
@@ -830,6 +761,13 @@ class ListManager {
 	public function getFilter() {
 		return $this->_filterArray;
 	}
+	
+	/**
+	 * @return boolean true si l'utilisateur a modifié ou effectué une recherche.
+	 */
+	public function issetUserFilter(){
+		return $this->_enableSearch && $this->_issetUserFilter;
+	}
 
 	/**
 	 * @return array le tableau contenant les colonnes de la clause order by.
@@ -913,16 +851,129 @@ class ListManager {
 			/*-****************
 			***   PRIVATE   ***
 			******************/
-
+	
+	/**
+	 * Gère les filtres.
+	 * Cette méthode interne récupère le filtre développeur, le lie au filtre utilisateur et détècte les différences entre les deux.
+	 * Actualise les attributs _filterArray & _issetUserFilter.
+	 * @param SQLRequest $sqlRequest la requete SQL à modifier
+	 */
+	private function manageFilter(SQLRequest $sqlRequest, array $having){
+		if($this->_enableSearch){
+			if(isset($_GET['lm_tabSelect'.$this->_id]) && is_array($_GET['lm_tabSelect'.$this->_id])){
+				// Détection des différences
+				$devFilterDiff = false;
+				$tousVide = true;
+				if(isset($_GET['lm_tabSelect'.$this->_id])){
+					foreach ($_GET['lm_tabSelect'.$this->_id] as $col => $filtre) {
+						// Vérification que le filtre dev correspond au tabSelect utilisateur
+						if(isset($this->_filterArray[$col]) && $this->_filterArray[$col] != $filtre
+								|| ! isset($this->_filterArray[$col]) && strlen($filtre))
+							$devFilterDiff = true;
+							// Vérifit que tous les champs tabSelect utilisateur sont vides
+							if(strlen($filtre))
+								$tousVide = false;
+					}
+				}
+				$this->_issetUserFilter = $devFilterDiff || ($devFilter === [] && !$tousVide);
+				
+				// Application du filtre utilisateur
+				$this->setFilter($_GET['lm_tabSelect'.$this->_id], null);
+			}
+					
+			// Application du filtre sur la requete SQL
+			if(count($this->_filterArray) > 0)
+				$sqlRequest->filter($this->_filterArray, $having);
+		}
+	}
+	
+	/**
+	 * Génère un array PHP contenant les données selectionnées.
+	 * @param RequestResponse $reponse l'objet de réponse retourné par Database
+	 * @return NULL|array null si erreur, tableau des résultats sinon
+	 */
+	private function generateArray(RequestResponse $reponse){
+		$donnees = [];
+		if($reponse->error()) {
+			$this->addError($reponse->getErrorMessage(), 'generateArray');
+			return null;
+		}
+		else {
+			//Application du mask
+			if(count($this->_mask) > 0 || $this->_db->oracle()) {
+				while(($ligne = $reponse->nextLine()) != null) {
+					$aInserer = array();
+					foreach ($ligne as $colonne => $valeur) {
+						if(!$this->isMasked($colonne))
+							$aInserer[$colonne] = $valeur;
+					}
+					$donnees[] = $aInserer;
+				}
+			}
+			else {
+				$donnees = $reponse->dataList();
+			}
+			return $donnees;
+		}
+	}
+	
+	/**
+	 * Génère un objet encodé en JSON à partri d'un objet RequestResponse
+	 * @param RequestResponse $reponse la réponse renvoyé par Database::execute()
+	 * @return string reponse en JSON
+	 */
+	private function generateJSON(RequestResponse $reponse){
+		$ret = new \stdClass();
+		$ret->error = $reponse->error();
+		if($ret->error){
+			$ret->data = null;
+			$ret->errorMessage = $reponse->getErrorMessage();
+			$this->addError($ret->errorMessage, 'construct');
+		}
+		else{
+			// Applicaiton du mask
+			if(count($this->_mask) > 0 || $this->_db->oracle()) {
+				while (($ligne = $reponse->nextLine()) != null) {
+					$aInserer = array();
+					foreach ($ligne as $colonne => $valeur) {
+						if(!$this->isMasked($colonne))
+							$aInserer[$colonne] = $valeur;
+					}
+					$ret->data[] = $aInserer;
+				}
+			}
+			else
+				$ret->data = $reponse->dataList();
+		}
+		return json_encode($ret);
+	}
+	
 	/**
 	 * Génère un fichier excel à partir d'une réponse de requete en utilisant la bibliothèque PHPExcel.
 	 * Le fichier généré sera sauvegardé dans le dossier excel/, et le chemin complet de ce fichier sera retournée par la méthode
 	 * @param RequestResponse $reponse l'objet réponse produit par l'exécution de la requete SQL
-	 * @return bool|string le chemin du fichier généré, ou false en cas d'erreur 
+	 * @return bool false si erreur 
 	 */
 	private function generateExcel(RequestResponse $reponse) {
-		if($reponse->error())
+		// Vérification des erreurs
+		if($reponse->error()){
+			$this->addError('le fichier excel n\'a pas pu être généré', 'generateExcel');
 			return false;
+		}
+		if(!$this->_enableExcel){
+			$this->addError('la foncitonnalité d\'export excel est désactivée pour cette liste', 'generateExcel');
+			return false;
+		}
+		
+		// Récupération du masque dans les params GET
+		$metas = $reponse->getColumnsMeta();
+		if(isset($_GET['lm_mask'.$this->_id])){
+			$tabMask = [];
+			foreach (explode(',', $_GET['lm_mask'.$this->_id]) as $numCol) {
+				$tabMask[] = $metas[intval($numCol)]->name;
+			}
+			$this->setMask($tabMask);
+		}
 
 		// Création de l'objet PHPExcel
 		$phpExcel = new \PHPExcel();
@@ -944,7 +995,6 @@ class ListManager {
 		$i = 0;
 		$col = 'A';
 		$width = $this->getIdealColumnsWidth($donnees, 8, 30);
-		$metas = $reponse->getColumnsMeta();
 		$titres = [];
 		foreach ($metas as $meta) {
 
@@ -1027,17 +1077,11 @@ class ListManager {
 		}
 		catch (\Exception $e) {
 			$this->addError('erreur création excel : '.$e->getMessage(), 'generateExcel');
-			return null;
+			return false;
 		}
+		// Redirection vers le fichier
 		return $chemin;
 	}
-
-	private static function intToColumn($val){
-		if(!is_int($val))
-			return false;
-
-		return strrev(chr(66 + ($val % 26)).self::intToColumn($val / 26));
-	} 
 }
 
 ?>
