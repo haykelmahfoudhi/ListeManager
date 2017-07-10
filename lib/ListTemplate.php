@@ -544,7 +544,6 @@ class ListTemplate {
 		// Ajout du css si appliqué
 		if($this->_applyDefaultCSS){
 			$ret .= '<link rel="stylesheet" type="text/css" href="'.LM_CSS.'base.css"/>'."\n";
-			$ret .= "<link href='https://fonts.googleapis.com/css?family=Amiko' rel='stylesheet'/>\n";
 		}
 
 		// Fin
