@@ -202,12 +202,10 @@ class ListTemplate {
 	 * @return string le code HTML de la liste HTML genere
 	 */
 	public function construct(RequestResponse $reponse){
-
 		// On teste d'abord s'il y a erreur dans la reponse
 		if($reponse->error()){
 			$ret = "<div class='boutons-options'><a href='".self::creerUrlGET(null, null, array())."'>Clear</a></div>";
-			return $ret.self::messageHTML($reponse->getErrorMessage(),
-				$this->_errorClass);
+			return $ret.self::messageHTML($reponse->getErrorMessage(), $this->_errorClass);
 		}
 
 		// Preparation de l'array a afficher
@@ -224,7 +222,6 @@ class ListTemplate {
 			$fin = $this->_nbResultsPerPage;
 			$this->_currentPage = 1;
 		}
-
 		// $donnees ne contient plus que les valeurs a afficher
 		$donnees = array_slice($donnees, $debut, $this->_nbResultsPerPage);
 		
@@ -298,91 +295,10 @@ class ListTemplate {
 		$ret .= '<table class="liste'.(($this->_fixedPaging)? ' fix-margin"' : '"').' '
 			.(($this->_fixedTitles)? ' fixed-titles="true"' : '')
 			.' disp-tabSelect="'.(($this->_quest)? 'true' : 'false').'"'
-			.(($lmId == null)?'' : " data-id='".$lmId."' ").'>'."\n<tr class='ligne-titres'>";
-
+			.(($lmId == null)?'' : " data-id='".$lmId."' ").'>'."\n";
 		//Creation des titres
 		$colonnes = $reponse->getColumnsMeta();
-		$baseOrderBy = $this->_lm->getOrderBy();
-		$i = 0;
-		foreach ($colonnes as $col) {
-			
-			$nomColonne = strtolower(($col->table != null)? $col->table.'.'.$col->name : $col->name);
-
-			// On vérifie que la colonne en cours n'est pas masquée
-			if(!$this->_lm->isMasked($nomColonne, $col->alias)) {
-
-				//Gestion du order by
-				$signeOrder = '';
-				$orderArray = [];
-				if(isset($_GET['lm_orderBy'.$lmId]) || count($baseOrderBy)){
-					if(isset($_GET['lm_orderBy'.$lmId]))
-						$orderArray = explode(';', $_GET['lm_orderBy'.$lmId]);
-					$orderArray = array_unique(array_merge($baseOrderBy, $orderArray));
-
-					// Construction de la chaine orderBy
-					if(($key = array_search($nomColonne, $orderArray)) !== false
-							|| ($key = array_search(($i + 1), $orderArray)) !== false) { // colonne triée asc => tri desc
-						unset($orderArray[$key]);
-						array_unshift($orderArray, "-$nomColonne");
-						$signeOrder = '&Delta;';
-					}
-					else if (($key = array_search("-$nomColonne", $orderArray)) !== false
-							|| ($key = array_search(-($i + 1), $orderArray)) !== false){ // colonne triée desc => pas de tri
-						unset($orderArray[$key]);
-						array_unshift($orderArray, "*$nomColonne");
-						$signeOrder = '&nabla;';
-					}
-					else { // pas de tri => trié asc
-						if(($key = array_search("*$nomColonne", $orderArray)) !== false
-							|| ($key = array_search('*'.($i + 1), $orderArray)) !== false)
-							unset($orderArray[$key]);
-						array_unshift($orderArray, $nomColonne);
-					}
-					$orderString = ((count($orderArray))? implode(';', $orderArray) : null);
-				}
-				else {
-					$orderString = $nomColonne;
-				}
-
-				// Préparation du titre à afficher
-				$listTitles = $this->_lm->getListTitles();
-				if(isset($listTitles[$col->alias]))
-					$titreAffiche = $listTitles[$col->alias];
-				else if(isset($listTitles[$nomColonne]))
-					$titreAffiche = $listTitles[$nomColonne];
-				else {
-					$titreAffiche = (($col->alias == null)? $col->name : $col->alias);
-					// Si titre en caps => ucfirst
-					if($titreAffiche == strtoupper($titreAffiche))
-						$titreAffiche = ucfirst(strtolower($titreAffiche));
-				}
-
-
-				// Création du lien pour order by
-				if($this->_lm->isOrderByEnabled())
-					$lienOrderBy = '<a class="titre-colonne" href="'
-						.self::creerUrlGET('lm_orderBy'.$lmId, $orderString)."\">".$titreAffiche."</a><br>$signeOrder";
-				else
-					$lienOrderBy = $titreAffiche;
-
-				if($this->_enableJSMask)
-					$lienMasque = '<a class="masque" href="#">x</a>';
-				else 
-					$lienMasque = '';
-
-				// Affiche les liens et les titres
-				$ret .= '<th>'.$lienMasque.$lienOrderBy."</th>\n";
-				$i++;
-			}
-		}
-
-		// Utilisation du callback pour ajouter une colonne
-		if($this->_columnCallback != null) {
-			$fct = $this->_columnCallback;
-			$ret .= call_user_func_array($fct, array(0, $colonnes, true));
-		}
-
-		$ret .= "</tr>\n";
+		$ret .= $this->generateTitles($colonnes);
 		
 		//Affichage des champs de saisie pour la  recherche
 		$width = $this->_lm->getIdealColumnsWidth($donnees, 3, $this->_maxSizeInputs);
@@ -654,6 +570,91 @@ class ListTemplate {
 			/*-****************
 			***   PRIVATE   ***
 			******************/
+	
+	/**
+	 * Génère les titres de la liste html.
+	 * @param array $colonnesMeta les méta données des colonnes.
+	 * @return string code HTML des titres.
+	 */
+	private function generateTitles(array $colonnesMeta){
+		if(count($colonnesMeta) <= 0)
+			return '';
+		
+		$ret = "<tr class='ligne-titres'>";
+		$baseOrderBy = $this->_lm->getOrderBy();
+		$lmId = $this->_lm->getId();
+		$i = 0;
+		foreach ($colonnesMeta as $col ) {
+			$nomColonne = strtolower ( ($col->table != null) ? $col->table . '.' . $col->name : $col->name );
+			
+			// On vérifie que la colonne en cours n'est pas masquée
+			if (! $this->_lm->isMasked($nomColonne, $col->alias )) {
+				
+				// Gestion du order by
+				$signeOrder = '';
+				$orderArray = [ ];
+				if (isset ( $_GET ['lm_orderBy' . $lmId] ) || count ( $baseOrderBy )) {
+					if (isset ( $_GET ['lm_orderBy' . $lmId] ))
+						$orderArray = explode ( ';', $_GET ['lm_orderBy' . $lmId] );
+					$orderArray = array_unique ( array_merge ( $baseOrderBy, $orderArray ) );
+					
+					// Construction de la chaine orderBy
+					if (($key = array_search ( $nomColonne, $orderArray )) !== false || ($key = array_search ( ($i + 1), $orderArray )) !== false) { // colonne triée asc => tri desc
+						unset ( $orderArray [$key] );
+						array_unshift ( $orderArray, "-$nomColonne" );
+						$signeOrder = '<br>&Delta;';
+					} else if (($key = array_search ( "-$nomColonne", $orderArray )) !== false || ($key = array_search ( - ($i + 1), $orderArray )) !== false) { // colonne triée desc => pas de tri
+						unset ( $orderArray [$key] );
+						array_unshift ( $orderArray, "*$nomColonne" );
+						$signeOrder = '<br>&nabla;';
+					} else { // pas de tri => trié asc
+						if (($key = array_search ( "*$nomColonne", $orderArray )) !== false || ($key = array_search ( '*' . ($i + 1), $orderArray )) !== false)
+							unset ( $orderArray [$key] );
+						array_unshift ( $orderArray, $nomColonne );
+					}
+					$orderString = ((count ( $orderArray )) ? implode ( ';', $orderArray ) : null);
+				} else {
+					$orderString = $nomColonne;
+				}
+				
+				// Préparation du titre à afficher
+				$listTitles = $this->_lm->getListTitles ();
+				if (isset ( $listTitles [$col->alias] ))
+					$titreAffiche = $listTitles [$col->alias];
+				else if (isset ( $listTitles [$nomColonne] ))
+					$titreAffiche = $listTitles [$nomColonne];
+				else {
+					$titreAffiche = (($col->alias == null) ? $col->name : $col->alias);
+					// Si titre en caps => ucfirst
+					if ($titreAffiche == strtoupper ( $titreAffiche ))
+						$titreAffiche = ucfirst ( strtolower ( $titreAffiche ) );
+				}
+				
+				// Création du lien pour order by
+				if ($this->_lm->isOrderByEnabled ())
+					$lienOrderBy = '<a class="titre-colonne" href="'.self::creerUrlGET('lm_orderBy'.$lmId, $orderString )."\">$titreAffiche</a>$signeOrder";
+				else
+					$lienOrderBy = $titreAffiche;
+				
+				if ($this->_enableJSMask)
+					$lienMasque = '<a class="masque" href="#">x</a>';
+				else
+					$lienMasque = '';
+					
+				// Affiche les liens et les titres
+				$ret .= '<th>' . $lienMasque . $lienOrderBy . "</th>\n";
+				$i ++;
+			}
+		}
+
+		// Utilisation du callback pour ajouter une colonne
+		if($this->_columnCallback != null) {
+			$fct = $this->_columnCallback;
+			$ret .= call_user_func_array($fct, array(0, $colonnes, true));
+		}
+		$ret .= "</tr>\n";
+		return $ret;
+	}
 	
 	/**
 	 * Génère la ligne du tableau contenant les champs de recherche.
