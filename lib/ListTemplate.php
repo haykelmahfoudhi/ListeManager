@@ -207,37 +207,18 @@ class ListTemplate {
 			$ret = "<div class='boutons-options'><a href='".self::creerUrlGET(null, null, array())."'>Clear</a></div>";
 			return $ret.self::messageHTML($reponse->getErrorMessage(), $this->_errorClass);
 		}
-
-		// Preparation de l'array a afficher
-		$donnees =  array();
-		while(($ligne = $reponse->nextLine()) != null)
-			$donnees[] = $ligne;
-		$nbLignes = $reponse->getRowsCount();
-		$debut = ($this->_currentPage - 1) * $this->_nbResultsPerPage;
-		$fin = min(($this->_currentPage) * $this->_nbResultsPerPage, $nbLignes);
-
-		// Si la page actuelle n'existe pas -> redirection sur 1re page
-		if($debut > $fin) {
-			$debut = 0;
-			$fin = $this->_nbResultsPerPage;
-			$this->_currentPage = 1;
-		}
-		// $donnees ne contient plus que les valeurs a afficher
-		$donnees = array_slice($donnees, $debut, $this->_nbResultsPerPage);
 		
 		// Creation de la div HTML parente
 		$ret = "\n".'<div class="liste-parent">';
 		
 		// Génération des bouttons utilisateur
-		$ret .= $this->generateButtons($ret);
+		$ret .= $this->generateButtons();
 
 		// Initialisation de la liste
 		$ret .= '<div>';
-
-		//Affichage du nombre de resultats
-		$debut++;
-		if($this->_displayResultsInfos)
-			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", 'info-resultats', 'p')."\n";
+		
+		// Préparation des données à afficher
+		$donnees = $this->prepareDataArray($reponse, $ret);
 		
 		// Création de tableau HTML
 		$lmId = $this->_lm->getId();
@@ -271,6 +252,7 @@ class ListTemplate {
 		}
 		return $ret;
 	}
+
 	
 			/*-**************************
 			***   SETTERS & GETTERS   ***
@@ -518,6 +500,41 @@ class ListTemplate {
 			/*-****************
 			***   PRIVATE   ***
 			******************/
+
+	/**
+	 * Récupère les données de la réponse et les prépare pour le tableau à afficher.
+	 * Cette méthode réccupère la liste de données depuis l'objet réponse et retourne uniquement celles correspondantes à la page en cours.
+	 * Inscrit également le nombre de résultats retournés si l'option est activée.
+	 * @param RequestResponse reponse l'objet réponse
+	 * @param string ret (in out) contient le code HTML à retourner
+	 * @return array l'array contenant les données à afficher
+	 */
+	private function prepareDataArray($reponse, &$ret) {
+		// Preparation de l'array a afficher
+		$donnees =  array();
+		while(($ligne = $reponse->nextLine()) != null)
+			$donnees[] = $ligne;
+		$nbLignes = $reponse->getRowsCount();
+		$debut = ($this->_currentPage - 1) * $this->_nbResultsPerPage;
+		$fin = min(($this->_currentPage) * $this->_nbResultsPerPage, $nbLignes);
+
+		// Si la page actuelle n'existe pas -> redirection sur 1re page
+		if($debut > $fin) {
+			$debut = 0;
+			$fin = $this->_nbResultsPerPage;
+			$this->_currentPage = 1;
+		}
+		// $donnees ne contient plus que les valeurs a afficher
+		$donnees = array_slice($donnees, $debut, $this->_nbResultsPerPage);
+		
+		//Affichage du nombre de resultats
+		$debut++;
+		if($this->_displayResultsInfos)
+			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", 'info-resultats', 'p')."\n";
+		
+		return $donnees;
+	}
+	
 	
 	/**
 	 * Génère la division contenant tous les boutons utilisateur.
