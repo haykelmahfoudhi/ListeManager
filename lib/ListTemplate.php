@@ -226,63 +226,10 @@ class ListTemplate {
 		$donnees = array_slice($donnees, $debut, $this->_nbResultsPerPage);
 		
 		// Creation de la div HTML parente
-		$lmId = $this->_lm->getId();
 		$ret = "\n".'<div class="liste-parent">';
 		
-		//Ajout des boutons options sur le cete
-		$ret .= "\n<div><div class='boutons-options'>";
-		
-		// Bouton pour reset le mask en JS
-		if($this->_enableJSMask)
-			$ret .= '<a class="annuler-masque" style="display:none;" href="#"><img height="40" width="40" src="'.LM_IMG.'mask-cross.png"></a>';
-
-		// Bouton excel
-		if($this->_lm->isExcelEnabled()){
-			$ret .= '<a href="'.self::creerUrlGET('lm_excel'.$lmId, 1).'" class="btn-excel"><img height="40" width="40" src="'.LM_IMG.'excel-ico.png"></a>';
-		}
-
-		//Bouton quest (recherche)
-		if($this->_lm->isSearchEnabled()){
-			$ret .= '<a class="btn-recherche" href="#"><img height="40" width="40" src="'.LM_IMG.'search-ico.png"></a>'; 
-			
-			// Ajout du form si recherche activee
-			$ret .= "\n<form class='recherche' id='recherche".$lmId."' action='' method='GET'"
-				.'><input type="submit" value="Go!" style="display:none;"/>';
-
-			// Ajout des paramètres GET déjà présents
-			foreach ($_GET as $nom => $valeur) {
-				if(!in_array($nom, ['lm_tabSelect'.$lmId, 'lm_excel'.$lmId, 'lm_page'.$lmId])) {
-					$ret .= "<input type='hidden' name='$nom' value='$valeur'/>";
-				}
-			}
-
-			$ret .= '</form>';
-		}
-
-		// Lien vers la rubrique d'aide / légende associée
-		if($this->_helpLink != null){
-			$ret .= "<a href='$this->_helpLink' target='_blank' class='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
-		}
-		
-		//Bouton RaZ
-		if($this->_lm->issetUserFilter() || isset($_GET['lm_orderBy'.$lmId])) {
-			$tabGet = $_GET;
-			if(isset($_GET['lm_tabSelect'.$lmId]))
-				unset($tabGet['lm_tabSelect'.$lmId]);
-			if(isset($_GET['lm_orderBy'.$lmId]))
-				unset($tabGet['lm_orderBy'.$lmId]);
-			if(isset($_GET['lm_excel'.$lmId]))
-				unset($tabGet['lm_excle'.$lmId]);
-			
-			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'"><img height="40" width="40" src="'.LM_IMG.'eraser-ico.png"></a>';
-		}
-
-		// Boutons utilisateurs ajouté par le développeurs
-		foreach ($this->_userButtons as $bouton) {
-			$ret .= "$bouton\n";
-		}
-
-		$ret .= "</div>\n";
+		// Génération des bouttons utilisateur
+		$ret .= $this->generateButtons($ret);
 
 		// Initialisation de la liste
 		$ret .= '<div>';
@@ -291,11 +238,14 @@ class ListTemplate {
 		$debut++;
 		if($this->_displayResultsInfos)
 			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", 'info-resultats', 'p')."\n";
-
+		
+		// Création de tableau HTML
+		$lmId = $this->_lm->getId();
 		$ret .= '<table class="liste'.(($this->_fixedPaging)? ' fix-margin"' : '"').' '
 			.(($this->_fixedTitles)? ' fixed-titles="true"' : '')
 			.' disp-tabSelect="'.(($this->_quest)? 'true' : 'false').'"'
 			.(($lmId == null)?'' : " data-id='".$lmId."' ").'>'."\n";
+		
 		//Creation des titres
 		$colonnes = $reponse->getColumnsMeta();
 		$ret .= $this->generateTitles($colonnes);
@@ -319,10 +269,8 @@ class ListTemplate {
 			$ret .= '<link rel="stylesheet" type="text/css" href="'.LM_CSS.'base.css"/>'."\n";
 			$ret .= "<link href='https://fonts.googleapis.com/css?family=Amiko' rel='stylesheet'/>\n";
 		}
-		// Fin
 		return $ret;
 	}
-	
 	
 			/*-**************************
 			***   SETTERS & GETTERS   ***
@@ -570,6 +518,66 @@ class ListTemplate {
 			/*-****************
 			***   PRIVATE   ***
 			******************/
+	
+	/**
+	 * Génère la division contenant tous les boutons utilisateur.
+	 * @return string code HTML des boutons.
+	 */
+	private function generateButtons() {
+		$lmId = $this->_lm->getId();
+		//Ajout des boutons options sur le cete
+		$ret = "\n<div><div class='boutons-options'>";
+	
+		// Bouton pour reset le mask en JS
+		if($this->_enableJSMask)
+			$ret .= '<a class="annuler-masque" style="display:none;" href="#"><img height="40" width="40" src="'.LM_IMG.'mask-cross.png"></a>';
+	
+		// Bouton excel
+		if($this->_lm->isExcelEnabled()){
+			$ret .= '<a href="'.self::creerUrlGET('lm_excel'.$lmId, 1).'" class="btn-excel"><img height="40" width="40" src="'.LM_IMG.'excel-ico.png"></a>';
+		}
+
+		//Bouton quest (recherche)
+		if($this->_lm->isSearchEnabled()){
+			$ret .= '<a class="btn-recherche" href="#"><img height="40" width="40" src="'.LM_IMG.'search-ico.png"></a>';
+			// Ajout du form si recherche activee
+			$ret .= "\n<form class='recherche' id='recherche".$lmId."' action='' method='GET'"
+				.'><input type="submit" value="Go!" style="display:none;"/>';
+
+			// Ajout des paramètres GET déjà présents
+			foreach ($_GET as $nom => $valeur) {
+				if(!in_array($nom, ['lm_tabSelect'.$lmId, 'lm_excel'.$lmId, 'lm_page'.$lmId])) {
+					$ret .= "<input type='hidden' name='$nom' value='$valeur'/>";
+				}
+			}
+			$ret .= '</form>';
+		}
+
+		// Lien vers la rubrique d'aide / légende associée
+		if($this->_helpLink != null){
+			$ret .= "<a href='$this->_helpLink' target='_blank' class='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
+		}
+		
+		//Bouton RaZ
+		if($this->_lm->issetUserFilter() || isset($_GET['lm_orderBy'.$lmId])) {
+			$tabGet = $_GET;
+			if(isset($_GET['lm_tabSelect'.$lmId]))
+				unset($tabGet['lm_tabSelect'.$lmId]);
+			if(isset($_GET['lm_orderBy'.$lmId]))
+				unset($tabGet['lm_orderBy'.$lmId]);
+			if(isset($_GET['lm_excel'.$lmId]))
+				unset($tabGet['lm_excle'.$lmId]);
+			
+			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'"><img height="40" width="40" src="'.LM_IMG.'eraser-ico.png"></a>';
+		}
+
+		// Boutons utilisateurs ajouté par le développeurs
+		foreach ($this->_userButtons as $bouton) {
+			$ret .= "$bouton\n";
+		}
+		$ret .= "</div>\n";
+		return $ret;
+	}
 	
 	/**
 	 * Génère les titres de la liste html.

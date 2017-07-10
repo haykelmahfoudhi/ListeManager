@@ -7,13 +7,14 @@ class ListTemplateTest extends PHPUnit_Framework_TestCase {
 	public function setUp(){
 		// Bouchon ListManager utilisé comme attribut du template
 		$this->_stubLM = $this->getMockBuilder('ListManager')
-			->setMethods(['isSearchEnabled', 'getFilter', 'isMasked', 'isOrderByEnabled'])
+			->setMethods(['isSearchEnabled', 'getFilter', 'isMasked', 'isOrderByEnabled', 'isExcelEnabled'])
 			->disableOriginalConstructor()
 			->getMock();
 		$this->_stubLM->expects($this->any())->method('isSearchEnabled')->willReturnOnConsecutiveCalls(false, true);
 		$this->_stubLM->expects($this->any())->method('getFilter')->willReturn([]);
 		$this->_stubLM->expects($this->any())->method('isMasked')->willReturn(false);
 		$this->_stubLM->expects($this->any())->method('isOrderByEnabled')->willReturn(false);
+		$this->_stubLM->expects($this->any())->method('isExcelEnabled')->willReturn(false);
 		
 		// Bouchon ReponseRequest
 		$this->_stubRep = $this->getMockBuilder('RequestResponse')
@@ -82,6 +83,15 @@ class ListTemplateTest extends PHPUnit_Framework_TestCase {
 		$this->_lt->enableJSMask(false);
 		$this->assertEmpty($meth->invoke($this->_lt, []));
 		$this->assertEquals("<tr class='ligne-titres'><th>col1</th>\n<th>col2</th>\n</tr>\n", $meth->invoke($this->_lt, $metas));
+	}
+	
+	public function testGenerateButtons(){
+		$meth = (new ReflectionClass('ListTemplate'))
+			->getMethod('generateButtons');
+		$meth->setAccessible(true);
+		$this->_lt->enableJSMask(false);
+		$this->_lt->setHelpLink(null);
+		$this->assertEquals("\n<div><div class='boutons-options'></div>\n", $meth->invoke($this->_lt));
 	}
 	
 }
