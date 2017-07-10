@@ -418,65 +418,8 @@ class ListTemplate {
 			$ret .= "</tr>\n";
 		}
 		
-		// Si le tableau est vide -> retourne messageListeVide
-		if(count($donnees) == 0){
-			$ret .= "</table>\n";
-			$ret .= self::messageHTML($this->_emptyListMessage, $this->_errorClass);
-		}
-
-		
-		//Insertion de donnees
-		else {
-			$i = 0;
-			foreach ($donnees as $ligne) {
-				//Gestion des classes
-				$classe = (($i % 2)? $this->_class1 : $this->_class2);
-				$ret .= '<tr'.(($classe == null)? ' ' : " class='$classe' ");
-
-				// Utilisation du callback
-				if($this->_rowCallback != null) {
-					$fct = $this->_rowCallback;
-					$ret .= ' '.call_user_func_array($fct, array($i, $ligne));
-				}
-				$ret .= '>';
-
-				//Construction des cellules colonne par colonne
-				for ($j=0; $j < $reponse->getColumnsCount(); $j++){
-
-					$cellule = $ligne[$j];
-					$nomColonne = (($colonnes[$j]->alias != null)? $colonnes[$j]->alias : 
-						(($colonnes[$j]->table != null)? $colonnes[$j]->table.'.'.$colonnes[$j]->name : $colonnes[$j]->name ) );
-
-					// On vérifie que la colonne en cours n'est pas masquée
-					if(!$this->_lm->isMasked($nomColonne, $col->alias)) {
-
-						// Application du callback (si non null)
-						if($this->_cellCallback != null) {
-							
-							// Appel au callback
-							$fct = $this->_cellCallback;
-							$cellule = ( (($retFCT = call_user_func_array($fct,
-								array($cellule, $nomColonne, $i, $ligne, $j))) === null)?
-								(($this->_replaceTagTD)? "<td>$cellule</td>" : $cellule ) : $retFCT ) ;
-						}
-						// Si la cellule ne contient rien -> '-'
-						if(strlen($cellule) == 0)
-							$cellule = '-';
-						$ret .= (($this->_replaceTagTD)? '' : '<td>') .$cellule. (($this->_replaceTagTD)? '' : '</td>');
-					}
-				}
-
-				// Ajout des colonnes par callback
-				if($this->_columnCallback != null) {
-					$fct = $this->_columnCallback;
-					$ret .= call_user_func_array($fct, array($i, $ligne, false));
-				}
-
-				$ret .= "</tr>\n";
-				$i++;
-			}
-			$ret .= "</table>\n";
-		}
+		// Création du contenu du tableau HTML
+		$ret .= $this->generateContent($donnees, $colonnes);
 
 		// Affichage du tableau des numeros de page
 		$ret .= $this->generatePaging($nbLignes);
@@ -741,7 +684,88 @@ class ListTemplate {
 			/*-****************
 			***   PRIVATE   ***
 			******************/
-
+	
+	/**
+	 * Retourne le tableau associatif contenant les noms / alias de chaque colonnes à partir des meta données
+	 * @return array tableau de noms
+	 */
+	private function columnsNames(RequestResponse $reponse){
+		$ret = [];
+		foreach ($reponse->getColumnsMeta() as $meta){
+			
+		}
+		return $ret;
+	}
+	
+	/**
+	 * Génère et retourne le contenu de la liste HTML
+	 * @param array $donnees le tableau contenant les données à insérer
+	 * @param array $colonnesMeta métas données des colonnes 
+	 * @return string code HTML du contenu de la liste
+	 */
+	private function generateContent(array $donnees, array $colonnesMeta){
+		$ret = '';
+		
+		// Si le tableau est vide -> retourne messageListeVide
+		if(count($donnees) == 0 || count($donnees[0]) == 0){
+			$ret .= "</table>\n";
+			$ret .= self::messageHTML($this->_emptyListMessage, $this->_errorClass);
+		}
+		//Insertion de donnees
+		else {
+			$i = 0;
+			foreach ($donnees as $ligne) {
+				//Gestion des classes
+				$classe = (($i % 2)? $this->_class1 : $this->_class2);
+				$ret .= '<tr'.(($classe == null)? ' ' : " class='$classe' ");
+		
+				// Utilisation du callback
+				if($this->_rowCallback != null) {
+					$fct = $this->_rowCallback;
+					$ret .= ' '.call_user_func_array($fct, array($i, $ligne));
+				}
+				$ret .= '>';
+		
+				//Construction des cellules colonne par colonne
+				for ($j=0; $j < count($colonnesMeta); $j++){
+		
+					$cellule = $ligne[$j];
+					$nomColonne = (($colonnesMeta[$j]->alias != null)? $colonnesMeta[$j]->alias :
+							(($colonnesMeta[$j]->table != null)? $colonnesMeta[$j]->table.'.'.$colonnesMeta[$j]->name : $colonnesMeta[$j]->name ) );
+		
+					// On vérifie que la colonne en cours n'est pas masquée
+					if(!$this->_lm->isMasked($nomColonne, $colonnesMeta[$j]->alias)) {
+		
+						// Application du callback (si non null)
+						if($this->_cellCallback != null) {
+								
+							// Appel au callback
+							$fct = $this->_cellCallback;
+							$cellule = ( (($retFCT = call_user_func_array($fct,
+									array($cellule, $nomColonne, $i, $ligne, $j))) === null)?
+									(($this->_replaceTagTD)? "<td>$cellule</td>" : $cellule ) : $retFCT ) ;
+						}
+						// Si la cellule ne contient rien -> '-'
+						if(strlen($cellule) == 0)
+							$cellule = '-';
+							$ret .= (($this->_replaceTagTD)? '' : '<td>') .$cellule. (($this->_replaceTagTD)? '' : '</td>');
+					}
+				}
+		
+				// Ajout des colonnes par callback
+				if($this->_columnCallback != null) {
+					$fct = $this->_columnCallback;
+					$ret .= call_user_func_array($fct, array($i, $ligne, false));
+				}
+		
+				$ret .= "</tr>\n";
+				$i++;
+			}
+			$ret .= "</table>\n";
+		}
+		return $ret;
+	}
+	
 	/**
 	 * Génère le tableau HTML contenant la pagination.
 	 * @param int $nbLignes nombre de lignes retournée par l'exécution de la requete
