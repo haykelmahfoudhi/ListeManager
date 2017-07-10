@@ -5,11 +5,16 @@ class ListTemplateTest extends PHPUnit_Framework_TestCase {
 	var $_lt, $_stubRep, $_stubLM;
 	
 	public function setUp(){
+		// Bouchon ListManager utilisé comme attribut du template
 		$this->_stubLM = $this->getMockBuilder('ListManager')
-			->setMethods([])
+			->setMethods(['isSearchEnabled', 'getFilter', 'isMasked'])
 			->disableOriginalConstructor()
 			->getMock();
+		$this->_stubLM->expects($this->any())->method('isSearchEnabled')->willReturnOnConsecutiveCalls(false, true);
+		$this->_stubLM->expects($this->any())->method('getFilter')->willReturn([]);
+		$this->_stubLM->expects($this->any())->method('isMasked')->willReturn(false);
 		
+		// Bouchon ReponseRequest
 		$this->_stubRep = $this->getMockBuilder('RequestResponse')
 			->setMethods(['error', 'dataList', 'nextLine', 'getErrorMessage', 'getColumnsMeta', 'getColumnsCount'])
 			->disableOriginalConstructor()
@@ -17,14 +22,15 @@ class ListTemplateTest extends PHPUnit_Framework_TestCase {
 		$this->_stubRep->expects($this->any())->method('error')->willReturnOnConsecutiveCalls(true, false, false);
 		$this->_stubRep->expects($this->any())->method('getErrorMessage')->willReturn('Unit Test');
 		$this->_stubRep->expects($this->any())->method('getColumnsCount')->willReturn(2);
-		$this->_stubRep->expects($this->any())->method('getColumnsMeta')
-			->willReturn([
+		$this->_stubRep->expects($this->any())->method('getColumnsMeta')->willReturn([
 					(Object)['name'=>'col1', 'table'=>null, 'alias'=>null],
 					(Object)['name'=>'col2', 'table'=>'a', 'alias'=>null]
 			]);
 		$data  = [['val1', 'val2'],['val3', 'val3']];
 		$this->_stubRep->expects($this->any())->method('dataList')->willReturn($data);
 		$this->_stubRep->expects($this->any())->method('nextLine')->willReturnOnConsecutiveCalls($data[0],$data[1], null);
+		
+		// Initialistaion du template
 		$this->_lt = new ListTemplate($this->_stubLM);
 	}
 	
@@ -54,6 +60,17 @@ class ListTemplateTest extends PHPUnit_Framework_TestCase {
 		$donnees = $this->_stubRep->dataList();
 		$this->assertEquals("<tr ><td>val1</td><td>val2</td></tr>\n"
 				."<tr ><td>val3</td><td>val3</td></tr>\n</table>\n", $meth->invoke($this->_lt, $donnees, $colonnes));
+	}
+	
+	public function testGenerateSearch(){
+		$meth = (new ReflectionClass('ListTemplate'))
+			->getMethod('generateSearchInputs');
+		$meth->setAccessible(true);
+		$metas = $this->_stubRep->getColumnsMeta();
+		$this->assertEmpty($meth->invoke($this->_lt, $metas, [5,6]));
+		$this->assertEquals('<tr class=\'tabSelect\' style="display:none;" ><td><input type="text" name="lm_tabSelect[col1]" form=\'recherche\' size=\'5\' value=\'\'/></td>'
+				.'<td><input type="text" name="lm_tabSelect[a.col2]" form=\'recherche\' size=\'6\' value=\'\'/></td></tr>'."\n",
+				$meth->invoke($this->_lt, $metas, [5,6]));
 	}
 	
 }

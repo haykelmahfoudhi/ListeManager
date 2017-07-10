@@ -383,40 +383,10 @@ class ListTemplate {
 		}
 
 		$ret .= "</tr>\n";
-
-		// Récupération de la largeur des colonnes
-		$width = $this->_lm->getIdealColumnsWidth($donnees, 3, $this->_maxSizeInputs);
-
+		
 		//Affichage des champs de saisie pour la  recherche
-		if($this->_lm->isSearchEnabled()){
-			$ret .= "<tr class='tabSelect'"
-				.(($this->_quest)? '' : ' style="display:none;" ').'>';
-			$i = 0;
-			$filter = $this->_lm->getFilter();
-			foreach ($colonnes as $col){
-
-				$nomColonne = strtolower(($col->table != null)? $col->table.'.'.$col->name : $col->name );
-
-				// On vérifie que la colonne en cours n'est pas masquée
-				if(!$this->_lm->isMasked($nomColonne, $col->alias)) {
-
-					//Determine le contenu du champs
-					$valeur = (isset($filter[$nomColonne])? $filter[$nomColonne] : '');
-					
-					//Determine la taille du champs
-					if($this->_constInputsSize)
-						$taille = $this->_maxSizeInputs;
-					else {
-						$taille = $width[$i];
-					}
-
-					$ret .= '<td><input type="text" name="lm_tabSelect'.$lmId.'['.$nomColonne.']"'
-						." form='recherche".$lmId."' size='$taille' value='$valeur'/></td>";
-				}
-				$i++;
-			}
-			$ret .= "</tr>\n";
-		}
+		$width = $this->_lm->getIdealColumnsWidth($donnees, 3, $this->_maxSizeInputs);
+		$ret .= $this->generateSearchInputs($colonnes, $width);
 		
 		// Création du contenu du tableau HTML
 		$ret .= $this->generateContent($donnees, $colonnes);
@@ -686,14 +656,41 @@ class ListTemplate {
 			******************/
 	
 	/**
-	 * Retourne le tableau associatif contenant les noms / alias de chaque colonnes à partir des meta données
-	 * @return array tableau de noms
+	 * Génère la ligne du tableau contenant les champs de recherche.
+	 * @param array $colonnesMeta les meta donnés des colonnes
+	 * @return string le code HTML des champs de recherche.
 	 */
-	private function columnsNames(RequestResponse $reponse){
-		$ret = [];
-		foreach ($reponse->getColumnsMeta() as $meta){
-			
+	private function generateSearchInputs(array $colonnesMeta, array $width){
+		if(!$this->_lm->isSearchEnabled())
+			return '';
+		
+		$ret = "<tr class='tabSelect'"
+				.(($this->_quest)? '' : ' style="display:none;" ').'>';
+		$lmId = $this->_lm->getId(); 
+		$i = 0;
+		$filter = $this->_lm->getFilter();
+		foreach ($colonnesMeta as $col){
+			// Nom de la colonne = table.colonne
+			$nomColonne = strtolower(($col->table != null)? $col->table.'.'.$col->name : $col->name );
+
+			// On vérifie que la colonne en cours n'est pas masquée
+			if(!$this->_lm->isMasked($nomColonne, $col->alias)) {
+
+				//Determine le contenu du champs
+				$valeur = (isset($filter[$nomColonne])? $filter[$nomColonne] : '');
+					
+				//Determine la taille du champs
+				if($this->_constInputsSize)
+					$taille = $this->_maxSizeInputs;
+				else 
+					$taille = $width[$i];
+
+				$ret .= '<td><input type="text" name="lm_tabSelect'.$lmId.'['.$nomColonne.']"'
+						." form='recherche".$lmId."' size='$taille' value='$valeur'/></td>";
+			}
+			$i++;
 		}
+		$ret .= "</tr>\n";
 		return $ret;
 	}
 	
