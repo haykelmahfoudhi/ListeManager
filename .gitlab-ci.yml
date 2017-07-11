@@ -1,3 +1,5 @@
+image: localhost:5000/listmanager_image
+
 stages:
   - test
   - deploy
