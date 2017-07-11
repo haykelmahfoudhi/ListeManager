@@ -11,7 +11,7 @@ test-php5.6:
   image: localhost:5000/listmanager_image
   stage: test
   script:
-    - phpunit -c phpunit.xml tests/
+    - phpunit --coverage-text --color=never -c phpunit.xml tests/
 
 #test-php7:
 #  stage: test
