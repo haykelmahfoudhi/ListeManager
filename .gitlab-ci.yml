@@ -1,10 +1,14 @@
-image: localhost:5000/listmanager_image
+#image: localhost:5000/listmanager_image
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
   - test
   - deploy
 
 test-php5.6:
+  image: localhost:5000/listmanager_image
   stage: test
   script:
     - phpunit -c phpunit.xml tests/
