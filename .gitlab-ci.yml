@@ -9,21 +9,26 @@ stages:
 
 before_script:
   - uname -a
-  - whoami 
+  - whoami
 
 test-php5.6:
   image: localhost:5000/listmanager_image
   stage: test
   script:
     - phpunit --coverage-text --color=never -c phpunit.xml tests/
+  tags:
+    - docker
 
-#test-php7:
-#  stage: test
-#  script: echo "Running tests with php7"
-#
-#other-test-campaign:
-#  stage: test
-#  script: echo "Dther test campaign"
+test-php7:
+  image: localhost:5000/listmanager_image:stretch
+
+  # autorisation des tests php7.0 à échouer, vu que php7.0 n'est pour le moment pas utilisé en production
+  allow_failure: true
+  stage: test
+  script:
+    - phpunit --coverage-text --color=never -c phpunit.xml tests/
+  tags:
+    - docker
 
 deploy-staging:
   stage: deploy
@@ -31,6 +36,8 @@ deploy-staging:
   environment: staging
   only:
     - develop
+  tags:
+    - shell
 
 deploy-production:
   stage: deploy
@@ -40,3 +47,5 @@ deploy-production:
   when : manual
   only:
     - master
+  tags:
+    - shell
