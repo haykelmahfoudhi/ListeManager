@@ -1,8 +1,8 @@
 <?php
 
 
-class SQRequestTest extends PHPUnit_Framework_TestCase {
-	
+class SQRequestTest extends PHPUnit\Framework\TestCase {
+
 	var $tabReq = [
 			'sel1' => "SELECT * FROM table LIMIT 100;",
 			'sel2' => "SELECT (2+2) calcul FROM DUAL;",
@@ -14,7 +14,7 @@ class SQRequestTest extends PHPUnit_Framework_TestCase {
 			'del'  => "DELETE FROM table WHERE id = 6;",
 			'othr' => "DESCRIBE database MECAPROTEC"
 	];
-	
+
 	public function testGetRequestType(){
 		$this->assertEquals(RequestType::SELECT, (new SQLRequest($this->tabReq['sel1']))->getType());
 		$this->assertEquals(RequestType::SELECT, (new SQLRequest($this->tabReq['sel2']))->getType());
@@ -54,7 +54,7 @@ class SQRequestTest extends PHPUnit_Framework_TestCase {
 		$req = new SQLRequest($this->tabReq['othr']);
 		$this->assertNull($req->getLimit());
 	}
-	
+
 	public function testUserParameters(){
 		$req = new SQLRequest("SELECT * FROM table WHERE id < 100 ORDER BY 2");
 		$this->assertEquals([], $req->getUserParameters());
@@ -65,7 +65,7 @@ class SQRequestTest extends PHPUnit_Framework_TestCase {
 		$req->filter(['col' => 'recherche', 'col2' => '>5', 'col3' => '2014-01-01<<2015-31-12']);
 		$this->assertEquals(['recherche', 5, '2014-01-01', '2015-31-12'], array_values($req->getUserParameters()));
 	}
-	
+
 	public function testFilter(){
 		$req = new SQLRequest("SELECT * FROM table", true);
 		$this->assertEquals("SELECT * FROM table", $req->__toString());
@@ -79,7 +79,7 @@ class SQRequestTest extends PHPUnit_Framework_TestCase {
 		$req->prepareForOracle(false);
 		$this->assertNotEquals("SELECT * FROM table WHERE (col1 IS NULL) AND (date BETWEEN '2014-02-02' AND '2015-06-08')", $req->__toString());
 	}
-	
+
 	public function testOrderByBasis(){
 		$req = new SQLRequest("SELECT * FROM table;");
 		$this->assertEquals([], $req->getOrderBy());

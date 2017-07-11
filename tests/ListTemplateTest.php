@@ -1,9 +1,9 @@
 <?php
 
-class ListTemplateTest extends PHPUnit_Framework_TestCase {
-	
+class ListTemplateTest extends PHPUnit\Framework\TestCase {
+
 	var $_lt, $_stubRep, $_stubLM;
-	
+
 	public function setUp(){
 		// Bouchon ListManager utilisé comme attribut du template
 		$this->_stubLM = $this->getMockBuilder('ListManager')
@@ -15,7 +15,7 @@ class ListTemplateTest extends PHPUnit_Framework_TestCase {
 		$this->_stubLM->expects($this->any())->method('isMasked')->willReturn(false);
 		$this->_stubLM->expects($this->any())->method('isOrderByEnabled')->willReturn(false);
 		$this->_stubLM->expects($this->any())->method('isExcelEnabled')->willReturn(false);
-		
+
 		// Bouchon ReponseRequest
 		$this->_stubRep = $this->getMockBuilder('RequestResponse')
 			->setMethods(['error', 'dataList', 'nextLine', 'getErrorMessage', 'getColumnsMeta', 'getColumnsCount'])
@@ -31,11 +31,11 @@ class ListTemplateTest extends PHPUnit_Framework_TestCase {
 		$data  = [['val1', 'val2'],['val3', 'val3']];
 		$this->_stubRep->expects($this->any())->method('dataList')->willReturn($data);
 		$this->_stubRep->expects($this->any())->method('nextLine')->willReturnOnConsecutiveCalls($data[0],$data[1], null);
-		
+
 		// Initialistaion du template
 		$this->_lt = new ListTemplate($this->_stubLM);
 	}
-	
+
 	public function testGeneratePaging(){
 		$meth = (new ReflectionClass('ListTemplate'))
 			->getMethod('generatePaging');
@@ -47,7 +47,7 @@ class ListTemplateTest extends PHPUnit_Framework_TestCase {
 		$this->assertEmpty($meth->invoke($this->_lt, 10));
 		$this->assertNotEmpty($meth->invoke($this->_lt, 1000));
 	}
-	
+
 	public function testGenerateContent(){
 		$this->_lt->setErrorMessageClass(null);
 		$this->_lt->setEmptyListMessage('Unit Test');
@@ -63,7 +63,7 @@ class ListTemplateTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("<tr ><td>val1</td><td>val2</td></tr>\n"
 				."<tr ><td>val3</td><td>val3</td></tr>\n</table>\n", $meth->invoke($this->_lt, $donnees, $colonnes));
 	}
-	
+
 	public function testGenerateSearch(){
 		$meth = (new ReflectionClass('ListTemplate'))
 			->getMethod('generateSearchInputs');
@@ -74,7 +74,7 @@ class ListTemplateTest extends PHPUnit_Framework_TestCase {
 				.'<td><input type="text" name="lm_tabSelect[a.col2]" form=\'recherche\' size=\'6\' value=\'\'/></td></tr>'."\n",
 				$meth->invoke($this->_lt, $metas, [5,6]));
 	}
-	
+
 	public function testGenerateTitles(){
 		$meth = (new ReflectionClass('ListTemplate'))
 			->getMethod('generateTitles');
@@ -84,7 +84,7 @@ class ListTemplateTest extends PHPUnit_Framework_TestCase {
 		$this->assertEmpty($meth->invoke($this->_lt, []));
 		$this->assertEquals("<tr class='ligne-titres'><th>col1</th>\n<th>col2</th>\n</tr>\n", $meth->invoke($this->_lt, $metas));
 	}
-	
+
 	public function testGenerateButtons(){
 		$meth = (new ReflectionClass('ListTemplate'))
 			->getMethod('generateButtons');
@@ -93,5 +93,5 @@ class ListTemplateTest extends PHPUnit_Framework_TestCase {
 		$this->_lt->setHelpLink(null);
 		$this->assertEquals("\n<div><div class='boutons-options'></div>\n", $meth->invoke($this->_lt));
 	}
-	
+
 }
