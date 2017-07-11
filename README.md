@@ -1,6 +1,11 @@
 Refonte de PHPLib
 =============================================
 
+[![coverage report](http://lamiral.mecaprotec.fr/serviceInfo/ListManager/badges/master/coverage.svg)](http://lamiral.mecaprotec.fr/serviceInfo/ListManager/commits/master)
+
+[![build status](http://lamiral.mecaprotec.fr/serviceInfo/ListManager/badges/master/build.svg)](http://lamiral.mecaprotec.fr/serviceInfo/ListManager/commits/master)
+
+
 ## Contexte
 
 Mecaprotec utilise à l'heure actuelle une librairie de fonctions PHP pour la réalisation de sites de gestion peramettant principalement la visualisation de listes de données en interne. Cette librairie permet entre autre la *connexion à la base de données*, la *construction de requêtes* SQL à partir de données GET, la création et la gestion de *listes HTML* de données, l'exportation de données sous format *Excel*... Cependant certaines portions de code de la librairie ont été écrites il y a 14 ans (PHP v4) et de ce fait quelques unes d'entres sont *obselètes* ou inutiles.

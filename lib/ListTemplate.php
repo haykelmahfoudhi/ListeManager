@@ -202,340 +202,44 @@ class ListTemplate {
 	 * @return string le code HTML de la liste HTML genere
 	 */
 	public function construct(RequestResponse $reponse){
-
 		// On teste d'abord s'il y a erreur dans la reponse
 		if($reponse->error()){
 			$ret = "<div class='boutons-options'><a href='".self::creerUrlGET(null, null, array())."'>Clear</a></div>";
-			return $ret.self::messageHTML($reponse->getErrorMessage(),
-				$this->_errorClass);
+			return $ret.self::messageHTML($reponse->getErrorMessage(), $this->_errorClass);
 		}
-
-		// Preparation de l'array a afficher
-		$donnees =  array();
-		while(($ligne = $reponse->nextLine()) != null)
-			$donnees[] = $ligne;
-		$nbLignes = $reponse->getRowsCount();
-		$debut = ($this->_currentPage - 1) * $this->_nbResultsPerPage;
-		$fin = min(($this->_currentPage) * $this->_nbResultsPerPage, $nbLignes);
-
-		// Si la page actuelle n'existe pas -> redirection sur 1re page
-		if($debut > $fin) {
-			$debut = 0;
-			$fin = $this->_nbResultsPerPage;
-			$this->_currentPage = 1;
-		}
-
-		// $donnees ne contient plus que les valeurs a afficher
-		$donnees = array_slice($donnees, $debut, $this->_nbResultsPerPage);
 		
 		// Creation de la div HTML parente
-		$lmId = $this->_lm->getId();
 		$ret = "\n".'<div class="liste-parent">';
 		
-		//Ajout des boutons options sur le cete
-		$ret .= "\n<div><div class='boutons-options'>";
+		// Génération des bouttons utilisateur
+		$ret .= $this->generateButtons();
 		
-		// Bouton pour reset le mask en JS
-		if($this->_enableJSMask)
-			$ret .= '<a class="annuler-masque" style="display:none;" href="#"><img height="40" width="40" src="'.LM_IMG.'mask-cross.png"></a>';
-
-		// Bouton excel
-		if($this->_lm->isExcelEnabled()){
-			$ret .= '<a href="'.self::creerUrlGET('lm_excel'.$lmId, 1).'" class="btn-excel"><img height="40" width="40" src="'.LM_IMG.'excel-ico.png"></a>';
-		}
-
-		//Bouton quest (recherche)
-		if($this->_lm->isSearchEnabled()){
-			$ret .= '<a class="btn-recherche" href="#"><img height="40" width="40" src="'.LM_IMG.'search-ico.png"></a>'; 
-			
-			// Ajout du form si recherche activee
-			$ret .= "\n<form class='recherche' id='recherche".$lmId."' action='' method='GET'"
-				.'><input type="submit" value="Go!" style="display:none;"/>';
-
-			// Ajout des paramètres GET déjà présents
-			foreach ($_GET as $nom => $valeur) {
-				if($nom != 'lm_tabSelect'.$lmId && $nom != 'lm_page'.$lmId && !is_array($valeur)) {
-					$ret .= "<input type='hidden' name='$nom' value='$valeur'/>";
-				}
-			}
-
-			$ret .= '</form>';
-		}
-
-		// Lien vers la rubrique d'aide / légende associée
-		if($this->_helpLink != null){
-			$ret .= "<a href='$this->_helpLink' target='_blank' class='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
-		}
-
-		// GOMME : On détermine si les parametres de tabSelect sont différents du filtre dev
-		$devFilter = $this->_lm->getFilter();
-		$devFilterDiff = false;
-		$tousVide = true;
-		if(isset($_GET['lm_tabSelect'.$lmId])){
-			foreach ($_GET['lm_tabSelect'.$lmId] as $col => $filtre) {
-				// Vérification que le filtre dev correspond au tabSelect utilisateur
-				if(isset($devFilter[$col]) && $devFilter[$col] != $filtre
-					|| ! isset($devFilter[$col]) && strlen($filtre))
-					$devFilterDiff = true;
-				// Vérifit que tous les champs tabSelect utilisateur sont vides
-				if(strlen($filtre))
-					$tousVide = false;
-			}
-		}
-		//Bouton RaZ
-		if($devFilterDiff || ($devFilter === [] && !$tousVide) || isset($_GET['lm_orderBy'.$lmId])) {
-			$tabGet = $_GET;
-			
-			if(isset($_GET['lm_tabSelect'.$lmId]))
-				unset($tabGet['lm_tabSelect'.$lmId]);
-			if(isset($_GET['lm_orderBy'.$lmId]))
-				unset($tabGet['lm_orderBy'.$lmId]);
-			
-			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'"><img height="40" width="40" src="'.LM_IMG.'eraser-ico.png"></a>';
-		}
-
-		// Boutons utilisateurs ajouté par le développeurs
-		foreach ($this->_userButtons as $bouton) {
-			$ret .= "$bouton\n";
-		}
-
-		$ret .= "</div>\n";
-
 		// Initialisation de la liste
 		$ret .= '<div>';
-
-		//Affichage du nombre de resultats
-		$debut++;
-		if($this->_displayResultsInfos)
-			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", 'info-resultats', 'p')."\n";
-
+		
+		// Préparation des données à afficher
+		$donnees = $this->prepareDataArray($reponse, $ret);
+		
+		// Création de tableau HTML
+		$lmId = $this->_lm->getId();
 		$ret .= '<table class="liste'.(($this->_fixedPaging)? ' fix-margin"' : '"').' '
 			.(($this->_fixedTitles)? ' fixed-titles="true"' : '')
 			.' disp-tabSelect="'.(($this->_quest)? 'true' : 'false').'"'
-			.(($lmId == null)?'' : " data-id='".$lmId."' ").'>'."\n<tr class='ligne-titres'>";
-
+			.(($lmId == null)?'' : " data-id='".$lmId."' ").'>'."\n";
+		
 		//Creation des titres
 		$colonnes = $reponse->getColumnsMeta();
-		$baseOrderBy = $this->_lm->getOrderBy();
-		$i = 0;
-		foreach ($colonnes as $col) {
-			
-			$nomColonne = strtolower(($col->table != null)? $col->table.'.'.$col->name : $col->name);
-
-			// On vérifie que la colonne en cours n'est pas masquée
-			if(!$this->_lm->isMasked($nomColonne, $col->alias)) {
-
-				//Gestion du order by
-				$signeOrder = '';
-				$orderArray = [];
-				if(isset($_GET['lm_orderBy'.$lmId]) || count($baseOrderBy)){
-					if(isset($_GET['lm_orderBy'.$lmId]))
-						$orderArray = explode(';', $_GET['lm_orderBy'.$lmId]);
-					$orderArray = array_unique(array_merge($baseOrderBy, $orderArray));
-
-					// Construction de la chaine orderBy
-					if(($key = array_search($nomColonne, $orderArray)) !== false
-							|| ($key = array_search(($i + 1), $orderArray)) !== false) { // colonne triée asc => tri desc
-						unset($orderArray[$key]);
-						array_unshift($orderArray, "-$nomColonne");
-						$signeOrder = '&Delta;';
-					}
-					else if (($key = array_search("-$nomColonne", $orderArray)) !== false
-							|| ($key = array_search(-($i + 1), $orderArray)) !== false){ // colonne triée desc => pas de tri
-						unset($orderArray[$key]);
-						array_unshift($orderArray, "*$nomColonne");
-						$signeOrder = '&nabla;';
-					}
-					else { // pas de tri => trié asc
-						if(($key = array_search("*$nomColonne", $orderArray)) !== false
-							|| ($key = array_search('*'.($i + 1), $orderArray)) !== false)
-							unset($orderArray[$key]);
-						array_unshift($orderArray, $nomColonne);
-					}
-					$orderString = ((count($orderArray))? implode(';', $orderArray) : null);
-				}
-				else {
-					$orderString = $nomColonne;
-				}
-
-				// Préparation du titre à afficher
-				$listTitles = $this->_lm->getListTitles();
-				if(isset($listTitles[$col->alias]))
-					$titreAffiche = $listTitles[$col->alias];
-				else if(isset($listTitles[$nomColonne]))
-					$titreAffiche = $listTitles[$nomColonne];
-				else {
-					$titreAffiche = (($col->alias == null)? $col->name : $col->alias);
-					// Si titre en caps => ucfirst
-					if($titreAffiche == strtoupper($titreAffiche))
-						$titreAffiche = ucfirst(strtolower($titreAffiche));
-				}
-
-
-				// Création du lien pour order by
-				if($this->_lm->isOrderByEnabled())
-					$lienOrderBy = '<a class="titre-colonne" href="'
-						.self::creerUrlGET('lm_orderBy'.$lmId, $orderString)."\">".$titreAffiche."</a><br>$signeOrder";
-				else
-					$lienOrderBy = $titreAffiche;
-
-				if($this->_enableJSMask)
-					$lienMasque = '<a class="masque" href="#">x</a>';
-				else 
-					$lienMasque = '';
-
-				// Affiche les liens et les titres
-				$ret .= '<th>'.$lienMasque.$lienOrderBy."</th>\n";
-				$i++;
-			}
-		}
-
-		// Utilisation du callback pour ajouter une colonne
-		if($this->_columnCallback != null) {
-			$fct = $this->_columnCallback;
-			$ret .= call_user_func_array($fct, array(0, $colonnes, true));
-		}
-
-		$ret .= "</tr>\n";
-
-		// Récupération de la largeur des colonnes
-		$width = $this->_lm->getIdealColumnsWidth($donnees, 3, $this->_maxSizeInputs);
-
+		$ret .= $this->generateTitles($colonnes);
+		
 		//Affichage des champs de saisie pour la  recherche
-		if($this->_lm->isSearchEnabled()){
-			$ret .= "<tr class='tabSelect'"
-				.(($this->_quest)? '' : ' style="display:none;" ').'>';
-			$i = 0;
-			foreach ($colonnes as $col){
-
-				$nomColonne = strtolower(($col->table != null)? $col->table.'.'.$col->name : $col->name );
-
-				// On vérifie que la colonne en cours n'est pas masquée
-				if(!$this->_lm->isMasked($nomColonne, $col->alias)) {
-
-					//Determine le contenu du champs
-					$valeur = (isset($_GET['lm_tabSelect'.$lmId][$nomColonne])? 
-						$_GET['lm_tabSelect'.$lmId][$nomColonne] : '');
-					
-					//Determine la taille du champs
-					if($this->_constInputsSize)
-						$taille = $this->_maxSizeInputs;
-					else {
-						$taille = $width[$i];
-					}
-
-					$ret .= '<td><input type="text" name="lm_tabSelect'.$lmId.'['.$nomColonne.']"'
-						." form='recherche".$lmId."' size='$taille' value='$valeur'/></td>";
-				}
-				$i++;
-			}
-			$ret .= "</tr>\n";
-		}
+		$width = $this->_lm->getIdealColumnsWidth($donnees, 3, $this->_maxSizeInputs);
+		$ret .= $this->generateSearchInputs($colonnes, $width);
 		
-		// Si le tableau est vide -> retourne messageListeVide
-		if(count($donnees) == 0){
-			$ret .= "</table>\n";
-			$ret .= self::messageHTML($this->_emptyListMessage, $this->_errorClass);
-		}
-
-		
-		//Insertion de donnees
-		else {
-			$i = 0;
-			foreach ($donnees as $ligne) {
-				//Gestion des classes
-				$classe = (($i % 2)? $this->_class1 : $this->_class2);
-				$ret .= '<tr'.(($classe == null)? ' ' : " class='$classe' ");
-
-				// Utilisation du callback
-				if($this->_rowCallback != null) {
-					$fct = $this->_rowCallback;
-					$ret .= ' '.call_user_func_array($fct, array($i, $ligne));
-				}
-				$ret .= '>';
-
-				//Construction des cellules colonne par colonne
-				for ($j=0; $j < $reponse->getColumnsCount(); $j++){
-
-					$cellule = $ligne[$j];
-					$nomColonne = (($colonnes[$j]->alias != null)? $colonnes[$j]->alias : 
-						(($colonnes[$j]->table != null)? $colonnes[$j]->table.'.'.$colonnes[$j]->name : $colonnes[$j]->name ) );
-
-					// On vérifie que la colonne en cours n'est pas masquée
-					if(!$this->_lm->isMasked($nomColonne, $col->alias)) {
-
-						// Application du callback (si non null)
-						if($this->_cellCallback != null) {
-							
-							// Appel au callback
-							$fct = $this->_cellCallback;
-							$cellule = ( (($retFCT = call_user_func_array($fct,
-								array($cellule, $nomColonne, $i, $ligne, $j))) === null)?
-								(($this->_replaceTagTD)? "<td>$cellule</td>" : $cellule ) : $retFCT ) ;
-						}
-						// Si la cellule ne contient rien -> '-'
-						if(strlen($cellule) == 0)
-							$cellule = '-';
-						$ret .= (($this->_replaceTagTD)? '' : '<td>') .$cellule. (($this->_replaceTagTD)? '' : '</td>');
-					}
-				}
-
-				// Ajout des colonnes par callback
-				if($this->_columnCallback != null) {
-					$fct = $this->_columnCallback;
-					$ret .= call_user_func_array($fct, array($i, $ligne, false));
-				}
-
-				$ret .= "</tr>\n";
-				$i++;
-			}
-			$ret .= "</table>\n";
-		}
+		// Création du contenu du tableau HTML
+		$ret .= $this->generateContent($donnees, $colonnes);
 
 		// Affichage du tableau des numeros de page
-		if($nbLignes > $this->_nbResultsPerPage && $this->_pagingLinksNb != false){
-			$ret .= '<div class="pagination'.(($this->_fixedPaging)? ' fixed' : '' ).'"><table align="center"><tr>';
-			$nbPages = (is_int($nbPages = ($nbLignes / $this->_nbResultsPerPage))? $nbPages : round($nbPages + 0.5) );
-
-			// S'il y a plus de pages que la limite affichable
-			if($nbPages > $this->_pagingLinksNb){
-				$debut = $this->_currentPage - intval($this->_pagingLinksNb / 2);
-				if($debut <= 1){
-					$debut = 1;
-					$fin = $this->_pagingLinksNb + 1;
-				}
-				// Ajout de la 1re page si besoin
-				else {
-					$ret .= '<td><a href="'.self::creerUrlGET('lm_page'.$lmId, 1).'">&lt;&lt;</td>';
-					$fin = min($debut + $this->_pagingLinksNb, $nbPages);
-				}
-			}
-			else {
-				$debut = 1;
-				$fin = $nbPages;
-			}
-			
-			// Creation des liens
-			for ($i=$debut; $i <= $fin; $i++) {
-				$ret .= '<td>';
-
-				// Pas de lien si on est deje sur la pageActuelle
-				if($i == $this->_currentPage)
-					$ret .= "$i";
-				else {	
-					// Construction du lien de la page
-					$ret .= '<a href="'.self::creerUrlGET('lm_page'.$lmId, $i).'">'.$i.'</a>';
-				}
-				$ret .= '</td>';
-			}
-			// Ajout du lien vers la derniere page si besoin
-			if($fin != $nbPages){
-				$ret .= '<td><a href="'.self::creerUrlGET('lm_page'.$lmId, $nbPages).'">&gt;&gt;</td>';
-			}
-
-			$ret .= "</tr></table></div>\n";
-		}
-
+		$ret .= $this->generatePaging($nbLignes);
 		$ret .= "</div></div>\n</div>\n";
 
 		// Ajout des scripts
@@ -544,13 +248,10 @@ class ListTemplate {
 		// Ajout du css si appliqué
 		if($this->_applyDefaultCSS){
 			$ret .= '<link rel="stylesheet" type="text/css" href="'.LM_CSS.'base.css"/>'."\n";
-			$ret .= "<link href='https://fonts.googleapis.com/css?family=Amiko' rel='stylesheet'/>\n";
 		}
-
-		// Fin
 		return $ret;
 	}
-	
+
 	
 			/*-**************************
 			***   SETTERS & GETTERS   ***
@@ -799,6 +500,345 @@ class ListTemplate {
 			***   PRIVATE   ***
 			******************/
 
+	/**
+	 * Récupère les données de la réponse et les prépare pour le tableau à afficher.
+	 * Cette méthode réccupère la liste de données depuis l'objet réponse et retourne uniquement celles correspondantes à la page en cours.
+	 * Inscrit également le nombre de résultats retournés si l'option est activée.
+	 * @param RequestResponse reponse l'objet réponse
+	 * @param string ret (in out) contient le code HTML à retourner
+	 * @return array l'array contenant les données à afficher
+	 */
+	private function prepareDataArray($reponse, &$ret) {
+		// Preparation de l'array a afficher
+		$donnees =  array();
+		while(($ligne = $reponse->nextLine()) != null)
+			$donnees[] = $ligne;
+		$nbLignes = $reponse->getRowsCount();
+		$debut = ($this->_currentPage - 1) * $this->_nbResultsPerPage;
+		$fin = min(($this->_currentPage) * $this->_nbResultsPerPage, $nbLignes);
+
+		// Si la page actuelle n'existe pas -> redirection sur 1re page
+		if($debut > $fin) {
+			$debut = 0;
+			$fin = $this->_nbResultsPerPage;
+			$this->_currentPage = 1;
+		}
+		// $donnees ne contient plus que les valeurs a afficher
+		$donnees = array_slice($donnees, $debut, $this->_nbResultsPerPage);
+		
+		//Affichage du nombre de resultats
+		$debut++;
+		if($this->_displayResultsInfos)
+			$ret .= self::messageHTML("Lignes : $debut - $fin / $nbLignes", 'info-resultats', 'p')."\n";
+		
+		return $donnees;
+	}
+	
+	
+	/**
+	 * Génère la division contenant tous les boutons utilisateur.
+	 * @return string code HTML des boutons.
+	 */
+	private function generateButtons() {
+		$lmId = $this->_lm->getId();
+		//Ajout des boutons options sur le cete
+		$ret = "\n<div><div class='boutons-options'>";
+	
+		// Bouton pour reset le mask en JS
+		if($this->_enableJSMask)
+			$ret .= '<a class="annuler-masque" style="display:none;" href="#"><img height="40" width="40" src="'.LM_IMG.'mask-cross.png"></a>';
+	
+		// Bouton excel
+		if($this->_lm->isExcelEnabled()){
+			$ret .= '<a href="'.self::creerUrlGET('lm_excel'.$lmId, 1).'" class="btn-excel"><img height="40" width="40" src="'.LM_IMG.'excel-ico.png"></a>';
+		}
+
+		//Bouton quest (recherche)
+		if($this->_lm->isSearchEnabled()){
+			$ret .= '<a class="btn-recherche" href="#"><img height="40" width="40" src="'.LM_IMG.'search-ico.png"></a>';
+			// Ajout du form si recherche activee
+			$ret .= "\n<form class='recherche' id='recherche".$lmId."' action='' method='GET'"
+				.'><input type="submit" value="Go!" style="display:none;"/>';
+
+			// Ajout des paramètres GET déjà présents
+			foreach ($_GET as $nom => $valeur) {
+				if(!in_array($nom, ['lm_tabSelect'.$lmId, 'lm_excel'.$lmId, 'lm_page'.$lmId])) {
+					$ret .= "<input type='hidden' name='$nom' value='$valeur'/>";
+				}
+			}
+			$ret .= '</form>';
+		}
+
+		// Lien vers la rubrique d'aide / légende associée
+		if($this->_helpLink != null){
+			$ret .= "<a href='$this->_helpLink' target='_blank' class='btn-help'><img height='40' width='40' src='".LM_IMG."book-ico.png'></a>";
+		}
+		
+		//Bouton RaZ
+		if($this->_lm->issetUserFilter() || isset($_GET['lm_orderBy'.$lmId])) {
+			$tabGet = $_GET;
+			if(isset($_GET['lm_tabSelect'.$lmId]))
+				unset($tabGet['lm_tabSelect'.$lmId]);
+			if(isset($_GET['lm_orderBy'.$lmId]))
+				unset($tabGet['lm_orderBy'.$lmId]);
+			if(isset($_GET['lm_excel'.$lmId]))
+				unset($tabGet['lm_excle'.$lmId]);
+			
+			$ret .= '<a href="'.self::creerUrlGET(null, null, $tabGet).'"><img height="40" width="40" src="'.LM_IMG.'eraser-ico.png"></a>';
+		}
+
+		// Boutons utilisateurs ajouté par le développeurs
+		foreach ($this->_userButtons as $bouton) {
+			$ret .= "$bouton\n";
+		}
+		$ret .= "</div>\n";
+		return $ret;
+	}
+	
+	/**
+	 * Génère les titres de la liste html.
+	 * @param array $colonnesMeta les méta données des colonnes.
+	 * @return string code HTML des titres.
+	 */
+	private function generateTitles(array $colonnesMeta){
+		if(count($colonnesMeta) <= 0)
+			return '';
+		
+		$ret = "<tr class='ligne-titres'>";
+		$baseOrderBy = $this->_lm->getOrderBy();
+		$lmId = $this->_lm->getId();
+		$i = 0;
+		foreach ($colonnesMeta as $col ) {
+			$nomColonne = strtolower ( ($col->table != null) ? $col->table . '.' . $col->name : $col->name );
+			
+			// On vérifie que la colonne en cours n'est pas masquée
+			if (! $this->_lm->isMasked($nomColonne, $col->alias )) {
+				
+				// Gestion du order by
+				$signeOrder = '';
+				$orderArray = [ ];
+				if (isset ( $_GET ['lm_orderBy' . $lmId] ) || count ( $baseOrderBy )) {
+					if (isset ( $_GET ['lm_orderBy' . $lmId] ))
+						$orderArray = explode ( ';', $_GET ['lm_orderBy' . $lmId] );
+					$orderArray = array_unique ( array_merge ( $baseOrderBy, $orderArray ) );
+					
+					// Construction de la chaine orderBy
+					if (($key = array_search ( $nomColonne, $orderArray )) !== false || ($key = array_search ( ($i + 1), $orderArray )) !== false) { // colonne triée asc => tri desc
+						unset ( $orderArray [$key] );
+						array_unshift ( $orderArray, "-$nomColonne" );
+						$signeOrder = '<br>&Delta;';
+					} else if (($key = array_search ( "-$nomColonne", $orderArray )) !== false || ($key = array_search ( - ($i + 1), $orderArray )) !== false) { // colonne triée desc => pas de tri
+						unset ( $orderArray [$key] );
+						array_unshift ( $orderArray, "*$nomColonne" );
+						$signeOrder = '<br>&nabla;';
+					} else { // pas de tri => trié asc
+						if (($key = array_search ( "*$nomColonne", $orderArray )) !== false || ($key = array_search ( '*' . ($i + 1), $orderArray )) !== false)
+							unset ( $orderArray [$key] );
+						array_unshift ( $orderArray, $nomColonne );
+					}
+					$orderString = ((count ( $orderArray )) ? implode ( ';', $orderArray ) : null);
+				} else {
+					$orderString = $nomColonne;
+				}
+				
+				// Préparation du titre à afficher
+				$listTitles = $this->_lm->getListTitles ();
+				if (isset ( $listTitles [$col->alias] ))
+					$titreAffiche = $listTitles [$col->alias];
+				else if (isset ( $listTitles [$nomColonne] ))
+					$titreAffiche = $listTitles [$nomColonne];
+				else {
+					$titreAffiche = (($col->alias == null) ? $col->name : $col->alias);
+					// Si titre en caps => ucfirst
+					if ($titreAffiche == strtoupper ( $titreAffiche ))
+						$titreAffiche = ucfirst ( strtolower ( $titreAffiche ) );
+				}
+				
+				// Création du lien pour order by
+				if ($this->_lm->isOrderByEnabled ())
+					$lienOrderBy = '<a class="titre-colonne" href="'.self::creerUrlGET('lm_orderBy'.$lmId, $orderString )."\">$titreAffiche</a>$signeOrder";
+				else
+					$lienOrderBy = $titreAffiche;
+				
+				if ($this->_enableJSMask)
+					$lienMasque = '<a class="masque" href="#">x</a>';
+				else
+					$lienMasque = '';
+					
+				// Affiche les liens et les titres
+				$ret .= '<th>' . $lienMasque . $lienOrderBy . "</th>\n";
+				$i ++;
+			}
+		}
+
+		// Utilisation du callback pour ajouter une colonne
+		if($this->_columnCallback != null) {
+			$fct = $this->_columnCallback;
+			$ret .= call_user_func_array($fct, array(0, $colonnes, true));
+		}
+		$ret .= "</tr>\n";
+		return $ret;
+	}
+	
+	/**
+	 * Génère la ligne du tableau contenant les champs de recherche.
+	 * @param array $colonnesMeta les meta donnés des colonnes
+	 * @return string le code HTML des champs de recherche.
+	 */
+	private function generateSearchInputs(array $colonnesMeta, array $width){
+		if(!$this->_lm->isSearchEnabled())
+			return '';
+		
+		$ret = "<tr class='tabSelect'"
+				.(($this->_quest)? '' : ' style="display:none;" ').'>';
+		$lmId = $this->_lm->getId(); 
+		$i = 0;
+		$filter = $this->_lm->getFilter();
+		foreach ($colonnesMeta as $col){
+			// Nom de la colonne = table.colonne
+			$nomColonne = strtolower(($col->table != null)? $col->table.'.'.$col->name : $col->name );
+
+			// On vérifie que la colonne en cours n'est pas masquée
+			if(!$this->_lm->isMasked($nomColonne, $col->alias)) {
+
+				//Determine le contenu du champs
+				$valeur = (isset($filter[$nomColonne])? $filter[$nomColonne] : '');
+					
+				//Determine la taille du champs
+				if($this->_constInputsSize)
+					$taille = $this->_maxSizeInputs;
+				else 
+					$taille = $width[$i];
+
+				$ret .= '<td><input type="text" name="lm_tabSelect'.$lmId.'['.$nomColonne.']"'
+						." form='recherche".$lmId."' size='$taille' value='$valeur'/></td>";
+			}
+			$i++;
+		}
+		$ret .= "</tr>\n";
+		return $ret;
+	}
+	
+	/**
+	 * Génère et retourne le contenu de la liste HTML
+	 * @param array $donnees le tableau contenant les données à insérer
+	 * @param array $colonnesMeta métas données des colonnes 
+	 * @return string code HTML du contenu de la liste
+	 */
+	private function generateContent(array $donnees, array $colonnesMeta){
+		$ret = '';
+		
+		// Si le tableau est vide -> retourne messageListeVide
+		if(count($donnees) == 0 || count($donnees[0]) == 0){
+			$ret .= "</table>\n";
+			$ret .= self::messageHTML($this->_emptyListMessage, $this->_errorClass);
+		}
+		//Insertion de donnees
+		else {
+			$i = 0;
+			foreach ($donnees as $ligne) {
+				//Gestion des classes
+				$classe = (($i % 2)? $this->_class1 : $this->_class2);
+				$ret .= '<tr'.(($classe == null)? ' ' : " class='$classe' ");
+		
+				// Utilisation du callback
+				if($this->_rowCallback != null) {
+					$fct = $this->_rowCallback;
+					$ret .= ' '.call_user_func_array($fct, array($i, $ligne));
+				}
+				$ret .= '>';
+		
+				//Construction des cellules colonne par colonne
+				for ($j=0; $j < count($colonnesMeta); $j++){
+		
+					$cellule = $ligne[$j];
+					$nomColonne = (($colonnesMeta[$j]->alias != null)? $colonnesMeta[$j]->alias :
+							(($colonnesMeta[$j]->table != null)? $colonnesMeta[$j]->table.'.'.$colonnesMeta[$j]->name : $colonnesMeta[$j]->name ) );
+		
+					// On vérifie que la colonne en cours n'est pas masquée
+					if(!$this->_lm->isMasked($nomColonne, $colonnesMeta[$j]->alias)) {
+		
+						// Application du callback (si non null)
+						if($this->_cellCallback != null) {
+								
+							// Appel au callback
+							$fct = $this->_cellCallback;
+							$cellule = ( (($retFCT = call_user_func_array($fct,
+									array($cellule, $nomColonne, $i, $ligne, $j))) === null)?
+									(($this->_replaceTagTD)? "<td>$cellule</td>" : $cellule ) : $retFCT ) ;
+						}
+						// Si la cellule ne contient rien -> '-'
+						if(strlen($cellule) == 0)
+							$cellule = '-';
+							$ret .= (($this->_replaceTagTD)? '' : '<td>') .$cellule. (($this->_replaceTagTD)? '' : '</td>');
+					}
+				}
+		
+				// Ajout des colonnes par callback
+				if($this->_columnCallback != null) {
+					$fct = $this->_columnCallback;
+					$ret .= call_user_func_array($fct, array($i, $ligne, false));
+				}
+		
+				$ret .= "</tr>\n";
+				$i++;
+			}
+			$ret .= "</table>\n";
+		}
+		return $ret;
+	}
+	
+	/**
+	 * Génère le tableau HTML contenant la pagination.
+	 * @param int $nbLignes nombre de lignes retournée par l'exécution de la requete
+	 * @return string code html des liens pagination
+	 */
+	private function generatePaging($nbLignes){
+		if($nbLignes <= $this->_nbResultsPerPage || $this->_pagingLinksNb == false)
+			return '';
+		
+		$lmId = $this->_lm->getId(); 
+		$ret = '<div class="pagination'.(($this->_fixedPaging)? ' fixed' : '' ).'"><table align="center"><tr>';
+		$nbPages = (is_int($nbPages = ($nbLignes / $this->_nbResultsPerPage))? $nbPages : round($nbPages + 0.5) );
+		
+		// S'il y a plus de pages que la limite affichable
+		if($nbPages > $this->_pagingLinksNb){
+			$debut = $this->_currentPage - intval($this->_pagingLinksNb / 2);
+			if($debut <= 1){
+				$debut = 1;
+				$fin = $this->_pagingLinksNb + 1;
+			}
+			// Ajout de la 1re page si besoin
+			else {
+				$ret .= '<td><a href="'.self::creerUrlGET('lm_page'.$lmId, 1).'">&lt;&lt;</td>';
+				$fin = min($debut + $this->_pagingLinksNb, $nbPages);
+			}
+		}
+		else {
+			$debut = 1;
+			$fin = $nbPages;
+		}
+			
+		// Creation des liens
+		for ($i=$debut; $i <= $fin; $i++) {
+			$ret .= '<td>';
+			// Pas de lien si on est deje sur la pageActuelle
+			if($i == $this->_currentPage)
+				$ret .= "$i";
+				else {
+					// Construction du lien de la page
+					$ret .= '<a href="'.self::creerUrlGET('lm_page'.$lmId, $i).'">'.$i.'</a>';
+				}
+				$ret .= '</td>';
+		}
+		// Ajout du lien vers la derniere page si besoin
+		if($fin != $nbPages){
+			$ret .= '<td><a href="'.self::creerUrlGET('lm_page'.$lmId, $nbPages).'">&gt;&gt;</td>';
+		}
+		$ret .= "</tr></table></div>\n";
+		return $ret;
+	}
+	
 	private static function messageHTML($message, $nom, $balise='p'){
 		return '<'.$balise.(($nom == null)? '' : ' class="'.$nom.'"' )
 			.'>'.$message.'</'.$balise.'>';

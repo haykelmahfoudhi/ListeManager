@@ -114,7 +114,7 @@ class RequestResponse {
 	 */
 	public function dataList(){
 		if(!$this->error()){
-			if(count($this->_data) != $this->getRowsCount())
+			if(coutn($this->_data) != $this->getRowsCount())
 				$this->_data = $this->_statement->fetchAll();
 			return $this->_data;
 		}
