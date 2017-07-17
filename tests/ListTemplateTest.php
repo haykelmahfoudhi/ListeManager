@@ -55,13 +55,10 @@ class ListTemplateTest extends PHPUnit\Framework\TestCase {
 		$meth = (new ReflectionClass('ListTemplate'))
 			->getMethod('generateContent');
 		$meth->setAccessible(true);
-		$donnees = [[]];
 		$colonnes = $this->_stubRep->getColumnsMeta();
-		$this->assertEquals("</table>\n<p>Unit Test</p>",
-				$meth->invoke($this->_lt, $donnees, []));
 		$donnees = $this->_stubRep->dataList();
 		$this->assertEquals("<tr ><td>val1</td><td>val2</td></tr>\n"
-				."<tr ><td>val3</td><td>val3</td></tr>\n</table>\n", $meth->invoke($this->_lt, $donnees, $colonnes));
+				."<tr ><td>val3</td><td>val3</td></tr>\n", $meth->invoke($this->_lt, $donnees, $colonnes));
 	}
 
 	public function testGenerateSearch(){
