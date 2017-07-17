@@ -29,14 +29,27 @@ test-php7:
     - phpunit --coverage-text --color=never -c phpunit.xml tests/
   tags:
     - docker
-    
+
 pages:
   image: localhost:5000/listmanager_image
+  only : master
   tags:
     - docker
   stage: deploy
   script:
     - phpunit --coverage-html public --color=never -c phpunit.xml tests/
+  artifacts:
+    paths:
+      - public
+
+pages:
+  image: localhost:5000/listmanager_image
+  only : develop
+  tags:
+    - docker
+  stage: deploy
+  script:
+    - phpunit --coverage-html public/develop/ --color=never -c phpunit.xml tests/
   artifacts:
     paths:
       - public
