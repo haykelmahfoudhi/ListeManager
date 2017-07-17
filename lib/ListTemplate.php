@@ -232,14 +232,22 @@ class ListTemplate {
 		$ret .= $this->generateTitles($colonnes);
 		
 		//Affichage des champs de saisie pour la  recherche
-		$width = $this->_lm->getIdealColumnsWidth($donnees, 3, $this->_maxSizeInputs);
-		$ret .= $this->generateSearchInputs($colonnes, $width);
+		if(count($donnees) > 0 && is_array($donnees[0])){
+			$width = $this->_lm->getIdealColumnsWidth($donnees, 3, $this->_maxSizeInputs);
+			$ret .= $this->generateSearchInputs($colonnes, $width);
+		}
 		
-		// Création du contenu du tableau HTML
-		$ret .= $this->generateContent($donnees, $colonnes);
-
+		// Si le tableau est vide -> retourne messageListeVide
+		if(count($donnees) == 0 || count($donnees[0]) == 0){
+			$ret .= "</table>\n";
+			$ret .= self::messageHTML($this->_emptyListMessage, $this->_errorClass);
+		}
+		else { // Création du contenu du tableau HTML
+			$ret .= $this->generateContent($donnees, $colonnes)."</table>\n";
+		}
+		
 		// Affichage du tableau des numeros de page
-		$ret .= $this->generatePaging($nbLignes);
+		$ret .= $this->generatePaging($reponse->getRowsCount());
 		$ret .= "</div></div>\n</div>\n";
 
 		// Ajout des scripts
@@ -728,62 +736,54 @@ class ListTemplate {
 	private function generateContent(array $donnees, array $colonnesMeta){
 		$ret = '';
 		
-		// Si le tableau est vide -> retourne messageListeVide
-		if(count($donnees) == 0 || count($donnees[0]) == 0){
-			$ret .= "</table>\n";
-			$ret .= self::messageHTML($this->_emptyListMessage, $this->_errorClass);
-		}
 		//Insertion de donnees
-		else {
-			$i = 0;
-			foreach ($donnees as $ligne) {
-				//Gestion des classes
-				$classe = (($i % 2)? $this->_class1 : $this->_class2);
-				$ret .= '<tr'.(($classe == null)? ' ' : " class='$classe' ");
-		
-				// Utilisation du callback
-				if($this->_rowCallback != null) {
-					$fct = $this->_rowCallback;
-					$ret .= ' '.call_user_func_array($fct, array($i, $ligne));
-				}
-				$ret .= '>';
-		
-				//Construction des cellules colonne par colonne
-				for ($j=0; $j < count($colonnesMeta); $j++){
-		
-					$cellule = $ligne[$j];
-					$nomColonne = (($colonnesMeta[$j]->alias != null)? $colonnesMeta[$j]->alias :
-							(($colonnesMeta[$j]->table != null)? $colonnesMeta[$j]->table.'.'.$colonnesMeta[$j]->name : $colonnesMeta[$j]->name ) );
-		
-					// On vérifie que la colonne en cours n'est pas masquée
-					if(!$this->_lm->isMasked($nomColonne, $colonnesMeta[$j]->alias)) {
-		
-						// Application du callback (si non null)
-						if($this->_cellCallback != null) {
-								
-							// Appel au callback
-							$fct = $this->_cellCallback;
-							$cellule = ( (($retFCT = call_user_func_array($fct,
-									array($cellule, $nomColonne, $i, $ligne, $j))) === null)?
-									(($this->_replaceTagTD)? "<td>$cellule</td>" : $cellule ) : $retFCT ) ;
-						}
-						// Si la cellule ne contient rien -> '-'
-						if(strlen($cellule) == 0)
-							$cellule = '-';
-							$ret .= (($this->_replaceTagTD)? '' : '<td>') .$cellule. (($this->_replaceTagTD)? '' : '</td>');
-					}
-				}
-		
-				// Ajout des colonnes par callback
-				if($this->_columnCallback != null) {
-					$fct = $this->_columnCallback;
-					$ret .= call_user_func_array($fct, array($i, $ligne, false));
-				}
-		
-				$ret .= "</tr>\n";
-				$i++;
+		$i = 0;
+		foreach ($donnees as $ligne) {
+			//Gestion des classes
+			$classe = (($i % 2)? $this->_class1 : $this->_class2);
+			$ret .= '<tr'.(($classe == null)? ' ' : " class='$classe' ");
+	
+			// Utilisation du callback
+			if($this->_rowCallback != null) {
+				$fct = $this->_rowCallback;
+				$ret .= ' '.call_user_func_array($fct, array($i, $ligne));
 			}
-			$ret .= "</table>\n";
+			$ret .= '>';
+	
+			//Construction des cellules colonne par colonne
+			for ($j=0; $j < count($colonnesMeta); $j++){
+	
+				$cellule = $ligne[$j];
+				$nomColonne = (($colonnesMeta[$j]->alias != null)? $colonnesMeta[$j]->alias :
+						(($colonnesMeta[$j]->table != null)? $colonnesMeta[$j]->table.'.'.$colonnesMeta[$j]->name : $colonnesMeta[$j]->name ) );
+	
+				// On vérifie que la colonne en cours n'est pas masquée
+				if(!$this->_lm->isMasked($nomColonne, $colonnesMeta[$j]->alias)) {
+	
+					// Application du callback (si non null)
+					if($this->_cellCallback != null) {
+							
+						// Appel au callback
+						$fct = $this->_cellCallback;
+						$cellule = ( (($retFCT = call_user_func_array($fct,
+								array($cellule, $nomColonne, $i, $ligne, $j))) === null)?
+								(($this->_replaceTagTD)? "<td>$cellule</td>" : $cellule ) : $retFCT ) ;
+					}
+					// Si la cellule ne contient rien -> '-'
+					if(strlen($cellule) == 0)
+						$cellule = '-';
+						$ret .= (($this->_replaceTagTD)? '' : '<td>') .$cellule. (($this->_replaceTagTD)? '' : '</td>');
+				}
+			}
+	
+			// Ajout des colonnes par callback
+			if($this->_columnCallback != null) {
+				$fct = $this->_columnCallback;
+				$ret .= call_user_func_array($fct, array($i, $ligne, false));
+			}
+	
+			$ret .= "</tr>\n";
+			$i++;
 		}
 		return $ret;
 	}
