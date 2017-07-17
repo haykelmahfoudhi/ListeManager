@@ -29,6 +29,17 @@ test-php7:
     - phpunit --coverage-text --color=never -c phpunit.xml tests/
   tags:
     - docker
+    
+pages:
+  image: localhost:5000/listmanager_image
+  tags:
+    - docker
+  stage: deploy
+  script:
+    - phpunit --coverage-html public --color=never -c phpunit.xml tests/
+  artifacts:
+    paths:
+      - public
 
 deploy-staging:
   stage: deploy
