@@ -570,7 +570,7 @@ class ListTemplate {
 
 			// Ajout des paramètres GET déjà présents
 			foreach ($_GET as $nom => $valeur) {
-				if(!in_array($nom, ['lm_tabSelect'.$lmId, 'lm_excel'.$lmId, 'lm_page'.$lmId])) {
+				if(!is_array($valeur) && !in_array($nom, ['lm_tabSelect'.$lmId, 'lm_excel'.$lmId, 'lm_page'.$lmId])) {
 					$ret .= "<input type='hidden' name='$nom' value='$valeur'/>";
 				}
 			}

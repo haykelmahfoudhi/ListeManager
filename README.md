@@ -1,7 +1,7 @@
 Refonte de PHPLib
 =============================================
 
-[![coverage report](http://lamiral.mecaprotec.fr/serviceInfo/ListManager/badges/master/coverage.svg)](http://lamiral.mecaprotec.fr/serviceInfo/ListManager/commits/master)
+[![coverage report](http://lamiral.mecaprotec.fr/serviceInfo/ListManager/badges/master/coverage.svg)](http://serviceinfo.gerald.mecaprotec.fr/ListManager/)
 
 [![build status](http://lamiral.mecaprotec.fr/serviceInfo/ListManager/badges/master/build.svg)](http://lamiral.mecaprotec.fr/serviceInfo/ListManager/commits/master)
 

@@ -36,10 +36,12 @@ pages:
     - docker
   stage: deploy
   script:
-    - phpunit --coverage-html public/${CI_COMMIT_REF_NAME} --color=never -c phpunit.xml tests/
+    - phpunit --coverage-html public --color=never -c phpunit.xml tests/
   artifacts:
     paths:
       - public
+  only:
+    - master
 
 deploy-staging:
   stage: deploy
