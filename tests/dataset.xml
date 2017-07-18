@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dataset>
+    <table id="1" col1="Hello Wolrd" col2="50" col3="2017-04-24" col4="42.32" />
+    <table id="2" col1="Keep smiling" col2="-10" col3="2017-04-26" col4="25.3" />
+    <table id="3" col1="Keep it cool" col2="200" col3="2017-08-26" col4="215.8" />
+</dataset>

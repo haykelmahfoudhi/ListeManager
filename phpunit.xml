@@ -7,7 +7,7 @@
 	beStrictAboutCoversAnnotation="true" 
 	beStrictAboutOutputDuringTests="true" 
 	beStrictAboutTestsThatDoNotTestAnything="true" 
-	beStrictAboutTodoAnnotatedTests="true" 
+	beStrictAboutTodoAnnotatedTests="true"
 	verbose="true">
 
 	<testsuites>

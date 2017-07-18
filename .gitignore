@@ -3,4 +3,5 @@ index.php
 .project
 .buildpath
 phars/
+:test:
 xls/*.xlsx
