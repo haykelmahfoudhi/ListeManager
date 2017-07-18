@@ -10,7 +10,7 @@ class ListTemplateTest extends PHPUnit\Framework\TestCase {
 			->setMethods(['isSearchEnabled', 'getFilter', 'isMasked', 'isOrderByEnabled', 'isExcelEnabled'])
 			->disableOriginalConstructor()
 			->getMock();
-		$this->_stubLM->expects($this->any())->method('isSearchEnabled')->willReturnOnConsecutiveCalls(false, true);
+		$this->_stubLM->expects($this->any())->method('isSearchEnabled')->willReturnOnConsecutiveCalls(false, true, true);
 		$this->_stubLM->expects($this->any())->method('getFilter')->willReturn([]);
 		$this->_stubLM->expects($this->any())->method('isMasked')->willReturn(false);
 		$this->_stubLM->expects($this->any())->method('isOrderByEnabled')->willReturn(false);
@@ -25,8 +25,8 @@ class ListTemplateTest extends PHPUnit\Framework\TestCase {
 		$this->_stubRep->expects($this->any())->method('getErrorMessage')->willReturn('Unit Test');
 		$this->_stubRep->expects($this->any())->method('getColumnsCount')->willReturn(2);
 		$this->_stubRep->expects($this->any())->method('getColumnsMeta')->willReturn([
-					(Object)['name'=>'col1', 'table'=>null, 'alias'=>null],
-					(Object)['name'=>'col2', 'table'=>'a', 'alias'=>null]
+					(Object)['name'=>'col1', 'table'=>null, 'alias'=>null, 'len' => 5],
+					(Object)['name'=>'col2', 'table'=>'a', 'alias'=>null, 'len' => 6]
 			]);
 		$data  = [['val1', 'val2'],['val3', 'val3']];
 		$this->_stubRep->expects($this->any())->method('dataList')->willReturn($data);
@@ -67,9 +67,11 @@ class ListTemplateTest extends PHPUnit\Framework\TestCase {
 		$meth->setAccessible(true);
 		$metas = $this->_stubRep->getColumnsMeta();
 		$this->assertEmpty($meth->invoke($this->_lt, $metas, [5,6]));
-		$this->assertEquals('<tr class=\'tabSelect\' style="display:none;" ><td><input type="text" name="lm_tabSelect[col1]" form=\'recherche\' size=\'5\' value=\'\'/></td>'
-				.'<td><input type="text" name="lm_tabSelect[a.col2]" form=\'recherche\' size=\'6\' value=\'\'/></td></tr>'."\n",
-				$meth->invoke($this->_lt, $metas, [5,6]));
+		$expected = '<tr class=\'tabSelect\' style="display:none;" ><td><input type="text" name="lm_tabSelect[col1]" form=\'recherche\' size=\'5\' value=\'\'/></td>'
+			.'<td><input type="text" name="lm_tabSelect[a.col2]" form=\'recherche\' size=\'6\' value=\'\'/></td></tr>'."\n";
+		$this->assertEquals($expected, $meth->invoke($this->_lt, $metas, [5,6]));
+		
+		$this->assertEquals($expected, $meth->invoke($this->_lt, $metas, false));
 	}
 
 	public function testGenerateTitles(){
