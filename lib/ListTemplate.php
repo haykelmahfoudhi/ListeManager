@@ -232,10 +232,8 @@ class ListTemplate {
 		$ret .= $this->generateTitles($colonnes);
 		
 		//Affichage des champs de saisie pour la  recherche
-		if(count($donnees) > 0 && is_array($donnees[0])){
-			$width = $this->_lm->getIdealColumnsWidth($donnees, 3, $this->_maxSizeInputs);
-			$ret .= $this->generateSearchInputs($colonnes, $width);
-		}
+		$width = $this->_lm->getIdealColumnsWidth($donnees, 3, $this->_maxSizeInputs);
+		$ret .= $this->generateSearchInputs($colonnes, $width);
 		
 		// Si le tableau est vide -> retourne messageListeVide
 		if(count($donnees) == 0 || count($donnees[0]) == 0){
@@ -691,23 +689,31 @@ class ListTemplate {
 	/**
 	 * Génère la ligne du tableau contenant les champs de recherche.
 	 * @param array $colonnesMeta les meta donnés des colonnes
+	 * @param array $width les largeurs à appliquer pour chaque champs de saisie
 	 * @return string le code HTML des champs de recherche.
 	 */
-	private function generateSearchInputs(array $colonnesMeta, array $width){
+	private function generateSearchInputs(array $colonnesMeta, $width){
 		if(!$this->_lm->isSearchEnabled())
 			return '';
-		
+
+		// Gestion des largeurs
+		if(count($width) != count($colonnesMeta)) {
+			$width = [];
+			foreach($colonnesMeta as $meta)
+				$width[] = $meta->len;
+		}
+		// Construction de la ligne
 		$ret = "<tr class='tabSelect'"
 				.(($this->_quest)? '' : ' style="display:none;" ').'>';
 		$lmId = $this->_lm->getId(); 
 		$i = 0;
 		$filter = $this->_lm->getFilter();
-		foreach ($colonnesMeta as $col){
+		foreach ($colonnesMeta as $meta){
 			// Nom de la colonne = table.colonne
-			$nomColonne = strtolower(($col->table != null)? $col->table.'.'.$col->name : $col->name );
+			$nomColonne = strtolower(($meta->table != null)? $meta->table.'.'.$meta->name : $meta->name );
 
 			// On vérifie que la colonne en cours n'est pas masquée
-			if(!$this->_lm->isMasked($nomColonne, $col->alias)) {
+			if(!$this->_lm->isMasked($nomColonne, $meta->alias)) {
 
 				//Determine le contenu du champs
 				$valeur = (isset($filter[$nomColonne])? $filter[$nomColonne] : '');

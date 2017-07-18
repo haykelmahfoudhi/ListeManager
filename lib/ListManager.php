@@ -823,11 +823,11 @@ class ListManager {
 	 * @param array $data le tableau des données (2 dimensions, sinon ça marche pas)
 	 * @param int $min la valeur minimale de la largeur des colonnes
 	 * @param int $max la valeur maximale de la largeur
-	 * @return array contenant pour chaque colonne la largeur à appliquer.
+	 * @return array|bool tableau contenant pour chaque colonne la largeur à appliquer ou false si params invalides.
 	 */
 	public function getIdealColumnsWidth(array $data, $min, $max){
 		//Vérification des paramètres
-		if(!is_array($data[0]) || intval($min) != $min || intval($max) != $max || $min > $max)
+		if(!isset($data[0]) || !is_array($data[0]) || intval($min) != $min || intval($max) != $max || $min > $max)
 			return false;
 
 		$ret = [];
