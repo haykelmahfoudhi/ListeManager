@@ -4,20 +4,24 @@ class DatabaseTest extends PHPUnit\Framework\TestCase {
 	
 	use PHPUnit_Extensions_Database_TestCase_Trait;
 	
-	var $_db = null;
+	static $db = null;
 	static $dsn = 'sqlite::test:';
 	
+	public static function setUpBeforeClass(){
+		self::$db = Database::instantiate(self::$dsn);
+		self::$db->verbose(false);
+		self::$db->execute('CREATE TABLE `table`(id INT PRIMARY KEY, col1 CHAR(20), col2 INT, col3 DATE, col4 REAL);');
+	}
+
 	public function setUp(){
 		$instances = (new ReflectionClass('Database'))
 			->getProperty('instances');
 		$instances->setAccessible(true);
-		$instances->setValue(null, []);
-		$this->_db = Database::instantiate(self::$dsn);
-		$this->_db->execute('CREATE TABLE `table`(id INT PRIMARY KEY, col1 CHAR(20), col2 INT, col3 DATE, col4 REAL);');
+		$instances->setValue(null, ['principale' => self::$db]);
 	}
 	
 	public function getConnection(){
-		return $this->createDefaultDBConnection($this->_db->getPDO(), ':test:');
+		return $this->createDefaultDBConnection(self::$db->getPDO(), ':test:');
 	}
 	
 	public function getDataSet(){
@@ -25,8 +29,8 @@ class DatabaseTest extends PHPUnit\Framework\TestCase {
 	}
 	
 	public function testSingleton(){
-		$this->assertSame($this->_db, Database::getInstance());
-		$this->assertEquals('principale', $this->_db->getLabel());
+		$this->assertSame(self::$db, Database::getInstance());
+		$this->assertEquals('principale', self::$db->getLabel());
 		$this->expectException('InvalidArgumentException');
 		Database::instantiate(self::$dsn);
 	}
@@ -40,30 +44,30 @@ class DatabaseTest extends PHPUnit\Framework\TestCase {
 			->getProperty('instances');
 		$instances->setAccessible(true);
 		$tabDB = $instances->getValue();
-		$this->assertEquals(['principale' => $this->_db], $tabDB);
+		$this->assertEquals(['principale' => self::$db], $tabDB);
 		$deuz = Database::instantiate(self::$dsn, null, null, 'deuz');
 		$tabDB = $instances->getValue();
-		$this->assertEquals(['principale' => $this->_db, 'deuz' => $deuz], $tabDB);
+		$this->assertEquals(['principale' => self::$db, 'deuz' => $deuz], $tabDB);
 		$this->assertSame($deuz, Database::getInstance('deuz'));
 		$this->assertNull(Database::getInstance('ter'));
 	}
 	
 	public function testLabels(){
-		$this->_db->setLabel('prim');
-		$this->assertEquals('prim', $this->_db->getLabel());
+		self::$db->setLabel('prim');
+		$this->assertEquals('prim', self::$db->getLabel());
 		$instances = (new ReflectionClass('Database'))
 			->getProperty('instances');
 		$instances->setAccessible(true);
-		$this->assertEquals(['prim' => $this->_db], $instances->getValue());
+		$this->assertEquals(['prim' => self::$db], $instances->getValue());
 	}
 	
 	public function testExecute(){
-		$rep = $this->_db->execute("pas bon");
+		$rep = self::$db->execute("pas bon");
 		$this->assertNotNull($rep);
 		$this->assertNotEmpty($rep->getErrorMessage());
 		$this->assertTrue($rep->error());
 		$this->assertFalse($rep->dataList());
-		$rep = $this->_db->execute("SELECT * FROM `table`");
+		$rep = self::$db->execute("SELECT * FROM `table`");
 		$this->assertFalse($rep->error());
 		$this->assertEmpty($rep->getErrorMessage());
 	}

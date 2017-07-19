@@ -209,7 +209,6 @@ class Database {
 						else
 							$ret[] = $obj;
 					}
-
 					$rep->setColumnsMeta($ret);
 				}
 				return $rep;
