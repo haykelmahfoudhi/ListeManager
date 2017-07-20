@@ -107,6 +107,20 @@ class ListManagerTest extends PHPUnit\Framework\TestCase {
 		$this->assertFalse($methode->invoke($this->_lm, $repStub));
 		$this->assertTrue(file_exists($methode->invoke($this->_lm, $repStub)));
 	}
+	
+	public function testGetIdealColumnsWidth(){
+		$this->_lm->setLongColWidth(20);
+		$this->assertFalse($this->_lm->getIdealColumnsWidth([], 5, 4));
+		$this->assertFalse($this->_lm->getIdealColumnsWidth([], 4, 15));
+		$this->assertFalse($this->_lm->getIdealColumnsWidth([[0]], 5, 4));
+		$data = [
+			['123', '1234', '123456', '123456789', 'Controle ressuage S2 suivant l\'AITM6-1001 issue 11 et l\'IF7115100002 conforme et repérée avec une étiquette "pièces en litige" Elle est soumise à vos services. Salutations AF: 8731476'],
+			['1234567', '123', '123456', '1234567', 'test un peu moins long que le précédent dans la emme colonne, mais bon un peu quand même histoire de pouvoir tester si ça marche bien avec des colonnes extra longues t\as vu']	
+		];
+		$this->assertEquals([7, 4, 6, 9, 20], $this->_lm->getIdealColumnsWidth($data, 0, 11));
+		$this->_lm->setLongColWidth(50);
+		$this->assertEquals([7, 5, 6, 8, 50], $this->_lm->getIdealColumnsWidth($data, 5, 8));
+	}
 
 }
 

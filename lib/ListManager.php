@@ -726,7 +726,7 @@ class ListManager {
 	/**
 	 * Définit la largeur pour les colonnes excédant 100 caractères.
 	 * @param int $value nouvelle valeur
-	 * @return bool|ListManageer false si parametre invalide (<= 0 ou non entier), $this si opération ok (method chaining)
+	 * @return bool|ListManager false si parametre invalide (<= 0 ou non entier), $this si opération ok (method chaining)
 	 */
 	public function setLongColWidth($value){
 		if(intval($value) != $value || $value <= 0)
