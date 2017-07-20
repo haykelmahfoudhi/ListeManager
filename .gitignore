@@ -3,5 +3,7 @@ index.php
 .project
 .buildpath
 phars/
+vendor/
+composer.lock
 :test:
 xls/*.xlsx

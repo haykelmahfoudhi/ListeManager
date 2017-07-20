@@ -8,8 +8,9 @@ RUN apt update && apt install -y \
 php7.0 \
 php7.0-xdebug \
 php7.0-xml \
-php7.0-mbstring
-php7.0-zip
+php7.0-mbstring \
+php7.0-zip \
+php7.0-sqlite3 \
 wget \
 git \
 && rm -rf /var/lib/apt/lists/*
@@ -17,5 +18,6 @@ git \
 RUN wget https://phar.phpunit.de/phpunit-6.2.phar
 RUN chmod +x phpunit-6.2.phar
 RUN mv phpunit-6.2.phar /usr/local/bin/phpunit
+RUN composer install --dev
 
 WORKDIR /tmp

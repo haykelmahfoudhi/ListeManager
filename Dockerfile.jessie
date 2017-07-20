@@ -8,6 +8,7 @@ RUN apt update && apt install -y \
 php5 \
 php5-xdebug \
 php5-sqlite \
+composer \
 wget \
 git \
 && rm -rf /var/lib/apt/lists/*
@@ -15,5 +16,6 @@ git \
 RUN wget https://phar.phpunit.de/phpunit-5.7.phar
 RUN chmod +x phpunit-5.7.phar
 RUN mv phpunit-5.7.phar /usr/local/bin/phpunit
+RUN composer install --dev
 
 WORKDIR /tmp
