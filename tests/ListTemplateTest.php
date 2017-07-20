@@ -69,8 +69,7 @@ class ListTemplateTest extends PHPUnit\Framework\TestCase {
 		$this->assertEmpty($meth->invoke($this->_lt, $metas, [5,6]));
 		$expected = '<tr class=\'tabSelect\' style="display:none;" ><td><input type="text" name="lm_tabSelect[col1]" form=\'recherche\' size=\'5\' value=\'\'/></td>'
 			.'<td><input type="text" name="lm_tabSelect[a.col2]" form=\'recherche\' size=\'6\' value=\'\'/></td></tr>'."\n";
-		$this->assertEquals($expected, $meth->invoke($this->_lt, $metas, [5,6]));
-		
+		$this->assertEquals($expected, $meth->invoke($this->_lt, $metas, [5,6,5,6]));
 		$this->assertEquals($expected, $meth->invoke($this->_lt, $metas, false));
 	}
 
@@ -92,5 +91,4 @@ class ListTemplateTest extends PHPUnit\Framework\TestCase {
 		$this->_lt->setHelpLink(null);
 		$this->assertEquals("\n<div><div class='boutons-options'></div>\n", $meth->invoke($this->_lt));
 	}
-
 }

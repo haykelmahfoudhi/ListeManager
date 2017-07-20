@@ -7,7 +7,7 @@
 	beStrictAboutCoversAnnotation="true" 
 	beStrictAboutOutputDuringTests="true" 
 	beStrictAboutTestsThatDoNotTestAnything="true" 
-	beStrictAboutTodoAnnotatedTests="true" 
+	beStrictAboutTodoAnnotatedTests="true"
 	verbose="true">
 
 	<testsuites>
@@ -15,10 +15,10 @@
 	</testsuites>
 
 	<filter>
-                <whitelist processUncoveredFilesFromWhitelist="true">
-                        <directory suffix=".php">lib/</directory>
-                </whitelist>
-        </filter>
+    	<whitelist processUncoveredFilesFromWhitelist="true">
+			<directory suffix=".php">lib/</directory>
+        </whitelist>
+    </filter>
 
 </phpunit>
 

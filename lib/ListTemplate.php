@@ -697,10 +697,10 @@ class ListTemplate {
 			return '';
 
 		// Gestion des largeurs
-		if(count($width) != count($colonnesMeta)) {
+		if(!is_array($width) || count($colonnesMeta) > count($width)) {
 			$width = [];
 			foreach($colonnesMeta as $meta)
-				$width[] = $meta->len;
+				$width[] = min($meta->len, $this->_maxSizeInputs);
 		}
 		// Construction de la ligne
 		$ret = "<tr class='tabSelect'"
@@ -719,10 +719,12 @@ class ListTemplate {
 				$valeur = (isset($filter[$nomColonne])? $filter[$nomColonne] : '');
 					
 				//Determine la taille du champs
-				if($this->_constInputsSize)
+				if($this->_constInputsSize){
 					$taille = $this->_maxSizeInputs;
-				else 
+				}
+				else { 
 					$taille = $width[$i];
+				}
 
 				$ret .= '<td><input type="text" name="lm_tabSelect'.$lmId.'['.$nomColonne.']"'
 						." form='recherche".$lmId."' size='$taille' value='$valeur'/></td>";

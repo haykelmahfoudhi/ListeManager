@@ -79,7 +79,7 @@ class Database {
 	private static $tabDescribe = [
 			'oci'   => ['req' => 'DESCRIBE ', 'col' => 'name'],
 			'mysql' => ['req' => 'DESCRIBE ', 'col' => 'Field'] ,
-			'pgsql' => ['req' => 'SELECT * FROM information_schema.COLUMNS WHERE TABLE_NAME = ',       'col' => 'Column']
+			'pgsql' => ['req' => 'SELECT * FROM information_schema.COLUMNS WHERE TABLE_NAME = ', 'col' => 'Column']
 		];
 	
 	
@@ -127,16 +127,16 @@ class Database {
 	 * @param string $etiquette (facultatif) l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont utilisees en meme temps dans l'application
 	 * @return Database l'instance de Database créée et connectée, ou null en cas d'echec.
 	 */
-	public static function instantiate($dsn, $login, $mdp, $etiquette='principale'){
+	public static function instantiate($dsn, $login=null, $mdp=null, $etiquette='principale'){
+		if(isset(self::$instances[$etiquette])){
+			throw new InvalidArgumentException('Il existe deje une BD portant l\'etiquette "'.$etiquette.'", veuillez en specifier une nouvelle');
+		}
+		// Instanciation de la databse
 		$nouvelleInstance = new self($dsn, $login, $mdp, $etiquette);
 		if($nouvelleInstance->_pdo == null)
 			return null;
-
-		if(isset(self::$instances[$etiquette])){
-			$this->addError('Il existe deje une BD portant l\'etiquette "'.$etiquette.'", veuillez en specifier une nouvelle',
-				'instantiate');
-			return null;
-		}
+		
+		// Enregistrement de la database & return
 		self::$instances[$etiquette] = $nouvelleInstance;
 		return $nouvelleInstance;
 	}
@@ -209,7 +209,6 @@ class Database {
 						else
 							$ret[] = $obj;
 					}
-
 					$rep->setColumnsMeta($ret);
 				}
 				return $rep;
@@ -319,7 +318,7 @@ class Database {
 	 * Retourne le tableau des messages d'erreur enregistrés par la classe Database
 	 * @return array le tableau des messages d'erreur enregistrés par la classe
 	 */
-	public static function getErrorMessages(){
+	public static function getAllErrorMessages(){
 		$errors = [];
 		foreach (self::$instances as $label => $db) {
 			$errors[$label] = $db->getErrorMessages();
