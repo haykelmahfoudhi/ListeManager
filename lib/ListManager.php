@@ -291,13 +291,15 @@ class ListManager {
 				return $this->generateArray($reponse);
 
 			case ResponseType::EXCEL:
+				// Suppression des fichiers q'il y a plus d'un jour
+				exec('find xls/ -name "*.xlsx" -mtime +1 -delete');
 				$chemin = $this->generateExcel($reponse);
 				if($chemin !== false){
 					header('Location:'.$chemin);
-					// Si erreur de redirection : on propose le lien de téléchargement
-					$this->_template->setEmptyListMessage('Pour télécharger le fichier <a href="'.$chemin.'">cliquez ici</a>');
 				}
-				return $this->_template->construct($reponse);
+				// Si erreur de redirection : on propose le lien de téléchargement
+				return $this->_template->construct(new RequestResponse(null, true,
+						'Pour télécharger le fichier <a href="'.$chemin.'">cliquez ici</a>'));
 
 			case ResponseType::JSON:
 				return $this->generateJSON($reponse);
