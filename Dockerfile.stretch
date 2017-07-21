@@ -18,7 +18,6 @@ git \
 RUN wget https://phar.phpunit.de/phpunit-6.2.phar
 RUN chmod +x phpunit-6.2.phar
 RUN mv phpunit-6.2.phar /usr/local/bin/phpunit
-RUN wget https://getcomposer.org/composer.phar && chmod +x composer.phar
-RUN mv composer.phar /bin/composer
+RUN composer install --dev
 
 WORKDIR /tmp
