@@ -3,7 +3,6 @@ FROM debian:stretch
 ENV http_proxy=http://scoudrais:achangertest@phil:8080/
 ENV https_proxy=http://scoudrais:achangertest@phil:8080/
 
-
 RUN apt update && apt install -y \
 php7.0 \
 php7.0-xdebug \
@@ -18,6 +17,7 @@ git \
 RUN wget https://phar.phpunit.de/phpunit-6.2.phar
 RUN chmod +x phpunit-6.2.phar
 RUN mv phpunit-6.2.phar /usr/local/bin/phpunit
-RUN composer install --dev
+RUN wget https://getcomposer.org/composer.phar && chmod +x composer.phar
+RUN mv composer.phar /bin/composer
 
 WORKDIR /tmp

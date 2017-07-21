@@ -10,6 +10,7 @@ stages:
 before_script:
   - uname -a
   - whoami
+  - composer install
 
 test-php5.6:
   image: localhost:5000/listmanager_image
