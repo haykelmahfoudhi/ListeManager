@@ -10,6 +10,7 @@ php7.0-xdebug \
 php7.0-xml \
 php7.0-mbstring \
 php7.0-zip \
+php7.0-sqlite3 \
 wget \
 git \
 && rm -rf /var/lib/apt/lists/*
