@@ -69,8 +69,8 @@ class DatabaseTest extends PHPUnit\Framework\TestCase {
 		$this->assertFalse($rep->dataList());
 		$rep = self::$db->execute("SELECT * FROM `table`");
 
-			// v FAIT PLANTER LES DOCKERS ! la 1re execution de ce passage retourne TRUE... pas les autres
-		// $this->assertFalse($rep->error());
+		// v FAIT PLANTER LES DOCKERS ! la 1re execution de ce passage retourne TRUE... pas les autres
+		// $this->assertFalse($rep->error()); FAIT PLANTER LES DOCKERS ! la 1re execution de ce passage retourne TRUE... pas les autres
 		// $this->assertEmpty($rep->getErrorMessage());
 	}
 	
