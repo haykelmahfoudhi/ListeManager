@@ -15,12 +15,16 @@ before_script:
 build-php5.6:
   stage: build
   script:
-    - docker build -t localhost:5000/listmanager_image Dockerfile.jessie .
+    - docker build -t localhost:5000/listmanager_image -f Dockerfile.jessie .
+  tags:
+    - shell
 
 build-php7:
   stage: build
   script:
-    - docker build -t localhost:5000/listmanager_image:stretch Dockerfile.stretch .
+    - docker build -t localhost:5000/listmanager_image:stretch -f Dockerfile.stretch .
+  tags:
+    - shell
 
 test-php5.6:
   image: localhost:5000/listmanager_image
