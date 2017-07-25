@@ -403,9 +403,10 @@ class SQLRequest {
 	* Définit les nouvelles valeurs des clauses LIMIT et OFFSET pour les requêtes de type SELECT
 	* @param int $limit la nouvelle valeur limit. Si null cette clause sera desactivée.
 	* @param string $offset la clause OFFSET ENTIERE (et non la valeur seule de la clause). Pour MySQL ce paramètre doit prendre la forme 'OFFSET 2'. null pour désactiver
+	* @return bool false si le type de requete n'est pas SELECT ou si les paramètres sont incorrects
 	*/
 	public function setLimit($limit, $offset=''){
-		if($this->_requestType != RequestType::SELECT)
+		if($this->_requestType != RequestType::SELECT || intval($limit) != $limit)
 			return false;
 
 		if(!$this->_forOracle) {

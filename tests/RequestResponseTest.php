@@ -40,6 +40,16 @@ class RequestResponseTest extends PHPUnit\Framework\TestCase {
 		$rep = new RequestResponse($pdosStub);
 		$this->assertFalse($rep->error());
 	}
+
+	public function testGetPDOStatement() {
+		$rep = new RequestResponse(null);
+		$this->assertNull($rep->getPDOStatement());
+		$pdosStub = $this->getMockBuilder('PDOStatement')
+			->disableOriginalConstructor()
+			->getMock();
+		$rep = new RequestResponse($pdosStub);
+		$this->assertSame($pdosStub, $rep->getPDOStatement());
+	}
 	
 	public function testNextLine(){
 		$rep = new RequestResponse(null, true, 'unit test');
