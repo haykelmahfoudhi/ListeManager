@@ -1,13 +1,24 @@
+
+// Se déclenche après le chargement des éléments de la page
 window.onload = function() {
 
-// Retourne un array unique
+/**
+ * Retourne un tableau sans doublons.
+ * @return Array la version du tableau où chaque données est unique.
+ */
 Array.prototype.unique = function() {
 	return this.filter(function(val, i, self){
 		return self.indexOf(val) === i;
 	});
 };
 
-// Objet contenant les paramètres GET
+      //----------------------\\
+     //   VARIABLES GLOBALES   \\
+	//--------------------------\\
+
+/**
+ * @var Object contient les paramètres d'url GET
+ */
 var _GET = function () {
   // This function is anonymous, is executed immediately and 
   // the return value is assigned to QueryString!
@@ -30,8 +41,19 @@ var _GET = function () {
   } 
   return query_string;
 }();
+/**
+ * @var bool titresFixes true si l'option fixer les titres est activée pour cette liste.
+ */
+var titresFixes = $('.liste[fixed-titles=true]').length == 1;
 
-// Met à jour l'url de la page : à appeler à chaque changement de sessionStorage
+
+      //-------------------------------------\\
+     //   GESTION DES URLS & SESSIONSTORAGE   \\
+	//-----------------------------------------\\
+
+/**
+ * Met à jour l'url de la page : à appeler à chaque mise à jour de sessionStorage.
+ */
 function updateURL() {
 	var tabUrl = document.URL.split('#');
 	if(sessionStorage.length)
@@ -66,7 +88,15 @@ else {
 }
 
 
-// Masquage de colonnes
+      //-------------------------\\
+     //   MASQUAGE DES COLONNES   \\
+	//-----------------------------\\
+
+/**
+ * Masquage de colonnes
+ * @param int index numéro de la colonne à masquer
+ * @param string dataId ID de la liste correspondante
+ */
 function masquerColonne(index, dataId) {
 	var cases = $('table' + ((dataId.length && dataId != 'defaut')? '[data-id='+dataId+']' : '') + '.liste').find('td, th');
 	for (var i = 0; i < cases.length; i++) {
@@ -77,7 +107,9 @@ function masquerColonne(index, dataId) {
 	}
 }
 
-// Fonction qui sera appelée au click des bouton pour masquer les colonnes
+/**
+ * Fonction qui sera appelée au click des bouton pour masquer les colonnes
+ */
 function masquerColonnesOnClick(event) {
 	event.preventDefault();
 	var listeParent = $(event.currentTarget).parents('div.liste-parent');
@@ -110,8 +142,9 @@ function masquerColonnesOnClick(event) {
 	actualiserLargeurCol();
 }
 
-
-// Afficher les colonnes masquées
+/**
+ * Afficher les colonnes masquées.
+ */
 function afficherColonnes(event) {
 	event.preventDefault();
 	var listeParent = $(event.currentTarget).parents('div.liste-parent').find('table.liste'),
@@ -135,8 +168,66 @@ function afficherColonnes(event) {
 	updateURL();
 }
 
-// Permet d'actualiser la largeur des colonnes des titres de la liste
-var titresFixes = $('.liste[fixed-titles=true]').length == 1;
+// Masquer les colonnes correspondantes dans sessionStorage
+$('a.annuler-masque').hide();
+var tabMask = JSON.parse(sessionStorage.getItem('mask'));
+if(tabMask != null){
+	$.each(tabMask, function(index, element){
+		if(element != null) {
+			$('.liste[data-id='+index+']').parents('.liste-parent').find('a.annuler-masque').show();
+			for (var i = 0; i < element.length; i++)
+				masquerColonne(element[i], index);
+		}
+	});
+}
+
+/**
+ * Masque les colonnes enregistrées dans le sessionStorage 
+ */
+$('table.liste').each(function(i, e) {
+	var dataId = e.getAttribute('data-id'),
+		dataId = ((dataId == null)? 'defaut' : dataId),
+		tabMask = JSON.parse(sessionStorage.getItem('mask'));
+
+	if(tabMask == null)
+		tabMask = {};
+
+	if(typeof tabMask[dataId] != 'undefined' && tabMask[dataId] != null){
+		for(var j=0; j<tabMask[dataId].length; j++)
+			masquerColonne(tabMask[dataId][j], dataId);
+		$(e).parents('div.liste-parent').find('a.annuler-masque').show();
+	}
+});
+
+
+/**
+ * Ajoute le masque à l'url avant export en excel.
+ * Cette fonction récupère le tabMask du sessionStorage pour la liste concernée et ajoute les informations
+ * corresponadntes aux colonnes masquées dans les paramètres GET avant de rediriger l'url pour télécharger le document Excel.
+ * @param jQuery listeParent objet jQuery de la division parente de la liste concernée
+ */
+function maskExportExcel(listeParent) {
+	var dataId = listeParent.find('.liste').attr('data-id'),
+		dataId = ((typeof dataId == 'undefined')? 'defaut' : dataId),
+		tabMask = JSON.parse(sessionStorage.getItem('mask')),
+		tabUrl = document.URL.toString().split('#'),
+		url = tabUrl[0] + ((tabUrl[0].indexOf('?') !== -1)? '' : '?')
+			+ "&lm_excel" + ((dataId == 'defaut')? '' : dataId) + "=1";
+
+	if(tabMask != null && typeof tabMask[dataId] == 'object'){
+		var maskUrl = encodeURIComponent(tabMask[dataId].join());
+		url += '&lm_mask' + ((dataId == 'defaut')? '' : dataId) + "=" + maskUrl;
+	}
+	document.location = url;
+}
+
+      //--------------------------------\\
+     //   GESTION DES CHAMPS RECHERCHE   \\
+	//------------------------------------\\
+
+/**
+ * Permet d'actualiser la largeur des colonnes des titres de la liste
+ */
 function actualiserLargeurCol() {
 	if(titresFixes) {
 		var ths = $(ligneTitres).children('th'),
@@ -145,7 +236,7 @@ function actualiserLargeurCol() {
 		// On fixe la largeur des td
 		tds.each(function(index, td) {
 			if(index < ths.length) {
-				var padding = parseInt(window.getComputedStyle(ths[index], null).paddingLeft) 
+				var padding = parseInt(window.getComputedStyle(ths[index], null).paddingLeft)
 					+ parseInt(window.getComputedStyle(ths[index], null).paddingRight) + 2,
 					tdWidth = td.offsetWidth - padding,
 					thWidth = ths[index].offsetWidth - padding,
@@ -164,7 +255,11 @@ function actualiserLargeurCol() {
 	}
 }
 
-// Affichage des champs de recherche
+/**
+ * Affichage des champs de recherche.
+ * @param jQuery listeParent objet jQuery de la division parente de la liste concernée
+ * @param bool premierChargement true si cette fonction est appelée au chargement de la page
+ */
 function afficherChampsRecherche(listeParent, premierChargement){
 	var inputTr = listeParent.find('tr.tabSelect');
 	if(inputTr.length) {
@@ -172,13 +267,16 @@ function afficherChampsRecherche(listeParent, premierChargement){
 			dataId = ((typeof dataId == 'undefined')? 'defaut' : dataId),
 			formQuest = listeParent.find('form.recherche'),
 			dispTSData = listeParent.find('table.liste').attr('disp-tabSelect') == 'true',
+			
+			// Affiche / masque les champs de saisie en fonction du paramètre afficher
+			// Met à jour tabQuest qui sera enregistré dans le sessionStorage
 			displayTS = function(afficher){
 				if(afficher){ inputTr.show(); formQuest.show(); }
 				else{ inputTr.hide(); formQuest.hide(); }
 				if(!premierChargement || typeof tabQuest[dataId] == 'undefined')
 					tabQuest[dataId] = afficher;
 			};
-
+		// Récupération de tabQuest depuis sessionStorage
 		try {
 			tabQuest = JSON.parse(sessionStorage.getItem('tabQuest'));
 		} catch(e) {
@@ -195,27 +293,18 @@ function afficherChampsRecherche(listeParent, premierChargement){
 		
 		sessionStorage.setItem('tabQuest', JSON.stringify(tabQuest));
 	}
-	actualiserLargeurCol();
-	updateURL();
 }
+// Premier appel de la fonction => affiche / masque les champs de recherche en fonction du sessionStorage
 $('.liste-parent').each(function(i, e){
 	afficherChampsRecherche($(e), true);
 });
+actualiserLargeurCol();
+updateURL();
 
 
-// Masquer les colonnes correspondantes dans sessionStorage
-$('a.annuler-masque').hide();
-var tabMask = JSON.parse(sessionStorage.getItem('mask'));
-if(tabMask != null){
-	$.each(tabMask, function(index, element){
-		if(element != null) {
-			$('.liste[data-id='+index+']').parents('.liste-parent').find('a.annuler-masque').show();
-			for (var i = 0; i < element.length; i++)
-				masquerColonne(element[i], index);
-		}
-	});
-}
-
+      //-----------------------\\
+     //   FIXATION DES TITRES   \\
+	//---------------------------\\
 
 // Fixer les titres & boutons de la liste sur le doc
 if(titresFixes) {
@@ -226,21 +315,25 @@ if(titresFixes) {
 		offsetLeftDB = $(divBoutons).offset().left,
 		toRefresh = true;
 
-	actualiserLargeurCol();
-
-	// Callback sur le scroll
+	/**
+	 * Callback sur le scroll
+	 */
 	function scrollTitre(){
+		// Fixe les titres
 		if((document.body.scrollTop || document.documentElement.scrollTop) >= offsetTop) {
 			if(toRefresh){
 				actualiserLargeurCol();
 				toRefresh = false;
 			}
+			// Ajout des classes 'fixed'
 			ligneTitres.classList.add("fixed");
 			divBoutons.classList.add('fixed');
+			// MaJ du scroll horizontal
 			$(divBoutons).css('left', offsetLeftDB - $(window).scrollLeft());
 			$(ligneTitres).css('left', offsetLeftLT - $(window).scrollLeft());
 			$(divBoutons).next().css('margin-left', window.getComputedStyle(divBoutons, null).width);
 		}
+		// Défixe les titres
 		else {
 			ligneTitres.classList.remove("fixed");
 			divBoutons.classList.remove("fixed");
@@ -249,47 +342,16 @@ if(titresFixes) {
 	}
 }
 
-// Masque les colonnes enregistrées dans le sessionStorage 
-$('table.liste').each(function(i, e) {
-	var dataId = e.getAttribute('data-id'),
-		dataId = ((dataId == null)? 'defaut' : dataId),
-		tabMask = JSON.parse(sessionStorage.getItem('mask'));
+      //------------------------------\\
+     //   APPLICAITON DES LISTENNERS   \\
+    //----------------------------------\\
 
-	if(tabMask == null)
-		tabMask = {};
-
-	if(typeof tabMask[dataId] != 'undefined' && tabMask[dataId] != null){
-		for(var j=0; j<tabMask[dataId].length; j++)
-			masquerColonne(tabMask[dataId][j], dataId);
-		$(e).parents('div.liste-parent').find('a.annuler-masque').show();
-	}
-});
-
-
-//Ajoute le masque à l'url avant export en excel
-function maskExportExcel(listeParent) {
-	var dataId = listeParent.find('.liste').attr('data-id'),
-		dataId = ((typeof dataId == 'undefined')? 'defaut' : dataId),
-		tabMask = JSON.parse(sessionStorage.getItem('mask')),
-		tabUrl = document.URL.toString().split('#'),
-		url = tabUrl[0] + ((tabUrl[0].indexOf('?') !== -1)? '' : '?')
-			+ "&lm_excel" + ((dataId == 'defaut')? '' : dataId) + "=1";
-
-	if(tabMask != null && typeof tabMask[dataId] == 'object'){
-		var maskUrl = encodeURIComponent(tabMask[dataId].join());
-		url += '&lm_mask' + ((dataId == 'defaut')? '' : dataId) + "=" + maskUrl;
-	}
-	document.location = url;
-}
-
-
-/*----------------------------------------------------
---  APPLICAITON DES LISTENNERS
------------------------------------------------------*/
 $('a.masque').click(masquerColonnesOnClick);
 $('.boutons-options a.btn-recherche').click(function(event) {
 	event.preventDefault();
 	afficherChampsRecherche($(event.currentTarget).parents('.liste-parent'), false);
+	actualiserLargeurCol();
+	updateURL();
 });
 $('a.annuler-masque').click(afficherColonnes);
 $('tr.recherche > input')
@@ -299,6 +361,5 @@ $('a.btn-excel').click(function(event) {
 	event.preventDefault();
 	maskExportExcel($(event.currentTarget).parents('.liste-parent'));
 });
-
 
 }

@@ -22,7 +22,7 @@ class SQRequestTest extends PHPUnit\Framework\TestCase {
 		$this->assertEquals(RequestType::SELECT, (new SQLRequest($this->tabReq['sel4']))->getType());
 		$this->assertEquals(RequestType::UPDATE, (new SQLRequest($this->tabReq['updt']))->getType());
 		$this->assertEquals(RequestType::DELETE, (new SQLRequest($this->tabReq['del']))->getType());
-		$this->assertEquals(RequestType::AUTRE, (new SQLRequest("UPDATE table SET a=1 WHERE id=2;"))->getType());
+		$this->assertEquals(RequestType::INSERT, (new SQLRequest("INSERT INTO table(id,a) VALUES (1, '2');"))->getType());
 		$this->assertEquals(RequestType::AUTRE, (new SQLRequest($this->tabReq['othr']))->getType());
 	}
 
