@@ -100,7 +100,13 @@ class Database {
 		$this->_dsn 	= $dsn;
 		$this->_login 	= $login;
 		$this->_passwd 	= $passwd;
-		$this->verbose(true);
+		$this->connect();
+	}
+
+	/**
+	 * Tente de se connecter à la base de données avec les attributs de la classe.
+	 */
+	private function connect(){
 		try {
 			// Test si BD Oracle
 			if (strpos($this->_dsn, 'oci:') !== false && !extension_loaded('pdo_oci'))
@@ -126,6 +132,7 @@ class Database {
 	 * @param string $mdp le mot de passe de l'utilisateur
 	 * @param string $etiquette (facultatif) l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont utilisees en meme temps dans l'application
 	 * @return Database l'instance de Database créée et connectée, ou null en cas d'echec.
+	 * @throws InvalidArgumentException si l'étiquette apssée en paramètre est déjà utilisée
 	 */
 	public static function instantiate($dsn, $login=null, $mdp=null, $etiquette='principale'){
 		if(isset(self::$instances[$etiquette])){
@@ -221,18 +228,18 @@ class Database {
 	}
 
 	/**
-	 * Fonction magique PHP : permet la sérialisation de Database.
+	 * Méthode magique PHP : permet la sérialisation de Database.
 	 * @return array un tableau contenant le nom des attributs à enregistrer lors de la sérialisation
 	 */
 	public function __sleep() {
-		return array('dsn', 'login', 'passwd', 'label');
+		return array('_dsn', '_login', '_passwd', '_label');
 	}
 
 	/**
-	 * Fonction magique PHP : permet la désérialisation de Database
+	 * Méthode magique PHP : permet la désérialisation de Database
 	 */
 	public function __wakeup() {
-		self::instantiate($this->_dsn, $this->_login, $this->_passwd, $this->_label);
+		$this->connect();
 	}
 
 	/**
