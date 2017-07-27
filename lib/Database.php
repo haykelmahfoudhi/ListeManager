@@ -38,7 +38,7 @@
  * @author RookieRed
  *
  */
-class Database {
+class Database implements JsonSerializable {
 	
 	// Cette classe peut générer et afficher des messages d'erreur
 	use T_ErrorGenerator;
@@ -240,6 +240,18 @@ class Database {
 	 */
 	public function __wakeup() {
 		$this->connect();
+	}
+	
+	/**
+	 * Permet d'encoder Database en JSON
+	 * @return stdClass l'objet représentant Database qui pourra etre encodé.
+	 */
+	public function jsonSerialize(){
+		$ret = new stdClass();
+		$ret->dsn = $this->_dsn;
+		$ret->login = $this->_login;
+		$ret->passwd = $this->_passwd;
+		return $ret;
 	}
 
 	/**

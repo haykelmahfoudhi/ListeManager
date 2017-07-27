@@ -5,7 +5,7 @@ class DatabaseTest extends PHPUnit\Framework\TestCase {
 	use PHPUnit_Extensions_Database_TestCase_Trait;
 	
 	static $db = null;
-	static $dsn = 'sqlite::test:';
+	public static $dsn = 'sqlite::test:';
 	
 	public static function setUpBeforeClass(){
 		self::$db = Database::instantiate(self::$dsn);

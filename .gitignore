@@ -3,6 +3,7 @@ index.php
 .project
 .buildpath
 phars/
+src/dbs.json
 vendor/
 composer.lock
 :test:

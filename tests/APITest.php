@@ -33,8 +33,7 @@ class APITest extends PHPUnit\Framework\TestCase {
 		$meth->setAccessible(true);
 		
 		// Tests exceptions
-		if($exists = file_exists(LM_SRC.'dbs.json'))
-			exec('mv '.LM_SRC.'dbs.json '.LM_SRC.'dbs.json.old');
+		$this->moveConf();
 		$this->expectException('Exception');
 		$this->expectExceptionMessage('Fichier de configuration inexistant');
 		$meth->invoke($this->_api, 'test');
@@ -44,22 +43,49 @@ class APITest extends PHPUnit\Framework\TestCase {
 		$meth->invoke($this->_api, 'test');
 		
 		// Construction du fichier
-		$dbs = new stdClass();
-		$dbs->test = new stdClass();
-		$dbs->test->dsn = 'sqlite::test:';
+		$this->createConf();
 		file_put_contents(LM_SRC.'dbs.json', json_encode($dbs));
 		$this->assertNull($meth->invoke($this->_api, 'test'));
 		$this->assertInstanceOf('Database', $meth->invoke($this->_api, 'test'));
 		
 		// RaZ
-		unlink(LM_SRC.'dbs.json');
-		if($exists)
-			exec('mv '.LM_SRC.'dbs.json.old '.LM_SRC.'dbs.json');
+		$this->resetConf();
 	}
 	
 	public function testConnect(){
 		$this->assertFalse($this->_api->connect('', '', '', ''));
 		$this->assertEquals('Impossible de se connecter à la base de données', $this->_api->getLastError());
+		$this->assertTrue($this->_api->connect(DatabaseTest::$dsn, '', '', ''));
+		$this->tearDown();
+		$this->setUp();
+		$this->moveConf();
+		$this->createConf();
+		$this->assertTrue($this->_api->connect('', null, null, 'test'));
+		$this->resetConf();
+	}
+	
+	public function testDisconnect(){
+		$this->_api->connect(DatabaseTest::$dsn, '', '', '');
+		$this->assertTrue(true);
+		
+	}
+	
+	private function moveConf(){
+		if(file_exists(LM_SRC.'dbs.json'))
+			exec('mv '.LM_SRC.'dbs.json '.LM_SRC.'dbs.json.old');
+	}
+	
+	private function createConf(){
+		$dbs = new stdClass();
+		$dbs->test = new stdClass();
+		$dbs->test->dsn = DatabaseTest::$dsn;
+		file_put_contents(LM_SRC.'dbs.json', json_encode($dbs));
+	}
+	
+	private function resetConf(){
+		unlink(LM_SRC.'dbs.json');
+		if(file_exists(LM_SRC.'dbs.json.old'))
+			exec('mv '.LM_SRC.'dbs.json.old '.LM_SRC.'dbs.json');
 	}
 	
 }

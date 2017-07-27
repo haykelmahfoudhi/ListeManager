@@ -19,10 +19,6 @@
  *  * data : ?array les données renvoyées par l'API
  */
 
-// Debug
-ini_set('error_report', E_ALL);
-ini_set('display_errors', true);
-
 define('LM_ROOT', './');
 require_once LM_ROOT.'includes.php';
 
@@ -33,52 +29,67 @@ $response->error = true;
 $response->errorMessage = '';
 $response->data = null;
 
-
-// Connexion
-if(!$api->isConnected()){
-	// Récupération des éléments de connexion
-	if(isset($_GET['dsn']) || isset($_GET['label'])){
-		$dsn   = ( (isset($_GET['dsn']) )? $_GET['dsn']  : '' );
-		$user  = ( (isset($_GET['user']))? $_GET['user'] : '' );
-		$pass  = ( (isset($_GET['pass']))? $_GET['pass'] : '' );
-		$label = ((isset($_GET['label']))? $_GET['label'] : '');
-		
-		$response->error = !$api->connect($dsn, $user, $pass, $label);
-		// Connexion OK
-		if(!$response->error){
-			$response->errorMessage = null;
-			$response->data = [true];
+try {
+	// Connexion
+	if(!$api->isConnected()){
+		// Récupération des éléments de connexion
+		if(isset($_GET['dsn']) || isset($_GET['label'])){
+			$dsn   = ( (isset($_GET['dsn']) )? $_GET['dsn']  : '' );
+			$user  = ( (isset($_GET['user']))? $_GET['user'] : '' );
+			$pass  = ( (isset($_GET['pass']))? $_GET['pass'] : '' );
+			$label = ((isset($_GET['label']))? $_GET['label'] : '');
+			
+			$response->error = !$api->connect($dsn, $user, $pass, $label);
+			// Connexion OK
+			if(!$response->error){
+				$response->errorMessage = null;
+				$response->data = [true];
+			}
+			// Connexion refusée
+			else {
+				$response->errorMessage = $api->getLastError();
+				$response->data = [false];
+			}
 		}
-		// Connexion refusée
+	
+		// Non connecté + erreur de requete
 		else {
-			$response->errorMessage = $api->getLastError();
-			$response->data = [false];
+			$response->errorMessage = 'Non connecté : veuillez vous connecter un indiquant un DSN ou une étiquette de base de données préconfigurée';
 		}
 	}
-
-	// Non connecté + erreur de requete
+	
+	// Exécution d'une requete
+	else if(isset($_GET['sql'])) {
+		// Récupération des params
+		$params = ( (isset($_GET['params']))? $_GET['params'] : [] );
+		// Exécution
+		$response = $api->execute($_GET['sql'], $params);
+	}
+	
+	// Déconnexion
+	else if(isset($_GET['disconnect'])){
+		$api->disconnect();
+		$response->error = false;
+		$response->data = ['Bye bye'];
+	}
+	
+	// Enregistrmeent des données de Database
+	else if(isset($_GET['save'])){
+		$response->error = !$api->saveDatabaseConf($_GET['save']);
+		$response->data = [ ($response->error)? 'Enregistrement impossible : '.$api->getLastError()
+				: 'Données de connexion enregistrés sous l\'étiquette '.$_GET['save'] ];
+	}
+	
+	// Erreur requete
 	else {
-		$response->errorMessage = 'Non connecté : veuillez vous connecter un indiquant un DSN ou une étiquette de base de données préconfigurée';
+		$response->errorMessage = "Pour éxécuter une requête vous devez spécifier le paramètre GET 'sql' dans les données GET de l'url.\n"
+			."Pour enregistrer votre configuration BD spécifiez save=<nom de la sauvegarde>.\n"
+			."Pour vous déconnecter spécifiez disconnect.";
 	}
 }
-
-// Exécution d'une requete
-else if(isset($_GET['sql'])) {
-	// Récupération des params
-	$params = ( (isset($_GET['params']))? $_GET['params'] : [] );
-	// Exécution
-	$response = $api->execute($_GET['sql'], $params);
-}
-
-else if(isset($_GET['disconnect'])){
-	$api->disconnect();
-	$response->error = false;
-	$response->data = ['Bye bye'];
-}
-
-// Erreur requete
-else {
-	$respone->errorMessage = 'Pour éxécuter une requête vous devez au minimum spécifier le paramètre "sql" dans les données GET de l\'url';
+catch(Exception $e){
+	$response->error = true;
+	$response->errorMessage = $e->getMessage();
 }
 
 // Affichage de la réponse
@@ -87,7 +98,5 @@ if(is_string($response))
 else
 	echo json_encode($response, JSON_UNESCAPED_UNICODE);
 
-var_dump($_SESSION);
-var_dump($_SERVER);
 
 ?>

@@ -120,13 +120,34 @@ class API  {
 	
 	/**
 	 * Inscrit les données de la Database utilisée dans le fichier de conf.
-	 * @return bool false si non connecté, true si ok
+	 * @param string $label l'etiquette sous laquelle on enregistre la base de données.
+	 * @return bool false si non connecté + message d'erreur dans _lastError, true si ok
 	 */
-	public function saveDatabaseConf(){
-		if(!$this->isConnected())
+	public function saveDatabaseConf($label){
+		if(!$this->isConnected()){
+			$this->_lastError = 'Non connecté';
 			return false;
+		}
+		if(!strlen($label)){
+			$this->_lastError = 'Veuillez spécifier un nom pour nregistrer la base de données';
+			return false;
+		}
 		
-		$infos = $this->_session->getDatabaseInfo();
+		// Récupération du fichier
+		try{
+			$dbs = $this->getAllDatabasesFromConf();
+		} catch(Exception $e){
+			$dbs = new stdClass();
+		}
+		$db = $this->_session->getDatabase();
+		if(isset($dbs->$label)){
+			$this->_lastError = 'Il existe déjà une base de données enregistrée sous le nom "'.$label.'"';
+			return false;
+		}
+		
+		// Enregistrement des infos
+		$dbs->$label = $db;
+		return true;
 	}
 
 	/**
@@ -145,6 +166,30 @@ class API  {
 	 * @throws Exception si le fichier de configuration n'existe pas / est illisible
 	 */
 	private function getDatabaseFromConf($label){
+		$dbs = $this->getAllDatabasesFromConf();
+		if(isset($dbs->$label)){
+			
+			$dbInfo = $dbs->$label;
+			// Si l'attribut dsn n'est pas présent : execption
+			if(!isset($dbInfo->dsn)){
+				throw new Exception('Fichier de configuration non valide');
+			}
+			// Instanciation de Database
+			$dbInfo->login = ( (isset($dbInfo->login)) ? $dbInfo->login : '' );
+			$dbInfo->passwd = ( (isset($dbInfo->passwd)) ? $dbInfo->passwd : '' );
+			return Database::instantiate($dbInfo->dsn, $dbInfo->login, $dbInfo->passwd);
+		}
+		else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Récupère toutes les infos des instances de Databases enregistrées dans le fichier conf.
+	 * @throws Exception si le fichier de conf json n'existe pas ou n'est pas valide.
+	 * @return stdObject contient toutes les Databases enregistrées.
+	 */
+	private function getAllDatabasesFromConf(){
 		if(!file_exists(self::$dbConf))
 			throw new Exception('Fichier de configuration inexistant');
 		
@@ -153,22 +198,8 @@ class API  {
 		$dbs = json_decode($json);
 		if($dbs == null)
 			throw new Exception('Fichier de configuration non valide');
+		return $dbs;
 		
-		if(property_exists($dbs, $label)){
-			$dbInfo = $dbs->$label;
-			// Si l'attribut dsn n'est pas présent : execption
-			if(!isset($dbInfo->dns)){
-				throw new Exception('Fichier de configuration non valide');
-			}
-			
-			// Instanication de Database
-			$dbInfo->user = ( (isset($dbInfo->user)) ? $dbInfo->user : '' );
-			$dbInfo->pass = ( (isset($dbInfo->pass)) ? $dbInfo->pass : '' );
-			return Database::instantiate($dbInfo->dns, $dbInfo->user, $dbInfo->pass);
-		}
-		else {
-			return null;
-		}
 	}
 
 }
