@@ -106,12 +106,12 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">105</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">47</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="../reports/markers.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">0</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">0</span>
                                 </a>
                             </li>
                             <li>
@@ -136,21 +136,23 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1852495320"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-836094787"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1852495320" class="accordion-body collapse in">
+            <div id="namespace-836094787" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
                     <ul>
                                                                             <li class="trait"><a href="../classes/T_ErrorGenerator.html">T_ErrorGenerator</a></li>
-                                                                            <li class="class"><a href="../classes/Database.html">Database</a></li>
+                                                                            <li class="class"><a href="../classes/API.html">API</a></li>
+                                                    <li class="class"><a href="../classes/Database.html">Database</a></li>
                                                     <li class="class"><a href="../classes/ListManager.html">ListManager</a></li>
                                                     <li class="class"><a href="../classes/ListTemplate.html">ListTemplate</a></li>
                                                     <li class="class"><a href="../classes/RequestResponse.html">RequestResponse</a></li>
                                                     <li class="class"><a href="../classes/RequestType.html">RequestType</a></li>
                                                     <li class="class"><a href="../classes/ResponseType.html">ResponseType</a></li>
+                                                    <li class="class"><a href="../classes/SessionAPI.html">SessionAPI</a></li>
                                                     <li class="class"><a href="../classes/SQLRequest.html">SQLRequest</a></li>
                                             </ul>
                 </div>
@@ -199,18 +201,20 @@ Pour les récuppérer utilisez la méthode statique <em>getErrorMessages()</em><
                         </section>
                         <section class="row-fluid public">
                             <section class="span4">
-                                                                    <a href="../classes/Database.html#method_getErrorMessages" class="">getErrorMessages()</a><br />
+                                                                    <a href="../classes/T_ErrorGenerator.html#method_getErrorMessages" class="">getErrorMessages()</a><br />
                                                                     <a href="../classes/T_ErrorGenerator.html#method_displayLastError" class="">displayLastError()</a><br />
                                                                     <a href="../classes/T_ErrorGenerator.html#method_verbose" class="">verbose()</a><br />
                                                                     <a href="../classes/Database.html#method_instantiate" class="">instantiate()</a><br />
                                                                     <a href="../classes/Database.html#method_execute" class="">execute()</a><br />
                                                                     <a href="../classes/Database.html#method___sleep" class="">__sleep()</a><br />
                                                                     <a href="../classes/Database.html#method___wakeup" class="">__wakeup()</a><br />
+                                                                    <a href="../classes/Database.html#method_jsonSerialize" class="">jsonSerialize()</a><br />
                                                                     <a href="../classes/Database.html#method_describeTable" class="">describeTable()</a><br />
                                                                     <a href="../classes/Database.html#method_setLabel" class="">setLabel()</a><br />
                                                                     <a href="../classes/Database.html#method_getInstance" class="">getInstance()</a><br />
                                                                     <a href="../classes/Database.html#method_getPDO" class="">getPDO()</a><br />
                                                                     <a href="../classes/Database.html#method_getLabel" class="">getLabel()</a><br />
+                                                                    <a href="../classes/Database.html#method_getAllErrorMessages" class="">getAllErrorMessages()</a><br />
                                                                     <a href="../classes/Database.html#method_oracle" class="">oracle()</a><br />
                                                             </section>
                             <section class="span4">
@@ -234,6 +238,7 @@ Pour les récuppérer utilisez la méthode statique <em>getErrorMessages()</em><
                         <section class="row-fluid private">
                             <section class="span4">
                                                                     <a href="../classes/Database.html#method___construct" class="">__construct()</a><br />
+                                                                    <a href="../classes/Database.html#method_connect" class="">connect()</a><br />
                                                             </section>
                             <section class="span4">
                                                                     <a href="../classes/T_ErrorGenerator.html#property__verbose" class="">$_verbose</a><br />
@@ -265,6 +270,8 @@ Pour les récuppérer utilisez la méthode statique <em>getErrorMessages()</em><
                                                                                                                                                                     <div class="namespace-wrapper">\Database</div>
                             </dd>
 
+                                                                            <dt>Implements</dt>
+                                                        <dd><a href=""><div class="namespace-wrapper"></div></a></dd>
                         
                                                                                     <dt>Uses traits</dt>
                                                         <dd>
@@ -273,7 +280,7 @@ Pour les récuppérer utilisez la méthode statique <em>getErrorMessages()</em><
                         
                         
                                                                             <dt>See also</dt>
-                                                                                    <dd><a href="http://php.net/manual/fr/intro.pdo.php"><div class="namespace-wrapper">Manuel PDO sur php.net</div></a></dd>
+                                                                                        <dd><a href="http://php.net/manual/fr/intro.pdo.php"><span class="namespace-wrapper">Manuel PDO sur php.net</span></a></dd>
                                                     
                                                                         </dl>
                     <h2>Tags</h2>
@@ -534,22 +541,23 @@ colonnes de la table à décrire, ainsi que le nom de la colonne qui contient ce
                 <h3 class="public ">getErrorMessages()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">getErrorMessages() : array</pre>
-                <p><em>Retourne le tableau des messages d&#039;erreur enregistrés par la classe Database</em></p>
+                <p><em></em></p>
                 
 
                 
                 
                                     <h4>Returns</h4>
                     array
-                                            &mdash; <p>le tableau des messages d'erreur enregistrés par la classe</p>
+                                            &mdash; <p>le tableau contenant toutes les erreurs enregistrées</p>
                                     				
                             </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
-                            <span class="label label-info">static</span>
                                                             <dl>
-                                                                            </dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/T_ErrorGenerator.html"><div class="path-wrapper">\T_ErrorGenerator</div></a></dd>
+                                                            </dl>
             <h2>Tags</h2>
             <table class="table table-condensed">
                                     <tr><td colspan="2"><em>None found</em></td></tr>
@@ -635,7 +643,7 @@ colonnes de la table à décrire, ainsi que le nom de la colonne qui contient ce
             <article class="method">
                 <h3 class="public ">instantiate()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">instantiate(string  <span class="argument">$dsn</span>, string  <span class="argument">$login</span>, string  <span class="argument">$mdp</span>, string  <span class="argument">$etiquette = &#039;principale&#039;</span>) : \Database</pre>
+                <pre class="signature" style="margin-right: 54px;">instantiate(string  <span class="argument">$dsn</span>, string  <span class="argument">$login = null</span>, string  <span class="argument">$mdp = null</span>, string  <span class="argument">$etiquette = &#039;principale&#039;</span>) : \Database</pre>
                 <p><em>Instancie une nouvelle connexion avec la base de donnees via un objet PDO</em></p>
                 
 
@@ -663,6 +671,11 @@ colonnes de la table à décrire, ainsi que le nom de la colonne qui contient ce
                             </tr>
                                             </table>
                 
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\InvalidArgumentException</dt>
+                            <dd><p>si l'étiquette apssée en paramètre est déjà utilisée</p></dd>
+                                                                    </dl>
                 
                                     <h4>Returns</h4>
                     <a href="../classes/Database.html">\Database</a>
@@ -731,7 +744,7 @@ colonnes de la table à décrire, ainsi que le nom de la colonne qui contient ce
                 <h3 class="public ">__sleep()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">__sleep() : array</pre>
-                <p><em>Fonction magique PHP : permet la sérialisation de Database.</em></p>
+                <p><em>Méthode magique PHP : permet la sérialisation de Database.</em></p>
                 
 
                 
@@ -760,12 +773,41 @@ colonnes de la table à décrire, ainsi que le nom de la colonne qui contient ce
                 <h3 class="public ">__wakeup()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">__wakeup() </pre>
-                <p><em>Fonction magique PHP : permet la désérialisation de Database</em></p>
+                <p><em>Méthode magique PHP : permet la désérialisation de Database</em></p>
                 
 
                 
                 
                 				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_jsonSerialize" name="method_jsonSerialize" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">jsonSerialize()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">jsonSerialize() : \stdClass</pre>
+                <p><em>Permet d&#039;encoder Database en JSON</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    \stdClass
+                                            &mdash; <p>l'objet représentant Database qui pourra etre encodé.</p>
+                                    				
                             </article>
         </div>
         <aside class="span4 detailsbar">
@@ -951,6 +993,36 @@ colonnes de la table à décrire, ainsi que le nom de la colonne qui contient ce
 
                                     <div class="row-fluid">
         <div class="span8 content class">
+            <a id="method_getAllErrorMessages" name="method_getAllErrorMessages" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getAllErrorMessages()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getAllErrorMessages() : array</pre>
+                <p><em>Retourne le tableau des messages d&#039;erreur enregistrés par la classe Database</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; <p>le tableau des messages d'erreur enregistrés par la classe</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
             <a id="method_oracle" name="method_oracle" class="anchor"></a>
             <article class="method">
                 <h3 class="public ">oracle()</h3>
@@ -1068,6 +1140,32 @@ colonnes de la table à décrire, ainsi que le nom de la colonne qui contient ce
         </aside>
     </div>
 
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_connect" name="method_connect" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">connect()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">connect() </pre>
+                <p><em>Tente de se connecter à la base de données avec les attributs de la classe.</em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
                                     </div>
     </section>
 
@@ -1117,7 +1215,7 @@ colonnes de la table à décrire, ainsi que le nom de la colonne qui contient ce
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on July 6th, 2017 at 10:39.
+                    on July 28th, 2017 at 09:22.
                 </section>
             </section>
         </section>

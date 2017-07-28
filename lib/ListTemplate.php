@@ -615,49 +615,54 @@ class ListTemplate {
 		$lmId = $this->_lm->getId();
 		$i = 0;
 		foreach ($colonnesMeta as $col ) {
-			$nomColonne = strtolower ( ($col->table != null) ? $col->table . '.' . $col->name : $col->name );
+			$nomColonne = strtolower( ($col->table != null) ? $col->table . '.' . $col->name : $col->name );
 			
 			// On vérifie que la colonne en cours n'est pas masquée
-			if (! $this->_lm->isMasked($nomColonne, $col->alias )) {
+			if (! $this->_lm->isMasked($nomColonne, $col->alias)) {
 				
 				// Gestion du order by
 				$signeOrder = '';
 				$orderArray = [ ];
-				if (isset ( $_GET ['lm_orderBy' . $lmId] ) || count ( $baseOrderBy )) {
+				if (isset($_GET ['lm_orderBy' . $lmId]) || count($baseOrderBy)) {
 					if (isset ( $_GET ['lm_orderBy' . $lmId] ))
-						$orderArray = explode ( ';', $_GET ['lm_orderBy' . $lmId] );
-					$orderArray = array_unique ( array_merge ( $baseOrderBy, $orderArray ) );
+						$orderArray = explode( ';', $_GET ['lm_orderBy' . $lmId]);
+					$orderArray = array_unique(array_merge($baseOrderBy, $orderArray));
 					
 					// Construction de la chaine orderBy
-					if (($key = array_search ( $nomColonne, $orderArray )) !== false || ($key = array_search ( ($i + 1), $orderArray )) !== false) { // colonne triée asc => tri desc
+					if (($key = array_search($nomColonne, $orderArray)) !== false || ($key = array_search (($i + 1), $orderArray)) !== false) { // colonne triée asc => tri desc
 						unset ( $orderArray [$key] );
 						array_unshift ( $orderArray, "-$nomColonne" );
 						$signeOrder = '<br>&Delta;';
-					} else if (($key = array_search ( "-$nomColonne", $orderArray )) !== false || ($key = array_search ( - ($i + 1), $orderArray )) !== false) { // colonne triée desc => pas de tri
+					}
+					else if (($key = array_search("-$nomColonne", $orderArray)) !== false || ($key = array_search ( -($i + 1), $orderArray)) !== false) { // colonne triée desc => pas de tri
 						unset ( $orderArray [$key] );
 						array_unshift ( $orderArray, "*$nomColonne" );
 						$signeOrder = '<br>&nabla;';
-					} else { // pas de tri => trié asc
-						if (($key = array_search ( "*$nomColonne", $orderArray )) !== false || ($key = array_search ( '*' . ($i + 1), $orderArray )) !== false)
+					}
+					else { // pas de tri => trié asc
+						if (($key = array_search("*$nomColonne", $orderArray)) !== false || ($key = array_search ('*'.($i + 1), $orderArray)) !== false)
 							unset ( $orderArray [$key] );
 						array_unshift ( $orderArray, $nomColonne );
 					}
-					$orderString = ((count ( $orderArray )) ? implode ( ';', $orderArray ) : null);
-				} else {
+					$orderString = ((count($orderArray)) ? implode(';', $orderArray) : null);
+				}
+				else {
 					$orderString = $nomColonne;
 				}
 				
 				// Préparation du titre à afficher
 				$listTitles = $this->_lm->getListTitles ();
-				if (isset ( $listTitles [$col->alias] ))
+				if (isset( $listTitles [$col->alias] )){
 					$titreAffiche = $listTitles [$col->alias];
-				else if (isset ( $listTitles [$nomColonne] ))
+				}
+				else if (isset( $listTitles [$nomColonne] )){
 					$titreAffiche = $listTitles [$nomColonne];
+				}
 				else {
 					$titreAffiche = (($col->alias == null) ? $col->name : $col->alias);
 					// Si titre en caps => ucfirst
-					if ($titreAffiche == strtoupper ( $titreAffiche ))
-						$titreAffiche = ucfirst ( strtolower ( $titreAffiche ) );
+					if ($titreAffiche == strtoupper($titreAffiche))
+						$titreAffiche = ucfirst(strtolower($titreAffiche));
 				}
 				
 				// Création du lien pour order by

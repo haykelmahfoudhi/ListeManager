@@ -258,15 +258,17 @@ class SQLRequest {
 			// Suppression des colonnes déjà existantes
 			foreach ($colonnes as $val){
 				$val = strtolower($val);
-				if($val[0] == '-')
+				if($val[0] == '-'){
 					$negColonne[] = substr($val, 1);
+				}
 				else if($val[0] == '*'){
 					$toRemove[] = substr($val, 1);
 					$toRemove[] = (($val[1] == '-')? substr($val, 2) : '-'.substr($val, 1));
 					unset($colonnes[array_search($val, $colonnes)]);
 				}
-				else
+				else{
 					$negColonne[] = "-$val";
+				}
 			}
 			$orderBy = array_diff(array_map('strtolower', $this->_orderBy), $colonnes, $negColonne, $toRemove);
 			foreach (array_reverse($colonnes) as $col){

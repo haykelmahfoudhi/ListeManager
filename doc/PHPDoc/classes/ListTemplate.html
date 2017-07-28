@@ -106,12 +106,12 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">105</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">47</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="../reports/markers.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">0</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">0</span>
                                 </a>
                             </li>
                             <li>
@@ -136,21 +136,23 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-799976152"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-745621318"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-799976152" class="accordion-body collapse in">
+            <div id="namespace-745621318" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
                     <ul>
                                                                             <li class="trait"><a href="../classes/T_ErrorGenerator.html">T_ErrorGenerator</a></li>
-                                                                            <li class="class"><a href="../classes/Database.html">Database</a></li>
+                                                                            <li class="class"><a href="../classes/API.html">API</a></li>
+                                                    <li class="class"><a href="../classes/Database.html">Database</a></li>
                                                     <li class="class"><a href="../classes/ListManager.html">ListManager</a></li>
                                                     <li class="class"><a href="../classes/ListTemplate.html">ListTemplate</a></li>
                                                     <li class="class"><a href="../classes/RequestResponse.html">RequestResponse</a></li>
                                                     <li class="class"><a href="../classes/RequestType.html">RequestType</a></li>
                                                     <li class="class"><a href="../classes/ResponseType.html">ResponseType</a></li>
+                                                    <li class="class"><a href="../classes/SessionAPI.html">SessionAPI</a></li>
                                                     <li class="class"><a href="../classes/SQLRequest.html">SQLRequest</a></li>
                                             </ul>
                 </div>
@@ -246,6 +248,12 @@
                         </section>
                         <section class="row-fluid private">
                             <section class="span4">
+                                                                    <a href="../classes/ListTemplate.html#method_prepareDataArray" class="">prepareDataArray()</a><br />
+                                                                    <a href="../classes/ListTemplate.html#method_generateButtons" class="">generateButtons()</a><br />
+                                                                    <a href="../classes/ListTemplate.html#method_generateTitles" class="">generateTitles()</a><br />
+                                                                    <a href="../classes/ListTemplate.html#method_generateSearchInputs" class="">generateSearchInputs()</a><br />
+                                                                    <a href="../classes/ListTemplate.html#method_generateContent" class="">generateContent()</a><br />
+                                                                    <a href="../classes/ListTemplate.html#method_generatePaging" class="">generatePaging()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_messageHTML" class="">messageHTML()</a><br />
                                                                     <a href="../classes/ListTemplate.html#method_creerUrlGET" class="">creerUrlGET()</a><br />
                                                             </section>
@@ -1755,6 +1763,236 @@ Cette méthode désactive aussi l&#039;option des titres fixés lorsque l&#039;t
 
                                                                     <div class="row-fluid">
         <div class="span8 content class">
+            <a id="method_prepareDataArray" name="method_prepareDataArray" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">prepareDataArray()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">prepareDataArray(  <span class="argument">$reponse</span>,   <span class="argument">$ret</span>) : array</pre>
+                <p><em>Récupère les données de la réponse et les prépare pour le tableau à afficher.</em></p>
+                <p>Cette méthode réccupère la liste de données depuis l'objet réponse et retourne uniquement celles correspondantes à la page en cours.
+Inscrit également le nombre de résultats retournés si l'option est activée.</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td></td>
+                                <td>$reponse </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td></td>
+                                <td>$ret </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; <p>l'array contenant les données à afficher</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_generateButtons" name="method_generateButtons" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">generateButtons()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">generateButtons() : string</pre>
+                <p><em>Génère la division contenant tous les boutons utilisateur.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                            &mdash; <p>code HTML des boutons.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_generateTitles" name="method_generateTitles" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">generateTitles()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">generateTitles(array  <span class="argument">$colonnesMeta</span>) : string</pre>
+                <p><em>Génère les titres de la liste html.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$colonnesMeta </td>
+                                <td><p>les méta données des colonnes.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                            &mdash; <p>code HTML des titres.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_generateSearchInputs" name="method_generateSearchInputs" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">generateSearchInputs()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">generateSearchInputs(array  <span class="argument">$colonnesMeta</span>, array  <span class="argument">$width</span>) : string</pre>
+                <p><em>Génère la ligne du tableau contenant les champs de recherche.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$colonnesMeta </td>
+                                <td><p>les meta donnés des colonnes</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$width </td>
+                                <td><p>les largeurs à appliquer pour chaque champs de saisie</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                            &mdash; <p>le code HTML des champs de recherche.</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_generateContent" name="method_generateContent" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">generateContent()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">generateContent(array  <span class="argument">$donnees</span>, array  <span class="argument">$colonnesMeta</span>) : string</pre>
+                <p><em>Génère et retourne le contenu de la liste HTML</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$donnees </td>
+                                <td><p>le tableau contenant les données à insérer</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$colonnesMeta </td>
+                                <td><p>métas données des colonnes</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                            &mdash; <p>code HTML du contenu de la liste</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_generatePaging" name="method_generatePaging" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">generatePaging()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">generatePaging(integer  <span class="argument">$nbLignes</span>) : string</pre>
+                <p><em>Génère le tableau HTML contenant la pagination.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$nbLignes </td>
+                                <td><p>nombre de lignes retournée par l'exécution de la requete</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                            &mdash; <p>code html des liens pagination</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
             <a id="method_messageHTML" name="method_messageHTML" class="anchor"></a>
             <article class="method">
                 <h3 class="private ">messageHTML()</h3>
@@ -1892,7 +2130,7 @@ Cette méthode désactive aussi l&#039;option des titres fixés lorsque l&#039;t
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on July 6th, 2017 at 10:39.
+                    on July 28th, 2017 at 09:22.
                 </section>
             </section>
         </section>

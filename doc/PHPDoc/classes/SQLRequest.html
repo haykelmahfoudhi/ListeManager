@@ -106,12 +106,12 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">105</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">47</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="../reports/markers.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">0</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">0</span>
                                 </a>
                             </li>
                             <li>
@@ -136,21 +136,23 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1689106545"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-825576673"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1689106545" class="accordion-body collapse in">
+            <div id="namespace-825576673" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                     
                     <ul>
                                                                             <li class="trait"><a href="../classes/T_ErrorGenerator.html">T_ErrorGenerator</a></li>
-                                                                            <li class="class"><a href="../classes/Database.html">Database</a></li>
+                                                                            <li class="class"><a href="../classes/API.html">API</a></li>
+                                                    <li class="class"><a href="../classes/Database.html">Database</a></li>
                                                     <li class="class"><a href="../classes/ListManager.html">ListManager</a></li>
                                                     <li class="class"><a href="../classes/ListTemplate.html">ListTemplate</a></li>
                                                     <li class="class"><a href="../classes/RequestResponse.html">RequestResponse</a></li>
                                                     <li class="class"><a href="../classes/RequestType.html">RequestType</a></li>
                                                     <li class="class"><a href="../classes/ResponseType.html">ResponseType</a></li>
+                                                    <li class="class"><a href="../classes/SessionAPI.html">SessionAPI</a></li>
                                                     <li class="class"><a href="../classes/SQLRequest.html">SQLRequest</a></li>
                                             </ul>
                 </div>
@@ -644,14 +646,16 @@ Chaque objet possède les 3 attributs suivants :
                                 <td>array</td>
                                 <td>$tabSelect </td>
                                 <td><p>le tableau contenant toutes les conditions à rajouter. Ce tableau aura la forme suivante :
-['nomColonne1' => 'condition1', 'nomColonne2' => 'cond2A,cond2B,cond3C'] ... Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' => 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
+['nomColonne1' =&gt; 'condition1', 'nomColonne2' =&gt; 'cond2A,cond2B,cond3C'] ... Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' =&gt; 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
 Une condition prend la forme suivante : [OPERATEUR][VALEUR]
 Les opérateurs possibles sont :</p>
 <ul>
 <li>(pas d'opérateur) : égalité stricte avec la valeur entrée</li>
-<li>&lt; > &lt;= >= = : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal, égal</li>
+<li>
+< > <= >= = : infèrieur, supèrieur, supèrieur ou égal, infèrieur ou égal, égal
+</li>
 <li>! : opérateur 'différent de'. La condition '!' est traduite par différent de ''</li>
-<li>\n : correspond à NULL. Doit être utilisé seul, !\n est traduit par NOT NULL</li>
+<li>/- : correspond à NULL. Doit être utilisé seul, !/- est traduit par NOT NULL</li>
 <li>&lt;&lt; : opérateur 'BETWEEN' pour les dates</li>
 <li>_ % : opérateurs joker SQL, remplacent respectivement un seul caractère ou un nombre indéfini de caractère dans une chaine.</li>
 </ul></td>
@@ -660,7 +664,7 @@ Les opérateurs possibles sont :</p>
                                 <td>array</td>
                                 <td>$colonnesHaving </td>
                                 <td><p>tableau contenant le nom des colonnes selectionnées dont le filtre doit se trouver dans la clause HAVING.
-Ce tableau doit avoir pour fomrat : [ 'alias_colonne' => 'COUNT(t.id)' ]. Dans cet exemple 'alias_colonne' est l'alias du COUNT tel quel dans le bloc SELECT de la requete. SI vous n'utilisez pas d'alias
+Ce tableau doit avoir pour fomrat : [ 'alias_colonne' =&gt; 'COUNT(t.id)' ]. Dans cet exemple 'alias_colonne' est l'alias du COUNT tel quel dans le bloc SELECT de la requete. SI vous n'utilisez pas d'alias
 laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
                             </tr>
                                             </table>
@@ -846,9 +850,9 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
                 <p><em>Retourne un tableau d&#039;objets contenant les données pour chaque colonne de la clause SELECT.</em></p>
                 <p>Chaque objet possède les 3 attributs suivants :</p>
 <ul>
-<li>-> <em>name</em>   : le nom de la colonne</li>
-<li>-> <em>table</em>  : le nom de la table de la colonne ou null si non spécifié</li>
-<li>-> <em>alias</em>  : l'alias de la colonne ou null si non spécifié</li>
+<li>-&gt; <em>name</em>   : le nom de la colonne</li>
+<li>-&gt; <em>table</em>  : le nom de la table de la colonne ou null si non spécifié</li>
+<li>-&gt; <em>alias</em>  : l'alias de la colonne ou null si non spécifié</li>
 </ul>
 
                 
@@ -963,7 +967,7 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
             <article class="method">
                 <h3 class="public ">setLimit()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">setLimit(integer  <span class="argument">$limit</span>, string  <span class="argument">$offset = &#039;&#039;</span>) </pre>
+                <pre class="signature" style="margin-right: 54px;">setLimit(integer  <span class="argument">$limit</span>, string  <span class="argument">$offset = &#039;&#039;</span>) : boolean</pre>
                 <p><em>Définit les nouvelles valeurs des clauses LIMIT et OFFSET pour les requêtes de type SELECT</em></p>
                 
 
@@ -982,7 +986,10 @@ laissez juste le 'COUNT(t.id)' dans le tableau.</p></td>
                                             </table>
                 
                 
-                				
+                                    <h4>Returns</h4>
+                    boolean
+                                            &mdash; <p>false si le type de requete n'est pas SELECT ou si les paramètres sont incorrects</p>
+                                    				
                             </article>
         </div>
         <aside class="span4 detailsbar">
@@ -1113,7 +1120,7 @@ Récupère le nom des colonnes selctionnées et le nom des tables et leur alias<
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on July 6th, 2017 at 10:39.
+                    on July 28th, 2017 at 09:22.
                 </section>
             </section>
         </section>

@@ -96,12 +96,13 @@ class RequestResponse {
 
 	/**
 	 * Retourne la ligne suivante du résultat de la requete
-	 * @return array|null : la ligne suivante du resultat de la requete (utilise *PDOStatement->fetch()*) ou null si plus de résutlats
+	 * @param int $fetchMode définit le type de réponse renvoyé, consultez le manuel PDO correspondant ( @see http://php.net/manual/fr/pdostatement.fetch.php )
+	 * @return array|bool : la ligne suivante du resultat de la requete (utilise *PDOStatement->fetch()*) ou false si plus de résutlats
 	 */
-	public function nextLine(){
+	public function nextLine($fetchMode=PDO::FETCH_BOTH){
 		if(!$this->error()){
-			$ret = $this->_statement->fetch();
-			if($ret != null)
+			$ret = $this->_statement->fetch($fetchMode);
+			if($ret != false)
 				$this->_data[] = $ret;
 			return $ret;
 		}
@@ -110,12 +111,13 @@ class RequestResponse {
 	
 	/**
 	 * Retourne l'ensemble des lignes selectionnées par la requete SQL
-	 * @return array l'ensemble des resultats de la requete contenu dans un tableau (utilise la méthode PDOStatement->fetchAll()*)
+	 * @param int $fetchMode définit le type de réponse renvoyé, consultez le manuel PDO correspondant ( @see http://php.net/manual/fr/pdostatement.fetch.php )
+	 * @return array|bool l'ensemble des resultats de la requete contenu dans un tableau (utilise la méthode PDOStatement->fetchAll()*) ou false
 	 */
-	public function dataList(){
+	public function dataList($fetchMode=PDO::FETCH_BOTH){
 		if(!$this->error()){
-			if(count($this->_data) != $this->getRowsCount())
-				$this->_data = $this->_statement->fetchAll();
+			if(count($this->_data) < 1)
+				$this->_data = $this->_statement->fetchAll($fetchMode);
 			return $this->_data;
 		}
 		return false;
@@ -134,7 +136,7 @@ class RequestResponse {
 	 * Met à jour les métas données des colonnes sélectionnées.
 	 * Cette méthode est appelée dans la classe Database pour récupérer les données de chaque colonnes parsées par l'objet SQLRequest à l'origine de la requete.
 	 * @param array $columns le tableau d'objets contenant les metas données récupérées par Database.
-	 * @return bool false si erruer de pararmètre.
+	 * @return bool false si erreur de pararmètre.
 	 */
 	public function setColumnsMeta(array $columns) {
 		$len = $this->getColumnsCount();
@@ -169,7 +171,6 @@ class RequestResponse {
 			$this->setPDOSColumnsMeta();
 		}
 	}
-	
 
 			/*-****************
 			***   GETTERS   ***

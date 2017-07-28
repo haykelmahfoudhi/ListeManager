@@ -103,7 +103,7 @@ class SQRequestTest extends PHPUnit\Framework\TestCase {
 		$this->assertFalse($req->removeOrderBy());
 	}
 
-	public function testOrderByAdded(){
+	public function testOrderByAddedName(){
 		$req = new SQLRequest("SELECT * FROM table ORDER BY col;");
 		$this->assertEquals(['col'], $req->getOrderBy());
 		$req->orderBy(['-col']);
