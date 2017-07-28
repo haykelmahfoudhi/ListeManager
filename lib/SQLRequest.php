@@ -518,17 +518,17 @@ class SQLRequest {
 				$table = str_replace('"', '',
 						str_replace("'", '',
 							str_replace('`', '', trim($tabAlias[0][1]))));
-				$obj->table = (strlen($table)? $table : null);
+				$obj->table = strtolower(strlen($table)? $table : null);
 				
-				$obj->name = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
+				$obj->name = strtolower(preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
 					$num = substr($match[0], 1, strlen($match[0]) - 2);
 					return $matchParentheses[$num];
-				}, trim($tabAlias[0][2]));
+				}, trim($tabAlias[0][2])));
 				
 				$as = ((isset($tabAlias[0][3])) ? str_replace('"', '',
 						str_replace("'", '',
 							str_replace('`', '', trim($tabAlias[0][3])))) : null);
-				$obj->alias = ( strlen($as) ? preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
+				$obj->alias = strtolower( strlen($as) ? preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
 					$num = substr($match[0], 1, strlen($match[0]) - 2);
 					return $matchParentheses[$num];
 					},$as) : null );

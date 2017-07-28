@@ -263,8 +263,10 @@ class ListManager {
 		
 		// Tri (Order By)
 		if($this->_enableOrderBy){
-			if(isset($_GET['lm_orderBy'.$this->_id]))
+			if(isset($_GET['lm_orderBy'.$this->_id])){
+				$sqlRequest->removeOrderBy();
 				$sqlRequest->orderBy(explode(';', $_GET['lm_orderBy'.$this->_id]));
+			}
 			$this->_orderBy = $sqlRequest->getOrderBy();
 		}
 

@@ -622,29 +622,48 @@ class ListTemplate {
 				
 				// Gestion du order by
 				$signeOrder = '';
-				$orderArray = [ ];
+				$orderArray = [];
 				if (isset($_GET ['lm_orderBy' . $lmId]) || count($baseOrderBy)) {
 					if (isset ( $_GET ['lm_orderBy' . $lmId] ))
 						$orderArray = explode( ';', $_GET ['lm_orderBy' . $lmId]);
-					$orderArray = array_unique(array_merge($baseOrderBy, $orderArray));
-					
-					// Construction de la chaine orderBy
-					if (($key = array_search($nomColonne, $orderArray)) !== false || ($key = array_search (($i + 1), $orderArray)) !== false) { // colonne triée asc => tri desc
-						unset ( $orderArray [$key] );
-						array_unshift ( $orderArray, "-$nomColonne" );
+					$orderArray = array_map('strtolower', array_unique(array_merge($baseOrderBy, $orderArray)));
+
+					// Tableau des signes : '' = tri croissant, '-' = tri décroissant, '*' = pas de tri
+					$tabSignes = ['', '-', '*'];
+					// Tableau des expressions : on peut identifier une colonne par son nom, son numéro ou son alias
+					$tabExpr = ['$nomColonne', '($i + 1)', '$col->alias'];
+					$signeOrder = '';
+					$signeSuiv = false;
+					// Pour chaque combinaison [signe x expresion_colonne]...
+					for ($j=0; $j < count($tabSignes); $j++) {
+						foreach ($tabExpr as $expr) {
+
+							$valCol = eval("return $expr;");
+							if(strlen($valCol) > 0){
+								$valCol = $tabSignes[$j].$valCol;
+								// ... on recherche si la valeur existe deja dans le tableau order by.
+								$key = array_search($valCol, $orderArray);
+								if($key !== false){
+
+									// ... on la supprime ...
+									unset($orderArray[$key]);
+									// ... si c'est le premier passage pour cette colonne, on récupère le signe suivant
+									if($signeSuiv === false){
+										$signeSuiv = $tabSignes[($j+1) % count($tabSignes)];
+									}
+								}
+							}
+						}
+					}
+					// Ajout de la colonne indexé par le signe suivant
+					array_unshift($orderArray, $signeSuiv.$nomColonne);
+					// MaJ du signe order (html)
+					if($signeSuiv == '-')
 						$signeOrder = '<br>&Delta;';
-					}
-					else if (($key = array_search("-$nomColonne", $orderArray)) !== false || ($key = array_search ( -($i + 1), $orderArray)) !== false) { // colonne triée desc => pas de tri
-						unset ( $orderArray [$key] );
-						array_unshift ( $orderArray, "*$nomColonne" );
+					else if($signeSuiv == '*')
 						$signeOrder = '<br>&nabla;';
-					}
-					else { // pas de tri => trié asc
-						if (($key = array_search("*$nomColonne", $orderArray)) !== false || ($key = array_search ('*'.($i + 1), $orderArray)) !== false)
-							unset ( $orderArray [$key] );
-						array_unshift ( $orderArray, $nomColonne );
-					}
-					$orderString = ((count($orderArray)) ? implode(';', $orderArray) : null);
+					// orderArray => orderString
+					$orderString = ((count($orderArray)) ? implode(';', array_unique($orderArray)) : null);
 				}
 				else {
 					$orderString = $nomColonne;
@@ -652,8 +671,8 @@ class ListTemplate {
 				
 				// Préparation du titre à afficher
 				$listTitles = $this->_lm->getListTitles ();
-				if (isset( $listTitles [$col->alias] )){
-					$titreAffiche = $listTitles [$col->alias];
+				if (isset( $listTitles[$col->alias] )){
+					$titreAffiche = $listTitles[$col->alias];
 				}
 				else if (isset( $listTitles [$nomColonne] )){
 					$titreAffiche = $listTitles [$nomColonne];
