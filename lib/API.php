@@ -151,11 +151,23 @@ class API  {
 	}
 
 	/**
+	 * Définit le type de réponse renvoyé par ListManager.
+	 * @param int $type une des constante de l'enumération ResponseType
+	 * @return bool false si type non reconnu ou non connecté, true sinon
+	 */
+	public function setResponseType($type){
+		if(!$this->isConnected() || !in_array($type, range(1, 5)))
+			return false;
+
+		return $this->_lm->setResponseType($type) === $this->_lm;
+	}
+
+	/**
 	 * Instancie l'attribut ListManager de l'objet API.
 	 * @param Database $db la base de données à utiliser par ListManager.
 	 */
 	private function setListManager(Database $db){
-		$this->_lm = new ListManager('', $db, [ListManager::NO_VERBOSE]);
+		$this->_lm = new ListManager('', $db, [ListManager::NO_VERBOSE, ListManager::NO_HELP_LINK]);
 		$this->_lm->setResponseType(ResponseType::JSON);
 	}
 	

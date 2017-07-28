@@ -8,15 +8,19 @@
  *  * 1. Connexion de l'utilisateur à une BdD : recupération du DSN + USER + MDP dans la requête de connexion OU étiquette d'une BdD
  *      se trouvant dans le fichier databases.json. Renvoie de la réponse : true / false selon si connecté ou non. 
  *      Si connecté : enregistrement de la session et instanciation de ListManager
- *  * 2. Exécution de requêtes SQL, et retour sous format JSON.
- *  * 2.
+ *  * 2. Exécution de la requêtes SQL, et retour sous format JSON (par défaut), TABLEAU, EXCEL ou TEMPLATE (indiqué par 'type').
+ *  * 3. Sauvegarde des données de connexion dans un fichier de configuration pour y acceder plus facilement par la suite
+ *  * 4. Déconnexion de la base de données.
  * 
  * **Format de réponse :**
  * 
- * Objet JSON avec 3 attributs : 
+ * *Objet JSON* avec 3 attributs : 
  *  * error : bool true si erreur dans la requete
  *  * errorMessage : ?string message associé à l'erruer, null si error == true
  *  * data : ?array les données renvoyées par l'API
+ * 
+ * Possibilité de générer un array PHP seul encodé en JSON (type=tableau), un fichier Excel qui se téléchargera, ou d'afficher la liste.
+ * 
  */
 
 define('LM_ROOT', './');
@@ -62,8 +66,16 @@ try {
 	else if(isset($_GET['sql'])) {
 		// Récupération des params
 		$params = ( (isset($_GET['params']))? $_GET['params'] : [] );
+		
+		// Récupération du type de réponse
+		if(isset($_GET['type'])){
+			$type = strtoupper($_GET['type']);
+			if(in_array($type, ['TABLEAU', 'EXCEL', 'TEMPLATE']))
+				$api->setResponseType(constant("ResponseType::$type"));
+		}
 		// Exécution
-		$response = $api->execute($_GET['sql'], $params);
+		$sql = new SQLRequest($_GET['sql']);
+		$response = $api->execute($sql, $params);
 	}
 	
 	// Déconnexion
@@ -97,6 +109,5 @@ if(is_string($response))
 	echo $response;
 else
 	echo json_encode($response, JSON_UNESCAPED_UNICODE);
-
 
 ?>
