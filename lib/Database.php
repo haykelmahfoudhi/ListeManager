@@ -17,7 +17,7 @@
 
 
 /**
- * Database permet la connection et l'interaction avec les bases de données.
+ * Database permet la connexion et l'interaction avec les bases de données.
  * 
  * L'interaction de l'application avec les bases de données se fait de façon générique pour tous les types de BD (Postgre, Oracle, MySql) grâce à l'objet *PDO* de PHP.
  * Cette classe est basée sur le design pattern du multiton : il est possible d'avoir plusieurs instances de l'objet Database en les identifiant avec une étiquette unique,
@@ -73,6 +73,10 @@ class Database implements JsonSerializable {
 	 */
 	private static $instances = array();
 	/**
+	 * @var bool definit si el mode verbeux est activé par défaut pour les Database.
+	 */
+	private static $initVerbose = false;
+	/**
 	 * @var array $tabDescribe tableau associatif : pour chaque driver PDO est associé le commande pour recupérer les noms des
 	 * colonnes de la table à décrire, ainsi que le nom de la colonne qui contient cette information
 	 */
@@ -89,7 +93,7 @@ class Database implements JsonSerializable {
 	
 	/**
 	 * Instancie la connexion avec la base de donnees via un objet PDO contenu dans l'objet Database.
-	 * Si la connection n'est pas possible le message d'erreur sera produit, vous pourrez l'afficher avec la methode geterrorMessages.
+	 * Si la connexion n'est pas possible le message d'erreur sera produit, vous pourrez l'afficher avec la methode geterrorMessages.
 	 * @param string $dsn le DSN (voir le manuel PHP concernant *PDO*)
 	 * @param string $login le nom d'utilisateur pour la connexion
 	 * @param string $passwd son mot de passe
@@ -100,6 +104,7 @@ class Database implements JsonSerializable {
 		$this->_dsn 	= $dsn;
 		$this->_login 	= $login;
 		$this->_passwd 	= $passwd;
+		$this->verbose(self::$initVerbose);
 		$this->connect();
 	}
 
@@ -116,7 +121,7 @@ class Database implements JsonSerializable {
 		}
 		catch (\Exception $e) {
 			$this->_pdo = null;
-			$this->addError("Connection a la base de donnees impossible (etiquette = '$label') :\n".$e->getMessage(), '__construct');
+			$this->addError("Connexion a la base de donnees impossible (etiquette = '$this->_label') :\n".$e->getMessage(), '__construct');
 		}
 	}
 	
@@ -127,11 +132,11 @@ class Database implements JsonSerializable {
 
 	/**
 	 * Instancie une nouvelle connexion avec la base de donnees via un objet PDO
-	 * @param string $dsn le DSN de la connection (voir le manuel PHP concernant PDO)
+	 * @param string $dsn le DSN de la connexion (voir le manuel PHP concernant PDO)
 	 * @param string $login le nom d'utilisateur de la BD
 	 * @param string $mdp le mot de passe de l'utilisateur
 	 * @param string $etiquette (facultatif) l'etiquette de la base de donnees, utile si plusieurs bases de donnees sont utilisees en meme temps dans l'application
-	 * @return Database l'instance de Database créée et connectée, ou null en cas d'echec.
+	 * @return Database|null l'instance de Database créée et connectée, ou null en cas d'echec.
 	 * @throws InvalidArgumentException si l'étiquette apssée en paramètre est déjà utilisée
 	 */
 	public static function instantiate($dsn, $login=null, $mdp=null, $etiquette='principale'){
@@ -293,12 +298,28 @@ class Database implements JsonSerializable {
 	 * @return boolean true si la BD a ete re-étiquettée, false sinon
 	 */
 	public function setLabel($nouvEtiquette){
-		if($nouvEtiquette == null || isset(self::$instances[$nouvEtiquette]))
+		if($nouvEtiquette == null || isset(self::$instances[$nouvEtiquette])){
+			$this->addError("Database '$this->_label' : étiqutte '$nouvEtiquette' non valide, ou étiquette déjà utilisée", 'setLabel');
 			return false;
+		}
 
 		self::$instances[$nouvEtiquette] = $this;
 		unset(self::$instances[$this->_label]);
 		$this->_label = $nouvEtiquette;
+	}
+
+	/**
+	 * Définit l'état verbeux de base pour toutes les novuelles instances de Database.
+	 * A utliser pour afficher les erreurs lors de l'instantiation d'une Database. Valeur par défaut : false. A désactiver lors de l'utilisation en prod
+	 * @param bool $val true pour que la verbosité soit appliquée de base pour les nouvelels instances de la classe, false sinon.
+	 * @return bool false si l'argument n'est pas un booléen.
+	 */
+	public static function setInitialVerbose($val){
+		if(!is_bool($val))
+			return false;
+		
+		self::$initVerbose = $val;
+		return true;
 	}
 	
 			/*-****************

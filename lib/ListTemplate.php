@@ -641,14 +641,16 @@ class ListTemplate {
 							$valCol = eval("return $expr;");
 							if(strlen($valCol) > 0){
 								$valCol = $tabSignes[$j].$valCol;
-								// ... on recherche si la valeur existe deja dans le tableau order by.
+
+								// ... on recherche si la valeur existe deja dans le tableau order by...
 								$key = array_search($valCol, $orderArray);
 								if($key !== false){
-
 									// ... on la supprime ...
 									unset($orderArray[$key]);
+
 									// ... si c'est le premier passage pour cette colonne, on récupère le signe suivant
 									if($signeSuiv === false){
+										$numCol = $key + 1;
 										$signeSuiv = $tabSignes[($j+1) % count($tabSignes)];
 									}
 								}
@@ -656,12 +658,12 @@ class ListTemplate {
 						}
 					}
 					// Ajout de la colonne indexé par le signe suivant
-					array_unshift($orderArray, $signeSuiv.$nomColonne);
+					array_unshift($orderArray, $signeSuiv.($i + 1));
 					// MaJ du signe order (html)
 					if($signeSuiv == '-')
-						$signeOrder = '<br>&Delta;';
+						$signeOrder = "<br>$numCol&Delta;";
 					else if($signeSuiv == '*')
-						$signeOrder = '<br>&nabla;';
+						$signeOrder = "<br>$numCol&nabla;";
 					// orderArray => orderString
 					$orderString = ((count($orderArray)) ? implode(';', array_unique($orderArray)) : null);
 				}
@@ -670,12 +672,12 @@ class ListTemplate {
 				}
 				
 				// Préparation du titre à afficher
-				$listTitles = $this->_lm->getListTitles ();
-				if (isset( $listTitles[$col->alias] )){
-					$titreAffiche = $listTitles[$col->alias];
+				$listTitles = $this->_lm->getListTitles();
+				if (isset( $listTitles[strtolower($col->alias)]) ){
+					$titreAffiche = $listTitles[strtolower($col->alias)];
 				}
-				else if (isset( $listTitles [$nomColonne] )){
-					$titreAffiche = $listTitles [$nomColonne];
+				else if(isset($listTitles[$nomColonne])){
+					$titreAffiche = $listTitles[$nomColonne];
 				}
 				else {
 					$titreAffiche = (($col->alias == null) ? $col->name : $col->alias);

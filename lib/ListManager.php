@@ -879,7 +879,7 @@ class ListManager {
 								$tousVide = false;
 					}
 				}
-				$this->_issetUserFilter = $devFilterDiff || ($devFilter === [] && !$tousVide);
+				$this->_issetUserFilter = $devFilterDiff || ($this->_filterArray === [] && !$tousVide);
 				
 				// Application du filtre utilisateur
 				$this->setFilter($_GET['lm_tabSelect'.$this->_id], null);
