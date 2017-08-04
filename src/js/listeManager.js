@@ -1,6 +1,6 @@
 
 // Se déclenche après le chargement des éléments de la page
-window.onload = function() {
+window.addEventListener('load', function() {
 
 /**
  * Retourne un tableau sans doublons.
@@ -362,4 +362,4 @@ $('a.btn-excel').click(function(event) {
 	maskExportExcel($(event.currentTarget).parents('.liste-parent'));
 });
 
-}
+}, false);

@@ -86,14 +86,18 @@ class ListTemplate {
 	 */
 	private $_replaceTagTD;
 	/**
-	 * @var string $_rowCallback nom du callback a appeler lors de l'affichage des des lignes (balises 'tr').
+	 * @var callable $_rowCallback nom du callback a appeler lors de l'affichage des des lignes (balises 'tr').
 	 * Permet de modifer les attributs HTML de la balise
 	 */
 	private $_rowCallback;
 	/**
-	 * @var string $_columnCallback nom du callback qui servira à ajouter des colonnes à la liste 
+	 * @var callable $_columnCallback nom du callback qui servira à ajouter des colonnes à la liste 
 	 */
 	private $_columnCallback;
+	/**
+	 * @var array contient les titres des colonnes à rajouter via le callback de colonnes.
+	 */
+	private $_addedColumns;
 	/**
 	 * @var bool $_enableJSMask définit si le template permet à l'utilisateur de masquer les colonnes grâce
 	 * à JavaScript avecla petite croix rouge
@@ -173,6 +177,7 @@ class ListTemplate {
 		$this->_replaceTagTD = false;
 		$this->_rowCallback = null;
 		$this->_columnCallback = null;
+		$this->_addedColumns = [];
 		$this->_helpLink = LM_ROOT.'doc/presentation.html';
 		$this->_userButtons = [];
 		$this->_quest = false;
@@ -376,12 +381,13 @@ class ListTemplate {
 	 *  * 3 paramètres d'entrée :
 	 *    * 1. numLigne  : int correspond au numéro de la ligne en cours
 	 *    * 2. donnees   : array contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
-	 *    * 3. estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon 
 	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string).
 	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
+	 * @param array $titres contient les titres des colonnes à ajouter
 	 */
-	public function setColumnCallback(callable $fonction){
+	public function setColumnCallback(callable $fonction, array $titres){
 		$this->_columnCallback = $fonction;
+		$this->_addedColumns = $titres;
 	}
 
 	/**
@@ -705,8 +711,12 @@ class ListTemplate {
 
 		// Utilisation du callback pour ajouter une colonne
 		if($this->_columnCallback != null) {
-			$fct = $this->_columnCallback;
-			$ret .= call_user_func_array($fct, array(0, $colonnes, true));
+			foreach ($this->_addedColumns as $col) {
+				$ret .= '<th>';
+				if($this->_enableJSMask)
+					$ret .= '<a class="masque" href="#">x</a>';
+				$ret .= $col.'</th>';
+			}
 		}
 		$ret .= "</tr>\n";
 		return $ret;
@@ -756,6 +766,13 @@ class ListTemplate {
 						." form='recherche".$lmId."' size='$taille' value='$valeur'/></td>";
 			}
 			$i++;
+		}
+
+		// Ajout de colonnes vide si callback activé
+		if($this->_columnCallback != null) {
+			foreach ($this->_addedColumns as $col) {
+				$ret .= '<td></td>';
+			}
 		}
 		$ret .= "</tr>\n";
 		return $ret;
@@ -813,7 +830,7 @@ class ListTemplate {
 			// Ajout des colonnes par callback
 			if($this->_columnCallback != null) {
 				$fct = $this->_columnCallback;
-				$ret .= call_user_func_array($fct, array($i, $ligne, false));
+				$ret .= call_user_func_array($fct, array($i, $ligne));
 			}
 	
 			$ret .= "</tr>\n";

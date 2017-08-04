@@ -201,7 +201,7 @@ class Database implements JsonSerializable {
 					foreach($sqlReq->getColumnsMeta() as $obj){
 						
 						// Cas de l'étoile : table.*
-						if($obj->name == '*'){
+						if($obj->name == '*' && strlen($obj->table)){
 							if(isset($tabAliases[$obj->table]))
 								$table = $tabAliases[$obj->table];
 							else
