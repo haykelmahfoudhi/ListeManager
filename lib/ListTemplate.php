@@ -653,6 +653,7 @@ class ListTemplate {
 								if($key !== false){
 									// ... on la supprime ...
 									unset($orderArray[$key]);
+									// var_dump($orderArray);
 
 									// ... si c'est le premier passage pour cette colonne, on récupère le signe suivant
 									if($signeSuiv === false){
@@ -705,8 +706,8 @@ class ListTemplate {
 					
 				// Affiche les liens et les titres
 				$ret .= '<th>' . $lienMasque . $lienOrderBy . "</th>\n";
-				$i ++;
 			}
+			$i++;
 		}
 
 		// Utilisation du callback pour ajouter une colonne
@@ -805,9 +806,10 @@ class ListTemplate {
 			for ($j=0; $j < count($colonnesMeta); $j++){
 	
 				$cellule = $ligne[$j];
-				$nomColonne = (($colonnesMeta[$j]->alias != null)? $colonnesMeta[$j]->alias :
-						(($colonnesMeta[$j]->table != null)? $colonnesMeta[$j]->table.'.'.$colonnesMeta[$j]->name : $colonnesMeta[$j]->name ) );
-	
+				$nomColonne = strtolower( (($colonnesMeta[$j]->table != null)?
+					$colonnesMeta[$j]->table.'.'.$colonnesMeta[$j]->name :
+					$colonnesMeta[$j]->name ) );
+				
 				// On vérifie que la colonne en cours n'est pas masquée
 				if(!$this->_lm->isMasked($nomColonne, $colonnesMeta[$j]->alias)) {
 	
