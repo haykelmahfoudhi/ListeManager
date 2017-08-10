@@ -22,6 +22,7 @@ class SQRequestTest extends PHPUnit\Framework\TestCase {
 		$this->assertEquals(RequestType::SELECT, (new SQLRequest($this->tabReq['sel4']))->getType());
 		$this->assertEquals(RequestType::UPDATE, (new SQLRequest($this->tabReq['updt']))->getType());
 		$this->assertEquals(RequestType::DELETE, (new SQLRequest($this->tabReq['del']))->getType());
+		$this->assertEquals(RequestType::INSERT, (new SQLRequest("INSERT INTO table(id,a) VALUES (1, '2');"))->getType());
 		$this->assertEquals(RequestType::AUTRE, (new SQLRequest($this->tabReq['othr']))->getType());
 	}
 
@@ -49,10 +50,19 @@ class SQRequestTest extends PHPUnit\Framework\TestCase {
 	}
 
 	public function testLimit(){
-		$req = new SQLRequest($this->tabReq['sel1']);
-		$this->assertEquals(100, $req->getLimit());
 		$req = new SQLRequest($this->tabReq['othr']);
 		$this->assertNull($req->getLimit());
+		$this->assertFalse($req->setLimit(null));
+		$req = new SQLRequest($this->tabReq['sel1']);
+		$this->assertEquals(100, $req->getLimit());
+		$this->assertNull($req->setLimit(10, 'OFFSET 25'));
+		$this->assertEquals(10, $req->getLimit());
+		$this->assertEquals("SELECT * FROM table LIMIT 10 OFFSET 25;", $req->__toString());
+		$this->assertNull($req->setLimit(null));
+		$this->assertEquals("SELECT * FROM table;", $req->__toString());
+		$req->prepareForOracle(true);
+		$req->setLimit(20);
+		$this->assertEquals("SELECT * FROM table WHERE (rownum <= '20')", $req->__toString());
 	}
 
 	public function testUserParameters(){
@@ -87,9 +97,13 @@ class SQRequestTest extends PHPUnit\Framework\TestCase {
 		$this->assertEquals(['col1'], $req->getOrderBy());
 		$req = new SQLRequest("SELECT * FROM table ORDER BY col2 dEsc, COLonne3 ;");
 		$this->assertEquals(['-col2', 'colonne3'], $req->getOrderBy());
+		$this->assertTrue($req->removeOrderBy());
+		$this->assertEquals([], $req->getOrderBy());
+		$req = new SQLRequest($this->tabReq['del']);
+		$this->assertFalse($req->removeOrderBy());
 	}
 
-	public function testOrderByAdded(){
+	public function testOrderByAddedName(){
 		$req = new SQLRequest("SELECT * FROM table ORDER BY col;");
 		$this->assertEquals(['col'], $req->getOrderBy());
 		$req->orderBy(['-col']);

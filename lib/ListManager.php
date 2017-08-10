@@ -263,8 +263,10 @@ class ListManager {
 		
 		// Tri (Order By)
 		if($this->_enableOrderBy){
-			if(isset($_GET['lm_orderBy'.$this->_id]))
+			if(isset($_GET['lm_orderBy'.$this->_id])){
+				$sqlRequest->removeOrderBy();
 				$sqlRequest->orderBy(explode(';', $_GET['lm_orderBy'.$this->_id]));
+			}
 			$this->_orderBy = $sqlRequest->getOrderBy();
 		}
 
@@ -291,13 +293,15 @@ class ListManager {
 				return $this->generateArray($reponse);
 
 			case ResponseType::EXCEL:
+				// Suppression des fichiers q'il y a plus d'un jour
+				exec('find xls/ -name "*.xlsx" -mtime +1 -delete');
 				$chemin = $this->generateExcel($reponse);
 				if($chemin !== false){
 					header('Location:'.$chemin);
-					// Si erreur de redirection : on propose le lien de téléchargement
-					$this->_template->setEmptyListMessage('Pour télécharger le fichier <a href="'.$chemin.'">cliquez ici</a>');
 				}
-				return $this->_template->construct($reponse);
+				// Si erreur de redirection : on propose le lien de téléchargement
+				return $this->_template->construct(new RequestResponse(null, true,
+						'Pour télécharger le fichier <a href="'.$chemin.'">cliquez ici</a>'));
 
 			case ResponseType::JSON:
 				return $this->generateJSON($reponse);
@@ -875,7 +879,7 @@ class ListManager {
 								$tousVide = false;
 					}
 				}
-				$this->_issetUserFilter = $devFilterDiff || ($devFilter === [] && !$tousVide);
+				$this->_issetUserFilter = $devFilterDiff || ($this->_filterArray === [] && !$tousVide);
 				
 				// Application du filtre utilisateur
 				$this->setFilter($_GET['lm_tabSelect'.$this->_id], null);

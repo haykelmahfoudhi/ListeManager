@@ -258,15 +258,17 @@ class SQLRequest {
 			// Suppression des colonnes déjà existantes
 			foreach ($colonnes as $val){
 				$val = strtolower($val);
-				if($val[0] == '-')
+				if($val[0] == '-'){
 					$negColonne[] = substr($val, 1);
+				}
 				else if($val[0] == '*'){
 					$toRemove[] = substr($val, 1);
 					$toRemove[] = (($val[1] == '-')? substr($val, 2) : '-'.substr($val, 1));
 					unset($colonnes[array_search($val, $colonnes)]);
 				}
-				else
+				else{
 					$negColonne[] = "-$val";
+				}
 			}
 			$orderBy = array_diff(array_map('strtolower', $this->_orderBy), $colonnes, $negColonne, $toRemove);
 			foreach (array_reverse($colonnes) as $col){
@@ -403,9 +405,10 @@ class SQLRequest {
 	* Définit les nouvelles valeurs des clauses LIMIT et OFFSET pour les requêtes de type SELECT
 	* @param int $limit la nouvelle valeur limit. Si null cette clause sera desactivée.
 	* @param string $offset la clause OFFSET ENTIERE (et non la valeur seule de la clause). Pour MySQL ce paramètre doit prendre la forme 'OFFSET 2'. null pour désactiver
+	* @return bool false si le type de requete n'est pas SELECT ou si les paramètres sont incorrects
 	*/
 	public function setLimit($limit, $offset=''){
-		if($this->_requestType != RequestType::SELECT)
+		if($this->_requestType != RequestType::SELECT || intval($limit) != $limit)
 			return false;
 
 		if(!$this->_forOracle) {
@@ -515,17 +518,17 @@ class SQLRequest {
 				$table = str_replace('"', '',
 						str_replace("'", '',
 							str_replace('`', '', trim($tabAlias[0][1]))));
-				$obj->table = (strlen($table)? $table : null);
+				$obj->table = strtolower(strlen($table)? $table : null);
 				
-				$obj->name = preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
+				$obj->name = strtolower(preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
 					$num = substr($match[0], 1, strlen($match[0]) - 2);
 					return $matchParentheses[$num];
-				}, trim($tabAlias[0][2]));
+				}, trim($tabAlias[0][2])));
 				
 				$as = ((isset($tabAlias[0][3])) ? str_replace('"', '',
 						str_replace("'", '',
 							str_replace('`', '', trim($tabAlias[0][3])))) : null);
-				$obj->alias = ( strlen($as) ? preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
+				$obj->alias = strtolower( strlen($as) ? preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
 					$num = substr($match[0], 1, strlen($match[0]) - 2);
 					return $matchParentheses[$num];
 					},$as) : null );

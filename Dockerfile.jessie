@@ -3,7 +3,6 @@ FROM debian:jessie
 ENV http_proxy=http://scoudrais:achangertest@phil:8080/
 ENV https_proxy=http://scoudrais:achangertest@phil:8080/
 
-
 RUN apt update && apt install -y \
 php5 \
 php5-xdebug \
@@ -15,5 +14,7 @@ git \
 RUN wget https://phar.phpunit.de/phpunit-5.7.phar
 RUN chmod +x phpunit-5.7.phar
 RUN mv phpunit-5.7.phar /usr/local/bin/phpunit
+RUN wget https://getcomposer.org/composer.phar && chmod +x composer.phar
+RUN mv composer.phar /bin/composer
 
 WORKDIR /tmp

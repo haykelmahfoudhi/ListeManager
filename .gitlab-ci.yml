@@ -4,6 +4,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
+  - build
   - test
   - deploy
 
@@ -11,10 +12,25 @@ before_script:
   - uname -a
   - whoami
 
+build-php5.6:
+  stage: build
+  script:
+    - docker build -t localhost:5000/listmanager_image -f Dockerfile.jessie .
+  tags:
+    - shell
+
+build-php7:
+  stage: build
+  script:
+    - docker build -t localhost:5000/listmanager_image:stretch -f Dockerfile.stretch .
+  tags:
+    - shell
+
 test-php5.6:
   image: localhost:5000/listmanager_image
   stage: test
   script:
+    - composer install
     - phpunit --coverage-text --color=never -c phpunit.xml tests/
   tags:
     - docker
@@ -26,6 +42,7 @@ test-php7:
   allow_failure: true
   stage: test
   script:
+    - composer install
     - phpunit --coverage-text --color=never -c phpunit.xml tests/
   tags:
     - docker
