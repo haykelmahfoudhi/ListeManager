@@ -84,6 +84,7 @@ th, .tabSelect td {
 th {
 	border-bottom: 3px solid #888;
 	line-height: 16px;
+	font-size: 12px;
 }
 
 th a {
