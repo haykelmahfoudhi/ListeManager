@@ -517,17 +517,17 @@ class ListManager {
 
 	/**
 	 * Définir un callback pour rajouter manuellement des colonnes dans votre liste.
-	 * Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque ligne de la liste. La fonction doit correspondre au format suivant
+	 * Ce callback sera appelé par le template à la fin de la création des titres ET a la fnc de la création de chaque
+	 * ligne de la liste. La fonction doit correspondre au format suivant
 	 *  * 3 paramètres d'entrée :
-	 *    1. numLigne  : int correspond au numéro de la ligne en cours
-	 *    2. donnees   : array contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
-	 *    3. estTtitre : boolean vaut true si la fonciton est appelée dans la ligne des titres, false sinon 
+	 *    * 1. numLigne  : int correspond au numéro de la ligne en cours
+	 *    * 2. donnees   : array contenant l'ensemble des données selectionnées dans la base de données qui seront affichées dans cette ligne du tableau. Vaut null pour les titres
 	 *  * valeur de retour de type string (ou du moins un type qui peut être transformé en string).
-	 * @param callable $fonction le nom du callback a utiliser, null si aucun.
-	 * @return ListManager la référence de l'objet ($this)
+	 * @param callable $fonction le nom du callback a utiliser, null si aucun. Valeur par defaut : null
+	 * @param array $titres contient les titres des colonnes à ajouter
 	 */
-	public function setColumnCallback(callable $fonction){
-		$this->_template->setColumnCallback($fonction);
+	public function setColumnCallback(callable $fonction, array $titres){
+		$this->_template->setColumnCallback($fonction, $titres);
 		return $this;
 	}
 
@@ -821,7 +821,7 @@ class ListManager {
 	public static function isUnique() {
 		return count(self::$idList) <= 1;
 	}
-
+	
 	/**
 	 * Retourne un tableau contenant la largeur idéeale en nombre de caractere pour chaque colonne du tableau en entrée.
 	 * @param array $data le tableau des données (2 dimensions, sinon ça marche pas)

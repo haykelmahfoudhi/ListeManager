@@ -270,7 +270,9 @@ class SQLRequest {
 					$negColonne[] = "-$val";
 				}
 			}
-			$orderBy = array_diff(array_map('strtolower', $this->_orderBy), $colonnes, $negColonne, $toRemove);
+			$orderBy = array_diff(array_map(function($val){
+				return trim(strtolower($val));
+			}, $this->_orderBy), $colonnes, $negColonne, $toRemove);
 			foreach (array_reverse($colonnes) as $col){
 				array_unshift($orderBy, $col);
 			}
@@ -483,9 +485,9 @@ class SQLRequest {
 				}
 				else if($attribu == '_orderBy')
 					$this->_orderBy = array_map(function($col){
-						if(preg_match('/(.*)[\s]+DESC[\s]*$/i', $col, $matchCol))
-							return '-'.strtolower($matchCol[1]);
-						return strtolower(trim($col));
+						if(preg_match('/(\S*)[\s]+DESC[\s]*$/i', $col, $matchCol))
+							return trim('-'.strtolower($matchCol[1]));
+						return trim(strtolower($col));
 					}, explode(',', $valeur));
 				else
 					$this->$attribu = $valeur;
