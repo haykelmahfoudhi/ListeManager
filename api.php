@@ -75,7 +75,12 @@ try {
 		}
 		// Exécution
 		$sql = new SQLRequest($_GET['sql']);
-		$response = $api->execute($sql, $params);
+		if($sql->getType() === RequestType::SELECT){
+			$response = $api->execute($sql, $params);
+		}
+		else {
+			$response->errorMessage = "Que du SELECT GRAND FOU !!";
+		}
 	}
 	
 	// Déconnexion
