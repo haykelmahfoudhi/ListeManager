@@ -21,8 +21,8 @@
  * Un objet SQLRequest se construit autour d'une requete SQL de base. Le constructeur parse la requete et récupère son type (cf RequestType).
  * S'il s'agit d'un *SELECT* le constructeur tente de récupérer le nom de chaque colonne écrite dans la requete, ainsi que le nom des tables et leur alias
  * Ensuite les blocs *LIMIT/OFFSET GROUP BY ORDER BY HAVING* et *WHERE* sont identifiés, ce qui permettra de les modifier par la suite.
- * Les méthodes de la classe permettent donc de filtrer les données séléctionnées en completant les clauses *HAVING* ou *WHERE* de la requete, ainsi que de créer/modifier les clauses citées plus haut.  
- * 
+ * Les méthodes de la classe permettent donc de filtrer les données séléctionnées en completant les clauses *HAVING* ou *WHERE* de la requete, ainsi que de créer/modifier les clauses citées plus haut.
+ *
  * @author RookieRed
  *
  */
@@ -46,27 +46,27 @@ class SQLRequest {
 	 */
 	private $_columnsMeta;
 	/**
-	 * @var string $_whereBlock correspond à la clause Where de la requete SQL 
+	 * @var string $_whereBlock correspond à la clause Where de la requete SQL
 	 */
 	private $_whereBlock;
 	/**
-	 * @var string $_havingBlock correspond à la clause Having de la requete SQL 
+	 * @var string $_havingBlock correspond à la clause Having de la requete SQL
 	 */
 	private $_groupByBlock;
 	/**
-	 * @var string $_havingBlock correspond à la clause Having de la requete SQL 
+	 * @var string $_havingBlock correspond à la clause Having de la requete SQL
 	 */
 	private $_havingBlock;
 	/**
-	 * @var array $_orderBy tableau contenant le numéro/nom de colonnes pour le tri des données 
+	 * @var array $_orderBy tableau contenant le numéro/nom de colonnes pour le tri des données
 	 */
 	private $_orderBy;
 	/**
-	 * @var int $_limit correpsond à la valeur de la clause 'LIMIT' de la requete 
+	 * @var int $_limit correpsond à la valeur de la clause 'LIMIT' de la requete
 	 */
 	private $_limit;
 	/**
-	 * @var string $_offset correpsond à la valeur de la clause 'OFFSET' de la requete 
+	 * @var string $_offset correpsond à la valeur de la clause 'OFFSET' de la requete
 	 */
 	private $_offset;
 	/**
@@ -135,7 +135,9 @@ class SQLRequest {
 		$retHaving = ((strlen($this->_havingBlock) > 0)? ' AND ' : '');
 
 		foreach ($tabSelect as $nomColonne => $conditions) {
+			//Initialisation variables
 			$nomColonne = strtolower($nomColonne);
+			$not = false;
 
 			// Gestion HAVING / WHERE
 			$estHaving = false;
@@ -152,7 +154,6 @@ class SQLRequest {
 			foreach ($conditions as &$condition) {
 				//Initilasation des variables
 				$operateur = '=';
-				$not = false;
 
 				// Construction de l'operateur et sa valeur : NOT
 				if(mb_substr($condition, 0, 1) === '/'){
@@ -184,7 +185,7 @@ class SQLRequest {
 				}
 				else {
 					// Opérateur LIKE
-					if(mb_strpos($condition, '_') !== false 
+					if(mb_strpos($condition, '_') !== false
 						|| mb_strpos($condition, '%') !== false){
 						$operateur = 'LIKE';
 					}
@@ -203,12 +204,12 @@ class SQLRequest {
 					else{
 						if($valeur === 'NULL')
 							$nomParam = $valeur;
-						else 
+						else
 							$nomParam = "'".htmlentities($valeur, ENT_QUOTES)."'";
 					}
 
 					// Mise en forme de la condition
-					$ret .= (($not)? 'NOT ' : '')."$nomColonne $operateur $nomParam OR ";
+					$ret .= (($not)? 'NOT ' : '')."$nomColonne $operateur $nomParam ".(($not)? 'AND ' : 'OR ');
 				}
 				// Gestion du BETWEEN
 				else {
@@ -301,7 +302,7 @@ class SQLRequest {
 
 		if(in_array($this->_requestType,
 			array(RequestType::SELECT, RequestType::UPDATE, RequestType::DELETE))) {
-			
+
 			//Ajout du bloc WHERE
 			if(strlen($this->_whereBlock) > 0) {
 				$ret .= ' WHERE '.$this->_whereBlock;
@@ -316,14 +317,14 @@ class SQLRequest {
 				//Ajout du bloc HAVING
 				if(strlen($this->_havingBlock) > 0)
 					$ret .= ' HAVING '.$this->_havingBlock;
-				
+
 				//Ajout du order by
 				if(count($this->_orderBy) > 0){
 					$ret .= ' ORDER BY ';
 					foreach ($this->_orderBy as $colonne) {
 						if(is_numeric($colonne))
 							$ret .= abs($colonne).(($colonne > 0)?'':' DESC ').',';
-						else 
+						else
 							$ret .= (($colonne[0] == '-')? substr($colonne, 1).' DESC': $colonne).',';
 					}
 					$ret = substr($ret, 0, strlen($ret) - 1);
@@ -442,7 +443,7 @@ class SQLRequest {
 
 	/**
 	* Parse la requete SQL.
-	* Définit le type de la base de requête en paramètre parmi 
+	* Définit le type de la base de requête en paramètre parmi
 	*   - SELECT - UPDATE - DELETE - INSERT - AUTRE -
 	* Parse la requête et détermine les blocs HAVING LIMIT OFFSET GROUP BY ORDER BY et WHERE.
 	* Récupère le nom des colonnes selctionnées et le nom des tables et leur alias
@@ -513,20 +514,20 @@ class SQLRequest {
 			foreach($this->_columnsMeta as &$col) {
 				$tabAlias = [];
 				preg_match_all($regAlias, $col, $tabAlias, PREG_SET_ORDER, 0);
-				
-				// Création de l'objet contenant toutes les metas de la colonne 
+
+				// Création de l'objet contenant toutes les metas de la colonne
 				$obj = new stdClass();
 
 				$table = str_replace('"', '',
 						str_replace("'", '',
 							str_replace('`', '', trim($tabAlias[0][1]))));
 				$obj->table = strtolower(strlen($table)? $table : null);
-				
+
 				$obj->name = strtolower(preg_replace_callback($regParentheses, function($match) use ($matchParentheses){
 					$num = substr($match[0], 1, strlen($match[0]) - 2);
 					return $matchParentheses[$num];
 				}, trim($tabAlias[0][2])));
-				
+
 				$as = ((isset($tabAlias[0][3])) ? str_replace('"', '',
 						str_replace("'", '',
 							str_replace('`', '', trim($tabAlias[0][3])))) : null);
@@ -537,10 +538,10 @@ class SQLRequest {
 
 				$col = $obj;
 			}
-			
+
 			// Récupération des noms de table et leurs alias dans le FROM
 			$tabElements = explode(',',
-				preg_replace('/(?:[\s]*(?:INNER|LEFT|RIGHT|FULL|CROSS|SELF|NATURAL)?[\s]+JOIN[\s]+)/i', ',', 
+				preg_replace('/(?:[\s]*(?:INNER|LEFT|RIGHT|FULL|CROSS|SELF|NATURAL)?[\s]+JOIN[\s]+)/i', ',',
 				preg_replace('/(ON[\s]*[\S]+[\s]*=[\s]*[\S]+)/i', '', $tabMatch[4])));
 			foreach ($tabElements as $element) {
 
@@ -552,7 +553,7 @@ class SQLRequest {
 			}
 			$this->_requestType = RequestType::SELECT;
 		}
-		
+
 		// Teste si INSERT
 		if(preg_match($reInsert, $this->_requestBasis, $tabMatch) === 1){
 			$this->_requestBasis = $tabMatch[1];
