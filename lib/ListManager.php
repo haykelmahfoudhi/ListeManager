@@ -26,7 +26,7 @@
 
 /**
  * ListManager : construire, manipuler des listes de données à partir d'une requête SQL
- * 
+ *
  * C'est l'objet central du projet. Il joue le rôle d'interface entre le developpeur, les bases de données et les listes.
  * ListManager possède un comportement de base :
  * * Connection à une base de données, ou utilisation d'une base de données particulière de l'applicaiton en spécifiant son étiquette (cf. la doc de l'objet Database)
@@ -38,11 +38,11 @@
  *   * 'lm_page' : correspond à la page de résultat affichée
  * * L'exécution de la requête SQL
  * * La mise en forme des données dans une liste HTML dans un template correpsondant à la classe ListTemplate
- * 
- * Ce comportement de base et adaptable et modifibale grâce aux nombreuses méthodes de la classe. Vous pouvez entre autre choisir 
+ *
+ * Ce comportement de base et adaptable et modifibale grâce aux nombreuses méthodes de la classe. Vous pouvez entre autre choisir
  * de retourner les données sous forme de array PHP, d'objet, de fichier excel... ou bien modifier le comportement du template HTML.
  * Il est également à noter que les setters de la classe retourne la référence de l'objet ($this) ($this) en cas de succès, ce qui vous permet d'appler à la suite un ensemble de setter dans la même instruction.
- * 
+ *
  * @author RookieRed
  *
  */
@@ -121,7 +121,7 @@ class ListManager {
 			***  CONSTANTES : OPTIONS DU CONSTRUCTEUR  ***
 			*********************************************/
 	/**
-	 * @var const NO_SEARCH à utiliser pour désactiver l'utilisation de la recherche par colonne 
+	 * @var const NO_SEARCH à utiliser pour désactiver l'utilisation de la recherche par colonne
 	 */
 	const NO_SEARCH = 1;
 	/**
@@ -150,23 +150,23 @@ class ListManager {
 	 */
 	const NO_VERBOSE = 64;
 	/**
-	 * @var const UNFIXED_TITLES à utiliser dans le constructeur pour empecher les titres de rester fixés lorsque l'utilisateur scroll. 
+	 * @var const UNFIXED_TITLES à utiliser dans le constructeur pour empecher les titres de rester fixés lorsque l'utilisateur scroll.
 	 */
 	const UNFIXED_TITLES = 128;
 	/**
-	 * @var const UNFIXED_TITLES à utiliser dans le constructeur pour empecher la fixation de la pagination en bas de l'écran. 
+	 * @var const UNFIXED_TITLES à utiliser dans le constructeur pour empecher la fixation de la pagination en bas de l'écran.
 	 */
 	const UNFIXED_PAGING = 256;
 	/**
-	 * @var const NO_RESULTS à utiliser dans le constructeur pour masquer la ligne contenant le nombre de résultats affichés et sélectionnés. 
+	 * @var const NO_RESULTS à utiliser dans le constructeur pour masquer la ligne contenant le nombre de résultats affichés et sélectionnés.
 	 */
 	const NO_RESULTS = 512;
 	/**
-	 * @var const NO_HELP_LINK à utiliser dans le constructeur pour masquer le bouton-lien vers la page d'aide. 
+	 * @var const NO_HELP_LINK à utiliser dans le constructeur pour masquer le bouton-lien vers la page d'aide.
 	 */
 	const NO_HELP_LINK = 1024;
 	/**
-	 * @var const DISPLAY_SEARCH à utiliser dans le constructeur pour masquer le bouton-lien vers la page d'aide. 
+	 * @var const DISPLAY_SEARCH à utiliser dans le constructeur pour masquer le bouton-lien vers la page d'aide.
 	 */
 	const DISPLAY_SEARCH = 2048;
 
@@ -187,15 +187,15 @@ class ListManager {
 		self::NO_HELP_LINK => 'setHelpLink',
 		self::DISPLAY_SEARCH => 'displaySearch'
 	];
-	
-	
+
+
 			/*-*********************
 			***   CONSTRUCTEUR   ***
 			***********************/
-	
+
 	/**
 	 * Construit un nouvel objet ListManager et définit son comportement de base.
-	 * Tous les paramètres de ce constructeurs sont facultatifs, et permettent dans l'ordre de définir l'identifiant de ListManager, la base de données à utilier pour les requêtes SQL, et un tableau 
+	 * Tous les paramètres de ce constructeurs sont facultatifs, et permettent dans l'ordre de définir l'identifiant de ListManager, la base de données à utilier pour les requêtes SQL, et un tableau
 	 * d'options pour désactiver certaines fonctionnalités de base sans passer par les setters de la classe.
 	 * @param string $id l'identifiant de l'objet, à utiliser si vous souhaitez utiliser plusieurs listes sur la même page. Dans le cas contraire, laissez à null.
 	 * @param Database|string $db l'insatnce de Database ou l'etiquette de la base de données à utiliser si nécessaire. Laissez null si vous n'avez qu'une seule base de données.
@@ -260,7 +260,7 @@ class ListManager {
 
 		// Conditions (where & having)
 		$this->manageFilter($sqlRequest, $having);
-		
+
 		// Tri (Order By)
 		if($this->_enableOrderBy){
 			if(isset($_GET['lm_orderBy'.$this->_id])){
@@ -294,7 +294,25 @@ class ListManager {
 
 			case ResponseType::EXCEL:
 				// Suppression des fichiers q'il y a plus d'un jour
-				exec('find xls/ -name "*.xlsx" -mtime +1 -delete');
+				//exec('find xls/ -name "*.xlsx" -mtime +1 -delete');
+					//****************************** HMAHFOUDHI le 24/06/2021
+				$path = LM_XLS;
+					if ($repertoir = opendir($path)) {
+
+					    while (false !== ($file = readdir($repertoir))) {
+					        $filelastmodified = filemtime($path.$file);
+					        //24 heurs par jour * 3600 seconds par heur
+					        if((time() - $filelastmodified) >  20)
+					        {
+										if(is_file($path.$file)){
+											unlink($path.$file);
+										}
+
+					        }
+					    }
+						    closedir($repertoir);
+						}
+				//******************************
 				$chemin = $this->generateExcel($reponse);
 				if($chemin !== false){
 					header('Location:'.$chemin);
@@ -313,7 +331,7 @@ class ListManager {
 					$this->_template->setCurrentPage($_GET['lm_page'.$this->_id]);
 				return $this->_template->construct($reponse);
 		}
-	
+
 		$this->addError('type de réponse non reconnu : '.$this->_responseType, 'construct');
 		return false;
 	}
@@ -325,7 +343,7 @@ class ListManager {
 	/**
 	 * Definit le format de la reponse de la methode *construct()*
 	 * A la suite de l'execution d'une requete SQL ListManager peut retourner une liste de données sous 5 formes différentes :
-	 * * TEMPLATE (par defaut) pour obtenir un string representant la liste HTML contenant toutes les donnees 
+	 * * TEMPLATE (par defaut) pour obtenir un string representant la liste HTML contenant toutes les donnees
 	 * * ARRAY pour obtenir les resultats dans un array PHP (equivalent a PDOStaement::fetchAll())
 	 * * JSON pour obtenir les donnees dans un objet encode en JSON
 	 * * EXCEL pour obtenir les resultats dans une feuille de calcul Excel
@@ -337,7 +355,7 @@ class ListManager {
 	public function setResponseType($responseType){
 		if(!in_array($responseType, range(1,5)))
 			return false;
-		
+
 		$this->_responseType = $responseType;
 		return $this;
 	}
@@ -355,9 +373,9 @@ class ListManager {
 	public function connectDatabase($dsn, $login, $mdp, $label=null){
 		if($label == null)
 			$this->_db = Database::instantiate($dsn, $login, $mdp);
-		else 
+		else
 			$this->_db = Database::instantiate($dsn, $login, $mdp, $label);
-			
+
 		if($this->_db == null) {
 			$this->addError('echec de connection : '.end(Database::getErrorMessages()), 'connectDatabase');
 			return false;
@@ -379,7 +397,7 @@ class ListManager {
 		else {
 			if($dataBase instanceof Database)
 				$this->_db = $dataBase;
-			else 
+			else
 				$this->_db = Database::getInstance($dataBase);
 		}
 		if($this->_db == null) {
@@ -407,7 +425,7 @@ class ListManager {
 		// Modif de l'id
 		if(strlen($id) > 0)
 			$id = "_$id";
-		else 
+		else
 			$id = '';
 		$this->_id = $id;
 		self::$idList[] = $id;
@@ -557,7 +575,7 @@ class ListManager {
 	public function setNbResultsPerPage($valeur){
 		if($this->_template->setNbResultsPerPage($valeur) === false)
 			return false;
-		
+
 		return $this;
 	}
 
@@ -574,9 +592,9 @@ class ListManager {
 		return $this;
 	}
 
-	/** 
+	/**
 	 * Applique un filtre par défaut sur les données de la liste.
-	 * Via cette méthode vous pourrez appliquer un filtre par défaut dans les colonnes de votre choix, que l'utilisateur pourra modifier 
+	 * Via cette méthode vous pourrez appliquer un filtre par défaut dans les colonnes de votre choix, que l'utilisateur pourra modifier
 	 * ou supprimer lors de la navigation
 	 * @param array $filter le tableau contenant toutes les conditions à rajouter. Ce tableau aura la forme suivante :
 	 * ['nomColonne1' => 'condition1', 'nomColonne2' => 'cond2A,cond2B,cond3C'] ... Il est possible de combiner les conditions en les séparant par une virgule. Ainsi la condition 'prenom' => 'Roger,Patrick' recherchera tous ceux ayant le prénom Roger ou Patrick
@@ -593,7 +611,7 @@ class ListManager {
 	public function setFilter(array $filter, $displaySearch=true){
 		if($displaySearch !== null && $this->_template->displaySearchInputs($displaySearch) === false)
 			return false;
-		
+
 		foreach ($filter as $col => $valeur) {
 			if(strlen($valeur))
 				$this->_filterArray[strtolower($col)] = $valeur;
@@ -744,7 +762,7 @@ class ListManager {
 			/*-****************
 			***   GETTERS   ***
 			******************/
-	
+
 	/**
 	 * @return string l'id de l'objet ListManager tel qu'il sera affiché dans le template (avec un underscore avant)
 	 */
@@ -765,7 +783,7 @@ class ListManager {
 	public function getFilter() {
 		return $this->_filterArray;
 	}
-	
+
 	/**
 	 * @return boolean true si l'utilisateur a modifié ou effectué une recherche.
 	 */
@@ -782,12 +800,12 @@ class ListManager {
 
 	/**
 	 * Détermine si au moins un des noms de colonne se trouve dans le tableau du masque.
-	 * @var string $column ... le nom ou les alias de la colonne 
-	 * @return bool true si la colonne est à masquer, false sinon 
+	 * @var string $column ... le nom ou les alias de la colonne
+	 * @return bool true si la colonne est à masquer, false sinon
 	 */
 	public function isMasked($column) {
 		$tabMask = array_map('strtolower', $this->_mask);
-		for ($i=0; $i < func_num_args(); $i++) { 
+		for ($i=0; $i < func_num_args(); $i++) {
 			if(in_array(strtolower(func_get_arg($i)), $tabMask))
 				return true;
 		}
@@ -821,7 +839,7 @@ class ListManager {
 	public static function isUnique() {
 		return count(self::$idList) <= 1;
 	}
-	
+
 	/**
 	 * Retourne un tableau contenant la largeur idéeale en nombre de caractere pour chaque colonne du tableau en entrée.
 	 * @param array $data le tableau des données (2 dimensions, sinon ça marche pas)
@@ -841,7 +859,7 @@ class ListManager {
 			foreach ($row as $key => $value) {
 				if(strlen($value) < 100)
 					$width = max($min, min(strlen($value), $max));
-				else 
+				else
 					$width = $this->_longColWidth;
 				if(!isset($ret[$keys[$i]]) || $ret[$keys[$i]] < $width)
 					$ret[$keys[$i]] = $width;
@@ -850,12 +868,12 @@ class ListManager {
 		}
 		return $ret;
 	}
-	
+
 
 			/*-****************
 			***   PRIVATE   ***
 			******************/
-	
+
 	/**
 	 * Gère les filtres.
 	 * Cette méthode interne récupère le filtre développeur, le lie au filtre utilisateur et détècte les différences entre les deux.
@@ -880,17 +898,17 @@ class ListManager {
 					}
 				}
 				$this->_issetUserFilter = $devFilterDiff || ($this->_filterArray === [] && !$tousVide);
-				
+
 				// Application du filtre utilisateur
 				$this->setFilter($_GET['lm_tabSelect'.$this->_id], null);
 			}
-					
+
 			// Application du filtre sur la requete SQL
 			if(count($this->_filterArray) > 0)
 				$sqlRequest->filter($this->_filterArray, $having);
 		}
 	}
-	
+
 	/**
 	 * Génère un array PHP contenant les données selectionnées.
 	 * @param RequestResponse $reponse l'objet de réponse retourné par Database
@@ -920,7 +938,7 @@ class ListManager {
 			return $donnees;
 		}
 	}
-	
+
 	/**
 	 * Génère un objet encodé en JSON à partri d'un objet RequestResponse
 	 * @param RequestResponse $reponse la réponse renvoyé par Database::execute()
@@ -951,12 +969,12 @@ class ListManager {
 		}
 		return json_encode($ret);
 	}
-	
+
 	/**
 	 * Génère un fichier excel à partir d'une réponse de requete en utilisant la bibliothèque PHPExcel.
 	 * Le fichier généré sera sauvegardé dans le dossier excel/, et le chemin complet de ce fichier sera retournée par la méthode
 	 * @param RequestResponse $reponse l'objet réponse produit par l'exécution de la requete SQL
-	 * @return bool false si erreur 
+	 * @return bool false si erreur
 	 */
 	private function generateExcel(RequestResponse $reponse) {
 		// Vérification des erreurs
@@ -968,7 +986,7 @@ class ListManager {
 			$this->addError('la foncitonnalité d\'export excel est désactivée pour cette liste', 'generateExcel');
 			return false;
 		}
-		
+
 		// Récupération du masque dans les params GET
 		$metas = $reponse->getColumnsMeta();
 		if(isset($_GET['lm_mask'.$this->_id])){
@@ -989,7 +1007,7 @@ class ListManager {
 			->setTitle("Liste de données")
 			->setSubject("Liste de données")
 			->setDescription("Feuille de données généré automatiqument à partir de l'url ".$_SERVER['REQUEST_URI']);
-		
+
 		$donnees = [];
 		while(($ligne = $reponse->nextLine()) != null)
 			$donnees[] = $ligne;
@@ -1072,7 +1090,7 @@ class ListManager {
 		// Appel au callback
 		if($this->_excelCallback !== null)
 			call_user_func_array($this->_excelCallback, [$phpExcel, $donnees, $metas, $titres]);
-		
+
 		// Ecriture du fichier
 		try {
 			$writer = \PHPExcel_IOFactory::createWriter($phpExcel, 'Excel2007');
